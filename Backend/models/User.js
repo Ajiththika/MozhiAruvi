@@ -19,6 +19,8 @@ const userSchema = new mongoose.Schema({
   schedule: { type: mongoose.Schema.Types.Mixed }, // flexible structure for now
   hourlyRate: { type: Number, default: 0 },
   languages: [{ type: String, trim: true }],
+  teachingMode: { type: String, enum: ['online', 'offline', 'both'] },
+  profilePhoto: { type: String, trim: true },
 
   // Credits & Premium
   credits: { type: Number, default: 0 },
@@ -43,8 +45,8 @@ userSchema.methods.comparePassword = function (plain) {
 };
 
 userSchema.methods.toSafeObject = function () {
-  const { _id, name, email, role, isActive, isTutorAvailable, isPremium, credits, createdAt } = this;
-  return { id: _id, name, email, role, isActive, isTutorAvailable, isPremium, credits, createdAt };
+  const { _id, name, email, role, isActive, isTutorAvailable, isPremium, credits, createdAt, teachingMode, profilePhoto } = this;
+  return { id: _id, name, email, role, isActive, isTutorAvailable, isPremium, credits, createdAt, teachingMode, profilePhoto };
 };
 
 export default mongoose.model('User', userSchema);

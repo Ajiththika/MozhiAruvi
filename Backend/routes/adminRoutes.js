@@ -24,6 +24,7 @@ router.patch('/users/:id/tutor-status', authenticate, requireRole('admin'), admi
 router.get('/teacher-applications', authenticate, requireRole('admin'), teacherApplicationController.getTeacherApplications);
 router.patch('/teacher-applications/:id/approve', authenticate, requireRole('admin'), teacherApplicationController.approveTeacherApplication);
 router.patch('/teacher-applications/:id/reject', authenticate, requireRole('admin'), teacherApplicationController.rejectTeacherApplication);
+router.patch('/teacher-applications/:id/request-revision', authenticate, requireRole('admin'), teacherApplicationController.requestRevisionTeacherApplication);
 
 // ── Event Join Request Management ────────────────────────────────────────────
 // GET  /api/admin/events/join-requests?eventId=&status=

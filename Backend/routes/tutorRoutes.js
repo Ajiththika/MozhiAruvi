@@ -22,7 +22,9 @@ const updateTutorProfileSchema = z.object({
     specialization: z.string().optional(),
     schedule: z.any().optional(),
     hourlyRate: z.number().min(0).optional(),
-    languages: z.array(z.string()).optional()
+    languages: z.array(z.string()).optional(),
+    teachingMode: z.enum(['online', 'offline', 'both']).optional(),
+    profilePhoto: z.string().url().optional().nullable(),
 }).strict();
 
 const updateAvailabilitySchema = z.object({
