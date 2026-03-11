@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import * as adminController from '../controllers/adminController.js';
+import * as teacherApplicationController from '../controllers/teacherApplicationController.js';
 import { authenticate } from '../middleware/auth.js';
 import { requireRole } from '../middleware/rbac.js';
 
@@ -17,5 +18,10 @@ router.patch('/users/:id/activate', authenticate, requireRole('admin'), adminCon
 
 // Admin functions
 router.patch('/users/:id/tutor-status', authenticate, requireRole('admin'), adminController.changeTutorStatus);
+
+// ── Teacher Application Management ──────────────────────────────────────────
+router.get('/teacher-applications', authenticate, requireRole('admin'), teacherApplicationController.getTeacherApplications);
+router.patch('/teacher-applications/:id/approve', authenticate, requireRole('admin'), teacherApplicationController.approveTeacherApplication);
+router.patch('/teacher-applications/:id/reject', authenticate, requireRole('admin'), teacherApplicationController.rejectTeacherApplication);
 
 export default router;
