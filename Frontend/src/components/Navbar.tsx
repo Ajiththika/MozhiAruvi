@@ -13,8 +13,8 @@ export default function Navbar() {
           </div>
           
           <div className="hidden md:flex items-center space-x-8">
-            <Link href="/about" className="text-muted hover:text-primary transition-colors font-medium">
-              About
+            <Link href="#lessons" className="text-muted hover:text-primary transition-colors font-medium">
+              Lessons
             </Link>
             <Link href="#tutors" className="text-muted hover:text-primary transition-colors font-medium">
               Tutors

@@ -48,11 +48,6 @@ export default function Footer() {
                   Events
                 </Link>
               </li>
-              <li>
-                <Link href="#about" className="text-muted hover:text-primary transition-colors text-sm font-medium">
-                  About Us
-                </Link>
-              </li>
             </ul>
           </div>
 
