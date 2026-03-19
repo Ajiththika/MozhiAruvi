@@ -1,0 +1,34 @@
+import React from "react";
+import { Sidebar, SidebarItem } from "@/components/layout/Sidebar";
+import { Topbar } from "@/components/layout/Topbar";
+import { RoleProtectedRoute } from "@/components/auth/RoleProtectedRoute";
+
+// Only plain serializable objects — no React components as values
+const studentLinks: SidebarItem[] = [
+  { name: "Dashboard",  href: "/student/dashboard",  icon: "home" },
+  { name: "Lessons",    href: "/student/lessons",     icon: "book-open" },
+  { name: "Progress",   href: "/student/progress",    icon: "line-chart" },
+  { name: "Vocabulary", href: "/student/vocabulary",  icon: "library-big" },
+  { name: "Tutors",     href: "/student/tutors",      icon: "users" },
+  { name: "Events",     href: "/student/events",      icon: "calendar" },
+  { name: "Premium",    href: "/student/premium",     icon: "sparkles" },
+  { name: "Settings",   href: "/student/settings",    icon: "settings" },
+];
+
+export default function StudentLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <RoleProtectedRoute allowedRoles={["user"]}>
+      <div className="flex min-h-screen w-full bg-slate- dark:bg-slate-">
+        <Sidebar items={studentLinks} basePath="/student/dashboard" />
+        <div className="flex flex-1 flex-col overflow-hidden">
+          <Topbar title="Student Portal" />
+          <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8">
+            <div className="mx-auto max-w-7xl animate-in fade-in zoom-in-95 duration-300">
+              {children}
+            </div>
+          </main>
+        </div>
+      </div>
+    </RoleProtectedRoute>
+  );
+}

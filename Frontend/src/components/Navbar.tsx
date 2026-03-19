@@ -22,6 +22,9 @@ export default function Navbar() {
             <Link href="/events" className="text-muted hover:text-primary transition-colors font-medium">
               Events
             </Link>
+            <Link href="/blogs" className="text-muted hover:text-primary transition-colors font-medium">
+              Blogs
+            </Link>
           </div>
           
           <div className="flex items-center space-x-4">

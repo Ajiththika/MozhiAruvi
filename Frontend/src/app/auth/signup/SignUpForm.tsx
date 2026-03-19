@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { AuthInput, SocialLogin } from '../shared';
 import { register } from '@/services/authService';
+import { getRoleDashboardRoute } from '@/lib/roleUtils';
 import { isAxiosError } from 'axios';
 
 export default function SignUpForm() {
@@ -28,8 +29,8 @@ export default function SignUpForm() {
     setLoading(true);
 
     try {
-      await register({ name, email, password });
-      router.push('/dashboard'); // or wherever the user should go
+      const res = await register({ name, email, password });
+      router.push(getRoleDashboardRoute(res.user.role));
     } catch (err) {
       if (isAxiosError(err) && err.response?.data?.error?.message) {
         setError(err.response.data.error.message);

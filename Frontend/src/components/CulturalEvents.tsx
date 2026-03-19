@@ -66,7 +66,7 @@ export default function CulturalEvents() {
                     {event.icon}
                   </div>
                   <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-full ${
-                    event.type === 'Online' ? 'bg-blue-100 text-primary-dark' : 'bg-green-100 text-green-700'
+                    event.type === 'Online' ? 'bg-mozhi-light text-primary-dark' : 'bg-green-100 text-green-700'
                   }`}>
                     {event.type}
                   </span>

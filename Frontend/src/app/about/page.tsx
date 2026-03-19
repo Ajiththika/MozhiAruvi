@@ -297,7 +297,7 @@ export default function AboutPage() {
                     <h4 className="font-bold text-accent-text text-lg leading-tight">{event.title}</h4>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-full ${event.type === "Online" ? "bg-blue-100 text-primary-dark" : "bg-green-100 text-green-700"}`}>
+                    <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-full ${event.type === "Online" ? "bg-mozhi-light text-primary-dark" : "bg-green-100 text-green-700"}`}>
                       {event.type}
                     </span>
                     <span className="text-sm text-muted font-medium">{event.date}</span>

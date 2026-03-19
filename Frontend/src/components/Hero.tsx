@@ -12,7 +12,7 @@ const tamilDecorations = [
   {
     char: "அ",
     className:
-      "top-[-20px] left-[-10px] text-[160px] text-blue-400 opacity-[0.7] -rotate-12",
+      "top-[-20px] left-[-10px] text-[160px] text-mozhi-secondary opacity-[0.7] -rotate-12",
   },
   {
     char: "ழ",
@@ -29,7 +29,7 @@ const tamilDecorations = [
   {
     char: "ஞ",
     className:
-      "top-[5%] right-[-10px] text-[160px] text-blue-400 opacity-[0.7] rotate-12",
+      "top-[5%] right-[-10px] text-[160px] text-mozhi-secondary opacity-[0.7] rotate-12",
   },
   {
     char: "க",

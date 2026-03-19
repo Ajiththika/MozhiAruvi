@@ -1,0 +1,132 @@
+"use client";
+
+import React from "react";
+import { cn } from "@/lib/utils";
+import { Search, ChevronLeft, ChevronRight } from "lucide-react";
+
+export interface ColumnDef<T> {
+  header: string;
+  accessorKey: keyof T | ((row: T) => React.ReactNode);
+  className?: string;
+  cell?: (row: T) => React.ReactNode;
+}
+
+export interface DataTableProps<T> {
+  columns: ColumnDef<T>[];
+  data: T[];
+  title?: string;
+  description?: string;
+  onSearch?: (value: string) => void;
+  isLoading?: boolean;
+}
+
+export function DataTable<T>({
+  columns,
+  data,
+  title,
+  description,
+  onSearch,
+  isLoading,
+}: DataTableProps<T>) {
+  return (
+    <div className="flex flex-col overflow-hidden rounded-xl border border-slate- bg-white shadow-sm dark:border-slate- dark:bg-slate-">
+      {(title || description || onSearch) && (
+        <div className="flex flex-col gap-4 border-b border-slate- px-6 py-5 dark:border-slate- md:flex-row md:items-center md:justify-between">
+          <div>
+            {title && (
+              <h3 className="text-lg font-semibold text-slate- dark:text-slate-">
+                {title}
+              </h3>
+            )}
+            {description && (
+              <p className="mt-1 text-sm text-slate- dark:text-slate-">
+                {description}
+              </p>
+            )}
+          </div>
+          {onSearch && (
+             <div className="relative w-full max-w-sm">
+                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-" />
+                 <input
+                     type="text"
+                     onChange={(e) => onSearch(e.target.value)}
+                     placeholder="Search..."
+                     className="w-full rounded-md border border-slate- bg-slate- py-2 pl-9 pr-3 text-sm focus:border-mozhi-primary focus:outline-none focus:ring-1 focus:ring-mozhi-primary dark:border-slate- dark:bg-slate- dark:text-slate-"
+                 />
+             </div>
+          )}
+        </div>
+      )}
+
+      <div className="overflow-x-auto">
+        <table className="w-full text-left text-sm">
+          <thead className="bg-slate- text-xs uppercase text-slate- dark:bg-slate-/50 dark:text-slate-">
+            <tr>
+              {columns.map((col, i) => (
+                <th
+                  key={i}
+                  scope="col"
+                  className={cn("px-6 py-3 font-medium tracking-wider", col.className)}
+                >
+                  {col.header}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-zinc-200 bg-white dark:divide-zinc-800 dark:bg-slate-">
+            {isLoading ? (
+               <tr>
+                 <td colSpan={columns.length} className="px-6 py-8 text-center text-slate-">
+                    Loading data...
+                 </td>
+               </tr>
+            ) : data.length === 0 ? (
+               <tr>
+                 <td colSpan={columns.length} className="px-6 py-8 text-center text-slate-">
+                    No results found.
+                 </td>
+               </tr>
+            ) : (
+                data.map((row, rowIndex) => (
+                <tr
+                  key={rowIndex}
+                  className="transition-colors hover:bg-slate- dark:hover:bg-slate-/50"
+                >
+                  {columns.map((col, colIndex) => (
+                    <td
+                      key={colIndex}
+                      className={cn(
+                        "whitespace-nowrap px-6 py-4 text-slate- dark:text-slate-",
+                        col.className
+                      )}
+                    >
+                      {col.cell
+                        ? col.cell(row)
+                        : typeof col.accessorKey === "function"
+                        ? col.accessorKey(row)
+                        : (row[col.accessorKey as keyof T] as React.ReactNode)}
+                    </td>
+                  ))}
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      <div className="flex items-center justify-between border-t border-slate- px-6 py-3 dark:border-slate-">
+         <span className="text-sm text-slate- dark:text-slate-">
+             Showing <span className="font-medium text-slate- dark:text-slate-">{data.length}</span> results
+         </span>
+         <div className="flex items-center gap-2">
+             <button className="flex h-8 w-8 items-center justify-center rounded-md border border-slate- bg-white text-slate- hover:bg-slate- disabled:opacity-50 dark:border-slate- dark:bg-slate- dark:hover:bg-slate-">
+                 <ChevronLeft className="h-4 w-4" />
+             </button>
+             <button className="flex h-8 w-8 items-center justify-center rounded-md border border-slate- bg-white text-slate- hover:bg-slate- disabled:opacity-50 dark:border-slate- dark:bg-slate- dark:hover:bg-slate-">
+                 <ChevronRight className="h-4 w-4" />
+             </button>
+         </div>
+      </div>
+    </div>
+  );
+}

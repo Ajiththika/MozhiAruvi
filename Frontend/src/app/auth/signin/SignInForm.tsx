@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { AuthInput, SocialLogin } from '../shared';
 import { login } from '@/services/authService';
+import { getRoleDashboardRoute } from '@/lib/roleUtils';
 import { isAxiosError } from 'axios';
 
 export default function SignInForm() {
@@ -20,13 +21,20 @@ export default function SignInForm() {
     setLoading(true);
 
     try {
-      await login({ email, password });
-      router.push('/dashboard'); // or wherever the user should go
+      const res = await login({ email, password });
+      router.push(getRoleDashboardRoute(res.user.role));
     } catch (err) {
-      if (isAxiosError(err) && err.response?.data?.error?.message) {
-        setError(err.response.data.error.message);
+      if (isAxiosError(err)) {
+        if (!err.response) {
+          // Network error — backend is not reachable
+          setError("Cannot reach the server. Please make sure the backend is running on port 5000.");
+        } else if (err.response?.data?.error?.message) {
+          setError(err.response.data.error.message);
+        } else {
+          setError(`Server error (${err.response.status}). Please try again.`);
+        }
       } else {
-        setError("Failed to sign in. Please try again.");
+        setError("An unexpected error occurred. Please try again.");
       }
     } finally {
       setLoading(false);

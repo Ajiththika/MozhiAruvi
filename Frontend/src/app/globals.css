@@ -1,19 +1,27 @@
 @import "tailwindcss";
 
 @theme {
-  --color-primary: #2563EB;
-  --color-primary-dark: #1D4ED8;
-  --color-secondary: #3B82F6;
-  --color-light-blue: #DBEAFE;
-  --color-soft-bg: #F8FBFF;
-  --color-accent-text: #0F172A;
-  --color-muted: #475569;
-  --color-border-color: #CBD5E1;
-  --color-accent-gold: #F59E0B;
+  /* Core Brand Colors */
+  --color-mozhi-dark: #17325C;
+  --color-mozhi-primary: #2A5794;
+  --color-mozhi-secondary: #4F84B5;
+  --color-mozhi-soft: #93B8C6;
+  --color-mozhi-light: #C1DBE4;
+
+  /* Legacy aliases for backward compatibility with existing codebase */
+  --color-primary: var(--color-mozhi-primary);
+  --color-primary-dark: var(--color-mozhi-dark);
+  --color-secondary: var(--color-mozhi-secondary);
+  --color-light-blue: var(--color-mozhi-light);
+  --color-soft-bg: #f8fafc; /* slate-50 */
+  --color-accent-text: #0f172a; /* slate-900 */
+  --color-muted: #64748b; /* slate-500 */
+  --color-border-color: #e2e8f0; /* slate-200 */
+  --color-accent-gold: #F59E0B; /* Keeping only if functionally necessary elsewhere */
 }
 
 body {
-  background-color: var(--color-soft-bg);
-  color: var(--color-accent-text);
+  background-color: #f8fafc; /* Tailwind slate-50 */
+  color: #0f172a; /* Tailwind slate-900 */
   scroll-behavior: smooth;
 }

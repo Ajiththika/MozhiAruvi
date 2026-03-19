@@ -118,7 +118,7 @@ function EventTypeBadge({ type }: { type: string }) {
   return (
     <span
       className={`text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full ${type === "Online"
-          ? "bg-blue-100 text-blue-700"
+          ? "bg-mozhi-light text-mozhi-primary"
           : "bg-green-100 text-green-700"
         }`}
     >
@@ -194,7 +194,7 @@ export default function EventsPage() {
               </div>
             </div>
 
-            <div className="bg-white rounded-3xl border border-border-color shadow-2xl overflow-hidden">
+            <div className="bg-mozhi-light/20 backdrop-blur border border-mozhi-soft/20 rounded-3xl overflow-hidden shadow-lg shadow-mozhi-dark/5">
               <div className="flex flex-col lg:flex-row">
 
                 {/* Left — Image placeholder */}
@@ -337,7 +337,7 @@ export default function EventsPage() {
               {pastEvents.map((event) => (
                 <div
                   key={event.id}
-                  className="bg-white rounded-2xl border border-border-color p-6 hover:shadow-md transition-all duration-300 group opacity-90 hover:opacity-100 flex flex-col"
+                  className="bg-mozhi-light/20 backdrop-blur-sm rounded-2xl border border-mozhi-soft/20 p-6 hover:shadow-md hover:border-mozhi-soft/50 transition-all duration-300 group flex flex-col"
                 >
                   <div className="text-3xl mb-4 group-hover:scale-110 transition-transform">{event.emoji}</div>
 
@@ -395,16 +395,16 @@ export default function EventsPage() {
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <PrimaryButton
                 href="/auth/signup"
-                className="bg-white text-primary hover:bg-blue-50 shadow-xl"
+                className="bg-transparent border border-white/30 text-white hover:bg-white/10 shadow-none font-semibold px-6 py-3"
               >
                 Create Free Account
               </PrimaryButton>
-              <SecondaryButton
+              <PrimaryButton
                 href="/lessons"
-                className="border-white/40 text-white hover:bg-white/10 hover:border-white/70"
+                className="bg-transparent border border-white/30 text-white hover:bg-white/10 shadow-none font-semibold px-6 py-3"
               >
                 Browse Lessons
-              </SecondaryButton>
+              </PrimaryButton>
             </div>
 
             <p className="mt-8 text-sm text-blue-200/70">
