@@ -1,12 +1,12 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import {
-  ArrowLeft, Play, HelpCircle, Loader2, AlertCircle, CheckCircle2, XCircle, Info, BookOpen
+  ArrowLeft, Play, HelpCircle, Loader2, AlertCircle, CheckCircle2, XCircle, Info, BookOpen, Mic, MicOff, SettingsIcon
 } from "lucide-react";
-import { getLessonById, getLessonQuestions, submitAnswers, Lesson, Question } from "@/services/lessonService";
+import { getLessonById, getLessonQuestions, submitAnswers, evaluateSpeaking, Lesson, Question } from "@/services/lessonService";
 import { cn } from "@/lib/utils";
 
 type Phase = "loading" | "error" | "ready" | "submitted";
@@ -20,10 +20,17 @@ export default function LessonDetail() {
   const [selected, setSelected] = useState<Record<string, number>>({});
   const [feedback, setFeedback] = useState<Record<string, "correct" | "incorrect">>({});
   const [wrongAttempts, setWrongAttempts] = useState<Record<string, number>>({});
+  const [backendMessage, setBackendMessage] = useState<Record<string, string>>({});
   const [phase, setPhase] = useState<Phase>("loading");
   const [score, setScore] = useState<{ score: number; total: number; passed: boolean } | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [currentQ, setCurrentQ] = useState(0);
+
+  // Audio Recording State
+  const [isRecording, setIsRecording] = useState(false);
+  const [isProcessingAudio, setIsProcessingAudio] = useState(false);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const chunksRef = useRef<BlobPart[]>([]);
 
   useEffect(() => {
     Promise.all([getLessonById(id), getLessonQuestions(id)])
@@ -39,17 +46,13 @@ export default function LessonDetail() {
   const progress = questions.length > 0 ? Math.round((correctAnswersCount / questions.length) * 100) : 0;
 
   const handleSelect = (qId: string, idx: number, correctIdx?: number) => {
-    // Lock if already correctly answered
     if (feedback[qId] === "correct") return;
-
     setSelected((prev) => ({ ...prev, [qId]: idx }));
 
     if (idx === correctIdx) {
       setFeedback((prev) => ({ ...prev, [qId]: "correct" }));
       setTimeout(() => {
-        if (currentQ < questions.length - 1) {
-          setCurrentQ((c) => c + 1);
-        }
+        if (currentQ < questions.length - 1) setCurrentQ((c) => c + 1);
       }, 1000);
     } else {
       setFeedback((prev) => ({ ...prev, [qId]: "incorrect" }));
@@ -61,16 +64,72 @@ export default function LessonDetail() {
     if (currentQ < questions.length - 1) setCurrentQ((c) => c + 1);
   };
 
+  const handleStartRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const recorder = new MediaRecorder(stream);
+      mediaRecorderRef.current = recorder;
+      chunksRef.current = [];
+
+      recorder.ondataavailable = (e) => chunksRef.current.push(e.data);
+      recorder.onstop = async () => {
+        const audioBlob = new Blob(chunksRef.current, { type: 'audio/webm' });
+        const reader = new FileReader();
+        reader.readAsDataURL(audioBlob);
+        reader.onloadend = async () => {
+          const base64Audio = reader.result as string;
+          await processSpeakingAttempt(base64Audio);
+        };
+        stream.getTracks().forEach(track => track.stop());
+      };
+
+      recorder.start();
+      setIsRecording(true);
+    } catch (err) {
+      alert("Microphone access is required for speaking exercises.");
+    }
+  };
+
+  const handleStopRecording = () => {
+    if (mediaRecorderRef.current && isRecording) {
+      mediaRecorderRef.current.stop();
+      setIsRecording(false);
+      setIsProcessingAudio(true);
+    }
+  };
+
+  const processSpeakingAttempt = async (base64Audio: string) => {
+    const qId = questions[currentQ]._id;
+    try {
+      const result = await evaluateSpeaking(id, qId, base64Audio);
+      if (result.passed) {
+        setFeedback((prev) => ({ ...prev, [qId]: "correct" }));
+        setBackendMessage((prev) => ({ ...prev, [qId]: result.message }));
+        setSelected((prev) => ({ ...prev, [qId]: 0 })); // mark as answered internally
+        setTimeout(() => {
+          if (currentQ < questions.length - 1) setCurrentQ((c) => c + 1);
+        }, 2000);
+      } else {
+        setFeedback((prev) => ({ ...prev, [qId]: "incorrect" }));
+        setWrongAttempts((prev) => ({ ...prev, [qId]: (prev[qId] || 0) + 1 }));
+        setBackendMessage((prev) => ({ ...prev, [qId]: result.message }));
+      }
+    } catch {
+      alert("Failed to evaluate speech. Please try again.");
+    } finally {
+      setIsProcessingAudio(false);
+    }
+  };
+
   const handleSubmit = async () => {
     setSubmitting(true);
     try {
-      // Create answers payload only using selected responses
-      const answers = Object.entries(selected).map(([questionId, selectedOptionIndex]) => ({
-        questionId,
-        selectedOptionIndex,
-      }));
+      const answers = Object.entries(selected).map(([questionId, selectedOptionIndex]) => {
+         const isSpeaking = questions.find(q => q._id === questionId)?.type === 'speaking';
+         return { questionId, selectedOptionIndex: isSpeaking ? 0 : selectedOptionIndex, isSpeakingCompleted: isSpeaking ? true : undefined };
+      });
       const result = await submitAnswers(id, answers);
-      setScore({ ...result, score: correctAnswersCount * 10, total: questions.length * 10 }); // Frontend override for UI simplicity
+      setScore({ ...result, score: correctAnswersCount * 10, total: questions.length * 10 });
       setPhase("submitted");
     } catch {
       alert("Failed to save progress");
@@ -123,7 +182,7 @@ export default function LessonDetail() {
           </Link>
           {!score.passed && (
             <button
-              onClick={() => { setPhase("ready"); setSelected({}); setFeedback({}); setWrongAttempts({}); setCurrentQ(0); }}
+              onClick={() => { setPhase("ready"); setSelected({}); setFeedback({}); setWrongAttempts({}); setCurrentQ(0); setBackendMessage({}); }}
               className="rounded-2xl bg-mozhi-primary px-8 py-3.5 text-sm font-bold text-white shadow-lg shadow-mozhi-primary/20 transition-transform active:scale-95 hover:bg-mozhi-primary-dark"
             >
               Try Again
@@ -138,6 +197,7 @@ export default function LessonDetail() {
   const qId = currentQuestion?._id;
   const currFeedback = qId ? feedback[qId] : null;
   const attempts = qId ? (wrongAttempts[qId] || 0) : 0;
+  const backendMsg = qId ? backendMessage[qId] : null;
 
   return (
     <div className="flex flex-col min-h-[85vh] animate-in fade-in duration-500 max-w-4xl mx-auto">
@@ -183,59 +243,115 @@ export default function LessonDetail() {
       ) : (
         /* Quiz mode (Duolingo Style Progression) */
         <div className="mt-8 flex w-full flex-1 flex-col items-center justify-start text-center pt-8">
-          <h2 className="text-3xl font-bold text-slate-800 dark:text-slate-100">
+          {currentQuestion.type === 'speaking' ? (
+             <div className="flex items-center gap-2 mb-6 px-4 py-2 bg-indigo-50 border border-indigo-200 rounded-full text-indigo-700 text-sm font-bold dark:bg-indigo-900/40 dark:border-indigo-800 dark:text-indigo-300">
+               <Mic className="w-4 h-4" /> Speaking Practice
+             </div>
+          ) : null}
+
+          <h2 className={cn("font-bold text-slate-800 dark:text-slate-100", currentQuestion.type === 'speaking' ? "text-2xl" : "text-3xl")}>
             {currentQuestion.text}
           </h2>
+          
+          {currentQuestion.type === 'speaking' && currentQuestion.expectedAudioText && (
+             <h3 className="mt-8 text-5xl font-black text-mozhi-primary dark:text-mozhi-secondary">
+               {currentQuestion.expectedAudioText}
+             </h3>
+          )}
 
-          <div className="mt-12 grid w-full max-w-2xl grid-cols-1 gap-4 sm:grid-cols-2">
-            {currentQuestion.options.map((opt, idx) => {
-              const isSelected = selected[qId] === idx;
-              let btnState = "default";
-              
-              if (isSelected && currFeedback === "correct") btnState = "correct";
-              if (isSelected && currFeedback === "incorrect") btnState = "incorrect";
-              if (currFeedback === "correct" && idx === currentQuestion.correctOptionIndex) btnState = "correct"; // Highlight correct answer if they failed earlier? (Optional, let's keep it clean)
+          {currentQuestion.type === 'speaking' ? (
+             <div className="mt-14 w-full max-w-xl flex flex-col items-center justify-center">
+                <p className="text-sm text-slate-500 font-bold mb-6 dark:text-slate-400">
+                   {isRecording ? "Recording... Tap to stop" : isProcessingAudio ? "Checking pronunciation..." : currFeedback === "correct" ? "Great job!" : "Tap the microphone and say it aloud"}
+                </p>
+                <div className="relative">
+                   {isRecording && <div className="absolute inset-0 bg-red-400 rounded-full animate-ping opacity-30 scale-150" />}
+                   <button
+                     onClick={isRecording ? handleStopRecording : handleStartRecording}
+                     disabled={isProcessingAudio || currFeedback === "correct"}
+                     className={cn(
+                        "relative flex h-24 w-24 items-center justify-center rounded-full shadow-lg transition-all focus:outline-none focus:ring-4 focus:ring-offset-4 dark:focus:ring-offset-slate-900",
+                        isRecording 
+                           ? "bg-red-500 text-white hover:bg-red-600 shadow-red-500/40 focus:ring-red-500/30 scale-105"
+                           : isProcessingAudio || currFeedback === "correct"
+                           ? "bg-slate-200 text-slate-400 shadow-none cursor-not-allowed dark:bg-slate-800 dark:text-slate-600"
+                           : "bg-mozhi-primary text-white hover:bg-mozhi-primary-dark shadow-mozhi-primary/40 focus:ring-mozhi-primary/30 hover:scale-105"
+                     )}
+                   >
+                     {isProcessingAudio ? (
+                        <Loader2 className="h-10 w-10 animate-spin" />
+                     ) : isRecording ? (
+                        <MicOff className="h-10 w-10" />
+                     ) : (
+                        <Mic className="h-10 w-10" />
+                     )}
+                   </button>
+                </div>
+             </div>
+          ) : (
+            <div className="mt-12 grid w-full max-w-2xl grid-cols-1 gap-4 sm:grid-cols-2">
+              {currentQuestion.options.map((opt, idx) => {
+                const isSelected = selected[qId] === idx;
+                let btnState = "default";
+                if (isSelected && currFeedback === "correct") btnState = "correct";
+                if (isSelected && currFeedback === "incorrect") btnState = "incorrect";
+                if (currFeedback === "correct" && idx === currentQuestion.correctOptionIndex) btnState = "correct"; 
 
-              return (
-                <button
-                  key={idx}
-                  onClick={() => handleSelect(qId, idx, currentQuestion.correctOptionIndex)}
-                  disabled={currFeedback === "correct"}
-                  className={cn(
-                     "relative rounded-2xl border-2 p-5 text-lg font-bold transition-all disabled:opacity-90",
-                     btnState === "correct" 
-                        ? "border-emerald-500 bg-emerald-50 text-emerald-700 dark:border-emerald-500 dark:bg-emerald-950/40 dark:text-emerald-400 scale-[1.02]"
-                        : btnState === "incorrect"
-                        ? "border-red-400 bg-red-50 text-red-700 dark:border-red-500 dark:bg-red-950/40 dark:text-red-400"
-                        : "border-slate-200 bg-white text-slate-700 hover:border-mozhi-primary hover:bg-mozhi-primary/5 active:scale-95 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:border-mozhi-primary dark:hover:bg-slate-800/80"
-                  )}
-                >
-                  {opt}
-                </button>
-              );
-            })}
-          </div>
+                return (
+                  <button
+                    key={idx}
+                    onClick={() => handleSelect(qId, idx, currentQuestion.correctOptionIndex)}
+                    disabled={currFeedback === "correct"}
+                    className={cn(
+                       "relative rounded-2xl border-2 p-5 text-lg font-bold transition-all disabled:opacity-90",
+                       btnState === "correct" 
+                          ? "border-emerald-500 bg-emerald-50 text-emerald-700 dark:border-emerald-500 dark:bg-emerald-950/40 dark:text-emerald-400 scale-[1.02]"
+                          : btnState === "incorrect"
+                          ? "border-red-400 bg-red-50 text-red-700 dark:border-red-500 dark:bg-red-950/40 dark:text-red-400"
+                          : "border-slate-200 bg-white text-slate-700 hover:border-mozhi-primary hover:bg-mozhi-primary/5 active:scale-95 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:border-mozhi-primary dark:hover:bg-slate-800/80"
+                    )}
+                  >
+                    {opt}
+                  </button>
+                );
+              })}
+            </div>
+          )}
 
           {/* Logic Retry Feedback */}
           {currFeedback === "incorrect" && (
-             <div className="mt-8 flex items-start gap-3 text-left w-full max-w-2xl bg-red-50 border border-red-200 rounded-2xl p-4 dark:bg-red-950/20 dark:border-red-900/40">
+             <div className="mt-8 flex items-start gap-3 text-left w-full max-w-2xl bg-red-50 border border-red-200 rounded-2xl p-4 dark:bg-red-950/20 dark:border-red-900/40 animate-in slide-in-from-bottom-2">
                 <AlertCircle className="h-6 w-6 text-red-500 shrink-0 mt-0.5" />
                 <div>
-                   <p className="font-bold text-red-800 dark:text-red-400">Not quite right.</p>
-                   {attempts === 1 && <p className="text-sm font-medium text-red-700 mt-1 dark:text-red-300">Try sounding out the letters carefully.</p>}
-                   {attempts >= 2 && <p className="text-sm font-medium text-red-700 mt-1 dark:text-red-300">Think about standard grammatical shapes. Try again.</p>}
+                   <p className="font-bold text-red-800 dark:text-red-400">
+                     {currentQuestion.type === 'speaking' ? "We couldn't quite catch that." : "Not quite right."}
+                   </p>
+                   {attempts === 1 && <p className="text-sm font-medium text-red-700 mt-1 dark:text-red-300">
+                     {currentQuestion.type === 'speaking' ? "Make sure you're in a quiet place and speaking clearly. Let's try once more." : "Try sounding out the letters carefully."}
+                   </p>}
+                   {attempts >= 2 && <p className="text-sm font-medium text-red-700 mt-1 dark:text-red-300">
+                     {currentQuestion.type === 'speaking' ? "Remember to emphasize the vowel sound completely before ending the word. You can do this!" : "Think about standard grammatical shapes. Try again."}
+                   </p>}
+                   {backendMsg && <p className="text-xs font-semibold text-red-900/50 mt-2 dark:text-red-200/50">{backendMsg}</p>}
                 </div>
              </div>
           )}
 
           {currFeedback === "correct" && (
-             <div className="mt-8 flex items-center justify-between gap-3 text-left w-full max-w-2xl bg-emerald-50 border border-emerald-200 rounded-2xl p-4 dark:bg-emerald-950/30 dark:border-emerald-900/50">
-                <div className="flex items-center gap-3 text-emerald-800 dark:text-emerald-400 font-bold text-lg">
-                   <CheckCircle2 className="h-6 w-6" /> Excellent!
+             <div className="mt-8 flex items-start gap-3 text-left w-full max-w-2xl bg-emerald-50 border border-emerald-200 rounded-2xl p-4 dark:bg-emerald-950/30 dark:border-emerald-900/50 animate-in slide-in-from-bottom-2">
+                <div className="flex h-8 w-8 items-center justify-center shrink-0 rounded-full bg-emerald-200 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-400 mt-0.5">
+                   <CheckCircle2 className="h-5 w-5" />
+                </div>
+                <div>
+                   <p className="font-bold text-emerald-800 dark:text-emerald-400 text-lg">Excellent!</p>
+                   {backendMsg && (
+                     <div className="mt-2 text-xs font-medium text-emerald-700 dark:text-emerald-500 flex items-center gap-1.5 opacity-80 bg-emerald-100 dark:bg-emerald-900/50 px-2 py-1 rounded inline-flex">
+                       <SettingsIcon className="h-3 w-3" /> {backendMsg}
+                     </div>
+                   )}
                 </div>
              </div>
           )}
-
         </div>
       )}
 

@@ -3,118 +3,126 @@
 import React, { useState } from "react";
 import { createBlog } from "@/services/blogService";
 import { useRouter } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Loader2, CheckCircle2, AlertCircle, Save, Send } from "lucide-react";
+import Link from "next/link";
+
+const CATEGORIES = ["Grammar", "Culture", "Pronunciation", "Tutor Tips", "Updates", "General"];
+
+const inputCls = "w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60 px-4 py-3 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:border-mozhi-primary focus:ring-2 focus:ring-mozhi-primary/20 outline-none transition";
 
 export default function CreateBlogPage() {
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState({
-    title: "",
-    content: "",
-    excerpt: "",
-    category: "",
-    featuredImage: "",
-    status: "draft" as "draft" | "pending"
+  const [submitting, setSubmitting] = useState(false);
+  const [banner, setBanner] = useState<{ type: "success" | "error"; message: string } | null>(null);
+  const [form, setForm] = useState({
+    title: "", content: "", excerpt: "", category: "", featuredImage: "",
   });
-
-  const handleSubmit = async (e: React.FormEvent, isDraft: boolean) => {
-    e.preventDefault();
-    setLoading(true);
-    try {
-      await createBlog({
-        ...formData,
-        status: isDraft ? "draft" : "pending"
-      });
-      alert(isDraft ? "Draft saved!" : "Blog submitted for review!");
-      router.push("/student/blogs");
-    } catch (err: any) {
-      console.error(err);
-      alert(err.response?.data?.message || err.message || "Failed to create blog");
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  return (
-    <div className="animate-in fade-in duration-500 max-w-4xl mx-auto">
-      <button onClick={() => router.push('/student/blogs')} className="mb-6 text-slate-500 hover:text-mozhi-primary flex items-center gap-2 transition-colors">
-        <ArrowLeft className="w-4 h-4" /> Back to My Blogs
-      </button>
+  const handleSubmit = async (isDraft: boolean) => {
+    if (!form.title.trim() || !form.content.trim()) {
+      setBanner({ type: "error", message: "Title and Content are required." });
+      return;
+    }
+    setSubmitting(true);
+    setBanner(null);
+    try {
+      await createBlog({ ...form, status: isDraft ? "draft" : "pending" });
+      setBanner({ type: "success", message: isDraft ? "Draft saved successfully!" : "Post submitted for review!" });
+      setTimeout(() => router.push("/student/blogs"), 1500);
+    } catch (err: any) {
+      setBanner({ type: "error", message: err?.response?.data?.message || "Failed to create post. Please try again." });
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
-      <div className="bg-white rounded-2xl border border-slate-200 p-8 md:p-12 shadow-sm">
-        <h1 className="text-3xl font-extrabold text-slate-900 mb-8">Write a new post</h1>
-        
-        <form className="space-y-6">
+  const wordCount = form.content.trim() ? form.content.trim().split(/\s+/).length : 0;
+
+  return (
+    <div className="animate-in fade-in duration-500 max-w-3xl mx-auto">
+      <Link href="/student/blogs" className="mb-6 inline-flex items-center gap-2 text-sm font-semibold text-slate-500 hover:text-mozhi-primary dark:text-slate-400 transition-colors">
+        <ArrowLeft className="w-4 h-4" /> Back to My Posts
+      </Link>
+
+      <div className="bg-white dark:bg-slate-800/60 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm p-6 md:p-10">
+        <div className="mb-8">
+          <h1 className="text-2xl font-extrabold text-slate-900 dark:text-slate-100">Write a New Post</h1>
+          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Share your Tamil learning experiences with the community.</p>
+        </div>
+
+        {/* Banner */}
+        {banner && (
+          <div className={`mb-6 flex items-start gap-3 rounded-2xl border px-4 py-3 text-sm font-medium animate-in slide-in-from-top-2 ${
+            banner.type === "success"
+              ? "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900/40 dark:bg-emerald-950/20 dark:text-emerald-400"
+              : "border-red-200 bg-red-50 text-red-700 dark:border-red-900/40 dark:bg-red-950/20 dark:text-red-400"
+          }`}>
+            {banner.type === "success" ? <CheckCircle2 className="h-5 w-5 shrink-0 mt-0.5" /> : <AlertCircle className="h-5 w-5 shrink-0 mt-0.5" />}
+            {banner.message}
+          </div>
+        )}
+
+        <div className="space-y-5">
+          {/* Title */}
           <div>
-            <label className="block text-sm font-semibold text-slate-700 mb-2">Title *</label>
-            <input 
-              type="text" name="title" required value={formData.title} onChange={handleChange}
-              className="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm focus:border-mozhi-primary focus:ring-1 focus:ring-mozhi-primary outline-none transition transition-shadow bg-slate-50 relative z-10"
-              placeholder="E.g., My experience learning Tamil"
-            />
+            <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1.5">Title <span className="text-red-500">*</span></label>
+            <input type="text" name="title" required value={form.title} onChange={handleChange} className={inputCls} placeholder="E.g., My experience learning Tamil vowels" />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Category + Image */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-2">Category</label>
-              <select name="category" value={formData.category} onChange={handleChange} className="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm focus:border-mozhi-primary outline-none transition bg-slate-50">
-                <option value="">Select Category...</option>
-                <option value="Grammar">Grammar</option>
-                <option value="Culture">Culture</option>
-                <option value="Pronunciation">Pronunciation</option>
-                <option value="Tutor Tips">Tutor Tips</option>
-                <option value="Updates">Updates</option>
-                <option value="General">General</option>
+              <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1.5">Category</label>
+              <select name="category" value={form.category} onChange={handleChange} className={inputCls}>
+                <option value="">Select Category…</option>
+                {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
               </select>
             </div>
             <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-2">Featured Image URL</label>
-              <input 
-                type="url" name="featuredImage" value={formData.featuredImage} onChange={handleChange}
-                className="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm focus:border-mozhi-primary focus:ring-1 focus:ring-mozhi-primary outline-none transition bg-slate-50"
-                placeholder="https://example.com/image.jpg"
-              />
+              <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1.5">Featured Image URL</label>
+              <input type="url" name="featuredImage" value={form.featuredImage} onChange={handleChange} className={inputCls} placeholder="https://example.com/image.jpg" />
             </div>
           </div>
 
+          {/* Excerpt */}
           <div>
-            <label className="block text-sm font-semibold text-slate-700 mb-2">Excerpt (Short Summary)</label>
-            <textarea 
-              name="excerpt" rows={2} value={formData.excerpt} onChange={handleChange}
-              className="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm focus:border-mozhi-primary focus:ring-1 focus:ring-mozhi-primary outline-none transition bg-slate-50"
-              placeholder="A brief summary of your post..."
-            />
+            <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1.5">Excerpt <span className="text-slate-400 font-normal">(Short summary)</span></label>
+            <textarea name="excerpt" rows={2} value={form.excerpt} onChange={handleChange} className={inputCls} placeholder="A brief summary of your post that appears in the listing…" />
           </div>
 
+          {/* Content */}
           <div>
-            <label className="block text-sm font-semibold text-slate-700 mb-2">Content *</label>
-            <textarea 
-              name="content" required rows={12} value={formData.content} onChange={handleChange}
-              className="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm focus:border-mozhi-primary focus:ring-1 focus:ring-mozhi-primary outline-none transition bg-slate-50"
-              placeholder="Write your article content here..."
-            />
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Content <span className="text-red-500">*</span></label>
+              <span className="text-xs text-slate-400">{wordCount} words · ~{Math.max(1, Math.ceil(wordCount / 200))} min read</span>
+            </div>
+            <textarea name="content" required rows={14} value={form.content} onChange={handleChange} className={inputCls} placeholder="Write your full article here…" />
           </div>
 
-          <div className="flex items-center gap-4 pt-4 border-t border-slate-100">
-            <button 
-              type="button" disabled={loading} onClick={(e) => handleSubmit(e, true)}
-              className="px-6 py-3 rounded-xl border border-slate-300 bg-white text-slate-700 font-bold text-sm shadow-sm hover:bg-slate-50 hover:text-slate-900 transition-colors disabled:opacity-50"
+          {/* Footer actions */}
+          <div className="flex flex-col sm:flex-row items-center gap-3 pt-4 border-t border-slate-100 dark:border-slate-700">
+            <button
+              onClick={() => handleSubmit(true)}
+              disabled={submitting}
+              className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 rounded-xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-sm hover:border-slate-400 disabled:opacity-50 transition-colors"
             >
-              Save as Draft
+              <Save className="w-4 h-4" /> Save as Draft
             </button>
-            <button 
-              type="button" disabled={loading} onClick={(e) => handleSubmit(e, false)}
-              className="px-6 py-3 rounded-xl bg-mozhi-primary text-white font-bold text-sm shadow-sm hover:bg-mozhi-primary/90 transition-colors disabled:opacity-50"
+            <button
+              onClick={() => handleSubmit(false)}
+              disabled={submitting}
+              className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-mozhi-primary text-white font-bold text-sm shadow-sm hover:bg-mozhi-primary-dark disabled:opacity-50 transition-colors"
             >
-              Submit for Review
+              {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+              {submitting ? "Submitting…" : "Submit for Review"}
             </button>
           </div>
-        </form>
+        </div>
       </div>
     </div>
   );

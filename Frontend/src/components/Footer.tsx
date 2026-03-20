@@ -22,8 +22,8 @@ export default function Footer() {
             <h4 className="font-bold text-accent-text mb-4 uppercase text-sm tracking-wider">Learn</h4>
             <ul className="space-y-3">
               <li>
-                <Link href="#lessons" className="text-muted hover:text-primary transition-colors text-sm font-medium">
-                  Lessons
+                <Link href="/student/lessons" className="text-muted hover:text-primary transition-colors text-sm font-medium">
+                  Interactive Lessons
                 </Link>
               </li>
               <li>

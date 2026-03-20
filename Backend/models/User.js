@@ -21,6 +21,8 @@ const userSchema = new mongoose.Schema({
   languages: [{ type: String, trim: true }],
   teachingMode: { type: String, enum: ['online', 'offline', 'both'] },
   profilePhoto: { type: String, trim: true },
+  levelSupport: [{ type: String, enum: ['beginner', 'intermediate', 'advanced'] }],
+  responseTime: { type: String, trim: true }, // e.g. "Within 1 hour"
 
   // Credits & Premium
   credits: { type: Number, default: 0 },

@@ -21,10 +21,12 @@ export interface Lesson {
 
 export interface Question {
   _id: string;
+  type?: 'choice' | 'speaking';
   text: string;
   options: string[];
   scoreValue: number;
   correctOptionIndex?: number;
+  expectedAudioText?: string;
 }
 
 export interface SubmitAnswerItem {
@@ -75,6 +77,20 @@ export async function submitAnswers(
   answers: SubmitAnswerItem[]
 ): Promise<SubmitResult> {
   const res = await api.post<SubmitResult>(`/lessons/${lessonId}/submit`, { answers });
+  return res.data;
+}
+
+// ── Speaking Evaluation ───────────────────────────────────────────────────────
+
+export async function evaluateSpeaking(
+  lessonId: string,
+  questionId: string,
+  audioBase64?: string
+): Promise<{ passed: boolean; message: string }> {
+  const res = await api.post<{ passed: boolean; message: string }>(
+    `/lessons/${lessonId}/evaluate-speaking`,
+    { questionId, audioBase64 }
+  );
   return res.data;
 }
 

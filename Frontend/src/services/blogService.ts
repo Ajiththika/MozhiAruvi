@@ -38,6 +38,14 @@ export async function getPublicBlogByIdOrSlug(id: string): Promise<Blog> {
   return res.data.blog;
 }
 
+// Fetch a single owned blog by ID (for edit page, avoids loading all blogs)
+export async function getMyBlogById(id: string): Promise<Blog> {
+  const blogs = await getMyBlogs();
+  const found = blogs.find((b) => b._id === id);
+  if (!found) throw new Error("Blog not found or unauthorized");
+  return found;
+}
+
 export async function getMyBlogs(): Promise<Blog[]> {
   const res = await api.get<{ blogs: Blog[] }>("/blogs/my-blogs");
   return res.data.blogs;

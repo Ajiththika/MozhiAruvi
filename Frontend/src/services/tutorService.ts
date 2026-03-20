@@ -20,6 +20,8 @@ export interface Tutor {
   languages?: string[];
   profilePhoto?: string | null;
   isTutorAvailable: boolean;
+  levelSupport?: ("beginner" | "intermediate" | "advanced")[];
+  responseTime?: string;
 }
 
 export interface TutorRequest {
