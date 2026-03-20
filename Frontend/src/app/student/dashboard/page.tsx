@@ -17,9 +17,9 @@ export default function StudentDashboard() {
 
   useEffect(() => {
     Promise.all([getMe(), getLessons(), getMyJoinRequests()])
-      .then(([u, ls, jrs]) => {
+      .then(([u, { lessons }, jrs]) => {
         setUser(u);
-        setLessons(ls);
+        setLessons(lessons);
         setJoinRequests(jrs);
       })
       .catch(() => setError("Could not load dashboard data."))

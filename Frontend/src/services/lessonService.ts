@@ -24,11 +24,20 @@ export interface Question {
   text: string;
   options: string[];
   scoreValue: number;
+  correctOptionIndex?: number;
 }
 
 export interface SubmitAnswerItem {
   questionId: string;
   selectedOptionIndex: number;
+}
+
+export interface Progress {
+  _id: string;
+  lessonId: string;
+  score: number;
+  isCompleted: boolean;
+  completedAt: string;
 }
 
 export interface SubmitResult {
@@ -40,9 +49,9 @@ export interface SubmitResult {
 
 // ── Get all lessons ───────────────────────────────────────────────────────────
 
-export async function getLessons(): Promise<Lesson[]> {
-  const res = await api.get<{ lessons: Lesson[] }>("/lessons");
-  return res.data.lessons;
+export async function getLessons(): Promise<{ lessons: Lesson[], progress: Progress[] }> {
+  const res = await api.get<{ lessons: Lesson[], progress: Progress[] }>("/lessons");
+  return res.data;
 }
 
 // ── Get single lesson ─────────────────────────────────────────────────────────

@@ -4,7 +4,8 @@ import * as lessonService from '../services/lessonService.js';
 export async function listLessons(req, res, next) {
     try {
         const lessons = await lessonService.getAllLessons();
-        res.json({ lessons });
+        const progress = await lessonService.getUserProgressList(req.user.sub);
+        res.json({ lessons, progress });
     } catch (e) { next(e); }
 }
 

@@ -16,10 +16,14 @@ export async function getLessonById(lessonId) {
     return lesson;
 }
 
+export async function getUserProgressList(userId) {
+    return Progress.find({ userId });
+}
+
 // ── Questions (Public/User) ───────────────────────────────────────────────────
 export async function getQuestionsForLesson(lessonId) {
-    // Only return the fields necessary to render the test, explicitly omitting correctOptionIndex
-    return Question.find({ lessonId }).select('_id text options scoreValue');
+    // Including correctOptionIndex to allow immediate Duolingo-style UI feedback
+    return Question.find({ lessonId }).select('_id text options scoreValue correctOptionIndex');
 }
 
 // ── Submission and Progress (Phase 4 & 5) ─────────────────────────────────────

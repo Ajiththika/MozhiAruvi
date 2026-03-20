@@ -17,7 +17,7 @@ export default function AdminLessonsPage() {
   const fetchLessons = () => {
     setLoading(true);
     getLessons()
-      .then(setLessons)
+      .then((data) => setLessons(data.lessons))
       .catch(console.error)
       .finally(() => setLoading(false));
   };
