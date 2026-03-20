@@ -253,8 +253,12 @@ export default function EventsPage() {
                     <PrimaryButton href="/auth/signup" className="flex-1 justify-center">
                       Register Now
                     </PrimaryButton>
-                    <SecondaryButton href="#" className="flex-1 justify-center">
-                      View Details
+                    <SecondaryButton 
+                      disabled 
+                      className="flex-1 justify-center disabled:opacity-50 disabled:cursor-not-allowed"
+                      title="Event detail pages coming soon"
+                    >
+                      View Details (Soon)
                     </SecondaryButton>
                   </div>
                 </div>

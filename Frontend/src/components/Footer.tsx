@@ -32,8 +32,8 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/premium" className="text-muted hover:text-primary transition-colors text-sm font-medium">
-                  Go Premium
+                <Link href="/auth/signup" className="text-muted hover:text-primary transition-colors text-sm font-medium">
+                  Premium Pass
                 </Link>
               </li>
             </ul>

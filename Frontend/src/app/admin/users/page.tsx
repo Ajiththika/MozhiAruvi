@@ -47,8 +47,8 @@ export default function AdminUsersPage() {
         ? await deactivateUser(user._id)
         : await activateUser(user._id);
       setUsers((prev) => prev.map((u) => (u._id === updated._id ? updated : u)));
-    } catch {
-      // toast here
+    } catch (err: any) {
+      alert(err.response?.data?.message || err.message || "Failed to update user status");
     } finally {
       setActioning(null);
     }

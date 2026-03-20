@@ -164,12 +164,13 @@ export default function BlogsPage() {
           )}
         </section>
 
-        {/* 5. Load More Output */}
+        {/* Pagination disabled until implemented
         <div className="flex justify-center mb-10">
           <button className="rounded-xl border border-slate-200 bg-white px-8 py-3 text-sm font-bold text-slate-700 shadow-sm hover:bg-slate-50 hover:text-slate-900 transition-colors">
             Load More Articles
           </button>
         </div>
+        */}
 
       </main>
 
