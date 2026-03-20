@@ -27,7 +27,7 @@ export function TutorCard({
   shortBio,
 }: TutorCardProps) {
   return (
-    <div className="flex flex-col rounded-2xl border border-slate- bg-white p-5 shadow-sm transition-all hover:shadow-md dark:border-slate- dark:bg-slate-">
+    <div className="flex flex-col rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-all hover:shadow-md dark:border-slate-200 dark:bg-slate-50">
       <div className="flex items-start gap-4">
         {/* Avatar */}
         <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-mozhi-light dark:bg-mozhi-primary/20">
@@ -47,7 +47,7 @@ export function TutorCard({
         {/* Header Info */}
         <div className="flex-1">
           <div className="flex items-center justify-between">
-            <h3 className="text-lg font-bold text-slate- dark:text-slate-">
+            <h3 className="text-lg font-bold text-slate-600 dark:text-slate-600">
               {name}
             </h3>
             <div className="flex items-center gap-1 rounded-md bg-amber-50 px-2 py-1 text-xs font-semibold text-amber-700 dark:bg-amber-900/20 dark:text-amber-500">
@@ -55,24 +55,24 @@ export function TutorCard({
               <span>{rating.toFixed(1)}</span>
             </div>
           </div>
-          <p className="mt-1 text-sm text-slate- dark:text-slate-">
+          <p className="mt-1 text-sm text-slate-600 dark:text-slate-600">
             {reviews} lessons taught
           </p>
         </div>
       </div>
 
       {/* Bio */}
-      <p className="mt-4 line-clamp-2 text-sm text-slate- dark:text-slate-">
+      <p className="mt-4 line-clamp-2 text-sm text-slate-600 dark:text-slate-600">
         {shortBio}
       </p>
 
       {/* Meta details */}
       <div className="mt-4 flex flex-col gap-2">
-        <div className="flex items-center gap-2 text-sm text-slate- dark:text-slate-">
+        <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-600">
           <Globe className="h-4 w-4" />
           <span>Speaks: {languages.join(", ")}</span>
         </div>
-        <div className="flex items-center gap-2 text-sm text-slate- dark:text-slate-">
+        <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-600">
           <Clock className="h-4 w-4" />
           <span>{hourlyRate}/hour</span>
         </div>
@@ -83,13 +83,13 @@ export function TutorCard({
         {specialties.slice(0, 3).map((spec) => (
           <span
             key={spec}
-            className="inline-flex rounded-full bg-slate- px-2.5 py-0.5 text-xs font-medium text-slate- dark:bg-slate- dark:text-slate-"
+            className="inline-flex rounded-full bg-slate-50 px-2.5 py-0.5 text-xs font-medium text-slate-600 dark:bg-slate-50 dark:text-slate-600"
           >
             {spec}
           </span>
         ))}
         {specialties.length > 3 && (
-          <span className="inline-flex rounded-full bg-slate- px-2.5 py-0.5 text-xs font-medium text-slate- dark:bg-slate- dark:text-slate-">
+          <span className="inline-flex rounded-full bg-slate-50 px-2.5 py-0.5 text-xs font-medium text-slate-600 dark:bg-slate-50 dark:text-slate-600">
             +{specialties.length - 3}
           </span>
         )}

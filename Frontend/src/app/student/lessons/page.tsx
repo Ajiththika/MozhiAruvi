@@ -31,10 +31,10 @@ export default function StudentLessonsPage() {
   return (
     <div className="space-y-10 animate-in fade-in zoom-in-95 duration-500 pb-12">
       <div>
-        <h2 className="text-2xl font-bold tracking-tight text-slate- dark:text-slate- flex items-center gap-2">
+        <h2 className="text-2xl font-bold tracking-tight text-slate-600 dark:text-slate-600 flex items-center gap-2">
           <BookOpen className="h-6 w-6 text-mozhi-secondary" /> Your Curriculum
         </h2>
-        <p className="mt-1 text-slate- dark:text-slate-">
+        <p className="mt-1 text-slate-600 dark:text-slate-600">
           Follow the path, complete lessons, and earn XP as you progress.
         </p>
       </div>
@@ -42,7 +42,7 @@ export default function StudentLessonsPage() {
       {loading && (
         <div className="flex flex-col items-center justify-center py-24 gap-3">
           <Loader2 className="h-8 w-8 animate-spin text-mozhi-primary" />
-          <p className="text-sm font-medium text-slate-">Loading curriculum...</p>
+          <p className="text-sm font-medium text-slate-600">Loading curriculum...</p>
         </div>
       )}
 
@@ -53,7 +53,7 @@ export default function StudentLessonsPage() {
       )}
 
       {!loading && !error && lessons.length === 0 && (
-        <div className="py-20 text-center text-slate- dark:text-slate-">
+        <div className="py-20 text-center text-slate-600 dark:text-slate-600">
           No lessons have been published yet. Check back soon!
         </div>
       )}
@@ -64,10 +64,10 @@ export default function StudentLessonsPage() {
             <div className="flex h-8 w-8 items-center justify-center rounded-full bg-mozhi-primary text-sm font-bold text-white">
               {module}
             </div>
-            <h3 className="text-lg font-bold text-slate- dark:text-slate-">
+            <h3 className="text-lg font-bold text-slate-600 dark:text-slate-600">
               Module {module}
             </h3>
-            <span className="text-xs font-medium text-slate-">
+            <span className="text-xs font-medium text-slate-600">
               {moduleLessons.length} lesson{moduleLessons.length !== 1 ? "s" : ""}
             </span>
           </div>
@@ -79,24 +79,24 @@ export default function StudentLessonsPage() {
                 <Link
                   key={lesson._id}
                   href={`/student/lessons/${lesson._id}`}
-                  className="group flex items-center gap-4 rounded-2xl border border-slate- bg-white p-4 shadow-sm transition-all hover:border-blue-300 hover:shadow-md dark:border-slate- dark:bg-slate- dark:hover:border-blue-700"
+                  className="group flex items-center gap-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition-all hover:border-blue-300 hover:shadow-md dark:border-slate-200 dark:bg-slate-50 dark:hover:border-blue-700"
                 >
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate- dark:bg-slate-">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-50 dark:bg-slate-50">
                     {lesson.isPremiumOnly ? (
                       <Lock className="h-4 w-4 text-amber-500" />
                     ) : i === 0 ? (
                       <Circle className="h-4 w-4 text-mozhi-secondary" />
                     ) : (
-                      <Circle className="h-4 w-4 text-slate-" />
+                      <Circle className="h-4 w-4 text-slate-600" />
                     )}
                   </div>
 
                   <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-slate- dark:text-slate- truncate">
+                    <p className="font-semibold text-slate-600 dark:text-slate-600 truncate">
                       {lesson.title}
                     </p>
                     {lesson.description && (
-                      <p className="mt-0.5 text-sm text-slate- dark:text-slate- line-clamp-1">
+                      <p className="mt-0.5 text-sm text-slate-600 dark:text-slate-600 line-clamp-1">
                         {lesson.description}
                       </p>
                     )}
@@ -108,7 +108,7 @@ export default function StudentLessonsPage() {
                     </span>
                   )}
 
-                  <div className="shrink-0 text-slate- group-hover:text-mozhi-secondary transition-colors dark:text-slate- dark:group-hover:text-mozhi-secondary">
+                  <div className="shrink-0 text-slate-600 group-hover:text-mozhi-secondary transition-colors dark:text-slate-600 dark:group-hover:text-mozhi-secondary">
                     →
                   </div>
                 </Link>

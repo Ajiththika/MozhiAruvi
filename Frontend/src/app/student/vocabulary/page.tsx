@@ -16,10 +16,10 @@ export default function StudentVocabularyPage() {
     <div className="space-y-8 animate-in fade-in zoom-in-95 duration-500">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
          <div>
-            <h2 className="text-2xl font-bold tracking-tight text-slate- dark:text-slate-">
+            <h2 className="text-2xl font-bold tracking-tight text-slate-600 dark:text-slate-600">
                My Vocabulary 📚
             </h2>
-            <p className="mt-1 text-slate- dark:text-slate-">
+            <p className="mt-1 text-slate-600 dark:text-slate-600">
                Words and phrases you've unlocked from lessons.
             </p>
          </div>
@@ -32,11 +32,11 @@ export default function StudentVocabularyPage() {
       <div className="flex flex-col gap-4 md:flex-row md:items-center">
         {/* Search Bar */}
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-600" />
           <input
             type="text"
             placeholder="Search Tamil or English meaning..."
-            className="w-full rounded-xl border border-slate- bg-white py-2.5 pl-10 pr-4 text-sm outline-none transition-all placeholder:text-slate- focus:border-mozhi-primary focus:ring-2 focus:ring-mozhi-primary/20 dark:border-slate- dark:bg-slate- dark:text-slate- dark:focus:border-mozhi-primary"
+            className="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-10 pr-4 text-sm outline-none transition-all placeholder:text-slate-600 focus:border-mozhi-primary focus:ring-2 focus:ring-mozhi-primary/20 dark:border-slate-200 dark:bg-slate-50 dark:text-slate-600 dark:focus:border-mozhi-primary"
           />
         </div>
 
@@ -47,8 +47,8 @@ export default function StudentVocabularyPage() {
                key={cat}
                className={`whitespace-nowrap rounded-full border px-4 py-2 text-sm font-medium transition-colors ${
                  i === 0 
-                   ? "bg-slate- text-white border-slate- dark:bg-slate- dark:text-slate- dark:border-slate-" 
-                   : "bg-white text-slate- border-slate- hover:bg-slate- dark:bg-slate- dark:text-slate- dark:border-slate- dark:hover:bg-slate-"
+                   ? "bg-slate-50 text-white border-slate-200 dark:bg-slate-50 dark:text-slate-600 dark:border-slate-200" 
+                   : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50 dark:bg-slate-50 dark:text-slate-600 dark:border-slate-200 dark:hover:bg-slate-50"
                }`}
              >
                {cat}
@@ -61,21 +61,21 @@ export default function StudentVocabularyPage() {
         {VOCAB_MOCK.map((word) => (
           <div
             key={word.id}
-            className="group relative flex flex-col justify-between rounded-xl border border-slate- bg-white p-5 shadow-sm transition-all hover:shadow-md dark:border-slate- dark:bg-slate-"
+            className="group relative flex flex-col justify-between rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition-all hover:shadow-md dark:border-slate-200 dark:bg-slate-50"
           >
             <div className="flex items-start justify-between">
               <div>
-                <span className="mb-2 inline-block rounded-md bg-slate- px-2.5 py-0.5 text-xs font-medium text-slate- dark:bg-slate- dark:text-slate-">
+                <span className="mb-2 inline-block rounded-md bg-slate-50 px-2.5 py-0.5 text-xs font-medium text-slate-600 dark:bg-slate-50 dark:text-slate-600">
                   {word.category}
                 </span>
-                <h3 className="text-2xl font-bold text-slate- dark:text-slate- font-tamil">
+                <h3 className="text-2xl font-bold text-slate-600 dark:text-slate-600 font-tamil">
                   {word.tamil}
                 </h3>
                 <p className="mt-1 text-sm text-mozhi-primary dark:text-mozhi-secondary font-medium">
                   {word.transliteration}
                 </p>
               </div>
-              <button className="text-slate- transition-colors hover:text-mozhi-primary dark:text-slate- dark:hover:text-mozhi-secondary">
+              <button className="text-slate-600 transition-colors hover:text-mozhi-primary dark:text-slate-600 dark:hover:text-mozhi-secondary">
                  {word.saved ? (
                     <BookmarkCheck className="h-5 w-5 fill-blue-600 text-mozhi-primary dark:fill-blue-500 dark:text-mozhi-secondary" />
                  ) : (
@@ -84,11 +84,11 @@ export default function StudentVocabularyPage() {
               </button>
             </div>
 
-            <div className="mt-6 flex items-end justify-between border-t border-slate- pt-4 dark:border-slate-">
-              <p className="text-base text-slate- dark:text-slate-">
+            <div className="mt-6 flex items-end justify-between border-t border-slate-200 pt-4 dark:border-slate-200">
+              <p className="text-base text-slate-600 dark:text-slate-600">
                 {word.english}
               </p>
-              <button className="flex h-8 w-8 items-center justify-center rounded-full bg-slate- text-slate- transition-colors hover:bg-mozhi-light/50 hover:text-mozhi-primary dark:bg-slate- dark:text-slate- dark:hover:bg-mozhi-primary/20 dark:hover:text-mozhi-secondary">
+              <button className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-50 text-slate-600 transition-colors hover:bg-mozhi-light/50 hover:text-mozhi-primary dark:bg-slate-50 dark:text-slate-600 dark:hover:bg-mozhi-primary/20 dark:hover:text-mozhi-secondary">
                 <Volume2 className="h-4 w-4" />
               </button>
             </div>
@@ -100,8 +100,8 @@ export default function StudentVocabularyPage() {
            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-mozhi-light dark:bg-mozhi-primary/20">
               <Book className="h-6 w-6 text-mozhi-primary dark:text-mozhi-secondary" />
            </div>
-           <h3 className="mt-4 text-lg font-semibold text-slate- dark:text-slate-">Master 7 Words</h3>
-           <p className="mt-1 text-sm text-slate- dark:text-slate-">
+           <h3 className="mt-4 text-lg font-semibold text-slate-600 dark:text-slate-600">Master 7 Words</h3>
+           <p className="mt-1 text-sm text-slate-600 dark:text-slate-600">
               You are ready for a quick flashcard review session.
            </p>
            <button className="mt-4 rounded-lg bg-mozhi-primary px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-mozhi-primary">

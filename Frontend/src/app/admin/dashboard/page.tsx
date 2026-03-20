@@ -58,10 +58,10 @@ export default function AdminDashboard() {
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
       <div>
-        <h2 className="text-2xl font-bold tracking-tight text-slate- dark:text-slate-">
+        <h2 className="text-2xl font-bold tracking-tight text-slate-600 dark:text-slate-600">
           Admin Overview 🛡️
         </h2>
-        <p className="text-slate- dark:text-slate- mt-1">
+        <p className="text-slate-600 dark:text-slate-600 mt-1">
           Platform health at a glance. Logged in as <strong>{admin?.name}</strong>.
         </p>
       </div>
@@ -107,9 +107,9 @@ export default function AdminDashboard() {
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* Pending Applications Table */}
-        <div className="lg:col-span-2 rounded-xl border border-slate- bg-white shadow-sm dark:border-slate- dark:bg-slate-">
-          <div className="flex items-center justify-between border-b border-slate- px-6 py-4 dark:border-slate-">
-            <h3 className="font-bold text-slate- dark:text-slate-">
+        <div className="lg:col-span-2 rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-200 dark:bg-slate-50">
+          <div className="flex items-center justify-between border-b border-slate-200 px-6 py-4 dark:border-slate-200">
+            <h3 className="font-bold text-slate-600 dark:text-slate-600">
               Teacher Applications
             </h3>
             <Link href="/admin/teachers" className="text-xs font-bold text-mozhi-primary hover:text-mozhi-secondary dark:text-mozhi-secondary">
@@ -118,14 +118,14 @@ export default function AdminDashboard() {
           </div>
 
           {applications.length === 0 ? (
-            <div className="flex items-center justify-center py-12 text-sm text-slate-">No applications yet.</div>
+            <div className="flex items-center justify-center py-12 text-sm text-slate-600">No applications yet.</div>
           ) : (
             <div className="divide-y divide-zinc-100 dark:divide-zinc-800">
               {applications.slice(0, 5).map((app) => (
                 <div key={app._id} className="flex items-center justify-between px-6 py-4">
                   <div>
-                    <p className="text-sm font-bold text-slate- dark:text-slate-">{app.fullName}</p>
-                    <p className="text-xs text-slate- dark:text-slate-">{app.applicant?.email}</p>
+                    <p className="text-sm font-bold text-slate-600 dark:text-slate-600">{app.fullName}</p>
+                    <p className="text-xs text-slate-600 dark:text-slate-600">{app.applicant?.email}</p>
                   </div>
                   <div className="flex items-center gap-3">
                     <StatusBadge status={app.status} />
@@ -142,8 +142,8 @@ export default function AdminDashboard() {
         </div>
 
         {/* Quick Admin Actions */}
-        <div className="rounded-xl border border-slate- bg-white p-6 shadow-sm dark:border-slate- dark:bg-slate-">
-          <h3 className="font-bold text-slate- dark:text-slate- mb-4">Quick Actions</h3>
+        <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-200 dark:bg-slate-50">
+          <h3 className="font-bold text-slate-600 dark:text-slate-600 mb-4">Quick Actions</h3>
           <div className="flex flex-col gap-3">
             {[
               { label: "Manage Users", href: "/admin/users", count: users.length, color: "text-mozhi-primary dark:text-mozhi-secondary" },
@@ -154,14 +154,14 @@ export default function AdminDashboard() {
               <Link
                 key={action.href}
                 href={action.href}
-                className="flex items-center justify-between rounded-xl border border-slate- px-4 py-3.5 transition-colors hover:bg-slate- dark:border-slate- dark:hover:bg-slate-"
+                className="flex items-center justify-between rounded-xl border border-slate-200 px-4 py-3.5 transition-colors hover:bg-slate-50 dark:border-slate-200 dark:hover:bg-slate-50"
               >
                 <span className={`text-sm font-bold ${action.color}`}>{action.label}</span>
                 <div className="flex items-center gap-2">
                   {action.count !== null && (
-                    <span className="text-xs font-medium text-slate-">{action.count}</span>
+                    <span className="text-xs font-medium text-slate-600">{action.count}</span>
                   )}
-                  <ArrowRight className="h-4 w-4 text-slate-" />
+                  <ArrowRight className="h-4 w-4 text-slate-600" />
                 </div>
               </Link>
             ))}

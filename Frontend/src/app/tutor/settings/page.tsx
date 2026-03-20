@@ -97,14 +97,14 @@ export default function TutorSettingsPage() {
     <div className="mx-auto max-w-2xl space-y-8 py-6 animate-in fade-in duration-500">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight text-slate- dark:text-slate-">
+          <h2 className="text-2xl font-bold tracking-tight text-slate-600 dark:text-slate-600">
             Tutor Settings ⚙️
           </h2>
-          <p className="mt-1 text-slate- dark:text-slate-">Manage your public profile and availability.</p>
+          <p className="mt-1 text-slate-600 dark:text-slate-600">Manage your public profile and availability.</p>
         </div>
         <button
           onClick={handleLogout}
-          className="flex items-center gap-2 rounded-xl border border-slate- px-4 py-2 text-sm font-semibold text-slate- transition hover:border-red-200 hover:bg-red-50 hover:text-red-600 dark:border-slate- dark:text-slate- dark:hover:border-red-900/50 dark:hover:bg-red-950/20 dark:hover:text-red-400"
+          className="flex items-center gap-2 rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-600 transition hover:border-red-200 hover:bg-red-50 hover:text-red-600 dark:border-slate-200 dark:text-slate-600 dark:hover:border-red-900/50 dark:hover:bg-red-950/20 dark:hover:text-red-400"
         >
           <LogOut className="h-4 w-4" /> Sign Out
         </button>
@@ -122,10 +122,10 @@ export default function TutorSettingsPage() {
       )}
 
       {/* Availability Toggle */}
-      <div className="flex items-center justify-between rounded-2xl border border-slate- bg-white p-5 shadow-sm dark:border-slate- dark:bg-slate-">
+      <div className="flex items-center justify-between rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-200 dark:bg-slate-50">
         <div>
-          <p className="font-bold text-slate- dark:text-slate-">Accepting Students</p>
-          <p className="text-sm text-slate- dark:text-slate-">
+          <p className="font-bold text-slate-600 dark:text-slate-600">Accepting Students</p>
+          <p className="text-sm text-slate-600 dark:text-slate-600">
             {profile?.isTutorAvailable ? "You are visible in the Tutors directory." : "You are hidden from the Tutors directory."}
           </p>
         </div>
@@ -137,50 +137,50 @@ export default function TutorSettingsPage() {
           {profile?.isTutorAvailable ? (
             <ToggleRight className="h-10 w-10 text-emerald-500" />
           ) : (
-            <ToggleLeft className="h-10 w-10 text-slate- dark:text-slate-" />
+            <ToggleLeft className="h-10 w-10 text-slate-600 dark:text-slate-600" />
           )}
         </button>
       </div>
 
-      <form onSubmit={handleSave} className="space-y-6 rounded-2xl border border-slate- bg-white p-8 shadow-sm dark:border-slate- dark:bg-slate-">
+      <form onSubmit={handleSave} className="space-y-6 rounded-2xl border border-slate-200 bg-white p-8 shadow-sm dark:border-slate-200 dark:bg-slate-50">
         <div className="space-y-1.5">
-          <label className="text-sm font-medium text-slate- dark:text-slate- flex items-center gap-2">
+          <label className="text-sm font-medium text-slate-600 dark:text-slate-600 flex items-center gap-2">
             <UserCircle className="h-4 w-4" /> Display Name
           </label>
           <input
             type="text"
             value={form.name}
             onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-            className="w-full rounded-xl border border-slate- bg-slate- px-4 py-2.5 text-sm focus:border-mozhi-primary focus:bg-white focus:outline-none focus:ring-1 focus:ring-mozhi-primary dark:border-slate- dark:bg-slate- dark:text-slate-"
+            className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm focus:border-mozhi-primary focus:bg-white focus:outline-none focus:ring-1 focus:ring-mozhi-primary dark:border-slate-200 dark:bg-slate-50 dark:text-slate-600"
           />
         </div>
 
         <div className="space-y-1.5">
-          <label className="text-sm font-medium text-slate- dark:text-slate- flex items-center gap-2">
+          <label className="text-sm font-medium text-slate-600 dark:text-slate-600 flex items-center gap-2">
             <Mail className="h-4 w-4" /> Email (read-only)
           </label>
           <input
             type="email"
             value={profile?.email ?? ""}
             disabled
-            className="w-full rounded-xl border border-slate- bg-slate- px-4 py-2.5 text-sm text-slate- cursor-not-allowed dark:border-slate- dark:bg-slate-/50"
+            className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-600 cursor-not-allowed dark:border-slate-200 dark:bg-slate-900/50"
           />
         </div>
 
         <div className="space-y-1.5">
-          <label className="text-sm font-medium text-slate- dark:text-slate-">Bio</label>
+          <label className="text-sm font-medium text-slate-600 dark:text-slate-600">Bio</label>
           <textarea
             rows={3}
             value={form.bio}
             onChange={(e) => setForm((f) => ({ ...f, bio: e.target.value }))}
             placeholder="Tell students about yourself..."
-            className="w-full resize-none rounded-xl border border-slate- bg-slate- px-4 py-2.5 text-sm focus:border-mozhi-primary focus:bg-white focus:outline-none focus:ring-1 focus:ring-mozhi-primary dark:border-slate- dark:bg-slate- dark:text-slate-"
+            className="w-full resize-none rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm focus:border-mozhi-primary focus:bg-white focus:outline-none focus:ring-1 focus:ring-mozhi-primary dark:border-slate-200 dark:bg-slate-50 dark:text-slate-600"
           />
         </div>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div className="space-y-1.5">
-            <label className="text-sm font-medium text-slate- dark:text-slate- flex items-center gap-2">
+            <label className="text-sm font-medium text-slate-600 dark:text-slate-600 flex items-center gap-2">
               <Globe className="h-4 w-4" /> Specialization
             </label>
             <input
@@ -188,18 +188,18 @@ export default function TutorSettingsPage() {
               value={form.specialization}
               onChange={(e) => setForm((f) => ({ ...f, specialization: e.target.value }))}
               placeholder="e.g. Conversational Tamil"
-              className="w-full rounded-xl border border-slate- bg-slate- px-4 py-2.5 text-sm focus:border-mozhi-primary focus:bg-white focus:outline-none focus:ring-1 focus:ring-mozhi-primary dark:border-slate- dark:bg-slate- dark:text-slate-"
+              className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm focus:border-mozhi-primary focus:bg-white focus:outline-none focus:ring-1 focus:ring-mozhi-primary dark:border-slate-200 dark:bg-slate-50 dark:text-slate-600"
             />
           </div>
           <div className="space-y-1.5">
-            <label className="text-sm font-medium text-slate- dark:text-slate- flex items-center gap-2">
+            <label className="text-sm font-medium text-slate-600 dark:text-slate-600 flex items-center gap-2">
               <Banknote className="h-4 w-4" /> Hourly Rate (XP)
             </label>
             <input
               type="number"
               value={form.hourlyRate ?? ""}
               onChange={(e) => setForm((f) => ({ ...f, hourlyRate: Number(e.target.value) }))}
-              className="w-full rounded-xl border border-slate- bg-slate- px-4 py-2.5 text-sm focus:border-mozhi-primary focus:bg-white focus:outline-none focus:ring-1 focus:ring-mozhi-primary dark:border-slate- dark:bg-slate- dark:text-slate-"
+              className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm focus:border-mozhi-primary focus:bg-white focus:outline-none focus:ring-1 focus:ring-mozhi-primary dark:border-slate-200 dark:bg-slate-50 dark:text-slate-600"
             />
           </div>
         </div>

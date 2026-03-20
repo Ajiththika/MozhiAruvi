@@ -66,7 +66,7 @@ export default function LessonDetail() {
     return (
       <div className="flex min-h-[70vh] flex-col items-center justify-center gap-3">
         <Loader2 className="h-8 w-8 animate-spin text-mozhi-primary" />
-        <p className="text-sm font-medium text-slate-">Loading lesson...</p>
+        <p className="text-sm font-medium text-slate-600">Loading lesson...</p>
       </div>
     );
   }
@@ -75,7 +75,7 @@ export default function LessonDetail() {
     return (
       <div className="flex min-h-[70vh] flex-col items-center justify-center gap-4">
         <AlertCircle className="h-10 w-10 text-red-500" />
-        <p className="font-medium text-slate- dark:text-slate-">Could not load this lesson.</p>
+        <p className="font-medium text-slate-600 dark:text-slate-600">Could not load this lesson.</p>
         <button onClick={() => router.back()} className="text-sm font-bold text-mozhi-primary hover:text-mozhi-secondary">
           ← Go Back
         </button>
@@ -92,16 +92,16 @@ export default function LessonDetail() {
           <XCircle className="h-16 w-16 text-red-500" />
         )}
         <div>
-          <h2 className="text-3xl font-extrabold text-slate- dark:text-slate-">
+          <h2 className="text-3xl font-extrabold text-slate-600 dark:text-slate-600">
             {score.passed ? "Lesson Complete! 🎉" : "Keep Practicing!"}
           </h2>
-          <p className="mt-2 text-lg text-slate-">
-            You scored <strong className="text-slate- dark:text-slate-">{score.score}</strong> out of{" "}
-            <strong className="text-slate- dark:text-slate-">{score.total}</strong>
+          <p className="mt-2 text-lg text-slate-600">
+            You scored <strong className="text-slate-600 dark:text-slate-600">{score.score}</strong> out of{" "}
+            <strong className="text-slate-600 dark:text-slate-600">{score.total}</strong>
           </p>
         </div>
         <div className="flex gap-3">
-          <Link href="/student/lessons" className="rounded-xl border border-slate- px-6 py-2.5 text-sm font-bold text-slate- hover:bg-slate- dark:border-slate- dark:text-slate- dark:hover:bg-slate-">
+          <Link href="/student/lessons" className="rounded-xl border border-slate-200 px-6 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-50 dark:border-slate-200 dark:text-slate-600 dark:hover:bg-slate-50">
             Back to Lessons
           </Link>
           {!score.passed && (
@@ -122,16 +122,16 @@ export default function LessonDetail() {
   return (
     <div className="flex flex-col min-h-[80vh] animate-in fade-in duration-500">
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-slate- pb-6 dark:border-slate-">
+      <div className="flex items-center justify-between border-b border-slate-200 pb-6 dark:border-slate-200">
         <div className="flex items-center gap-4">
           <Link
             href="/student/lessons"
-            className="flex h-10 w-10 items-center justify-center rounded-full bg-slate- text-slate- hover:bg-slate- dark:bg-slate- dark:text-slate- dark:hover:bg-slate- transition-colors"
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-50 text-slate-600 hover:bg-slate-50 dark:bg-slate-50 dark:text-slate-600 dark:hover:bg-slate-50 transition-colors"
           >
             <ArrowLeft className="h-5 w-5" />
           </Link>
           <div>
-            <h1 className="text-2xl font-bold tracking-tight text-slate- dark:text-slate-">
+            <h1 className="text-2xl font-bold tracking-tight text-slate-600 dark:text-slate-600">
               {lesson?.title}
             </h1>
             <p className="text-sm font-medium text-mozhi-primary dark:text-mozhi-secondary">
@@ -140,10 +140,10 @@ export default function LessonDetail() {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <div className="h-2 w-32 overflow-hidden rounded-full bg-slate- dark:bg-slate-">
+          <div className="h-2 w-32 overflow-hidden rounded-full bg-slate-50 dark:bg-slate-50">
             <div className="h-full rounded-full bg-mozhi-primary transition-all duration-500" style={{ width: `${progress}%` }} />
           </div>
-          <span className="text-sm font-semibold text-slate-">{progress}%</span>
+          <span className="text-sm font-semibold text-slate-600">{progress}%</span>
         </div>
       </div>
 
@@ -155,7 +155,7 @@ export default function LessonDetail() {
           ) : (
             <div className="flex flex-col items-center justify-center py-20 text-center gap-4">
               <Play className="h-12 w-12 text-mozhi-secondary" />
-              <p className="text-slate- dark:text-slate-">This lesson has no quiz yet. More content coming soon!</p>
+              <p className="text-slate-600 dark:text-slate-600">This lesson has no quiz yet. More content coming soon!</p>
               <Link href="/student/lessons" className="text-sm font-bold text-mozhi-primary hover:text-mozhi-secondary">← Back to Curriculum</Link>
             </div>
           )}
@@ -163,10 +163,10 @@ export default function LessonDetail() {
       ) : (
         /* Quiz mode */
         <div className="mx-auto mt-8 flex w-full max-w-3xl flex-1 flex-col items-center justify-center text-center">
-          <p className="text-xs font-bold uppercase tracking-widest text-slate-">
+          <p className="text-xs font-bold uppercase tracking-widest text-slate-600">
             Question {currentQ + 1} of {questions.length}
           </p>
-          <h2 className="mt-4 text-xl font-bold text-slate- dark:text-slate-">
+          <h2 className="mt-4 text-xl font-bold text-slate-600 dark:text-slate-600">
             {currentQuestion.text}
           </h2>
 
@@ -180,7 +180,7 @@ export default function LessonDetail() {
                   className={`rounded-2xl border-2 p-4 text-base font-semibold transition-all ${
                     isChosen
                       ? "border-mozhi-primary bg-mozhi-light/50 text-mozhi-primary dark:border-mozhi-primary dark:bg-mozhi-primary/20 dark:text-mozhi-secondary"
-                      : "border-slate- bg-white text-slate- hover:border-slate- hover:bg-slate- dark:border-slate- dark:bg-slate- dark:text-slate- dark:hover:bg-slate-"
+                      : "border-slate-200 bg-white text-slate-600 hover:border-slate-200 hover:bg-slate-50 dark:border-slate-200 dark:bg-slate-50 dark:text-slate-600 dark:hover:bg-slate-50"
                   }`}
                 >
                   {opt}
@@ -196,7 +196,7 @@ export default function LessonDetail() {
                 key={q._id}
                 onClick={() => setCurrentQ(i)}
                 className={`h-2 w-2 rounded-full transition-all ${
-                  i === currentQ ? "w-6 bg-mozhi-primary" : selected[q._id] !== undefined ? "bg-emerald-500" : "bg-slate- dark:bg-slate-"
+                  i === currentQ ? "w-6 bg-mozhi-primary" : selected[q._id] !== undefined ? "bg-emerald-500" : "bg-slate-50 dark:bg-slate-50"
                 }`}
               />
             ))}
@@ -206,12 +206,12 @@ export default function LessonDetail() {
 
       {/* Footer */}
       {questions.length > 0 && (
-        <div className="mt-auto border-t border-slate- pt-6 dark:border-slate-">
+        <div className="mt-auto border-t border-slate-200 pt-6 dark:border-slate-200">
           <div className="flex items-center justify-between">
             <button
               onClick={() => setCurrentQ((c) => Math.max(0, c - 1))}
               disabled={currentQ === 0}
-              className="flex items-center gap-2 rounded-xl border border-slate- px-4 py-2.5 text-sm font-bold text-slate- transition hover:bg-slate- disabled:opacity-40 dark:border-slate- dark:text-slate-"
+              className="flex items-center gap-2 rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-bold text-slate-600 transition hover:bg-slate-50 disabled:opacity-40 dark:border-slate-200 dark:text-slate-600"
             >
               <ArrowLeft className="h-4 w-4" /> Prev
             </button>

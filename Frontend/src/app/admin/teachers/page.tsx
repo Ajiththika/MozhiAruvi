@@ -74,8 +74,8 @@ export default function AdminTeachersPage() {
       accessorKey: "fullName",
       cell: (row) => (
         <div className="flex flex-col">
-          <span className="font-bold text-slate- dark:text-slate- text-sm">{row.fullName}</span>
-          <span className="text-xs text-slate- dark:text-slate-">{row.applicant?.email}</span>
+          <span className="font-bold text-slate-600 dark:text-slate-600 text-sm">{row.fullName}</span>
+          <span className="text-xs text-slate-600 dark:text-slate-600">{row.applicant?.email}</span>
         </div>
       ),
     },
@@ -88,7 +88,7 @@ export default function AdminTeachersPage() {
       header: "Reviewed",
       accessorKey: "reviewedAt",
       cell: (row) => (
-        <span className="text-xs text-slate- dark:text-slate-">
+        <span className="text-xs text-slate-600 dark:text-slate-600">
           {row.reviewedAt ? new Date(row.reviewedAt).toLocaleDateString() : "—"}
         </span>
       ),
@@ -124,7 +124,7 @@ export default function AdminTeachersPage() {
             </button>
           </div>
         ) : (
-          <span className="text-xs text-slate- capitalize">{row.status.replace("_", " ")}</span>
+          <span className="text-xs text-slate-600 capitalize">{row.status.replace("_", " ")}</span>
         ),
     },
   ];
@@ -133,17 +133,17 @@ export default function AdminTeachersPage() {
     <div className="space-y-8 animate-in fade-in zoom-in-95 duration-500 pb-12">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight text-slate- dark:text-slate-">
+          <h2 className="text-2xl font-bold tracking-tight text-slate-600 dark:text-slate-600">
             Teacher Applications 🎓
           </h2>
-          <p className="mt-1 text-slate- dark:text-slate-">
+          <p className="mt-1 text-slate-600 dark:text-slate-600">
             Approve, reject, or request revisions on teacher applications.
           </p>
         </div>
         <button
           onClick={load}
           disabled={loading}
-          className="flex items-center gap-2 rounded-xl border border-slate- bg-white px-4 py-2 text-sm font-semibold text-slate- shadow-sm transition hover:bg-slate- disabled:opacity-50 dark:border-slate- dark:bg-slate- dark:text-slate-"
+          className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-600 shadow-sm transition hover:bg-slate-50 disabled:opacity-50 dark:border-slate-200 dark:bg-slate-50 dark:text-slate-600"
         >
           <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} /> Refresh
         </button>

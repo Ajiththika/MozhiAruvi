@@ -19,7 +19,7 @@ const studentLinks: SidebarItem[] = [
 export default function StudentLayout({ children }: { children: React.ReactNode }) {
   return (
     <RoleProtectedRoute allowedRoles={["user"]}>
-      <div className="flex min-h-screen w-full bg-slate- dark:bg-slate-">
+      <div className="flex min-h-screen w-full bg-slate-50 dark:bg-slate-50">
         <Sidebar items={studentLinks} basePath="/student/dashboard" />
         <div className="flex flex-1 flex-col overflow-hidden">
           <Topbar title="Student Portal" />

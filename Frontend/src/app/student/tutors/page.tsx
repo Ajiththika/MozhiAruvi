@@ -32,30 +32,30 @@ export default function StudentTutorsDirectory() {
   return (
     <div className="space-y-8 animate-in fade-in zoom-in-95 duration-500">
       <div>
-        <h2 className="text-2xl font-bold tracking-tight text-slate- dark:text-slate-">
+        <h2 className="text-2xl font-bold tracking-tight text-slate-600 dark:text-slate-600">
           Find Your Perfect Tutor 👩‍🏫
         </h2>
-        <p className="mt-1 text-slate- dark:text-slate-">
+        <p className="mt-1 text-slate-600 dark:text-slate-600">
           Browse our certified teachers, check their schedules, and book 1-on-1 sessions.
         </p>
       </div>
 
       <div className="flex flex-col gap-4 md:flex-row md:items-center">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-600" />
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search by name, specialty, or keywords..."
-            className="w-full rounded-xl border border-slate- bg-white py-2.5 pl-10 pr-4 text-sm outline-none transition-all placeholder:text-slate- focus:border-mozhi-primary focus:ring-2 focus:ring-mozhi-primary/20 dark:border-slate- dark:bg-slate- dark:text-slate- dark:focus:border-mozhi-primary"
+            className="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-10 pr-4 text-sm outline-none transition-all placeholder:text-slate-600 focus:border-mozhi-primary focus:ring-2 focus:ring-mozhi-primary/20 dark:border-slate-200 dark:bg-slate-50 dark:text-slate-600 dark:focus:border-mozhi-primary"
           />
         </div>
         <div className="flex items-center gap-2">
-          <button className="flex items-center gap-2 rounded-xl border border-slate- bg-white px-4 py-2.5 text-sm font-medium text-slate- shadow-sm transition-colors hover:bg-slate- dark:border-slate- dark:bg-slate- dark:text-slate- dark:hover:bg-slate-">
+          <button className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-600 shadow-sm transition-colors hover:bg-slate-50 dark:border-slate-200 dark:bg-slate-50 dark:text-slate-600 dark:hover:bg-slate-50">
             <Filter className="h-4 w-4" /> Specialty
           </button>
-          <button className="flex items-center gap-2 rounded-xl border border-slate- bg-white px-4 py-2.5 text-sm font-medium text-slate- shadow-sm transition-colors hover:bg-slate- dark:border-slate- dark:bg-slate- dark:text-slate- dark:hover:bg-slate-">
+          <button className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-600 shadow-sm transition-colors hover:bg-slate-50 dark:border-slate-200 dark:bg-slate-50 dark:text-slate-600 dark:hover:bg-slate-50">
             <SlidersHorizontal className="h-4 w-4" /> More Filters
           </button>
         </div>
@@ -64,7 +64,7 @@ export default function StudentTutorsDirectory() {
       {loading && (
         <div className="flex flex-col items-center justify-center py-24 gap-3">
           <Loader2 className="h-8 w-8 animate-spin text-mozhi-primary" />
-          <p className="text-sm font-medium text-slate-">Loading tutors...</p>
+          <p className="text-sm font-medium text-slate-600">Loading tutors...</p>
         </div>
       )}
 
@@ -77,7 +77,7 @@ export default function StudentTutorsDirectory() {
       {!loading && !error && (
         <>
           {filtered.length === 0 ? (
-            <div className="py-20 text-center text-slate- dark:text-slate-">
+            <div className="py-20 text-center text-slate-600 dark:text-slate-600">
               No tutors found matching <strong>"{search}"</strong>.
             </div>
           ) : (

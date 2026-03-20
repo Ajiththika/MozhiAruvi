@@ -68,3 +68,10 @@ export async function submitAnswers(
   const res = await api.post<SubmitResult>(`/lessons/${lessonId}/submit`, { answers });
   return res.data;
 }
+
+// ── Admin operations ──────────────────────────────────────────────────────────
+
+export async function deleteLesson(id: string): Promise<{ message: string }> {
+  const res = await api.delete<{ message: string }>(`/lessons/${id}`);
+  return res.data;
+}

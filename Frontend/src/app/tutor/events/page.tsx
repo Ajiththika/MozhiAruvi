@@ -7,10 +7,10 @@ export default function TutorEventsPage() {
     <div className="space-y-8 animate-in fade-in zoom-in-95 duration-500 pb-12">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
          <div>
-            <h2 className="text-2xl font-bold tracking-tight text-slate- dark:text-slate-">
+            <h2 className="text-2xl font-bold tracking-tight text-slate-600 dark:text-slate-600">
                Hosted Events
             </h2>
-            <p className="mt-1 text-slate- dark:text-slate-">
+            <p className="mt-1 text-slate-600 dark:text-slate-600">
                Manage workshops or meetups you are hosting for your students.
             </p>
          </div>
@@ -33,12 +33,12 @@ export default function TutorEventsPage() {
          />
          
          {/* Empty State Card */}
-         <div className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate- bg-slate-/50 p-8 text-center dark:border-slate- dark:bg-slate-">
+         <div className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-200 bg-slate-/50 p-8 text-center dark:border-slate-200 dark:bg-slate-50">
              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-mozhi-light/50 text-mozhi-primary dark:bg-mozhi-primary/20 dark:text-mozhi-secondary mb-4">
                 <PlusCircle className="h-6 w-6" />
              </div>
-             <h3 className="text-lg font-bold text-slate- dark:text-slate-">Host a session</h3>
-             <p className="mt-1 text-sm text-slate- dark:text-slate-">
+             <h3 className="text-lg font-bold text-slate-600 dark:text-slate-600">Host a session</h3>
+             <p className="mt-1 text-sm text-slate-600 dark:text-slate-600">
                 Engage larger groups of students with specialized topics.
              </p>
          </div>

@@ -58,14 +58,14 @@ export default function StudentSettingsPage() {
     <div className="mx-auto max-w-2xl space-y-10 py-6 animate-in fade-in duration-500">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight text-slate- dark:text-slate-">
+          <h2 className="text-2xl font-bold tracking-tight text-slate-600 dark:text-slate-600">
             Account Settings ⚙️
           </h2>
-          <p className="mt-1 text-slate- dark:text-slate-">Manage your profile information.</p>
+          <p className="mt-1 text-slate-600 dark:text-slate-600">Manage your profile information.</p>
         </div>
         <button
           onClick={handleLogout}
-          className="flex items-center gap-2 rounded-xl border border-slate- px-4 py-2 text-sm font-semibold text-slate- transition hover:border-red-200 hover:bg-red-50 hover:text-red-600 dark:border-slate- dark:text-slate- dark:hover:border-red-900/50 dark:hover:bg-red-950/20 dark:hover:text-red-400"
+          className="flex items-center gap-2 rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-600 transition hover:border-red-200 hover:bg-red-50 hover:text-red-600 dark:border-slate-200 dark:text-slate-600 dark:hover:border-red-900/50 dark:hover:bg-red-950/20 dark:hover:text-red-400"
         >
           <LogOut className="h-4 w-4" /> Sign Out
         </button>
@@ -83,54 +83,54 @@ export default function StudentSettingsPage() {
         </div>
       )}
 
-      <form onSubmit={handleSave} className="space-y-6 rounded-2xl border border-slate- bg-white p-8 shadow-sm dark:border-slate- dark:bg-slate-">
+      <form onSubmit={handleSave} className="space-y-6 rounded-2xl border border-slate-200 bg-white p-8 shadow-sm dark:border-slate-200 dark:bg-slate-50">
         {/* Avatar */}
-        <div className="flex items-center gap-4 pb-6 border-b border-slate- dark:border-slate-">
+        <div className="flex items-center gap-4 pb-6 border-b border-slate-200 dark:border-slate-200">
           <div className="flex h-16 w-16 items-center justify-center rounded-full bg-mozhi-light text-xl font-bold text-mozhi-primary dark:bg-mozhi-primary/20 dark:text-mozhi-secondary">
             {profile?.name?.charAt(0) ?? "?"}
           </div>
           <div>
-            <p className="font-bold text-slate- dark:text-slate-">{profile?.name}</p>
-            <p className="text-sm text-slate- capitalize">{profile?.role === "user" ? "Student" : profile?.role}</p>
+            <p className="font-bold text-slate-600 dark:text-slate-600">{profile?.name}</p>
+            <p className="text-sm text-slate-600 capitalize">{profile?.role === "user" ? "Student" : profile?.role}</p>
           </div>
         </div>
 
         {/* Name */}
         <div className="space-y-1.5">
-          <label className="text-sm font-medium text-slate- dark:text-slate- flex items-center gap-2">
+          <label className="text-sm font-medium text-slate-600 dark:text-slate-600 flex items-center gap-2">
             <UserCircle className="h-4 w-4" /> Display Name
           </label>
           <input
             type="text"
             value={form.name}
             onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-            className="w-full rounded-xl border border-slate- bg-slate- px-4 py-2.5 text-sm text-slate- focus:border-mozhi-primary focus:bg-white focus:outline-none focus:ring-1 focus:ring-mozhi-primary dark:border-slate- dark:bg-slate- dark:text-slate-"
+            className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-600 focus:border-mozhi-primary focus:bg-white focus:outline-none focus:ring-1 focus:ring-mozhi-primary dark:border-slate-200 dark:bg-slate-50 dark:text-slate-600"
           />
         </div>
 
         {/* Email (read-only) */}
         <div className="space-y-1.5">
-          <label className="text-sm font-medium text-slate- dark:text-slate- flex items-center gap-2">
+          <label className="text-sm font-medium text-slate-600 dark:text-slate-600 flex items-center gap-2">
             <Mail className="h-4 w-4" /> Email
           </label>
           <input
             type="email"
             value={profile?.email ?? ""}
             disabled
-            className="w-full rounded-xl border border-slate- bg-slate- px-4 py-2.5 text-sm text-slate- cursor-not-allowed dark:border-slate- dark:bg-slate-/50"
+            className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-600 cursor-not-allowed dark:border-slate-200 dark:bg-slate-900/50"
           />
-          <p className="text-xs text-slate-">Email cannot be changed here.</p>
+          <p className="text-xs text-slate-600">Email cannot be changed here.</p>
         </div>
 
         {/* Bio */}
         <div className="space-y-1.5">
-          <label className="text-sm font-medium text-slate- dark:text-slate-">Short Bio</label>
+          <label className="text-sm font-medium text-slate-600 dark:text-slate-600">Short Bio</label>
           <textarea
             rows={3}
             value={form.bio}
             onChange={(e) => setForm((f) => ({ ...f, bio: e.target.value }))}
             placeholder="Tell the community a bit about yourself..."
-            className="w-full resize-none rounded-xl border border-slate- bg-slate- px-4 py-2.5 text-sm text-slate- focus:border-mozhi-primary focus:bg-white focus:outline-none focus:ring-1 focus:ring-mozhi-primary dark:border-slate- dark:bg-slate- dark:text-slate-"
+            className="w-full resize-none rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-600 focus:border-mozhi-primary focus:bg-white focus:outline-none focus:ring-1 focus:ring-mozhi-primary dark:border-slate-200 dark:bg-slate-50 dark:text-slate-600"
           />
         </div>
 
