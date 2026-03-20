@@ -9,6 +9,7 @@ const adminLinks: SidebarItem[] = [
   { name: "Teachers",  href: "/admin/teachers",  icon: "graduation-cap" },
   { name: "Lessons",   href: "/admin/lessons",   icon: "book-open" },
   { name: "Events",    href: "/admin/events",    icon: "calendar" },
+  { name: "Blogs",     href: "/admin/blogs",     icon: "message-square" },
   { name: "Settings",  href: "/admin/settings",  icon: "settings" },
 ];
 

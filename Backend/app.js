@@ -11,6 +11,7 @@ import lessonRoutes from './routes/lessonRoutes.js';
 import eventRoutes from './routes/eventRoutes.js';
 import tutorRoutes from './routes/tutorRoutes.js';
 import teacherApplicationRoutes from './routes/teacherApplicationRoutes.js';
+import blogRoutes from './routes/blogRoutes.js';
 import { testSmtpConnection } from './services/mailService.js';
 import { errorHandler } from './middleware/error.js';
 
@@ -38,6 +39,7 @@ app.use('/api/lessons', lessonRoutes);
 app.use('/api/events', eventRoutes);
 app.use('/api/tutors', tutorRoutes);
 app.use('/api/teachers', teacherApplicationRoutes);
+app.use('/api/blogs', blogRoutes);
 
 app.get('/health', (_req, res) => res.json({ status: 'ok' }));
 
