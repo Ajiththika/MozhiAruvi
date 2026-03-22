@@ -10,8 +10,10 @@ const router = Router();
 // Zod schemas for Lesson
 const createLessonSchema = z.object({
     title: z.string().min(1, 'Title is required'),
+    moduleName: z.string().optional(),
+    sectionName: z.string().optional(),
     description: z.string().optional(),
-    moduleNumber: z.number().int().positive('Module number must be positive'),
+    moduleNumber: z.number().int().nonnegative('Module number must be positive').optional(),
     videoUrl: z.string().url('Invalid URL').optional().or(z.literal('')),
     content: z.string().optional(),
     isPremiumOnly: z.boolean().optional(),
@@ -21,9 +23,11 @@ const createLessonSchema = z.object({
 const updateLessonSchema = createLessonSchema.partial();
 
 const createQuestionSchema = z.object({
+    type: z.enum(['learn', 'match', 'identify', 'listening', 'fill', 'spelling', 'quiz', 'speaking']).optional(),
     text: z.string().min(1, 'Question text required'),
-    options: z.array(z.string()).min(2, 'At least 2 options required'),
-    correctOptionIndex: z.number().int().nonnegative('Correct option index required'),
+    options: z.array(z.string()).optional(),
+    correctOptionIndex: z.number().int().nonnegative('Correct option index required').optional(),
+    correctAnswer: z.string().optional(),
     scoreValue: z.number().int().positive().optional()
 }).strict();
 

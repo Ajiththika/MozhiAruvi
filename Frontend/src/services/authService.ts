@@ -17,6 +17,9 @@ export interface SafeUser {
   role: "user" | "teacher" | "admin";
   isTutorAvailable?: boolean;
   profilePhoto?: string | null;
+  level?: "Beginner" | "Intermediate" | "Advanced" | "Not Set";
+  learningCredits?: number;
+  xp?: number;
 }
 
 export interface AuthResponse {

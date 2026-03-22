@@ -18,8 +18,8 @@ export async function getLessonById(lessonId) {
 
 // ── Questions (Public/User) ───────────────────────────────────────────────────
 export async function getQuestionsForLesson(lessonId) {
-    // Only return the fields necessary to render the test, explicitly omitting correctOptionIndex
-    return Question.find({ lessonId }).select('_id text options scoreValue');
+    // For Duolingo style immediate feedback, we return answers. Secure mode can be added later.
+    return Question.find({ lessonId }).select('_id text options scoreValue type correctOptionIndex correctAnswer');
 }
 
 // ── Submission and Progress (Phase 4 & 5) ─────────────────────────────────────

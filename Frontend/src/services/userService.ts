@@ -19,6 +19,9 @@ export interface UserProfile {
   profilePhoto?: string | null;
   isTutorAvailable?: boolean;
   credits?: number;
+  level?: "Beginner" | "Intermediate" | "Advanced" | "Not Set";
+  learningCredits?: number;
+  xp?: number;
 }
 
 export interface UpdateProfilePayload {
@@ -58,5 +61,19 @@ export async function changePassword(payload: UpdatePasswordPayload): Promise<{ 
 
 export async function deactivateAccount(): Promise<{ message: string }> {
   const res = await api.patch<{ message: string }>("/users/me/deactivate");
+  return res.data;
+}
+
+// ── Progression / Duolingo Flow ──────────────────────────────────────────────────
+
+import { SafeUser } from "./authService";
+
+export async function setLevel(level: "Beginner" | "Intermediate" | "Advanced" | "Not Set"): Promise<SafeUser> {
+  const res = await api.patch<{ message: string; user: SafeUser }>("/users/me/level", { level });
+  return res.data.user;
+}
+
+export async function consumeCredit(): Promise<{ learningCredits: number }> {
+  const res = await api.post<{ message: string; learningCredits: number }>("/users/me/consume-credit");
   return res.data;
 }

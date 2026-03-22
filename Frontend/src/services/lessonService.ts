@@ -12,6 +12,8 @@ export interface Lesson {
   _id: string;
   title: string;
   description?: string;
+  moduleName: string;
+  sectionName: string;
   moduleNumber: number;
   orderIndex: number;
   videoUrl?: string;
@@ -21,8 +23,11 @@ export interface Lesson {
 
 export interface Question {
   _id: string;
+  type: "learn" | "match" | "identify" | "listening" | "fill" | "spelling" | "quiz" | "speaking";
   text: string;
-  options: string[];
+  options?: string[];
+  correctOptionIndex?: number;
+  correctAnswer?: string;
   scoreValue: number;
 }
 

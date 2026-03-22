@@ -6,6 +6,42 @@ export async function getUserInfo(userId) {
     if (!user) {
         const err = new Error('User not found'); err.status = 404; err.code = 'NOT_FOUND'; throw err;
     }
+
+    // Refill logic: 1 credit per hour up to 25
+    if (user.learningCredits < 25) {
+        const now = new Date();
+        const diffMs = now - (user.lastCreditUpdate || now);
+        const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+        if (diffHours > 0) {
+            const newCredits = Math.min(25, user.learningCredits + diffHours);
+            user.learningCredits = newCredits;
+            user.lastCreditUpdate = now;
+            await user.save();
+        }
+    } else if (!user.lastCreditUpdate) {
+        user.lastCreditUpdate = new Date();
+        await user.save();
+    }
+
+    return user;
+}
+
+export async function setUserLevel(userId, level) {
+    const user = await User.findByIdAndUpdate(userId, { level }, { new: true });
+    if (!user) {
+        const err = new Error('User not found'); err.status = 404; err.code = 'NOT_FOUND'; throw err;
+    }
+    return user;
+}
+
+export async function consumeCredit(userId) {
+    const user = await getUserInfo(userId);
+    if (user.learningCredits <= 0) {
+        const err = new Error('Daily credit limit reached'); err.status = 403; err.code = 'NO_CREDITS'; throw err;
+    }
+    user.learningCredits -= 1;
+    // Keep lastCreditUpdate unchanged during consumption to maintain the 1hr interval
+    await user.save();
     return user;
 }
 

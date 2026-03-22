@@ -61,9 +61,9 @@ const tamilDecorations = [
       "top-[60%] left-[8%] text-[130px] md:text-[150px] text-blue-300 opacity-[0.5] -rotate-12",
   },
   {
-    char: "த",
+    char: "ஃ",
     className:
-      "top-[25%] right-[18%] text-[110px] md:text-[130px] text-blue-200 opacity-[0.5] rotate-6",
+      "top-[25%] right-[15%] text-[110px] md:text-[130px] text-blue-200 opacity-[1] rotate-6",
   },
   {
     char: "ய",
@@ -154,7 +154,7 @@ export default function Hero() {
               Create Free Account <span aria-hidden="true">&rarr;</span>
             </Link>
             <Link
-              href="#lessons"
+              href="/student/lessons"
               className="px-8 py-4 text-lg font-semibold rounded-xl bg-white text-primary border-2 border-primary/20 hover:border-primary/50 hover:bg-light-blue/30 transition-all shadow-sm flex items-center justify-center"
             >
               Learn Today

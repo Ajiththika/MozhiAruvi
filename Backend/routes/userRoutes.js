@@ -19,9 +19,15 @@ const updatePasswordSchema = z.object({
     newPassword: z.string().min(8, 'New password must be at least 8 characters'),
 }).strict();
 
+const setLevelSchema = z.object({
+    level: z.enum(['Beginner', 'Intermediate', 'Advanced', 'Not Set']),
+}).strict();
+
 router.get('/me', authenticate, userController.getProfile);
 router.patch('/me', authenticate, validate(updateProfileSchema), userController.updateProfile);
 router.patch('/me/password', authenticate, validate(updatePasswordSchema), userController.updatePassword);
 router.patch('/me/deactivate', authenticate, userController.deactivateAccount);
+router.patch('/me/level', authenticate, validate(setLevelSchema), userController.setLevel);
+router.post('/me/consume-credit', authenticate, userController.consumeCredit);
 
 export default router;

@@ -28,3 +28,17 @@ export async function deactivateAccount(req, res, next) {
         res.json({ message: 'Account deactivated successfully. You have been logged out.' });
     } catch (e) { next(e); }
 }
+
+export async function setLevel(req, res, next) {
+    try {
+        const user = await userService.setUserLevel(req.user.sub, req.body.level);
+        res.json({ message: 'Level updated', user: user.toSafeObject() });
+    } catch (e) { next(e); }
+}
+
+export async function consumeCredit(req, res, next) {
+    try {
+        const user = await userService.consumeCredit(req.user.sub);
+        res.json({ message: 'Credit consumed', learningCredits: user.learningCredits });
+    } catch (e) { next(e); }
+}

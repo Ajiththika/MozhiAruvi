@@ -30,77 +30,13 @@ api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   return config;
 });
 
-// ── 3. Response interceptor — 401 refresh-and-retry ──────────────────────────
-
-// Track whether a refresh is already in flight to avoid concurrent calls.
-let isRefreshing = false;
-let refreshQueue: Array<(token: string) => void> = [];
-
-function processQueue(newToken: string) {
-  refreshQueue.forEach((resolve) => resolve(newToken));
-  refreshQueue = [];
-}
+// ── 3. Response interceptor ──────────────────────────────────────────────
 
 api.interceptors.response.use(
-  // Happy path → pass through unchanged
   (response) => response,
-
-  // Error path
-  async (error: AxiosError) => {
-    const original = error.config as InternalAxiosRequestConfig & {
-      _retried?: boolean;
-    };
-
-    // Only attempt refresh on 401, and only once per request.
-    const is401 =
-      error.response?.status === 401 &&
-      original &&
-      !original._retried;
-
-    // Skip refresh for the refresh endpoint itself (prevent infinite loop).
-    const isRefreshCall = original?.url?.includes("/auth/refresh");
-
-    if (!is401 || isRefreshCall) {
-      return Promise.reject(error);
-    }
-
-    original._retried = true;
-
-    if (isRefreshing) {
-      // Queue this request until the in-flight refresh completes.
-      return new Promise<string>((resolve) => {
-        refreshQueue.push(resolve);
-      }).then((newToken) => {
-        if (original.headers) {
-          original.headers.Authorization = `Bearer ${newToken}`;
-        }
-        return api(original);
-      });
-    }
-
-    isRefreshing = true;
-
-    try {
-      // POST /auth/refresh — backend reads the HTTP-only cookie automatically.
-      const { data } = await api.post<{ accessToken: string }>("/auth/refresh");
-      const newToken = data.accessToken;
-
-      authStore.set(newToken);
-      processQueue(newToken);
-
-      if (original.headers) {
-        original.headers.Authorization = `Bearer ${newToken}`;
-      }
-
-      return api(original);
-    } catch (refreshError) {
-      // Refresh failed → log out silently.
-      authStore.clear();
-      refreshQueue = [];
-      return Promise.reject(refreshError);
-    } finally {
-      isRefreshing = false;
-    }
+  (error: AxiosError) => {
+    // Return error without attempting automatic refresh
+    return Promise.reject(error);
   }
 );
 

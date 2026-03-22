@@ -27,6 +27,12 @@ const userSchema = new mongoose.Schema({
   isPremium: { type: Boolean, default: false },
   premiumExpiresAt: { type: Date },
 
+  // Learning Progression & Duolingo features
+  level: { type: String, enum: ['Beginner', 'Intermediate', 'Advanced', 'Not Set'], default: 'Not Set' },
+  learningCredits: { type: Number, default: 25 },
+  lastCreditUpdate: { type: Date, default: Date.now },
+  xp: { type: Number, default: 0 },
+
   // Auth internals
   resetPasswordToken: { type: String },
   resetPasswordExpires: { type: Date },
@@ -45,8 +51,8 @@ userSchema.methods.comparePassword = function (plain) {
 };
 
 userSchema.methods.toSafeObject = function () {
-  const { _id, name, email, role, isActive, isTutorAvailable, isPremium, credits, createdAt, teachingMode, profilePhoto } = this;
-  return { id: _id, name, email, role, isActive, isTutorAvailable, isPremium, credits, createdAt, teachingMode, profilePhoto };
+  const { _id, name, email, role, isActive, isTutorAvailable, isPremium, credits, createdAt, teachingMode, profilePhoto, level, learningCredits, xp, lastCreditUpdate } = this;
+  return { id: _id, name, email, role, isActive, isTutorAvailable, isPremium, credits, createdAt, teachingMode, profilePhoto, level, learningCredits, xp, lastCreditUpdate };
 };
 
 export default mongoose.model('User', userSchema);
