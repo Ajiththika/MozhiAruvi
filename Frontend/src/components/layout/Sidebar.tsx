@@ -73,9 +73,9 @@ export function Sidebar({ items, basePath }: SidebarProps) {
   };
 
   return (
-    <aside className="hidden w-64 flex-col border-r border-slate- bg-white dark:border-slate- dark:bg-slate- md:flex">
+    <aside className="hidden w-64 flex-col border-r border-slate-200 bg-white dark:border-slate-200 dark:bg-slate-50 md:flex">
       {/* Brand */}
-      <div className="flex h-16 items-center border-b border-slate- px-6 dark:border-slate-">
+      <div className="flex h-16 items-center border-b border-slate-200 px-6 dark:border-slate-200">
         <Link
           href={basePath}
           className="flex items-center gap-2 font-bold tracking-tight text-mozhi-primary dark:text-mozhi-secondary"
@@ -109,7 +109,7 @@ export function Sidebar({ items, basePath }: SidebarProps) {
                 "group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors duration-200",
                 isActive
                   ? "bg-mozhi-light/50 text-mozhi-primary dark:bg-mozhi-primary/20 dark:text-mozhi-secondary"
-                  : "text-slate- hover:bg-slate- dark:text-slate- dark:hover:bg-slate-/50"
+                  : "text-slate-600 hover:bg-slate-50 dark:text-slate-600 dark:hover:bg-slate-800/50"
               )}
             >
               <Icon
@@ -117,7 +117,7 @@ export function Sidebar({ items, basePath }: SidebarProps) {
                   "h-5 w-5 shrink-0 transition-colors",
                   isActive
                     ? "text-mozhi-primary dark:text-mozhi-secondary"
-                    : "text-slate- group-hover:text-slate- dark:text-slate- dark:group-hover:text-slate-"
+                    : "text-slate-600 group-hover:text-slate-600 dark:text-slate-600 dark:group-hover:text-slate-600"
                 )}
               />
               {item.name}
@@ -127,7 +127,7 @@ export function Sidebar({ items, basePath }: SidebarProps) {
       </nav>
 
       {/* Logout */}
-      <div className="border-t border-slate- p-4 dark:border-slate-">
+      <div className="border-t border-slate-200 p-4 dark:border-slate-200">
         <button
           onClick={handleLogout}
           className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-red-600 transition-colors duration-200 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/30"

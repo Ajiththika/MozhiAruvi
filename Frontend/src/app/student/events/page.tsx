@@ -51,16 +51,16 @@ export default function StudentEventsPage() {
   return (
     <div className="space-y-8 animate-in fade-in zoom-in-95 duration-500 pb-12">
       <div>
-        <h2 className="text-2xl font-bold tracking-tight text-slate- dark:text-slate- flex items-center gap-2">
+        <h2 className="text-2xl font-bold tracking-tight text-slate-600 dark:text-slate-600 flex items-center gap-2">
           Community Events <CalendarDays className="h-6 w-6 text-mozhi-secondary" />
         </h2>
-        <p className="mt-1 text-slate- dark:text-slate-">
+        <p className="mt-1 text-slate-600 dark:text-slate-600">
           Join free workshops, webinars, and meetups hosted by our top tutors.
         </p>
       </div>
 
       {/* Tabs */}
-      <div className="border-b border-slate- dark:border-slate-">
+      <div className="border-b border-slate-200 dark:border-slate-200">
         <nav className="-mb-px flex gap-6">
           {(["upcoming", "myRsvps"] as TabType[]).map((t) => (
             <button
@@ -69,7 +69,7 @@ export default function StudentEventsPage() {
               className={`whitespace-nowrap border-b-2 px-1 py-4 text-sm font-bold transition-colors ${
                 tab === t
                   ? "border-mozhi-primary text-mozhi-primary dark:border-mozhi-primary dark:text-mozhi-secondary"
-                  : "border-transparent text-slate- hover:border-slate- hover:text-slate- dark:text-slate-"
+                  : "border-transparent text-slate-600 hover:border-slate-200 hover:text-slate-600 dark:text-slate-600"
               }`}
             >
               {t === "upcoming" ? "Upcoming Events" : `My RSVPs (${joinedEventIds.size})`}
@@ -81,7 +81,7 @@ export default function StudentEventsPage() {
       {loading && (
         <div className="flex flex-col items-center justify-center py-24 gap-3">
           <Loader2 className="h-8 w-8 animate-spin text-mozhi-primary" />
-          <p className="text-sm font-medium text-slate-">Loading events...</p>
+          <p className="text-sm font-medium text-slate-600">Loading events...</p>
         </div>
       )}
 
@@ -93,8 +93,8 @@ export default function StudentEventsPage() {
 
       {!loading && !error && shownEvents.length === 0 && (
         <div className="flex flex-col items-center justify-center py-20 text-center">
-          <Users className="h-12 w-12 text-slate- dark:text-slate- mb-4" />
-          <p className="text-slate- dark:text-slate-">
+          <Users className="h-12 w-12 text-slate-600 dark:text-slate-600 mb-4" />
+          <p className="text-slate-600 dark:text-slate-600">
             {tab === "myRsvps" ? "You haven't RSVP'd to any events yet." : "No upcoming events right now."}
           </p>
         </div>

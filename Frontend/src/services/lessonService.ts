@@ -23,17 +23,31 @@ export interface Lesson {
 
 export interface Question {
   _id: string;
+<<<<<<< HEAD
   type: "learn" | "match" | "identify" | "listening" | "fill" | "spelling" | "quiz" | "speaking";
+=======
+  type?: 'choice' | 'speaking';
+>>>>>>> origin/main
   text: string;
   options?: string[];
   correctOptionIndex?: number;
   correctAnswer?: string;
   scoreValue: number;
+  correctOptionIndex?: number;
+  expectedAudioText?: string;
 }
 
 export interface SubmitAnswerItem {
   questionId: string;
   selectedOptionIndex: number;
+}
+
+export interface Progress {
+  _id: string;
+  lessonId: string;
+  score: number;
+  isCompleted: boolean;
+  completedAt: string;
 }
 
 export interface SubmitResult {
@@ -45,9 +59,9 @@ export interface SubmitResult {
 
 // ── Get all lessons ───────────────────────────────────────────────────────────
 
-export async function getLessons(): Promise<Lesson[]> {
-  const res = await api.get<{ lessons: Lesson[] }>("/lessons");
-  return res.data.lessons;
+export async function getLessons(): Promise<{ lessons: Lesson[], progress: Progress[] }> {
+  const res = await api.get<{ lessons: Lesson[], progress: Progress[] }>("/lessons");
+  return res.data;
 }
 
 // ── Get single lesson ─────────────────────────────────────────────────────────
@@ -71,5 +85,26 @@ export async function submitAnswers(
   answers: SubmitAnswerItem[]
 ): Promise<SubmitResult> {
   const res = await api.post<SubmitResult>(`/lessons/${lessonId}/submit`, { answers });
+  return res.data;
+}
+
+// ── Speaking Evaluation ───────────────────────────────────────────────────────
+
+export async function evaluateSpeaking(
+  lessonId: string,
+  questionId: string,
+  audioBase64?: string
+): Promise<{ passed: boolean; message: string }> {
+  const res = await api.post<{ passed: boolean; message: string }>(
+    `/lessons/${lessonId}/evaluate-speaking`,
+    { questionId, audioBase64 }
+  );
+  return res.data;
+}
+
+// ── Admin operations ──────────────────────────────────────────────────────────
+
+export async function deleteLesson(id: string): Promise<{ message: string }> {
+  const res = await api.delete<{ message: string }>(`/lessons/${id}`);
   return res.data;
 }

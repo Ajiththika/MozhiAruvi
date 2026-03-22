@@ -4,7 +4,8 @@ import * as lessonService from '../services/lessonService.js';
 export async function listLessons(req, res, next) {
     try {
         const lessons = await lessonService.getAllLessons();
-        res.json({ lessons });
+        const progress = await lessonService.getUserProgressList(req.user.sub);
+        res.json({ lessons, progress });
     } catch (e) { next(e); }
 }
 
@@ -33,6 +34,30 @@ export async function submitAnswers(req, res, next) {
             totalPossibleScore: result.totalPossibleScore,
             passed: result.passed,
             progress: result.progress
+        });
+    } catch (e) { next(e); }
+}
+
+export async function evaluateSpeaking(req, res, next) {
+    try {
+        const { questionId, audioBase64 } = req.body;
+        // In the future, send audioBase64 to an external Speech-to-Text / Pronunciation scoring API
+        // For now, simulate the integration honestly
+        
+        let score = 95; // Simulated
+        let isSimulated = true;
+        let transcription = "simulated speech";
+        
+        // Simulating processing delay
+        await new Promise(resolve => setTimeout(resolve, 800));
+
+        res.json({
+            isScorable: false,
+            isSimulated,
+            passed: true,
+            score,
+            transcription,
+            message: "AI pronunciation scoring is currently offline. Simulating validation successfully."
         });
     } catch (e) { next(e); }
 }

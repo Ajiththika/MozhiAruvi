@@ -50,10 +50,10 @@ export default function TutorQuestionsPage() {
     <div className="space-y-8 animate-in fade-in zoom-in-95 duration-500">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight text-slate- dark:text-slate-">
+          <h2 className="text-2xl font-bold tracking-tight text-slate-600 dark:text-slate-600">
             Student Q&A Forum 💬
           </h2>
-          <p className="mt-1 text-slate- dark:text-slate-">
+          <p className="mt-1 text-slate-600 dark:text-slate-600">
             Answer questions from students attending your sessions.
           </p>
         </div>
@@ -67,13 +67,13 @@ export default function TutorQuestionsPage() {
       {/* Search */}
       <div className="flex flex-col gap-4 md:flex-row md:items-center">
         <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-600" />
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search questions..."
-            className="w-full rounded-xl border border-slate- bg-white py-2.5 pl-10 pr-4 text-sm outline-none transition-all placeholder:text-slate- focus:border-mozhi-primary focus:ring-2 focus:ring-mozhi-primary/20 dark:border-slate- dark:bg-slate- dark:text-slate-"
+            className="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-10 pr-4 text-sm outline-none transition-all placeholder:text-slate-600 focus:border-mozhi-primary focus:ring-2 focus:ring-mozhi-primary/20 dark:border-slate-200 dark:bg-slate-50 dark:text-slate-600"
           />
         </div>
       </div>
@@ -81,7 +81,7 @@ export default function TutorQuestionsPage() {
       {loading && (
         <div className="flex flex-col items-center justify-center py-24 gap-3">
           <Loader2 className="h-8 w-8 animate-spin text-mozhi-primary" />
-          <p className="text-sm font-medium text-slate-">Loading questions...</p>
+          <p className="text-sm font-medium text-slate-600">Loading questions...</p>
         </div>
       )}
 
@@ -92,7 +92,7 @@ export default function TutorQuestionsPage() {
       )}
 
       {!loading && !error && filtered.length === 0 && (
-        <div className="py-20 text-center text-slate- dark:text-slate-">
+        <div className="py-20 text-center text-slate-600 dark:text-slate-600">
           No questions {search ? "matching your search" : "yet"}.
         </div>
       )}
@@ -103,7 +103,7 @@ export default function TutorQuestionsPage() {
           return (
             <div
               key={q._id}
-              className="flex flex-col lg:flex-row rounded-2xl border border-slate- bg-white shadow-sm dark:border-slate- dark:bg-slate- overflow-hidden"
+              className="flex flex-col lg:flex-row rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-200 dark:bg-slate-50 overflow-hidden"
             >
               <div className="flex flex-1 flex-col p-6">
                 <div className="flex items-center justify-between mb-4">
@@ -112,8 +112,8 @@ export default function TutorQuestionsPage() {
                       S
                     </div>
                     <div>
-                      <p className="text-sm font-bold text-slate- dark:text-slate-">Student</p>
-                      <p className="text-xs text-slate- dark:text-slate-">
+                      <p className="text-sm font-bold text-slate-600 dark:text-slate-600">Student</p>
+                      <p className="text-xs text-slate-600 dark:text-slate-600">
                         {new Date(q.createdAt).toLocaleDateString()}
                         {q.lessonId && ` • Lesson: ${q.lessonId}`}
                       </p>
@@ -125,7 +125,7 @@ export default function TutorQuestionsPage() {
                     </span>
                   )}
                 </div>
-                <p className="text-base text-slate- dark:text-slate- leading-relaxed">
+                <p className="text-base text-slate-600 dark:text-slate-600 leading-relaxed">
                   "{q.question}"
                 </p>
                 {q.response && (
@@ -135,7 +135,7 @@ export default function TutorQuestionsPage() {
                 )}
               </div>
 
-              <div className="flex flex-col justify-center border-t border-slate- bg-slate- p-6 lg:w-72 lg:border-l lg:border-t-0 dark:border-slate- dark:bg-slate-/50">
+              <div className="flex flex-col justify-center border-t border-slate-200 bg-slate-50 p-6 lg:w-72 lg:border-l lg:border-t-0 dark:border-slate-200 dark:bg-slate-900/50">
                 {!isResolved ? (
                   <div className="space-y-4">
                     <textarea
@@ -143,7 +143,7 @@ export default function TutorQuestionsPage() {
                       value={replies[q._id] ?? ""}
                       onChange={(e) => setReplies((prev) => ({ ...prev, [q._id]: e.target.value }))}
                       placeholder="Type your response..."
-                      className="w-full resize-none rounded-xl border border-slate- bg-white p-3 text-sm focus:border-mozhi-primary focus:outline-none focus:ring-1 focus:ring-mozhi-primary dark:border-slate- dark:bg-slate- dark:text-slate-"
+                      className="w-full resize-none rounded-xl border border-slate-200 bg-white p-3 text-sm focus:border-mozhi-primary focus:outline-none focus:ring-1 focus:ring-mozhi-primary dark:border-slate-200 dark:bg-slate-50 dark:text-slate-600"
                     />
                     <button
                       onClick={() => handleReply(q._id)}
@@ -156,7 +156,7 @@ export default function TutorQuestionsPage() {
                   </div>
                 ) : (
                   <div className="flex h-full flex-col justify-center text-center">
-                    <p className="text-sm text-slate- dark:text-slate-">
+                    <p className="text-sm text-slate-600 dark:text-slate-600">
                       This question has been marked resolved.
                     </p>
                   </div>

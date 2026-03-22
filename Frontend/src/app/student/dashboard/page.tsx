@@ -17,9 +17,9 @@ export default function StudentDashboard() {
 
   useEffect(() => {
     Promise.all([getMe(), getLessons(), getMyJoinRequests()])
-      .then(([u, ls, jrs]) => {
+      .then(([u, { lessons }, jrs]) => {
         setUser(u);
-        setLessons(ls);
+        setLessons(lessons);
         setJoinRequests(jrs);
       })
       .catch(() => setError("Could not load dashboard data."))
@@ -42,10 +42,10 @@ export default function StudentDashboard() {
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
       <div>
-        <h2 className="text-2xl font-bold tracking-tight text-slate- dark:text-slate-">
+        <h2 className="text-2xl font-bold tracking-tight text-slate-600 dark:text-slate-600">
           Welcome back, {user?.name?.split(" ")[0] ?? "Student"}! 👋
         </h2>
-        <p className="text-slate- dark:text-slate- mt-1">
+        <p className="text-slate-600 dark:text-slate-600 mt-1">
           Here is an overview of your Tamil learning progress.
         </p>
       </div>
@@ -90,21 +90,21 @@ export default function StudentDashboard() {
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* Next Lesson */}
-        <div className="lg:col-span-2 flex flex-col rounded-xl border border-slate- bg-white p-6 shadow-sm dark:border-slate- dark:bg-slate-">
-          <h3 className="text-lg font-semibold text-slate- dark:text-slate-">
+        <div className="lg:col-span-2 flex flex-col rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-200 dark:bg-slate-50">
+          <h3 className="text-lg font-semibold text-slate-600 dark:text-slate-600">
             {nextLesson ? "Start your next lesson" : "Curriculum"}
           </h3>
 
           {nextLesson ? (
-            <div className="mt-4 flex flex-1 flex-col justify-center rounded-lg border border-slate- bg-slate- p-6 dark:border-slate-/50 dark:bg-slate-/50">
+            <div className="mt-4 flex flex-1 flex-col justify-center rounded-lg border border-slate-200 bg-slate-50 p-6 dark:border-slate-/50 dark:bg-slate-900/50">
               <div>
                 <span className="inline-flex rounded-full bg-mozhi-light px-2.5 py-0.5 text-xs font-semibold text-blue-800 dark:bg-mozhi-primary/20 dark:text-blue-300">
                   Module {nextLesson.moduleNumber}
                 </span>
-                <h4 className="mt-2 text-xl font-bold text-slate- dark:text-slate-">
+                <h4 className="mt-2 text-xl font-bold text-slate-600 dark:text-slate-600">
                   {nextLesson.title}
                 </h4>
-                <p className="mt-1 text-sm text-slate- dark:text-slate-">
+                <p className="mt-1 text-sm text-slate-600 dark:text-slate-600">
                   {nextLesson.description ?? "Continue your learning journey."}
                 </p>
               </div>
@@ -118,9 +118,9 @@ export default function StudentDashboard() {
               </div>
             </div>
           ) : (
-            <div className="mt-4 flex flex-1 items-center justify-center rounded-lg border border-dashed border-slate- p-10 text-center">
+            <div className="mt-4 flex flex-1 items-center justify-center rounded-lg border border-dashed border-slate-200 p-10 text-center">
               <div>
-                <p className="text-sm text-slate- dark:text-slate-">No lessons published yet.</p>
+                <p className="text-sm text-slate-600 dark:text-slate-600">No lessons published yet.</p>
                 <Link href="/student/lessons" className="mt-2 inline-block text-sm font-semibold text-mozhi-primary hover:text-mozhi-secondary">
                   Browse Curriculum →
                 </Link>
@@ -130,9 +130,9 @@ export default function StudentDashboard() {
         </div>
 
         {/* Upcoming Events */}
-        <div className="flex flex-col rounded-xl border border-slate- bg-white p-6 shadow-sm dark:border-slate- dark:bg-slate-">
+        <div className="flex flex-col rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-200 dark:bg-slate-50">
           <div className="flex items-center justify-between">
-            <h3 className="text-lg font-semibold text-slate- dark:text-slate-">My Events</h3>
+            <h3 className="text-lg font-semibold text-slate-600 dark:text-slate-600">My Events</h3>
             {upcomingEvents.length > 0 && (
               <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-mozhi-light text-xs font-medium text-mozhi-primary dark:bg-mozhi-primary/20 dark:text-mozhi-secondary">
                 {upcomingEvents.length}
@@ -142,8 +142,8 @@ export default function StudentDashboard() {
 
           <div className="mt-4 flex flex-1 flex-col gap-3">
             {upcomingEvents.length === 0 ? (
-              <div className="flex flex-1 flex-col items-center justify-center rounded-lg border border-dashed border-slate- p-6 text-center dark:border-slate-">
-                <p className="text-sm text-slate- dark:text-slate-">No RSVPs yet.</p>
+              <div className="flex flex-1 flex-col items-center justify-center rounded-lg border border-dashed border-slate-200 p-6 text-center dark:border-slate-200">
+                <p className="text-sm text-slate-600 dark:text-slate-600">No RSVPs yet.</p>
                 <Link href="/student/events" className="mt-3 text-sm font-medium text-mozhi-primary hover:text-mozhi-secondary dark:text-mozhi-secondary">
                   Browse Events →
                 </Link>
@@ -152,15 +152,15 @@ export default function StudentDashboard() {
               upcomingEvents.slice(0, 3).map((req) => {
                 const event = typeof req.event === "object" ? req.event : null;
                 return (
-                  <div key={req._id} className="flex items-center gap-3 rounded-lg border border-slate- p-3 dark:border-slate-">
+                  <div key={req._id} className="flex items-center gap-3 rounded-lg border border-slate-200 p-3 dark:border-slate-200">
                     <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-xs font-bold text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-500">
                       E
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold text-slate- dark:text-slate- truncate">
+                      <p className="text-sm font-semibold text-slate-600 dark:text-slate-600 truncate">
                         {event?.title ?? "Event"}
                       </p>
-                      <p className="text-xs text-slate- capitalize">{req.status}</p>
+                      <p className="text-xs text-slate-600 capitalize">{req.status}</p>
                     </div>
                   </div>
                 );

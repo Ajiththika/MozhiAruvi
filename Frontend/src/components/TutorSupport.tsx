@@ -49,8 +49,8 @@ export default function TutorSupport() {
             </ul>
 
             <Link 
-              href="/tutors" 
-              className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-white text-primary border-2 border-primary hover:bg-light-blue/20 transition-all font-semibold shadow-sm"
+              href="/auth/signup" 
+              className="mt-4 md:mt-8 inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl bg-white text-primary border-2 border-primary hover:bg-light-blue/20 transition-all font-semibold shadow-sm w-full sm:w-auto"
             >
               Book Tutors
             </Link>

@@ -16,10 +16,19 @@ export async function getLessonById(lessonId) {
     return lesson;
 }
 
+export async function getUserProgressList(userId) {
+    return Progress.find({ userId });
+}
+
 // ── Questions (Public/User) ───────────────────────────────────────────────────
 export async function getQuestionsForLesson(lessonId) {
+<<<<<<< HEAD
     // For Duolingo style immediate feedback, we return answers. Secure mode can be added later.
     return Question.find({ lessonId }).select('_id text options scoreValue type correctOptionIndex correctAnswer');
+=======
+    // Including correctOptionIndex to allow immediate Duolingo-style UI feedback
+    return Question.find({ lessonId }).select('_id type text options scoreValue correctOptionIndex expectedAudioText');
+>>>>>>> origin/main
 }
 
 // ── Submission and Progress (Phase 4 & 5) ─────────────────────────────────────
@@ -45,8 +54,12 @@ export async function evaluateAnswersAndSaveProgress(userId, lessonId, answers) 
 
     for (const ans of answers) {
         const q = questionMap.get(ans.questionId.toString());
-        if (q && q.correctOptionIndex === ans.selectedOptionIndex) {
-            score += q.scoreValue;
+        if (q) {
+            if (q.type === 'speaking' && ans.isSpeakingCompleted) {
+                 score += q.scoreValue;
+            } else if (q.correctOptionIndex === ans.selectedOptionIndex) {
+                 score += q.scoreValue;
+            }
         }
     }
 

@@ -52,9 +52,9 @@ export function RoleProtectedRoute({ children, allowedRoles }: RoleProtectedRout
 
   if (loading) {
     return (
-      <div className="flex min-h-screen w-full flex-col items-center justify-center bg-slate- dark:bg-slate-">
+      <div className="flex min-h-screen w-full flex-col items-center justify-center bg-slate-50 dark:bg-slate-50">
          <Loader2 className="h-10 w-10 animate-spin text-primary" />
-         <p className="mt-4 text-sm font-medium text-slate-">Verifying session...</p>
+         <p className="mt-4 text-sm font-medium text-slate-600">Verifying session...</p>
       </div>
     );
   }

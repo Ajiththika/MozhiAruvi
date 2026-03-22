@@ -11,6 +11,7 @@ const studentLinks: SidebarItem[] = [
   { name: "Vocabulary", href: "/student/vocabulary",  icon: "library-big" },
   { name: "Tutors",     href: "/student/tutors",      icon: "users" },
   { name: "Events",     href: "/student/events",      icon: "calendar" },
+  { name: "Blogs",      href: "/student/blogs",       icon: "message-square" },
   { name: "Premium",    href: "/student/premium",     icon: "sparkles" },
   { name: "Settings",   href: "/student/settings",    icon: "settings" },
 ];
@@ -18,7 +19,7 @@ const studentLinks: SidebarItem[] = [
 export default function StudentLayout({ children }: { children: React.ReactNode }) {
   return (
     <RoleProtectedRoute allowedRoles={["user"]}>
-      <div className="flex min-h-screen w-full bg-slate- dark:bg-slate-">
+      <div className="flex min-h-screen w-full bg-slate-50 dark:bg-slate-50">
         <Sidebar items={studentLinks} basePath="/student/dashboard" />
         <div className="flex flex-1 flex-col overflow-hidden">
           <Topbar title="Student Portal" />

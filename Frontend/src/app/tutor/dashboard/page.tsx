@@ -54,10 +54,10 @@ export default function TutorDashboard() {
     <div className="space-y-8 animate-in fade-in duration-500">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight text-slate- dark:text-slate-">
+          <h2 className="text-2xl font-bold tracking-tight text-slate-600 dark:text-slate-600">
             Welcome, {user?.name?.split(" ")[0] ?? "Tutor"}! 👩‍🏫
           </h2>
-          <p className="text-slate- dark:text-slate- mt-1">
+          <p className="text-slate-600 dark:text-slate-600 mt-1">
             Monitor your student engagement and session activity.
           </p>
         </div>
@@ -69,7 +69,7 @@ export default function TutorDashboard() {
           className={`flex items-center gap-3 rounded-2xl border px-5 py-3 text-sm font-bold shadow-sm transition-colors ${
             isAvailable
               ? "border-emerald-300 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:border-emerald-800 dark:bg-emerald-950/30 dark:text-emerald-400"
-              : "border-slate- bg-white text-slate- hover:bg-slate- dark:border-slate- dark:bg-slate- dark:text-slate-"
+              : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50 dark:border-slate-200 dark:bg-slate-50 dark:text-slate-600"
           } disabled:opacity-60`}
         >
           {isAvailable ? (
@@ -122,14 +122,14 @@ export default function TutorDashboard() {
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* Quick actions */}
-        <div className="lg:col-span-2 flex flex-col rounded-xl border border-slate- bg-white p-6 shadow-sm dark:border-slate- dark:bg-slate-">
-          <h3 className="text-lg font-semibold text-slate- dark:text-slate- mb-4">Quick Actions</h3>
+        <div className="lg:col-span-2 flex flex-col rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-200 dark:bg-slate-50">
+          <h3 className="text-lg font-semibold text-slate-600 dark:text-slate-600 mb-4">Quick Actions</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {[
               { label: "Answer Questions", desc: `${pendingQs.length} pending`, href: "/tutor/questions", color: "bg-mozhi-primary hover:bg-mozhi-primary" },
               { label: "Manage Schedule", desc: "Set your availability", href: "/tutor/schedule", color: "bg-mozhi-primary hover:bg-mozhi-primary" },
               { label: "Host an Event", desc: "Create a group session", href: "/tutor/events", color: "bg-emerald-600 hover:bg-emerald-500" },
-              { label: "Edit Profile", desc: "Update your public info", href: "/tutor/profile", color: "bg-slate- hover:bg-slate- dark:bg-slate- dark:hover:bg-slate-" },
+              { label: "Edit Profile", desc: "Update your public info", href: "/tutor/profile", color: "bg-slate-50 hover:bg-slate-50 dark:bg-slate-50 dark:hover:bg-slate-50" },
             ].map((action) => (
               <Link
                 key={action.href}
@@ -147,9 +147,9 @@ export default function TutorDashboard() {
         </div>
 
         {/* Pending Questions Preview */}
-        <div className="flex flex-col rounded-xl border border-slate- bg-white p-6 shadow-sm dark:border-slate- dark:bg-slate-">
+        <div className="flex flex-col rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-200 dark:bg-slate-50">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-slate- dark:text-slate-">New Questions</h3>
+            <h3 className="text-lg font-semibold text-slate-600 dark:text-slate-600">New Questions</h3>
             {pendingQs.length > 0 && (
               <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-red-100 text-xs font-bold text-red-600 dark:bg-red-900/30 dark:text-red-400">
                 {pendingQs.length}
@@ -158,18 +158,18 @@ export default function TutorDashboard() {
           </div>
 
           {pendingQs.length === 0 ? (
-            <div className="flex flex-1 flex-col items-center justify-center rounded-lg border border-dashed border-slate- p-6 text-center dark:border-slate-">
-              <p className="text-sm text-slate- dark:text-slate-">No pending questions 🎉</p>
+            <div className="flex flex-1 flex-col items-center justify-center rounded-lg border border-dashed border-slate-200 p-6 text-center dark:border-slate-200">
+              <p className="text-sm text-slate-600 dark:text-slate-600">No pending questions 🎉</p>
             </div>
           ) : (
             <div className="flex flex-col gap-3">
               {pendingQs.slice(0, 3).map((q) => (
-                <div key={q._id} className="flex flex-col gap-1.5 rounded-lg border border-slate- p-4 hover:bg-slate- dark:border-slate- dark:hover:bg-slate-/60 transition-colors">
-                  <p className="text-sm font-medium text-slate- dark:text-slate- line-clamp-2">
+                <div key={q._id} className="flex flex-col gap-1.5 rounded-lg border border-slate-200 p-4 hover:bg-slate-50 dark:border-slate-200 dark:hover:bg-slate-/60 transition-colors">
+                  <p className="text-sm font-medium text-slate-600 dark:text-slate-600 line-clamp-2">
                     {q.question}
                   </p>
                   <div className="flex items-center justify-between mt-1">
-                    <p className="text-xs text-slate-">{new Date(q.createdAt).toLocaleDateString()}</p>
+                    <p className="text-xs text-slate-600">{new Date(q.createdAt).toLocaleDateString()}</p>
                     <Link href="/tutor/questions" className="text-xs font-bold text-mozhi-primary dark:text-mozhi-secondary hover:underline">
                       Reply →
                     </Link>

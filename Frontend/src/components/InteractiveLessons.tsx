@@ -53,8 +53,8 @@ export default function InteractiveLessons() {
             </ul>
 
             <Link 
-              href="/lessons" 
-              className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-primary text-white font-semibold hover:bg-primary-dark transition-all shadow-md hover:shadow-lg"
+              href="/auth/signup" 
+              className="mt-4 md:mt-8 inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-primary text-white font-semibold hover:bg-primary-dark transition-all shadow-md hover:shadow-lg w-full sm:w-auto justify-center"
             >
               Go to Lessons <span>&rarr;</span>
             </Link>

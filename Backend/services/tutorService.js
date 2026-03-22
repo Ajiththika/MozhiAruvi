@@ -3,12 +3,12 @@ import TutorRequest from '../models/TutorRequest.js';
 
 export async function getAvailableTutors() {
     return User.find({ role: 'teacher', isActive: true, isTutorAvailable: true })
-        .select('name bio experience specialization hourlyRate languages email schedule teachingMode profilePhoto');
+        .select('name bio experience specialization hourlyRate languages email schedule teachingMode profilePhoto levelSupport responseTime isTutorAvailable');
 }
 
 export async function getTutorById(tutorId) {
-    const tutor = await User.findOne({ _id: tutorId, role: 'teacher', isActive: true, isTutorAvailable: true })
-        .select('name bio experience specialization hourlyRate languages email schedule teachingMode profilePhoto');
+    const tutor = await User.findOne({ _id: tutorId, role: 'teacher', isActive: true })
+        .select('name bio experience specialization hourlyRate languages email schedule teachingMode profilePhoto levelSupport responseTime isTutorAvailable');
     if (!tutor) {
         const err = new Error('Tutor not found or unavailable'); err.status = 404; err.code = 'NOT_FOUND'; throw err;
     }

@@ -47,8 +47,8 @@ export default function AdminUsersPage() {
         ? await deactivateUser(user._id)
         : await activateUser(user._id);
       setUsers((prev) => prev.map((u) => (u._id === updated._id ? updated : u)));
-    } catch {
-      // toast here
+    } catch (err: any) {
+      alert(err.response?.data?.message || err.message || "Failed to update user status");
     } finally {
       setActioning(null);
     }
@@ -60,12 +60,12 @@ export default function AdminUsersPage() {
       accessorKey: "name",
       cell: (row) => (
         <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-slate- font-bold text-slate- dark:bg-slate- dark:text-slate-">
+          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-50 font-bold text-slate-600 dark:bg-slate-50 dark:text-slate-600">
             {row.name.charAt(0).toUpperCase()}
           </div>
           <div>
-            <p className="font-bold text-slate- dark:text-slate- text-sm">{row.name}</p>
-            <p className="text-xs text-slate- dark:text-slate-">{row.email}</p>
+            <p className="font-bold text-slate-600 dark:text-slate-600 text-sm">{row.name}</p>
+            <p className="text-xs text-slate-600 dark:text-slate-600">{row.email}</p>
           </div>
         </div>
       ),
@@ -113,7 +113,7 @@ export default function AdminUsersPage() {
             )}
           </button>
         ) : (
-          <span className="text-xs text-slate-">Protected</span>
+          <span className="text-xs text-slate-600">Protected</span>
         ),
     },
   ];
@@ -122,17 +122,17 @@ export default function AdminUsersPage() {
     <div className="space-y-8 animate-in fade-in zoom-in-95 duration-500 pb-12">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight text-slate- dark:text-slate-">
+          <h2 className="text-2xl font-bold tracking-tight text-slate-600 dark:text-slate-600">
             User Database 👥
           </h2>
-          <p className="mt-1 text-slate- dark:text-slate-">
+          <p className="mt-1 text-slate-600 dark:text-slate-600">
             View, activate, or suspend student and tutor accounts.
           </p>
         </div>
         <button
           onClick={load}
           disabled={loading}
-          className="flex items-center gap-2 rounded-xl border border-slate- bg-white px-4 py-2 text-sm font-semibold text-slate- shadow-sm transition hover:bg-slate- disabled:opacity-50 dark:border-slate- dark:bg-slate- dark:text-slate-"
+          className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-600 shadow-sm transition hover:bg-slate-50 disabled:opacity-50 dark:border-slate-200 dark:bg-slate-50 dark:text-slate-600"
         >
           <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} /> Refresh
         </button>

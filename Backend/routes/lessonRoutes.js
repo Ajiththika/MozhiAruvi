@@ -23,11 +23,19 @@ const createLessonSchema = z.object({
 const updateLessonSchema = createLessonSchema.partial();
 
 const createQuestionSchema = z.object({
+<<<<<<< HEAD
     type: z.enum(['learn', 'match', 'identify', 'listening', 'fill', 'spelling', 'quiz', 'speaking']).optional(),
     text: z.string().min(1, 'Question text required'),
     options: z.array(z.string()).optional(),
     correctOptionIndex: z.number().int().nonnegative('Correct option index required').optional(),
     correctAnswer: z.string().optional(),
+=======
+    type: z.enum(['choice', 'speaking']).optional().default('choice'),
+    text: z.string().min(1, 'Question text required'),
+    options: z.array(z.string()).optional(),
+    correctOptionIndex: z.number().int().nonnegative().optional(),
+    expectedAudioText: z.string().optional(),
+>>>>>>> origin/main
     scoreValue: z.number().int().positive().optional()
 }).strict();
 
@@ -35,10 +43,15 @@ const createQuestionSchema = z.object({
 const submitAnswersSchema = z.object({
     answers: z.array(z.object({
         questionId: z.string(),
-        selectedOptionIndex: z.number().int().nonnegative()
+        selectedOptionIndex: z.number().int().nonnegative().optional(),
+        isSpeakingCompleted: z.boolean().optional()
     }))
 }).strict();
 
+const evaluateSpeakingSchema = z.object({
+    questionId: z.string().min(1),
+    audioBase64: z.string().optional(), // Base64 chunk for future integration
+});
 
 // ── User Endpoints ────────────────────────────────────────────────────────────
 // Phase 3: List and View Lessons
@@ -48,6 +61,7 @@ router.get('/:id', authenticate, lessonController.getLessonDetails);
 // Phase 4: View Questions & Submit Answers
 router.get('/:id/questions', authenticate, lessonController.getLessonQuestions);
 router.post('/:id/submit', authenticate, validate(submitAnswersSchema), lessonController.submitAnswers);
+router.post('/:id/evaluate-speaking', authenticate, validate(evaluateSpeakingSchema), lessonController.evaluateSpeaking);
 
 // ── Admin Endpoints ───────────────────────────────────────────────────────────
 router.post('/', authenticate, requireRole('admin'), validate(createLessonSchema), lessonController.createLesson);

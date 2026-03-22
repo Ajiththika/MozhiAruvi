@@ -22,12 +22,12 @@ export function StatCard({
   return (
     <div
       className={cn(
-        "flex flex-col gap-2 rounded-xl border border-slate- bg-white p-5 shadow-sm transition-all hover:shadow-md dark:border-slate- dark:bg-slate-",
+        "flex flex-col gap-2 rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition-all hover:shadow-md dark:border-slate-200 dark:bg-slate-50",
         className
       )}
     >
       <div className="flex items-center justify-between">
-        <p className="text-sm font-medium text-slate- dark:text-slate-">
+        <p className="text-sm font-medium text-slate-600 dark:text-slate-600">
           {title}
         </p>
         <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-mozhi-light/50/50 dark:bg-mozhi-primary/20">
@@ -35,7 +35,7 @@ export function StatCard({
         </div>
       </div>
       <div>
-        <h3 className="text-2xl font-bold tracking-tight text-slate- dark:text-slate-">
+        <h3 className="text-2xl font-bold tracking-tight text-slate-600 dark:text-slate-600">
           {value}
         </h3>
         {trend && trendValue && (
@@ -51,12 +51,12 @@ export function StatCard({
                   ? "text-emerald-600 dark:text-emerald-500"
                   : trend === "down"
                   ? "text-red-600 dark:text-red-500"
-                  : "text-slate- dark:text-slate-"
+                  : "text-slate-600 dark:text-slate-600"
               )}
             >
               {trendValue}
             </span>
-            <span className="text-slate- dark:text-slate- ml-1 font-normal">
+            <span className="text-slate-600 dark:text-slate-600 ml-1 font-normal">
               vs last month
             </span>
           </div>

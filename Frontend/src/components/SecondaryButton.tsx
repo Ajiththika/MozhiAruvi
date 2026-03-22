@@ -13,7 +13,7 @@ type ButtonAsLinkProps = ButtonBaseProps & AnchorHTMLAttributes<HTMLAnchorElemen
 type SecondaryButtonProps = ButtonAsButtonProps | ButtonAsLinkProps;
 
 export default function SecondaryButton({ children, className = '', href, ...props }: SecondaryButtonProps) {
-  const baseClasses = `inline-flex items-center justify-center px-6 py-3 md:px-8 md:py-4 text-base md:text-lg font-bold rounded-xl bg-white text-primary border-2 border-primary/20 hover:border-primary/50 hover:bg-light-blue/30 transition-all shadow-sm ${className}`;
+  const baseClasses = `inline-flex items-center justify-center px-6 py-3 md:px-8 md:py-4 text-base md:text-lg font-bold rounded-xl bg-white text-primary border-2 border-primary/20 hover:border-primary/50 hover:bg-light-blue/30 transition-all shadow-sm focus:ring-4 focus:ring-primary/20 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:border-primary/20 ${className}`;
 
   if (href) {
     return (

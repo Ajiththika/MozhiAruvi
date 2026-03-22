@@ -25,6 +25,8 @@ const updateTutorProfileSchema = z.object({
     languages: z.array(z.string()).optional(),
     teachingMode: z.enum(['online', 'offline', 'both']).optional(),
     profilePhoto: z.string().url().optional().nullable(),
+    levelSupport: z.array(z.enum(['beginner', 'intermediate', 'advanced'])).optional(),
+    responseTime: z.string().optional(),
 }).strict();
 
 const updateAvailabilitySchema = z.object({
