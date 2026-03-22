@@ -23,17 +23,12 @@ export interface Lesson {
 
 export interface Question {
   _id: string;
-<<<<<<< HEAD
-  type: "learn" | "match" | "identify" | "listening" | "fill" | "spelling" | "quiz" | "speaking";
-=======
-  type?: 'choice' | 'speaking';
->>>>>>> origin/main
+  type?: "learn" | "match" | "identify" | "listening" | "fill" | "spelling" | "quiz" | "speaking" | "choice";
   text: string;
   options?: string[];
   correctOptionIndex?: number;
   correctAnswer?: string;
   scoreValue: number;
-  correctOptionIndex?: number;
   expectedAudioText?: string;
 }
 

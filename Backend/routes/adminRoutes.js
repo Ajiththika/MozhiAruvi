@@ -16,6 +16,7 @@ router.get('/tutors', authenticate, requireRole('admin'), adminController.getTut
 // Admin functions
 router.patch('/users/:id/deactivate', authenticate, requireRole('admin'), adminController.deactivateUser);
 router.patch('/users/:id/activate', authenticate, requireRole('admin'), adminController.activateUser);
+router.patch('/users/:id/edit', authenticate, requireRole('admin'), adminController.editUser);
 
 // Admin functions
 router.patch('/users/:id/tutor-status', authenticate, requireRole('admin'), adminController.changeTutorStatus);

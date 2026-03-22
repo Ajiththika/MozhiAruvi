@@ -19,7 +19,16 @@ export interface SafeUser {
   profilePhoto?: string | null;
   level?: "Beginner" | "Intermediate" | "Advanced" | "Not Set";
   learningCredits?: number;
+  credits?: number;
   xp?: number;
+  phoneNumber?: string;
+  country?: string;
+  age?: number;
+  gender?: string;
+  bio?: string;
+  specialization?: string;
+  experience?: string;
+  hourlyRate?: number;
 }
 
 export interface AuthResponse {

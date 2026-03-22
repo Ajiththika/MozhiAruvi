@@ -9,6 +9,9 @@ export async function getProfile(req, res, next) {
 
 export async function updateProfile(req, res, next) {
     try {
+        if (req.file) {
+            req.body.profilePhoto = req.file.path;
+        }
         const user = await userService.updateUserInfo(req.user.sub, req.body);
         res.json({ message: 'Profile updated successfully', user: user.toSafeObject() });
     } catch (e) { next(e); }

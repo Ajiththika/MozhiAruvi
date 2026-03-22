@@ -16,8 +16,11 @@ export async function getTutorById(req, res, next) {
 
 export async function updateTutorProfile(req, res, next) {
     try {
+        if (req.file) {
+            req.body.profilePhoto = req.file.path;
+        }
         const tutor = await tutorService.updateTutorProfile(req.user.sub, req.body);
-        res.json({ message: 'Profile updated.', tutor });
+        res.json({ message: 'Profile updated.', tutor: tutor.toSafeObject() });
     } catch (e) { next(e); }
 }
 

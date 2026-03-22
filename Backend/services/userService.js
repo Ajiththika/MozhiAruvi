@@ -55,6 +55,12 @@ export async function updateUserInfo(userId, updateData) {
     if (updateData.bio !== undefined) user.bio = updateData.bio;
     if (updateData.experience !== undefined) user.experience = updateData.experience;
     if (updateData.specialization !== undefined) user.specialization = updateData.specialization;
+    if (updateData.phoneNumber !== undefined) user.phoneNumber = updateData.phoneNumber;
+    if (updateData.country !== undefined) user.country = updateData.country;
+    if (updateData.age !== undefined) user.age = updateData.age;
+    if (updateData.gender !== undefined) user.gender = updateData.gender;
+    if (updateData.languages !== undefined) user.languages = updateData.languages;
+    if (updateData.profilePhoto !== undefined) user.profilePhoto = updateData.profilePhoto;
 
     await user.save();
     return user;

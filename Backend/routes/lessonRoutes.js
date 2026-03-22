@@ -23,19 +23,12 @@ const createLessonSchema = z.object({
 const updateLessonSchema = createLessonSchema.partial();
 
 const createQuestionSchema = z.object({
-<<<<<<< HEAD
-    type: z.enum(['learn', 'match', 'identify', 'listening', 'fill', 'spelling', 'quiz', 'speaking']).optional(),
+    type: z.enum(['learn', 'match', 'identify', 'listening', 'fill', 'spelling', 'quiz', 'speaking', 'choice']).optional().default('quiz'),
     text: z.string().min(1, 'Question text required'),
     options: z.array(z.string()).optional(),
     correctOptionIndex: z.number().int().nonnegative('Correct option index required').optional(),
     correctAnswer: z.string().optional(),
-=======
-    type: z.enum(['choice', 'speaking']).optional().default('choice'),
-    text: z.string().min(1, 'Question text required'),
-    options: z.array(z.string()).optional(),
-    correctOptionIndex: z.number().int().nonnegative().optional(),
     expectedAudioText: z.string().optional(),
->>>>>>> origin/main
     scoreValue: z.number().int().positive().optional()
 }).strict();
 

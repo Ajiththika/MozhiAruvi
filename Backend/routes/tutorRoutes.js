@@ -2,6 +2,7 @@ import { Router } from 'express';
 import * as tutorController from '../controllers/tutorController.js';
 import { authenticate } from '../middleware/auth.js';
 import { validate } from '../middleware/validate.js';
+import upload from '../middleware/upload.js';
 import { z } from 'zod';
 
 const router = Router();
@@ -17,15 +18,19 @@ const respondTutorSchema = z.object({
 }).strict();
 
 const updateTutorProfileSchema = z.object({
+    name: z.string().min(1).optional(),
+    phoneNumber: z.string().optional(),
+    country: z.string().optional(),
+    age: z.string().or(z.number()).optional(),
+    gender: z.enum(['male', 'female', 'other', 'prefer_not_to_say']).optional(),
     bio: z.string().optional(),
     experience: z.string().optional(),
     specialization: z.string().optional(),
     schedule: z.any().optional(),
-    hourlyRate: z.number().min(0).optional(),
-    languages: z.array(z.string()).optional(),
+    hourlyRate: z.string().or(z.number()).optional(),
+    languages: z.any().optional(),
     teachingMode: z.enum(['online', 'offline', 'both']).optional(),
-    profilePhoto: z.string().url().optional().nullable(),
-    levelSupport: z.array(z.enum(['beginner', 'intermediate', 'advanced'])).optional(),
+    levelSupport: z.any().optional(),
     responseTime: z.string().optional(),
 }).strict();
 
@@ -50,7 +55,7 @@ router.get('/my-requests', authenticate, tutorController.getLearnerRequests);
 import { requireRole } from '../middleware/rbac.js';
 
 // Update tutor profile
-router.patch('/me', authenticate, requireRole('teacher'), validate(updateTutorProfileSchema), tutorController.updateTutorProfile);
+router.patch('/me', authenticate, requireRole('teacher'), upload.single('profilePhoto'), validate(updateTutorProfileSchema), tutorController.updateTutorProfile);
 router.patch('/me/availability', authenticate, requireRole('teacher'), validate(updateAvailabilitySchema), tutorController.updateTutorAvailability);
 
 // These endpoint implementations implicitly check if req.user is the assigned tutor

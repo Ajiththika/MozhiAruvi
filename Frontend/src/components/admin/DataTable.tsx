@@ -29,17 +29,17 @@ export function DataTable<T>({
   isLoading,
 }: DataTableProps<T>) {
   return (
-    <div className="flex flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-200 dark:bg-slate-50">
+    <div className="flex flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-800">
       {(title || description || onSearch) && (
-        <div className="flex flex-col gap-4 border-b border-slate-200 px-6 py-5 dark:border-slate-200 md:flex-row md:items-center md:justify-between">
+        <div className="flex flex-col gap-4 border-b border-slate-200 px-6 py-5 dark:border-slate-700 md:flex-row md:items-center md:justify-between">
           <div>
             {title && (
-              <h3 className="text-lg font-semibold text-slate-600 dark:text-slate-600">
+              <h3 className="text-lg font-semibold text-slate-600 dark:text-slate-300">
                 {title}
               </h3>
             )}
             {description && (
-              <p className="mt-1 text-sm text-slate-600 dark:text-slate-600">
+              <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
                 {description}
               </p>
             )}
@@ -51,7 +51,7 @@ export function DataTable<T>({
                      type="text"
                      onChange={(e) => onSearch(e.target.value)}
                      placeholder="Search..."
-                     className="w-full rounded-md border border-slate-200 bg-slate-50 py-2 pl-9 pr-3 text-sm focus:border-mozhi-primary focus:outline-none focus:ring-1 focus:ring-mozhi-primary dark:border-slate-200 dark:bg-slate-50 dark:text-slate-600"
+                     className="w-full rounded-md border border-slate-200 bg-slate-50 py-2 pl-9 pr-3 text-sm focus:border-mozhi-primary focus:outline-none focus:ring-1 focus:ring-mozhi-primary dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"
                  />
              </div>
           )}
@@ -60,7 +60,7 @@ export function DataTable<T>({
 
       <div className="overflow-x-auto">
         <table className="w-full text-left text-sm">
-          <thead className="bg-slate-50 text-xs uppercase text-slate-600 dark:bg-slate-900/50 dark:text-slate-600">
+          <thead className="bg-slate-50 text-xs uppercase text-slate-600 dark:bg-slate-900/50 dark:text-slate-300">
             <tr>
               {columns.map((col, i) => (
                 <th
@@ -73,7 +73,7 @@ export function DataTable<T>({
               ))}
             </tr>
           </thead>
-          <tbody className="divide-y divide-zinc-200 bg-white dark:divide-zinc-800 dark:bg-slate-50">
+          <tbody className="divide-y divide-zinc-200 bg-white dark:divide-zinc-800 dark:bg-slate-800">
             {isLoading ? (
                <tr>
                  <td colSpan={columns.length} className="px-6 py-8 text-center text-slate-600">
@@ -96,7 +96,7 @@ export function DataTable<T>({
                     <td
                       key={colIndex}
                       className={cn(
-                        "whitespace-nowrap px-6 py-4 text-slate-600 dark:text-slate-600",
+                        "whitespace-nowrap px-6 py-4 text-slate-600 dark:text-slate-300",
                         col.className
                       )}
                     >
@@ -114,15 +114,15 @@ export function DataTable<T>({
         </table>
       </div>
 
-      <div className="flex items-center justify-between border-t border-slate-200 px-6 py-3 dark:border-slate-200">
-         <span className="text-sm text-slate-600 dark:text-slate-600">
-             Showing <span className="font-medium text-slate-600 dark:text-slate-600">{data.length}</span> results
+      <div className="flex items-center justify-between border-t border-slate-200 px-6 py-3 dark:border-slate-700">
+         <span className="text-sm text-slate-600 dark:text-slate-300">
+             Showing <span className="font-medium text-slate-600 dark:text-slate-300">{data.length}</span> results
          </span>
          <div className="flex items-center gap-2">
-             <button className="flex h-8 w-8 items-center justify-center rounded-md border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-50 dark:border-slate-200 dark:bg-slate-50 dark:hover:bg-slate-50">
+             <button className="flex h-8 w-8 items-center justify-center rounded-md border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-50">
                  <ChevronLeft className="h-4 w-4" />
              </button>
-             <button className="flex h-8 w-8 items-center justify-center rounded-md border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-50 dark:border-slate-200 dark:bg-slate-50 dark:hover:bg-slate-50">
+             <button className="flex h-8 w-8 items-center justify-center rounded-md border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-50">
                  <ChevronRight className="h-4 w-4" />
              </button>
          </div>

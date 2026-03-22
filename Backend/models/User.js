@@ -8,6 +8,12 @@ const userSchema = new mongoose.Schema({
   role: { type: String, enum: ['user', 'teacher', 'admin'], default: 'user' },
   googleId: { type: String },
 
+  // Base Profile Fields
+  phoneNumber: { type: String, trim: true },
+  country: { type: String, trim: true },
+  age: { type: Number },
+  gender: { type: String, enum: ['male', 'female', 'other', 'prefer_not_to_say'] },
+
   // Status & Admin
   isActive: { type: Boolean, default: true },
 
@@ -53,8 +59,8 @@ userSchema.methods.comparePassword = function (plain) {
 };
 
 userSchema.methods.toSafeObject = function () {
-  const { _id, name, email, role, isActive, isTutorAvailable, isPremium, credits, createdAt, teachingMode, profilePhoto, level, learningCredits, xp, lastCreditUpdate } = this;
-  return { id: _id, name, email, role, isActive, isTutorAvailable, isPremium, credits, createdAt, teachingMode, profilePhoto, level, learningCredits, xp, lastCreditUpdate };
+  const { _id, name, email, role, isActive, isTutorAvailable, isPremium, credits, createdAt, teachingMode, profilePhoto, level, learningCredits, xp, lastCreditUpdate, phoneNumber, country, age, gender, bio, experience, specialization, languages } = this;
+  return { _id, name, email, role, isActive, isTutorAvailable, isPremium, credits, createdAt, teachingMode, profilePhoto, level, learningCredits, xp, lastCreditUpdate, phoneNumber, country, age, gender, bio, experience, specialization, languages };
 };
 
 export default mongoose.model('User', userSchema);

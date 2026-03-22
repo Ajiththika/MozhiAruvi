@@ -13,7 +13,7 @@ const studentLinks: SidebarItem[] = [
   { name: "Events",     href: "/student/events",      icon: "calendar" },
   { name: "Blogs",      href: "/student/blogs",       icon: "message-square" },
   { name: "Premium",    href: "/student/premium",     icon: "sparkles" },
-  { name: "Settings",   href: "/student/settings",    icon: "settings" },
+  { name: "Profile",    href: "/student/profile",     icon: "user-circle" },
 ];
 
 export default function StudentLayout({ children }: { children: React.ReactNode }) {

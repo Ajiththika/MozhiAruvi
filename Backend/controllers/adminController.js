@@ -37,3 +37,10 @@ export async function changeTutorStatus(req, res, next) {
         res.json({ message: `Tutor status changed to ${status}.`, user: user.toSafeObject() });
     } catch (e) { next(e); }
 }
+
+export async function editUser(req, res, next) {
+    try {
+        const user = await adminService.editUser(req.params.id, req.body);
+        res.json({ message: 'User updated successfully.', user: user.toSafeObject() });
+    } catch (e) { next(e); }
+}

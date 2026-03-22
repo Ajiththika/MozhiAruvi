@@ -22,13 +22,8 @@ export async function getUserProgressList(userId) {
 
 // ── Questions (Public/User) ───────────────────────────────────────────────────
 export async function getQuestionsForLesson(lessonId) {
-<<<<<<< HEAD
     // For Duolingo style immediate feedback, we return answers. Secure mode can be added later.
-    return Question.find({ lessonId }).select('_id text options scoreValue type correctOptionIndex correctAnswer');
-=======
-    // Including correctOptionIndex to allow immediate Duolingo-style UI feedback
-    return Question.find({ lessonId }).select('_id type text options scoreValue correctOptionIndex expectedAudioText');
->>>>>>> origin/main
+    return Question.find({ lessonId }).select('_id type text options scoreValue correctOptionIndex correctAnswer expectedAudioText');
 }
 
 // ── Submission and Progress (Phase 4 & 5) ─────────────────────────────────────

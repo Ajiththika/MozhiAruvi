@@ -9,7 +9,6 @@ const tutorLinks: SidebarItem[] = [
   { name: "Schedule",  href: "/tutor/schedule",   icon: "calendar-days" },
   { name: "Events",    href: "/tutor/events",     icon: "calendar" },
   { name: "Profile",   href: "/tutor/profile",    icon: "user-circle" },
-  { name: "Settings",  href: "/tutor/settings",   icon: "settings" },
 ];
 
 export default function TutorLayout({ children }: { children: React.ReactNode }) {

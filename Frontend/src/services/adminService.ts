@@ -15,6 +15,13 @@ export interface BaseUser {
   role: "user" | "teacher" | "admin";
   isActive: boolean;
   isTutorAvailable?: boolean;
+  phoneNumber?: string;
+  country?: string;
+  age?: number;
+  gender?: string;
+  bio?: string;
+  specialization?: string;
+  experience?: string;
 }
 
 export interface TeacherApplication {
@@ -63,6 +70,14 @@ export async function updateTutorStatus(
   const res = await api.patch<{ user: BaseUser }>(`/admin/users/${id}/tutor-status`, {
     isTutorAvailable,
   });
+  return res.data.user;
+}
+
+export async function updateUserAdmin(
+  id: string,
+  data: Partial<BaseUser>
+): Promise<BaseUser> {
+  const res = await api.patch<{ user: BaseUser }>(`/admin/users/${id}/edit`, data);
   return res.data.user;
 }
 
