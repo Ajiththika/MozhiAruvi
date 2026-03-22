@@ -34,12 +34,12 @@ export function DataTable<T>({
         <div className="flex flex-col gap-4 border-b border-slate-200 px-6 py-5 dark:border-slate-700 md:flex-row md:items-center md:justify-between">
           <div>
             {title && (
-              <h3 className="text-lg font-semibold text-slate-600 dark:text-slate-300">
+              <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">
                 {title}
               </h3>
             )}
             {description && (
-              <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
+              <p className="mt-1 text-sm font-medium text-slate-500 dark:text-slate-400">
                 {description}
               </p>
             )}
@@ -60,13 +60,13 @@ export function DataTable<T>({
 
       <div className="overflow-x-auto">
         <table className="w-full text-left text-sm">
-          <thead className="bg-slate-50 text-xs uppercase text-slate-600 dark:bg-slate-900/50 dark:text-slate-300">
+          <thead className="bg-slate-50 text-xs uppercase text-slate-500 dark:bg-slate-900/50 dark:text-slate-400">
             <tr>
               {columns.map((col, i) => (
                 <th
                   key={i}
                   scope="col"
-                  className={cn("px-6 py-3 font-medium tracking-wider", col.className)}
+                  className={cn("px-6 py-4 font-bold tracking-wider", col.className)}
                 >
                   {col.header}
                 </th>
@@ -96,7 +96,7 @@ export function DataTable<T>({
                     <td
                       key={colIndex}
                       className={cn(
-                        "whitespace-nowrap px-6 py-4 text-slate-600 dark:text-slate-300",
+                        "whitespace-nowrap px-6 py-4 text-sm font-medium text-slate-800 dark:text-slate-200",
                         col.className
                       )}
                     >
@@ -114,18 +114,10 @@ export function DataTable<T>({
         </table>
       </div>
 
-      <div className="flex items-center justify-between border-t border-slate-200 px-6 py-3 dark:border-slate-700">
-         <span className="text-sm text-slate-600 dark:text-slate-300">
-             Showing <span className="font-medium text-slate-600 dark:text-slate-300">{data.length}</span> results
+      <div className="flex items-center justify-between border-t border-slate-200 px-6 py-4 dark:border-slate-700">
+         <span className="text-sm font-bold text-slate-500">
+             Total records: <span className="text-slate-800 dark:text-slate-200">{data.length}</span>
          </span>
-         <div className="flex items-center gap-2">
-             <button className="flex h-8 w-8 items-center justify-center rounded-md border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-50">
-                 <ChevronLeft className="h-4 w-4" />
-             </button>
-             <button className="flex h-8 w-8 items-center justify-center rounded-md border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-50">
-                 <ChevronRight className="h-4 w-4" />
-             </button>
-         </div>
       </div>
     </div>
   );

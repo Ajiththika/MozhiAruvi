@@ -1,16 +1,17 @@
-import * as blogService from '../services/blogService.js';
+ import * as blogService from '../services/blogService.js';
 
 // ── Public ───────────────────────────────────────────────────────────────────
 export async function getPublicBlogs(req, res, next) {
     try {
-        const blogs = await blogService.getPublicBlogs();
-        res.json({ blogs });
+        const { page = 1, limit = 6 } = req.query;
+        const result = await blogService.getPublicBlogs(parseInt(page), parseInt(limit));
+        res.json(result);
     } catch (e) { next(e); }
 }
 
 export async function getSinglePublicBlog(req, res, next) {
     try {
-        const blog = await blogService.getPublicBlogByIdOrSlug(req.params.id);
+        const blog = await blogService.getBlogByIdOrSlug(req.params.id, req.user);
         res.json({ blog });
     } catch (e) { next(e); }
 }
@@ -44,11 +45,27 @@ export async function deleteMyBlog(req, res, next) {
     } catch (e) { next(e); }
 }
 
+// Saved / Bookmarks
+export async function getMySavedBlogs(req, res, next) {
+    try {
+        const blogs = await blogService.getSavedBlogs(req.user.sub);
+        res.json({ blogs });
+    } catch (e) { next(e); }
+}
+
+export async function toggleSaveBlog(req, res, next) {
+    try {
+        const result = await blogService.toggleSaveBlog(req.user.sub, req.params.id);
+        res.json(result);
+    } catch (e) { next(e); }
+}
+
 // ── Admin ─────────────────────────────────────────────────────────────────────
 export async function getAllBlogs(req, res, next) {
     try {
-        const blogs = await blogService.getAllBlogsForAdmin();
-        res.json({ blogs });
+        const { page = 1, limit = 6 } = req.query;
+        const result = await blogService.getAllBlogsForAdmin(parseInt(page), parseInt(limit));
+        res.json(result);
     } catch (e) { next(e); }
 }
 

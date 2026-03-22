@@ -11,6 +11,7 @@ export interface Blog {
   featuredImage?: string;
   author: UserProfile;
   status: 'draft' | 'pending' | 'published' | 'rejected';
+  savedBy?: string[];
   createdAt: string;
   updatedAt: string;
 }
@@ -21,16 +22,22 @@ export interface CreateBlogDto {
   excerpt?: string;
   category?: string;
   featuredImage?: string;
-  status?: 'draft' | 'pending';
+  status?: 'draft' | 'published' | 'pending';
 }
 
 export interface UpdateBlogDto extends Partial<CreateBlogDto> {
-  status?: 'draft' | 'pending';
 }
 
-export async function getPublicBlogs(): Promise<Blog[]> {
-  const res = await api.get<{ blogs: Blog[] }>("/blogs");
-  return res.data.blogs;
+export interface PaginatedBlogs {
+  blogs: Blog[];
+  totalBlogs: number;
+  totalPages: number;
+  currentPage: number;
+}
+
+export async function getPublicBlogs(page = 1, limit = 6): Promise<PaginatedBlogs> {
+  const res = await api.get<PaginatedBlogs>(`/blogs?page=${page}&limit=${limit}`);
+  return res.data;
 }
 
 export async function getPublicBlogByIdOrSlug(id: string): Promise<Blog> {
@@ -38,7 +45,6 @@ export async function getPublicBlogByIdOrSlug(id: string): Promise<Blog> {
   return res.data.blog;
 }
 
-// Fetch a single owned blog by ID (for edit page, avoids loading all blogs)
 export async function getMyBlogById(id: string): Promise<Blog> {
   const blogs = await getMyBlogs();
   const found = blogs.find((b) => b._id === id);
@@ -49,6 +55,16 @@ export async function getMyBlogById(id: string): Promise<Blog> {
 export async function getMyBlogs(): Promise<Blog[]> {
   const res = await api.get<{ blogs: Blog[] }>("/blogs/my-blogs");
   return res.data.blogs;
+}
+
+export async function getSavedBlogs(): Promise<Blog[]> {
+  const res = await api.get<{ blogs: Blog[] }>("/blogs/saved");
+  return res.data.blogs;
+}
+
+export async function toggleSaveBlog(id: string): Promise<{ isSaved: boolean }> {
+  const res = await api.post<{ isSaved: boolean }>(`/blogs/${id}/save`);
+  return res.data;
 }
 
 export async function createBlog(data: CreateBlogDto): Promise<Blog> {
@@ -66,12 +82,12 @@ export async function deleteMyBlog(id: string): Promise<void> {
 }
 
 // Admin
-export async function getAllBlogsForAdmin(): Promise<Blog[]> {
-  const res = await api.get<{ blogs: Blog[] }>("/blogs/admin/all");
-  return res.data.blogs;
+export async function getAllBlogsForAdmin(page = 1, limit = 6): Promise<PaginatedBlogs> {
+  const res = await api.get<PaginatedBlogs>(`/blogs/admin/all?page=${page}&limit=${limit}`);
+  return res.data;
 }
 
-export async function updateBlogStatusAdmin(id: string, status: 'draft' | 'pending' | 'published' | 'rejected'): Promise<Blog> {
+export async function updateBlogStatusAdmin(id: string, status: string): Promise<Blog> {
   const res = await api.patch<{ blog: Blog }>(`/blogs/${id}/status`, { status });
   return res.data.blog;
 }

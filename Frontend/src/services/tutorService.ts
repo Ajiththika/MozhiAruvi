@@ -27,17 +27,33 @@ export interface Tutor {
 export interface TutorRequest {
   _id: string;
   teacherId: string;
+  studentId?: string;
   lessonId?: string;
-  question: string;
-  status: "pending" | "accepted" | "declined" | "resolved";
-  response?: string;
+  requestType: "question" | "live_class" | "multi_class";
+  content: string;
+  status: "pending" | "accepted" | "declined" | "replied" | "resolved";
+  teacherReply?: string;
+  priceCredits?: number;
   createdAt: string;
+  metadata?: {
+    topics?: string[];
+    preferredTime?: string;
+    sessionsCount?: number;
+    additionalNotes?: string;
+  };
 }
 
 export interface RequestTutorPayload {
   teacherId: string;
   lessonId?: string;
-  question: string;
+  requestType: "question" | "live_class" | "multi_class";
+  content: string;
+  metadata?: {
+    topics?: string[];
+    preferredTime?: string;
+    sessionsCount?: number;
+    additionalNotes?: string;
+  };
 }
 
 export interface TutorProfilePayload {
@@ -51,11 +67,30 @@ export interface TutorProfilePayload {
   profilePhoto?: string | null;
 }
 
+export interface PaginatedTutors {
+  tutors: Tutor[];
+  totalTutors: number;
+  totalPages: number;
+  currentPage: number;
+}
+
 // ── List available tutors ─────────────────────────────────────────────────────
 
-export async function getAvailableTutors(): Promise<Tutor[]> {
-  const res = await api.get<{ tutors: Tutor[] }>("/tutors");
-  return res.data.tutors;
+export async function getAvailableTutors(
+  page = 1, 
+  limit = 6, 
+  filters: { search?: string; level?: string; mode?: string } = {}
+): Promise<PaginatedTutors> {
+  const params = new URLSearchParams({
+    page: page.toString(),
+    limit: limit.toString(),
+  });
+  if (filters.search) params.append("search", filters.search);
+  if (filters.level && filters.level !== "all") params.append("level", filters.level);
+  if (filters.mode && filters.mode !== "all") params.append("mode", filters.mode);
+
+  const res = await api.get<PaginatedTutors>(`/tutors?${params.toString()}`);
+  return res.data;
 }
 
 // ── Get single tutor ──────────────────────────────────────────────────────────

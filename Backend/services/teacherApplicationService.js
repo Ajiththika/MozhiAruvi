@@ -97,12 +97,26 @@ export async function updateMyApplication(userId, data) {
 /**
  * Retrieve all teacher applications with optional status filter.
  */
-export async function getAllApplications(statusFilter) {
+export async function getAllApplications(statusFilter, page = 1, limit = 6) {
+    const skip = (page - 1) * limit;
     const query = statusFilter ? { status: statusFilter } : {};
-    return TeacherApplication.find(query)
-        .populate('userId', 'name email role isActive')
-        .populate('reviewedBy', 'name email')
-        .sort({ createdAt: -1 });
+    
+    const [applications, totalItems] = await Promise.all([
+        TeacherApplication.find(query)
+            .populate('userId', 'name email role isActive profilePhoto')
+            .populate('reviewedBy', 'name email')
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limit),
+        TeacherApplication.countDocuments(query)
+    ]);
+
+    return {
+        applications,
+        totalItems,
+        totalPages: Math.ceil(totalItems / limit),
+        currentPage: parseInt(page)
+    };
 }
 
 /**

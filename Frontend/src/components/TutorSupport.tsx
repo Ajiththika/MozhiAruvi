@@ -49,10 +49,10 @@ export default function TutorSupport() {
             </ul>
 
             <Link 
-              href="/auth/signup" 
-              className="mt-4 md:mt-8 inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl bg-white text-primary border-2 border-primary hover:bg-light-blue/20 transition-all font-semibold shadow-sm w-full sm:w-auto"
+              href="/student/tutors" 
+              className="mt-4 md:mt-8 inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl bg-primary text-white hover:bg-primary-dark transition-all font-semibold shadow-xl shadow-primary/20 w-full sm:w-auto"
             >
-              Book Tutors
+              Explore Tutors
             </Link>
           </div>
 

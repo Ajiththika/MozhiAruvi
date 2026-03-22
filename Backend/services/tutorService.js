@@ -1,9 +1,45 @@
 import User from '../models/User.js';
 import TutorRequest from '../models/TutorRequest.js';
 
-export async function getAvailableTutors() {
-    return User.find({ role: 'teacher', isActive: true, isTutorAvailable: true })
-        .select('name bio experience specialization hourlyRate languages email schedule teachingMode profilePhoto levelSupport responseTime isTutorAvailable');
+export async function getAvailableTutors(page = 1, limit = 6, filters = {}) {
+    const skip = (page - 1) * limit;
+    const query = { role: 'teacher', isActive: true, isTutorAvailable: true };
+
+    if (filters.search) {
+        query.$or = [
+            { name: { $regex: filters.search, $options: 'i' } },
+            { specialization: { $regex: filters.search, $options: 'i' } },
+            { bio: { $regex: filters.search, $options: 'i' } }
+        ];
+    }
+
+    if (filters.level && filters.level !== 'all') {
+        query.levelSupport = filters.level;
+    }
+
+    if (filters.mode && filters.mode !== 'all') {
+        if (filters.mode === 'both') {
+            query.teachingMode = 'both';
+        } else {
+            query.teachingMode = { $in: [filters.mode, 'both'] };
+        }
+    }
+
+    const [tutors, totalTutors] = await Promise.all([
+        User.find(query)
+            .select('name bio experience specialization hourlyRate languages email schedule teachingMode profilePhoto levelSupport responseTime isTutorAvailable')
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limit),
+        User.countDocuments(query)
+    ]);
+
+    return {
+        tutors,
+        totalTutors,
+        totalPages: Math.ceil(totalTutors / limit),
+        currentPage: parseInt(page)
+    };
 }
 
 export async function getTutorById(tutorId) {
@@ -38,12 +74,17 @@ export async function createRequest(studentId, data) {
         const err = new Error('Tutor not found or not available.'); err.status = 404; err.code = 'UNAVAILABLE_TUTOR'; throw err;
     }
 
-    const priceCredits = 10; // Alternatively, tutor.hourlyRate could define this
+    // Dynamic pricing based on request type
+    const pricing = {
+        'question': 10,
+        'live_class': 30,
+        'multi_class': 100
+    };
+    const priceCredits = pricing[data.requestType || 'question'] || 10;
 
     const student = await User.findById(studentId);
-    // Phase 8: Premium Feature / Credit System restriction inside the phase 6 logic
     if (student.credits < priceCredits && !student.isPremium) {
-        const err = new Error('Insufficient credits.'); err.status = 402; err.code = 'NOT_ENOUGH_CREDITS'; throw err;
+        const err = new Error(`Insufficient credits. You need ${priceCredits} XP points for this request.`); err.status = 402; err.code = 'NOT_ENOUGH_CREDITS'; throw err;
     }
 
     // Deduct credits immediately
@@ -56,8 +97,10 @@ export async function createRequest(studentId, data) {
         studentId,
         teacherId: data.teacherId,
         lessonId: data.lessonId,
-        question: data.question,
-        priceCredits, // Keep historical record of what was paid
+        requestType: data.requestType || 'question',
+        content: data.content || data.question, // compatibility
+        metadata: data.metadata || {},
+        priceCredits, 
     });
 }
 
@@ -102,14 +145,15 @@ export async function resolveRequest(teacherId, requestId, responseText) {
         const err = new Error('Request not found or unauthorized'); err.status = 404; err.code = 'NOT_FOUND'; throw err;
     }
 
-    if (request.status !== 'accepted' && request.status !== 'answered') {
-        const err = new Error('Only accepted or answered requests can be resolved'); err.status = 400; err.code = 'INVALID_STATE'; throw err;
+    // Allow replying to pending or accepted requests
+    if (request.status === 'resolved' || request.status === 'declined') {
+        const err = new Error('Cannot reply to a finalized request'); err.status = 400; err.code = 'INVALID_STATE'; throw err;
     }
 
-    request.status = 'resolved';
-    request.teacherAnswer = responseText;
+    request.status = 'replied'; // or 'resolved' if it's the final answer
+    request.teacherReply = responseText;
 
-    // Distribute paid credits to tutor's balance
+    // Distribute paid credits to tutor's balance if not already done
     await User.findByIdAndUpdate(teacherId, { $inc: { credits: request.priceCredits } });
 
     await request.save();

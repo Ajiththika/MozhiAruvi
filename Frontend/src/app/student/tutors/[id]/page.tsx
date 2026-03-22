@@ -5,10 +5,11 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import {
   ArrowLeft, Loader2, AlertCircle, Globe, Clock, Wifi, Layers,
-  BookOpen, MessageSquare, CheckCircle2, X, GraduationCap, Send,
+  BookOpen, MessageSquare, GraduationCap, Video, Sparkles, UserCheck2,
 } from "lucide-react";
-import { getTutorById, requestTutor, Tutor } from "@/services/tutorService";
+import { getTutorById, Tutor } from "@/services/tutorService";
 import { cn } from "@/lib/utils";
+import { TutorRequestModal } from "@/components/student/TutorRequestModal";
 
 const levelColors: Record<string, string> = {
   beginner:     "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400",
@@ -17,311 +18,245 @@ const levelColors: Record<string, string> = {
 };
 
 const modeLabel: Record<string, string> = {
-  online: "Online", offline: "In-Person", both: "Online & In-Person",
+  online: "Online Session", offline: "In-Person Class", both: "Online & In-Person",
 };
 
-// ── Ask-Question Modal ────────────────────────────────────────────────────────
-function AskModal({
-  tutor,
-  onClose,
-}: {
-  tutor: Tutor;
-  onClose: () => void;
-}) {
-  const [question, setQuestion] = useState("");
-  const [sending, setSending] = useState(false);
-  const [sent, setSent] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const handleSend = async () => {
-    if (!question.trim()) return;
-    setSending(true);
-    setError(null);
-    try {
-      await requestTutor({ teacherId: tutor._id, question: question.trim() });
-      setSent(true);
-    } catch (e: any) {
-      setError(e?.response?.data?.message || "Failed to send. Please check your credits and try again.");
-    } finally {
-      setSending(false);
-    }
-  };
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="w-full max-w-lg rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-2xl p-6 animate-in zoom-in-95 duration-200">
-        {sent ? (
-          <div className="flex flex-col items-center gap-4 py-8 text-center">
-            <CheckCircle2 className="h-16 w-16 text-emerald-500" />
-            <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100">Question Sent!</h3>
-            <p className="text-sm text-slate-500 dark:text-slate-400">
-              <strong>{tutor.name}</strong> will respond soon. You'll receive their answer in your requests section.
-            </p>
-            <button onClick={onClose} className="mt-2 rounded-2xl bg-mozhi-primary px-8 py-3 text-sm font-bold text-white hover:bg-mozhi-primary-dark transition-colors">
-              Done
-            </button>
-          </div>
-        ) : (
-          <>
-            <div className="flex items-center justify-between mb-5">
-              <div>
-                <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100">Ask {tutor.name} a Question</h3>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Costs 10 credits · Tutor will answer directly</p>
-              </div>
-              <button onClick={onClose} className="flex h-9 w-9 items-center justify-center rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
-                <X className="h-5 w-5 text-slate-500" />
-              </button>
-            </div>
-
-            <textarea
-              autoFocus
-              rows={5}
-              value={question}
-              onChange={(e) => setQuestion(e.target.value)}
-              placeholder="Type your Tamil learning question here… e.g. 'Can you explain the difference between ழ (zha) and ல (la)?'"
-              className="w-full rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-4 py-3 text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-mozhi-primary/30 resize-none"
-            />
-
-            {error && (
-              <div className="mt-3 flex items-start gap-2 text-sm text-red-700 dark:text-red-400 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900/40 rounded-xl px-3 py-2">
-                <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" /> {error}
-              </div>
-            )}
-
-            <div className="mt-4 flex gap-3 justify-end">
-              <button onClick={onClose} className="rounded-2xl border border-slate-200 dark:border-slate-700 px-5 py-2.5 text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
-                Cancel
-              </button>
-              <button
-                onClick={handleSend}
-                disabled={sending || !question.trim()}
-                className="flex items-center gap-2 rounded-2xl bg-mozhi-primary px-6 py-2.5 text-sm font-bold text-white shadow-sm hover:bg-mozhi-primary-dark disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-              >
-                {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-                {sending ? "Sending…" : "Send Question"}
-              </button>
-            </div>
-          </>
-        )}
-      </div>
-    </div>
-  );
-}
-
 // ── Main Profile Page ─────────────────────────────────────────────────────────
+
 export default function TutorProfilePage() {
   const { id } = useParams<{ id: string }>();
   const [tutor, setTutor] = useState<Tutor | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [showAskModal, setShowAskModal] = useState(false);
+  const [modalState, setModalState] = useState<{ open: boolean; type: "question" | "live_class" | "multi_class" }>({
+    open: false, type: "question"
+  });
 
   useEffect(() => {
     getTutorById(id)
       .then(setTutor)
-      .catch(() => setError("Could not load tutor profile."))
+      .catch(() => setError("Could not load teacher profile. Please try again later."))
       .finally(() => setLoading(false));
   }, [id]);
 
   if (loading) return (
-    <div className="flex min-h-[60vh] items-center justify-center">
-      <Loader2 className="h-8 w-8 animate-spin text-mozhi-primary" />
+    <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4">
+      <div className="h-10 w-10 animate-spin rounded-full border-4 border-mozhi-primary border-t-transparent shadow-xl ring-4 ring-mozhi-primary/5" />
+      <p className="text-sm font-bold text-slate-500 animate-pulse">Retreiving verified profile details...</p>
     </div>
   );
 
   if (error || !tutor) return (
-    <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 text-center">
-      <AlertCircle className="h-12 w-12 text-red-400" />
-      <p className="font-semibold text-slate-600 dark:text-slate-300">{error ?? "Tutor not found."}</p>
-      <Link href="/student/tutors" className="text-sm font-bold text-mozhi-primary hover:text-mozhi-secondary">← Back to Tutors</Link>
+    <div className="mx-auto max-w-xl py-20 px-4 text-center">
+      <div className="flex justify-center mb-6">
+        <div className="p-5 rounded-full bg-red-50 dark:bg-red-950/20 border border-red-100 dark:border-red-900/40">
+           <AlertCircle className="h-10 w-10 text-red-500" />
+        </div>
+      </div>
+      <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Teacher Profile Unavailable</h2>
+      <p className="text-sm text-slate-500 dark:text-slate-400 mb-8">{error ?? "This teacher might have removed their profile or is no longer active."}</p>
+      <Link 
+        href="/student/tutors" 
+        className="inline-flex items-center gap-2 rounded-2xl bg-mozhi-primary px-8 py-3.5 text-sm font-bold text-white transition-transform hover:scale-105 active:scale-95"
+      >
+        <ArrowLeft className="h-4 w-4" /> Back to Teachers
+      </Link>
     </div>
   );
 
   return (
     <>
-      {showAskModal && <AskModal tutor={tutor} onClose={() => setShowAskModal(false)} />}
+      {modalState.open && (
+         <TutorRequestModal 
+           tutor={tutor} 
+           initialType={modalState.type} 
+           onClose={() => setModalState({ ...modalState, open: false })} 
+         />
+      )}
 
-      <div className="space-y-8 animate-in fade-in duration-500 pb-12">
-        {/* Back nav */}
-        <Link
-          href="/student/tutors"
-          className="inline-flex items-center gap-2 text-sm font-semibold text-slate-500 hover:text-mozhi-primary dark:text-slate-400 dark:hover:text-mozhi-secondary transition-colors"
-        >
-          <ArrowLeft className="h-4 w-4" /> Back to Tutors
-        </Link>
+      <div className="mx-auto max-w-6xl space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-20">
+        {/* Navigation Breadcrumb */}
+        <nav className="flex items-center gap-2 px-2">
+           <Link href="/student/dashboard" className="text-xs font-bold text-slate-400 hover:text-mozhi-primary uppercase tracking-widest transition-colors">Dashboard</Link>
+           <div className="h-1 w-1 rounded-full bg-slate-300" />
+           <Link href="/student/tutors" className="text-xs font-bold text-slate-400 hover:text-mozhi-primary uppercase tracking-widest transition-colors">Teachers</Link>
+           <div className="h-1 w-1 rounded-full bg-slate-300" />
+           <span className="text-xs font-bold text-mozhi-primary uppercase tracking-widest">{tutor.name}</span>
+        </nav>
 
-        <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
-          {/* ── Left: Profile Content ── */}
-          <div className="flex flex-col gap-6 lg:col-span-2">
-
-            {/* Profile header card */}
-            <div className="rounded-3xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/60 shadow-sm overflow-hidden">
-              {/* Top gradient band */}
-              <div className="h-20 bg-gradient-to-r from-mozhi-primary/10 via-mozhi-secondary/10 to-transparent" />
-              <div className="flex flex-col sm:flex-row gap-5 px-6 pb-6 -mt-10">
-                {/* Avatar */}
-                <div className="relative shrink-0">
-                  <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-mozhi-light dark:bg-mozhi-primary/30 ring-4 ring-white dark:ring-slate-800 shadow-md">
-                    {tutor.profilePhoto ? (
-                      <img src={tutor.profilePhoto} alt={tutor.name} className="h-full w-full rounded-2xl object-cover" />
-                    ) : (
-                      <span className="text-3xl font-black text-mozhi-primary dark:text-mozhi-secondary">{tutor.name.charAt(0)}</span>
-                    )}
-                  </div>
-                  <span className={cn(
-                    "absolute -bottom-0.5 -right-0.5 h-4 w-4 rounded-full border-2 border-white dark:border-slate-800",
-                    tutor.isTutorAvailable ? "bg-emerald-500" : "bg-slate-400"
-                  )} />
-                </div>
-
-                <div className="flex-1 pt-3">
-                  <div className="flex flex-wrap items-start justify-between gap-2">
-                    <div>
-                      <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">{tutor.name}</h1>
-                      <p className="text-sm font-bold text-mozhi-primary dark:text-mozhi-secondary mt-0.5">
-                        {tutor.specialization ?? "Tamil Language Tutor"}
-                      </p>
-                      {tutor.experience && (
-                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{tutor.experience}</p>
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
+          {/* ── Left Column: Profile Details ── */}
+          <div className="lg:col-span-8 flex flex-col gap-8">
+            
+            {/* Main Identity Banner */}
+            <div className="relative overflow-hidden rounded-[2.5rem] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl dark:shadow-none">
+              <div className="absolute top-0 right-0 h-64 w-64 rounded-full bg-mozhi-primary/5 blur-3xl -mr-20 -mt-20" />
+              <div className="absolute bottom-0 left-0 h-40 w-40 rounded-full bg-mozhi-secondary/5 blur-2xl -ml-20 -mb-20" />
+              
+              <div className="relative px-8 pt-8 pb-10">
+                <div className="flex flex-col sm:flex-row items-center sm:items-start gap-8">
+                  {/* Photo Container */}
+                  <div className="relative group">
+                    <div className="h-32 w-32 overflow-hidden rounded-3xl bg-slate-100 dark:bg-slate-800 shadow-inner group-hover:shadow-lg transition-all duration-500 border-4 border-white dark:border-slate-800">
+                      {tutor.profilePhoto ? (
+                        <img src={tutor.profilePhoto} alt={tutor.name} className="h-full w-full object-cover transition-transform group-hover:scale-110" />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center bg-mozhi-light/20">
+                           <GraduationCap className="h-16 w-16 text-mozhi-primary" />
+                        </div>
                       )}
                     </div>
-                    <span className={cn(
-                      "rounded-full px-3 py-1 text-xs font-bold",
-                      tutor.isTutorAvailable
-                        ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400"
-                        : "bg-slate-100 text-slate-500 dark:bg-slate-700 dark:text-slate-400"
-                    )}>
-                      {tutor.isTutorAvailable ? "● Available" : "● Unavailable"}
-                    </span>
+                    {tutor.isTutorAvailable && (
+                      <div className="absolute -bottom-2 -right-2 flex h-8 w-8 items-center justify-center rounded-2xl bg-emerald-500 text-white shadow-lg shadow-emerald-500/30">
+                        <UserCheck2 className="h-5 w-5" />
+                      </div>
+                    )}
                   </div>
 
-                  {/* Quick meta tags */}
-                  <div className="mt-4 flex flex-wrap gap-2">
-                    {tutor.levelSupport?.map(level => (
-                      <span key={level} className={cn("rounded-full px-2.5 py-0.5 text-[11px] font-bold capitalize", levelColors[level])}>
-                        {level}
-                      </span>
-                    ))}
-                    {tutor.teachingMode && (
-                      <span className="flex items-center gap-1 rounded-full bg-sky-50 dark:bg-sky-900/30 px-2.5 py-0.5 text-[11px] font-bold text-sky-700 dark:text-sky-300">
-                        {tutor.teachingMode === "online" ? <Wifi className="w-3 h-3" /> : <Layers className="w-3 h-3" />}
-                        {modeLabel[tutor.teachingMode]}
-                      </span>
-                    )}
+                  {/* Identity Info */}
+                  <div className="flex-1 text-center sm:text-left pt-2">
+                    <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                      <div>
+                        <h1 className="text-4xl font-black tracking-tight text-slate-900 dark:text-white uppercase">{tutor.name}</h1>
+                        <p className="mt-2 text-md font-extrabold text-mozhi-primary dark:text-mozhi-secondary uppercase tracking-widest">{tutor.specialization ?? "Tamil Language Expert"}</p>
+                      </div>
+                      <div className="flex flex-col items-end">
+                        <div className={cn(
+                          "flex items-center gap-1.5 rounded-full px-4 py-1.5 text-xs font-black uppercase tracking-widest",
+                          tutor.isTutorAvailable ? "bg-emerald-50 text-emerald-700 border border-emerald-100 shadow-sm shadow-emerald-100" : "bg-slate-100 text-slate-500"
+                        )}>
+                          <div className={cn("h-2 w-2 rounded-full", tutor.isTutorAvailable ? "bg-emerald-500 animate-pulse" : "bg-slate-400")} />
+                          {tutor.isTutorAvailable ? "Available Now" : "Currently Busy"}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="mt-6 flex flex-wrap justify-center sm:justify-start gap-3">
+                       {tutor.levelSupport?.map(lvl => (
+                          <span key={lvl} className={cn("rounded-2xl px-4 py-1 text-xs font-bold uppercase tracking-wider", levelColors[lvl])}>
+                             {lvl} Support
+                          </span>
+                       ))}
+                       <span className="inline-flex items-center gap-2 rounded-2xl bg-sky-50 dark:bg-sky-950/20 px-4 py-1 text-xs font-bold text-sky-700 dark:text-sky-400 border border-sky-100 dark:border-sky-900/40">
+                          {tutor.teachingMode === "online" ? <Wifi className="h-3.5 w-3.5" /> : <Layers className="h-3.5 w-3.5" />}
+                          {modeLabel[tutor.teachingMode || "online"]}
+                       </span>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* About section */}
-            {tutor.bio && (
-              <div className="rounded-3xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/60 shadow-sm p-6">
-                <h2 className="text-base font-bold text-slate-900 dark:text-slate-100 mb-3 flex items-center gap-2">
-                  <BookOpen className="h-5 w-5 text-mozhi-secondary" /> About {tutor.name.split(" ")[0]}
-                </h2>
-                <p className="text-sm leading-relaxed text-slate-600 dark:text-slate-300 whitespace-pre-line">{tutor.bio}</p>
-              </div>
-            )}
+            {/* Profile Content Blocks */}
+            <div className="space-y-8">
+              {/* About section */}
+              {tutor.bio && (
+                <div className="rounded-[2.5rem] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-8 shadow-sm">
+                  <h2 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em] mb-6 flex items-center gap-3">
+                    <BookOpen className="h-5 w-5 text-mozhi-secondary" /> Expert Biography
+                  </h2>
+                  <p className="text-md leading-relaxed font-medium text-slate-600 dark:text-slate-300 whitespace-pre-line px-2">{tutor.bio}</p>
+                </div>
+              )}
 
-            {/* Teaching details */}
-            <div className="rounded-3xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/60 shadow-sm p-6">
-              <h2 className="text-base font-bold text-slate-900 dark:text-slate-100 mb-4 flex items-center gap-2">
-                <GraduationCap className="h-5 w-5 text-mozhi-secondary" /> Teaching Details
-              </h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {tutor.languages?.length ? (
-                  <div className="flex items-start gap-3 p-3 rounded-2xl bg-slate-50 dark:bg-slate-700/50">
-                    <Globe className="h-5 w-5 text-mozhi-primary mt-0.5 shrink-0" />
-                    <div>
-                      <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Languages</p>
-                      <p className="mt-1 text-sm font-semibold text-slate-800 dark:text-slate-200">{tutor.languages.join(", ")}</p>
-                    </div>
-                  </div>
-                ) : null}
-                {tutor.responseTime && (
-                  <div className="flex items-start gap-3 p-3 rounded-2xl bg-slate-50 dark:bg-slate-700/50">
-                    <Clock className="h-5 w-5 text-mozhi-primary mt-0.5 shrink-0" />
-                    <div>
-                      <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Response Time</p>
-                      <p className="mt-1 text-sm font-semibold text-slate-800 dark:text-slate-200">{tutor.responseTime}</p>
-                    </div>
-                  </div>
-                )}
-                {tutor.teachingMode && (
-                  <div className="flex items-start gap-3 p-3 rounded-2xl bg-slate-50 dark:bg-slate-700/50">
-                    {tutor.teachingMode === "online" ? <Wifi className="h-5 w-5 text-sky-500 mt-0.5 shrink-0" /> : <Layers className="h-5 w-5 text-sky-500 mt-0.5 shrink-0" />}
-                    <div>
-                      <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Mode</p>
-                      <p className="mt-1 text-sm font-semibold text-slate-800 dark:text-slate-200">{modeLabel[tutor.teachingMode]}</p>
-                    </div>
-                  </div>
-                )}
-                {tutor.levelSupport?.length ? (
-                  <div className="flex items-start gap-3 p-3 rounded-2xl bg-slate-50 dark:bg-slate-700/50">
-                    <BookOpen className="h-5 w-5 text-mozhi-primary mt-0.5 shrink-0" />
-                    <div>
-                      <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Supports</p>
-                      <p className="mt-1 text-sm font-semibold text-slate-800 dark:text-slate-200 capitalize">{tutor.levelSupport.join(", ")}</p>
-                    </div>
-                  </div>
-                ) : null}
+              {/* Teaching Details */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+                <div className="rounded-[2rem] bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 p-6 flex items-start gap-4">
+                   <div className="rounded-2xl bg-white dark:bg-slate-800 p-3 shadow-sm border border-slate-100 dark:border-slate-700 flex items-center justify-center shrink-0">
+                      <Sparkles className="h-6 w-6 text-yellow-500" />
+                   </div>
+                   <div>
+                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Teaching Focus</p>
+                     <p className="text-sm font-bold text-slate-700 dark:text-slate-200 leading-snug">{tutor.experience || "Native Teacher with extensive experience in conversational and formal Tamil."}</p>
+                   </div>
+                </div>
+                <div className="rounded-[2rem] bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 p-6 flex items-start gap-4">
+                   <div className="rounded-2xl bg-white dark:bg-slate-800 p-3 shadow-sm border border-slate-100 dark:border-slate-700 flex items-center justify-center shrink-0">
+                      <Globe className="h-6 w-6 text-mozhi-primary" />
+                   </div>
+                   <div>
+                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Communication</p>
+                     <p className="text-sm font-bold text-slate-700 dark:text-slate-200 leading-snug">Fluent in {tutor.languages?.join(", ") || "Tamil and English"}</p>
+                   </div>
+                </div>
               </div>
-            </div>
-
-            {/* Placeholder testimonials banner */}
-            <div className="rounded-3xl border border-slate-100 dark:border-slate-700/50 bg-slate-50 dark:bg-slate-800/30 p-6">
-              <h2 className="text-base font-bold text-slate-900 dark:text-slate-100 mb-1">Student Reviews</h2>
-              <p className="text-sm text-slate-500 dark:text-slate-400">
-                Reviews from previous students will appear here once sessions are completed.
-              </p>
             </div>
           </div>
 
-          {/* ── Right: Booking Widget ── */}
-          <div className="lg:col-span-1">
-            <div className="sticky top-24 flex flex-col gap-4 rounded-3xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/60 shadow-md p-6">
-              {/* Rate */}
-              {tutor.hourlyRate ? (
-                <div className="flex items-baseline justify-between border-b border-slate-100 dark:border-slate-700 pb-4">
-                  <span className="text-2xl font-black text-slate-900 dark:text-slate-100">{tutor.hourlyRate} XP</span>
-                  <span className="text-sm text-slate-400">/ session</span>
+          {/* ── Right Column: Booking & Actions ── */}
+          <div className="lg:col-span-4 flex flex-col gap-8">
+            
+            <div className="sticky top-24 space-y-4">
+              <div className="rounded-[2.5rem] bg-slate-900 p-8 text-white shadow-2xl shadow-mozhi-primary/20 border border-slate-800">
+                <div className="flex items-center justify-between mb-8 border-b border-slate-800 pb-6">
+                   <div>
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Base Interaction Fee</p>
+                      <p className="text-3xl font-black">{tutor.hourlyRate || "10"} <span className="text-sm text-slate-500 font-bold uppercase ml-1">XP Points</span></p>
+                   </div>
+                   <div className="h-12 w-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center">
+                      <Sparkles className="h-6 w-6 text-mozhi-soft" />
+                   </div>
                 </div>
-              ) : null}
 
-              {/* Availability indicator */}
-              <div className={cn(
-                "flex items-center gap-2 rounded-2xl px-4 py-3 text-sm font-bold",
-                tutor.isTutorAvailable
-                  ? "bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400"
-                  : "bg-slate-50 dark:bg-slate-700/50 text-slate-500 dark:text-slate-400"
-              )}>
-                <span className={cn("h-2.5 w-2.5 rounded-full", tutor.isTutorAvailable ? "bg-emerald-500" : "bg-slate-400")} />
-                {tutor.isTutorAvailable ? "Available for questions" : "Currently unavailable"}
+                <div className="space-y-3">
+                   <button 
+                     onClick={() => setModalState({ open: true, type: "question" })}
+                     disabled={!tutor.isTutorAvailable}
+                     className="group w-full flex items-center justify-between gap-3 rounded-2xl bg-white p-4 text-sm font-black text-slate-900 transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
+                   >
+                      <div className="flex items-center gap-3">
+                         <div className="h-8 w-8 rounded-xl bg-slate-100 flex items-center justify-center group-hover:bg-mozhi-primary/10 transition-colors">
+                            <MessageSquare className="h-4 w-4 text-mozhi-primary" />
+                         </div>
+                         <span>Ask a Question</span>
+                      </div>
+                      <span className="text-[10px] bg-slate-100 px-2 py-0.5 rounded-lg text-slate-500">10 XP</span>
+                   </button>
+
+                   <button 
+                     onClick={() => setModalState({ open: true, type: "live_class" })}
+                     disabled={!tutor.isTutorAvailable}
+                     className="group w-full flex items-center justify-between gap-3 rounded-2xl border-2 border-white/10 p-4 text-sm font-black text-white transition-all hover:bg-white/5 active:scale-[0.98] disabled:opacity-50"
+                   >
+                      <div className="flex items-center gap-3">
+                         <div className="h-8 w-8 rounded-xl bg-white/5 flex items-center justify-center group-hover:bg-white/10 transition-colors">
+                            <Video className="h-4 w-4 text-mozhi-soft" />
+                         </div>
+                         <span>Live 1:1 Class</span>
+                      </div>
+                      <span className="text-[10px] bg-white/5 px-2 py-0.5 rounded-lg text-slate-500">30 XP</span>
+                   </button>
+
+                   <button 
+                     onClick={() => setModalState({ open: true, type: "multi_class" })}
+                     disabled={!tutor.isTutorAvailable}
+                     className="group w-full flex items-center justify-between gap-3 rounded-2xl border-2 border-white/10 p-4 text-sm font-black text-white transition-all hover:bg-white/5 active:scale-[0.98] disabled:opacity-50"
+                   >
+                      <div className="flex items-center gap-3">
+                         <div className="h-8 w-8 rounded-xl bg-white/5 flex items-center justify-center group-hover:bg-white/10 transition-colors">
+                            <Layers className="h-4 w-4 text-mozhi-secondary" />
+                         </div>
+                         <span>5-Session Package</span>
+                      </div>
+                      <span className="text-[10px] bg-white/5 px-2 py-0.5 rounded-lg text-slate-500">100 XP</span>
+                   </button>
+                </div>
+
+                <div className="mt-8 pt-6 border-t border-slate-800 text-center">
+                   <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest leading-relaxed">
+                      Questions are usually answered within {tutor.responseTime || "24 hours"}. Credits are fully refunded if your request is declined or unanswered.
+                   </p>
+                </div>
               </div>
 
-              {/* CTA buttons */}
-              <div className="flex flex-col gap-3 pt-1">
-                <button
-                  onClick={() => setShowAskModal(true)}
-                  disabled={!tutor.isTutorAvailable}
-                  className="flex items-center justify-center gap-2 w-full rounded-2xl bg-mozhi-primary py-3.5 text-sm font-bold text-white shadow-sm shadow-mozhi-primary/20 transition-all hover:bg-mozhi-primary-dark focus-visible:outline focus-visible:outline-2 focus-visible:outline-mozhi-primary disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <MessageSquare className="h-4 w-4" />
-                  Ask a Question
-                </button>
-                <Link
-                  href="/student/progress"
-                  className="flex items-center justify-center gap-2 w-full rounded-2xl border-2 border-slate-200 dark:border-slate-700 py-3.5 text-sm font-bold text-slate-600 dark:text-slate-300 hover:border-mozhi-primary hover:text-mozhi-primary dark:hover:border-mozhi-secondary dark:hover:text-mozhi-secondary transition-colors"
-                >
-                  View My Requests
-                </Link>
-              </div>
-
-              {/* Credit note */}
-              <p className="text-center text-xs text-slate-400 dark:text-slate-500">
-                Asking a question costs <strong className="text-slate-600 dark:text-slate-300">10 credits</strong>. Credits are refunded if declined.
-              </p>
+              <Link 
+                href="/student/tutors/my-requests" 
+                className="flex items-center justify-center gap-3 w-full rounded-[2rem] border-2 border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 py-4 text-sm font-black text-slate-700 dark:text-slate-300 transition-all hover:border-mozhi-primary hover:text-mozhi-primary dark:hover:border-mozhi-secondary dark:hover:text-mozhi-secondary"
+              >
+                 <ArrowLeft className="h-4 w-4" /> My Tutor Requests
+              </Link>
             </div>
+
           </div>
         </div>
       </div>

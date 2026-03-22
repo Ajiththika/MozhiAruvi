@@ -10,7 +10,15 @@ const router = Router();
 const requestTutorSchema = z.object({
     teacherId: z.string().min(1, 'Teacher ID needed'),
     lessonId: z.string().optional(),
-    question: z.string().min(1, 'Question text cannot be empty'),
+    requestType: z.enum(['question', 'live_class', 'multi_class']).default('question'),
+    content: z.string().min(1, 'Message content cannot be empty'),
+    question: z.string().optional(), // for backward compatibility
+    metadata: z.object({
+        topics: z.array(z.string()).optional(),
+        preferredTime: z.string().optional(),
+        sessionsCount: z.number().optional(),
+        additionalNotes: z.string().optional(),
+    }).optional(),
 }).strict();
 
 const respondTutorSchema = z.object({

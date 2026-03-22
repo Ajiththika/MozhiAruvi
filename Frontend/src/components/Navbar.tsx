@@ -42,9 +42,9 @@ export default function Navbar() {
             <Link href="/student/lessons" className="text-muted hover:text-primary transition-colors font-medium">
               Lessons
             </Link>
-            <Link href="/tutors" className="text-muted hover:text-primary transition-colors font-medium">
-              Tutors
-            </Link>
+             <Link href="/student/tutors" className="text-muted hover:text-primary transition-colors font-medium">
+               Tutors
+             </Link>
             <Link href="/events" className="text-muted hover:text-primary transition-colors font-medium">
               Events
             </Link>

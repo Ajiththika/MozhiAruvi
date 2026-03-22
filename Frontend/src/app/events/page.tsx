@@ -1,13 +1,14 @@
-import { Metadata } from "next";
+"use client";
+
+import React, { useEffect, useState } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PrimaryButton from "@/components/PrimaryButton";
 import SecondaryButton from "@/components/SecondaryButton";
-
-export const metadata: Metadata = {
-  title: "Events - Mozhi Aruvi",
-  description: "Join Tamil cultural events, language workshops, poetry nights, and community discussions hosted by Mozhi Aruvi.",
-};
+import { getEvents, MozhiEvent } from "@/services/eventService";
+import { Pagination } from "@/components/Pagination";
+import { Loader2, Calendar, Clock, MapPin, User, ChevronRight } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
 
@@ -24,112 +25,27 @@ const featuredEvent = {
   spots: "120 spots remaining",
 };
 
-const upcomingEvents = [
-  {
-    id: 1,
-    title: "Tamil Conversation Meetup",
-    emoji: "💬",
-    description: "Practice your spoken Tamil in a relaxed, friendly environment with native speakers and fellow learners.",
-    date: "April 5, 2026",
-    type: "Online",
-    tag: "Speaking",
-  },
-  {
-    id: 2,
-    title: "Pongal Cultural Celebration",
-    emoji: "🌾",
-    description: "Celebrate Tamil harvest festival together with traditional rituals, music, and cultural storytelling.",
-    date: "April 10, 2026",
-    type: "Offline",
-    tag: "Festival",
-  },
-  {
-    id: 3,
-    title: "Tamil Film Discussion Night",
-    emoji: "🎬",
-    description: "Watch and analyse a classic Tamil film together. Explore language, themes, and cinematic history.",
-    date: "April 18, 2026",
-    type: "Online",
-    tag: "Culture",
-  },
-  {
-    id: 4,
-    title: "Beginner Tamil Workshop",
-    emoji: "🔤",
-    description: "A structured, interactive 2-hour workshop for absolute beginners covering scripts and basic phrases.",
-    date: "April 25, 2026",
-    type: "Online",
-    tag: "Workshop",
-  },
-  {
-    id: 5,
-    title: "Tamil Music & Lyrics Night",
-    emoji: "🎵",
-    description: "Explore the poetry hidden in Tamil classical and film music with lyric breakdowns and live discussion.",
-    date: "May 3, 2026",
-    type: "Online",
-    tag: "Music",
-  },
-  {
-    id: 6,
-    title: "Tamil Calligraphy Workshop",
-    emoji: "✍️",
-    description: "Learn to write beautiful Tamil script by hand with guided instruction from our expert educators.",
-    date: "May 12, 2026",
-    type: "Offline",
-    tag: "Workshop",
-  },
-];
-
-const pastEvents = [
-  {
-    id: 1,
-    title: "Tamil Literature Talk",
-    emoji: "📚",
-    recap: "A captivating discussion on Thirukkural — its philosophy, relevance, and timeless wisdom. Over 200 attendees joined live.",
-    date: "February 10, 2026",
-  },
-  {
-    id: 2,
-    title: "Sangam Poetry Reading",
-    emoji: "🌿",
-    recap: "We explored the Akam and Puram traditions of Sangam poetry, reading aloud passages and discussing their meanings.",
-    date: "January 28, 2026",
-  },
-  {
-    id: 3,
-    title: "Tamil Movie Night",
-    emoji: "🍿",
-    recap: "Community members watched and discussed a landmark Tamil film together, exploring language, history, and culture.",
-    date: "January 14, 2026",
-  },
-  {
-    id: 4,
-    title: "Language Beginner Bootcamp",
-    emoji: "🚀",
-    recap: "A 3-hour intensive for new learners covering the Tamil alphabet, basic vocabulary, and essential greetings.",
-    date: "December 20, 2025",
-  },
-];
-
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-function EventTypeBadge({ type }: { type: string }) {
+function EventTypeBadge({ type }: { type: string | boolean }) {
+  const isOnline = type === "Online" || type === true;
   return (
     <span
-      className={`text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full ${type === "Online"
-          ? "bg-mozhi-light text-mozhi-primary"
-          : "bg-green-100 text-green-700"
-        }`}
+      className={cn(
+        "text-[10px] font-black uppercase tracking-[0.2em] px-3 py-1.5 rounded-full border shadow-sm",
+        isOnline
+          ? "bg-mozhi-light/20 text-mozhi-primary border-mozhi-primary/20"
+          : "bg-emerald-50 text-emerald-700 border-emerald-200"
+      )}
     >
-      {type}
+      {isOnline ? "Online" : "In-Person"}
     </span>
   );
 }
 
 function TagBadge({ tag }: { tag: string }) {
   return (
-    <span className="text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full bg-light-blue text-primary">
+    <span className="text-[10px] font-black uppercase tracking-[0.2em] px-3 py-1.5 rounded-full bg-blue-50 text-blue-700 border border-blue-100 shadow-sm">
       {tag}
     </span>
   );
@@ -138,6 +54,23 @@ function TagBadge({ tag }: { tag: string }) {
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function EventsPage() {
+  const [events, setEvents] = useState<MozhiEvent[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalEvents, setTotalEvents] = useState(0);
+
+  useEffect(() => {
+    setLoading(true);
+    getEvents(currentPage)
+      .then(res => {
+        setEvents(res.events);
+        setTotalPages(res.totalPages);
+        setTotalEvents(res.totalEvents);
+      })
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, [currentPage]);
   return (
     <div className="min-h-screen flex flex-col bg-soft-bg font-sans">
       <Navbar />
@@ -166,10 +99,10 @@ export default function EventsPage() {
               <span className="text-primary">Cultural Events</span>
             </h1>
 
-            <p className="text-lg md:text-xl text-muted max-w-2xl mx-auto leading-relaxed mb-4">
+            <p className="text-lg md:text-xl text-slate-600 max-w-2xl mx-auto leading-relaxed mb-4 font-medium">
               Connect, learn, and celebrate Tamil culture with our global community.
             </p>
-            <p className="text-base text-muted max-w-xl mx-auto leading-relaxed mb-8">
+            <p className="text-base text-slate-500 max-w-xl mx-auto leading-relaxed mb-8">
               Mozhi Aruvi hosts cultural events, language workshops, poetry nights, and community discussions to help learners experience Tamil beyond the classroom.
             </p>
 
@@ -228,7 +161,7 @@ export default function EventsPage() {
                     {featuredEvent.title}
                   </h2>
 
-                  <p className="text-muted text-lg leading-relaxed mb-8">
+                  <p className="text-slate-600 text-lg leading-relaxed mb-8 font-medium">
                     {featuredEvent.description}
                   </p>
 
@@ -239,11 +172,11 @@ export default function EventsPage() {
                       { icon: "📍", label: "Location", value: featuredEvent.location },
                       { icon: "🎤", label: "Host", value: featuredEvent.host },
                     ].map((item) => (
-                      <div key={item.label} className="flex items-start gap-3 p-4 bg-soft-bg rounded-xl border border-border-color">
+                      <div key={item.label} className="flex items-start gap-4 p-4 bg-soft-bg rounded-xl border border-slate-100">
                         <span className="text-xl shrink-0 mt-0.5">{item.icon}</span>
                         <div>
-                          <p className="text-xs font-bold text-muted uppercase tracking-wider mb-0.5">{item.label}</p>
-                          <p className="text-sm font-semibold text-accent-text">{item.value}</p>
+                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">{item.label}</p>
+                          <p className="text-sm font-black text-slate-800 tracking-tight">{item.value}</p>
                         </div>
                       </div>
                     ))}
@@ -282,43 +215,63 @@ export default function EventsPage() {
               <SecondaryButton href="/auth/signup">View All Events</SecondaryButton>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-              {upcomingEvents.map((event) => (
-                <div
-                  key={event.id}
-                  className="bg-soft-bg rounded-2xl border border-border-color p-7 hover:border-primary/40 hover:shadow-xl transition-all duration-300 group flex flex-col"
-                >
-                  {/* Top row */}
-                  <div className="flex items-center justify-between mb-5">
-                    <div className="text-4xl group-hover:scale-110 transition-transform">{event.emoji}</div>
-                    <div className="flex items-center gap-2">
-                      <TagBadge tag={event.tag} />
-                      <EventTypeBadge type={event.type} />
-                    </div>
-                  </div>
+            {loading ? (
+               <div className="flex flex-col items-center justify-center py-20 gap-4">
+                  <Loader2 className="h-10 w-10 animate-spin text-mozhi-primary" />
+                  <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Opening the scrolls...</p>
+               </div>
+            ) : events.length === 0 ? (
+               <div className="text-center py-20">
+                  <p className="text-lg font-black text-slate-900 uppercase">No upcoming events found</p>
+                  <p className="text-slate-500 mt-2">Check back later for new workshops and meetups.</p>
+               </div>
+            ) : (
+                <>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                  {events.map((event) => (
+                    <div
+                      key={event._id}
+                      className="bg-soft-bg rounded-2xl border border-border-color p-7 hover:border-primary/40 hover:shadow-xl transition-all duration-300 group flex flex-col"
+                    >
+                      <div className="flex items-center justify-between mb-5">
+                        <div className="text-4xl group-hover:scale-110 transition-transform">📅</div>
+                        <div className="flex items-center gap-2">
+                          <TagBadge tag="Community" />
+                          <EventTypeBadge type={true} />
+                        </div>
+                      </div>
 
-                  <h3 className="text-xl font-bold text-accent-text mb-3 leading-snug">
-                    {event.title}
-                  </h3>
-                  <p className="text-muted text-sm leading-relaxed mb-5 flex-1">
-                    {event.description}
-                  </p>
+                      <h3 className="text-xl font-bold text-accent-text mb-3 leading-snug">
+                        {event.title}
+                      </h3>
+                      <p className="text-slate-600 text-sm leading-relaxed mb-5 flex-1 font-medium">
+                        {event.description}
+                      </p>
 
-                  {/* Footer */}
-                  <div className="flex items-center justify-between pt-5 border-t border-border-color">
-                    <div className="flex items-center gap-2 text-muted text-sm font-medium">
-                      <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                      </svg>
-                      {event.date}
+                      <div className="flex items-center justify-between pt-5 border-t border-border-color">
+                        <div className="flex items-center gap-2 text-slate-500 text-sm font-bold">
+                          <Calendar className="w-4 h-4 shrink-0 text-mozhi-secondary" />
+                          {new Date(event.date).toLocaleDateString()}
+                        </div>
+                        <button className="text-sm font-black uppercase tracking-widest text-mozhi-primary hover:text-mozhi-secondary transition-colors">
+                          Join →
+                        </button>
+                      </div>
                     </div>
-                    <button className="text-sm font-bold text-primary hover:text-primary-dark hover:underline transition-colors">
-                      View Event →
-                    </button>
-                  </div>
+                  ))}
                 </div>
-              ))}
-            </div>
+
+                {totalPages > 1 && (
+                  <div className="mt-16">
+                    <Pagination 
+                      currentPage={currentPage}
+                      totalPages={totalPages}
+                      onPageChange={setCurrentPage}
+                    />
+                  </div>
+                )}
+                </>
+            )}
           </div>
         </section>
 
@@ -338,34 +291,9 @@ export default function EventsPage() {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {pastEvents.map((event) => (
-                <div
-                  key={event.id}
-                  className="bg-mozhi-light/20 backdrop-blur-sm rounded-2xl border border-mozhi-soft/20 p-6 hover:shadow-md hover:border-mozhi-soft/50 transition-all duration-300 group flex flex-col"
-                >
-                  <div className="text-3xl mb-4 group-hover:scale-110 transition-transform">{event.emoji}</div>
-
-                  <div className="flex items-center gap-2 mb-3">
-                    <span className="text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded-full bg-slate-100 text-slate-500">
-                      Completed
-                    </span>
-                  </div>
-
-                  <h3 className="text-lg font-bold text-accent-text mb-3 leading-snug">
-                    {event.title}
-                  </h3>
-                  <p className="text-muted text-sm leading-relaxed mb-5 flex-1">
-                    {event.recap}
-                  </p>
-
-                  <div className="flex items-center justify-between pt-4 border-t border-border-color">
-                    <div className="text-xs font-medium text-muted">{event.date}</div>
-                    <button className="text-xs font-bold text-muted hover:text-primary transition-colors">
-                      View Highlights →
-                    </button>
-                  </div>
-                </div>
-              ))}
+               <div className="col-span-full py-12 text-center bg-white/50 rounded-3xl border border-dashed border-slate-200">
+                  <p className="text-xs font-black text-slate-400 uppercase tracking-[0.2em]">The archives are currently being digitized</p>
+               </div>
             </div>
           </div>
         </section>

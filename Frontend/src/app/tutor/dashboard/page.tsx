@@ -2,11 +2,12 @@
 
 import React, { useEffect, useState } from "react";
 import { StatCard } from "@/components/common/StatCard";
-import { Users, MessageSquare, Star, ToggleRight, ToggleLeft, Loader2, AlertCircle, ArrowRight } from "lucide-react";
+import { Users, MessageSquare, Star, ToggleRight, ToggleLeft, Loader2, AlertCircle, ArrowRight, Video, Layers, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { getMe, SafeUser } from "@/services/authService";
 import { getPendingRequests, TutorRequest, updateTutorAvailability } from "@/services/tutorService";
 import { getEvents, MozhiEvent } from "@/services/eventService";
+import { cn } from "@/lib/utils";
 
 export default function TutorDashboard() {
   const [user, setUser] = useState<SafeUser | null>(null);
@@ -19,12 +20,11 @@ export default function TutorDashboard() {
 
   useEffect(() => {
     Promise.all([getMe(), getPendingRequests(), getEvents()])
-      .then(([u, qs, evs]) => {
+      .then(([u, qs, evRes]) => {
         setUser(u);
         setIsAvailable(u.isTutorAvailable ?? false);
         setPendingQs(qs.filter((q) => q.status === "pending" || q.status === "accepted"));
-        // Only show events where organizedBy matches user
-        setEvents(evs);
+        setEvents(evRes.events);
       })
       .catch(() => setError("Could not load dashboard data."))
       .finally(() => setLoading(false));
@@ -44,21 +44,25 @@ export default function TutorDashboard() {
 
   if (loading) {
     return (
-      <div className="flex min-h-[60vh] items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-mozhi-primary" />
+      <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4">
+        <Loader2 className="h-10 w-10 animate-spin text-mozhi-primary" />
+        <p className="text-sm font-black text-slate-500 uppercase tracking-widest animate-pulse">Initializing Dashboard...</p>
       </div>
     );
   }
 
+  const activeRequests = pendingQs.length;
+
   return (
-    <div className="space-y-8 animate-in fade-in duration-500">
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+    <div className="mx-auto max-w-6xl space-y-10 animate-in fade-in slide-in-from-bottom-2 duration-500 pb-20">
+      {/* Welcome Header */}
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight text-slate-600 dark:text-slate-600">
-            Welcome, {user?.name?.split(" ")[0] ?? "Tutor"}! 👩‍🏫
+          <h2 className="text-4xl font-black tracking-tight text-slate-900 dark:text-white uppercase">
+            Hello, {user?.name?.split(" ")[0] ?? "Tutor"}!
           </h2>
-          <p className="text-slate-600 dark:text-slate-600 mt-1">
-            Monitor your student engagement and session activity.
+          <p className="text-slate-500 font-medium mt-1">
+            You have <span className="text-mozhi-primary font-bold">{activeRequests} student requests</span> waiting for your attention.
           </p>
         </div>
 
@@ -66,119 +70,132 @@ export default function TutorDashboard() {
         <button
           onClick={handleAvailabilityToggle}
           disabled={toggling}
-          className={`flex items-center gap-3 rounded-2xl border px-5 py-3 text-sm font-bold shadow-sm transition-colors ${
+          className={cn(
+            "flex items-center gap-3 rounded-2xl border px-6 py-4 text-xs font-black uppercase tracking-widest shadow-sm transition-all",
             isAvailable
-              ? "border-emerald-300 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:border-emerald-800 dark:bg-emerald-950/30 dark:text-emerald-400"
-              : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50 dark:border-slate-200 dark:bg-slate-50 dark:text-slate-600"
-          } disabled:opacity-60`}
-        >
-          {isAvailable ? (
-            <ToggleRight className="h-5 w-5" />
-          ) : (
-            <ToggleLeft className="h-5 w-5" />
+              ? "border-emerald-200 bg-emerald-50 text-emerald-700 hover:scale-[1.02]"
+              : "border-slate-200 bg-white text-slate-500 hover:bg-slate-50 opacity-90"
           )}
-          {isAvailable ? "Visible to Students" : "Hidden from Students"}
+        >
+          {isAvailable ? <ToggleRight className="h-5 w-5" /> : <ToggleLeft className="h-5 w-5" />}
+          {isAvailable ? "Student Facing: ON" : "Student Facing: OFF"}
         </button>
       </div>
 
       {error && (
-        <div className="flex items-center gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-900/50 dark:bg-red-950/20 dark:text-red-400">
+        <div className="flex items-center gap-3 rounded-2xl border border-red-100 bg-red-50 px-6 py-4 text-sm text-red-700">
           <AlertCircle className="h-5 w-5 shrink-0" /> {error}
         </div>
       )}
 
+      {/* Stats Row */}
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
-          title="Pending Questions"
-          value={String(pendingQs.length)}
+          title="Active Requests"
+          value={String(activeRequests)}
           icon={MessageSquare}
-          trend={pendingQs.length > 0 ? "up" : "neutral"}
-          trendValue={pendingQs.length > 0 ? "Need reply" : "All caught up"}
-          className={pendingQs.length > 0 ? "border-red-100 bg-red-50/30 dark:border-red-900/40 dark:bg-red-950/20" : ""}
+          trend={activeRequests > 0 ? "up" : "neutral"}
+          trendValue={activeRequests > 0 ? "Pending" : "All clear"}
+          className={activeRequests > 0 ? "border-mozhi-primary/20 bg-mozhi-primary/[0.03] shadow-sm" : ""}
         />
         <StatCard
-          title="Community Events"
-          value={String(events.length)}
-          icon={Users}
+          title="Student Credits"
+          value={String(user?.credits ?? "0")}
+          icon={Sparkles}
           trend="neutral"
-          trendValue="Platform-wide"
+          trendValue="XP Balance"
         />
         <StatCard
-          title="Status"
-          value={isAvailable ? "Active" : "Away"}
+          title="Live Events"
+          value={String(events.length)}
+          icon={Video}
+          trend="neutral"
+          trendValue="Hosted by you"
+        />
+        <StatCard
+          title="Account Status"
+          value={isAvailable ? "Online" : "Away"}
           icon={Star}
           trend="neutral"
-          trendValue={isAvailable ? "Accepting students" : "Not visible"}
-          className={isAvailable ? "border-emerald-100 bg-emerald-50/30 dark:border-emerald-900/40 dark:bg-emerald-950/20" : ""}
-        />
-        <StatCard
-          title="Profile"
-          value={user?.name ?? "—"}
-          icon={Users}
-          trend="neutral"
-          trendValue="Teacher account"
+          trendValue="Visibility"
+          className={isAvailable ? "border-emerald-100 bg-emerald-50/50" : ""}
         />
       </div>
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
         {/* Quick actions */}
-        <div className="lg:col-span-2 flex flex-col rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-200 dark:bg-slate-50">
-          <h3 className="text-lg font-semibold text-slate-600 dark:text-slate-600 mb-4">Quick Actions</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div className="lg:col-span-8 flex flex-col rounded-[2.5rem] border border-slate-200 bg-white p-8 shadow-sm dark:bg-slate-900 border-opacity-50">
+          <h3 className="text-xs font-black text-slate-500 uppercase tracking-[0.2em] mb-6">Operations Center</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {[
-              { label: "Answer Questions", desc: `${pendingQs.length} pending`, href: "/tutor/questions", color: "bg-mozhi-primary hover:bg-mozhi-primary" },
-              { label: "Manage Schedule", desc: "Set your availability", href: "/tutor/schedule", color: "bg-mozhi-primary hover:bg-mozhi-primary" },
-              { label: "Host an Event", desc: "Create a group session", href: "/tutor/events", color: "bg-emerald-600 hover:bg-emerald-500" },
-              { label: "Edit Profile", desc: "Update your public info", href: "/tutor/profile", color: "bg-slate-50 hover:bg-slate-50 dark:bg-slate-50 dark:hover:bg-slate-50" },
-            ].map((action) => (
+              { label: "Manage Requests", desc: `${activeRequests} pending from students`, href: "/tutor/questions", icon: MessageSquare, color: "bg-mozhi-primary" },
+              { label: "Teaching Schedule", desc: "Manage your weekly availability", href: "/tutor/schedule", icon: Video, color: "bg-mozhi-secondary" },
+              { label: "Community Events", desc: "Create and manage live group calls", href: "/tutor/events", icon: Layers, color: "bg-emerald-600" },
+              { label: "Public Profile", desc: "Showcase your expertise & bio", href: "/tutor/profile", icon: Users, color: "bg-slate-900" },
+            ].map((action) => {
+              const Icon = action.icon;
+              return (
               <Link
                 key={action.href}
                 href={action.href}
-                className={`${action.color} flex items-center justify-between rounded-xl p-4 text-white transition-colors shadow-sm`}
+                className={cn(
+                    action.color,
+                    "group flex items-center justify-between rounded-3xl p-6 text-white transition-all shadow-lg hover:scale-[1.02] active:scale-[0.98]"
+                )}
               >
                 <div>
-                  <p className="font-bold text-sm">{action.label}</p>
-                  <p className="text-xs opacity-80 mt-0.5">{action.desc}</p>
+                  <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white/10 mb-3 group-hover:bg-white/20 transition-colors">
+                     <Icon className="h-5 w-5" />
+                  </div>
+                  <p className="font-black text-sm uppercase tracking-widest">{action.label}</p>
+                  <p className="text-[10px] opacity-70 mt-1 font-bold">{action.desc}</p>
                 </div>
-                <ArrowRight className="h-4 w-4 opacity-70" />
+                <ArrowRight className="h-5 w-5 opacity-40 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
               </Link>
-            ))}
+            )})}
           </div>
         </div>
 
-        {/* Pending Questions Preview */}
-        <div className="flex flex-col rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-200 dark:bg-slate-50">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-slate-600 dark:text-slate-600">New Questions</h3>
-            {pendingQs.length > 0 && (
-              <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-red-100 text-xs font-bold text-red-600 dark:bg-red-900/30 dark:text-red-400">
-                {pendingQs.length}
+        {/* Inbox Preview */}
+        <div className="lg:col-span-4 flex flex-col rounded-[2.5rem] border border-slate-200 bg-white p-8 shadow-sm dark:bg-slate-900 border-opacity-50">
+          <div className="flex items-center justify-between mb-8">
+            <h3 className="text-xs font-black text-slate-500 uppercase tracking-[0.2em]">Live Inbox</h3>
+            {activeRequests > 0 && (
+              <span className="inline-flex h-6 w-10 items-center justify-center rounded-full bg-red-100 text-[10px] font-black text-red-600 uppercase">
+                {activeRequests} New
               </span>
             )}
           </div>
 
-          {pendingQs.length === 0 ? (
-            <div className="flex flex-1 flex-col items-center justify-center rounded-lg border border-dashed border-slate-200 p-6 text-center dark:border-slate-200">
-              <p className="text-sm text-slate-600 dark:text-slate-600">No pending questions 🎉</p>
+          {activeRequests === 0 ? (
+            <div className="flex flex-1 flex-col items-center justify-center rounded-3xl border-2 border-dashed border-slate-100 p-8 text-center">
+               <CheckCircle2 className="h-10 w-10 text-slate-100 mb-4" />
+               <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Everything resolved</p>
             </div>
           ) : (
-            <div className="flex flex-col gap-3">
+            <div className="space-y-4">
               {pendingQs.slice(0, 3).map((q) => (
-                <div key={q._id} className="flex flex-col gap-1.5 rounded-lg border border-slate-200 p-4 hover:bg-slate-50 dark:border-slate-200 dark:hover:bg-slate-/60 transition-colors">
-                  <p className="text-sm font-medium text-slate-600 dark:text-slate-600 line-clamp-2">
-                    {q.question}
+                <div key={q._id} className="flex flex-col gap-3 rounded-2xl border border-slate-100 p-5 hover:bg-slate-50 transition-colors border-opacity-50">
+                   <div className="flex items-center gap-2">
+                       <span className={cn(
+                           "text-[8px] font-black uppercase px-2 py-0.5 rounded-md",
+                           q.requestType === 'question' ? 'bg-blue-50 text-blue-500' : 'bg-emerald-50 text-emerald-500'
+                       )}>
+                           {q.requestType || 'Request'}
+                       </span>
+                       <span className="text-[10px] text-slate-400 font-bold">{new Date(q.createdAt).toLocaleDateString()}</span>
+                   </div>
+                  <p className="text-xs font-bold text-slate-600 line-clamp-2">
+                    "{q.content}"
                   </p>
-                  <div className="flex items-center justify-between mt-1">
-                    <p className="text-xs text-slate-600">{new Date(q.createdAt).toLocaleDateString()}</p>
-                    <Link href="/tutor/questions" className="text-xs font-bold text-mozhi-primary dark:text-mozhi-secondary hover:underline">
-                      Reply →
-                    </Link>
-                  </div>
+                  <Link href="/tutor/questions" className="text-[10px] font-black text-mozhi-primary hover:text-mozhi-secondary flex items-center gap-1 uppercase tracking-widest">
+                    Quick Reply <ArrowRight className="h-3 w-3" />
+                  </Link>
                 </div>
               ))}
-              {pendingQs.length > 3 && (
-                <Link href="/tutor/questions" className="text-center text-xs font-bold text-mozhi-primary hover:text-mozhi-secondary dark:text-mozhi-secondary mt-1">
-                  View all {pendingQs.length} questions →
+              {activeRequests > 3 && (
+                <Link href="/tutor/questions" className="block text-center text-[10px] font-black text-slate-400 hover:text-mozhi-primary uppercase tracking-widest mt-4">
+                   +{activeRequests - 3} more requests
                 </Link>
               )}
             </div>

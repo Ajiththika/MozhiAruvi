@@ -2,15 +2,17 @@ import * as adminService from '../services/adminService.js';
 
 export async function getUsers(req, res, next) {
     try {
-        const users = await adminService.getAllUsers();
-        res.json({ users });
+        const { page = 1, limit = 6 } = req.query;
+        const result = await adminService.getAllUsers(parseInt(page), parseInt(limit));
+        res.json(result);
     } catch (e) { next(e); }
 }
 
 export async function getTutors(req, res, next) {
     try {
-        const tutors = await adminService.getAllTutors();
-        res.json({ tutors });
+        const { page = 1, limit = 6 } = req.query;
+        const result = await adminService.getAllTutors(parseInt(page), parseInt(limit));
+        res.json(result);
     } catch (e) { next(e); }
 }
 

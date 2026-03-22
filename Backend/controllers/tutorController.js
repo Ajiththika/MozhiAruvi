@@ -2,8 +2,13 @@ import * as tutorService from '../services/tutorService.js';
 
 export async function listAvailableTutors(req, res, next) {
     try {
-        const tutors = await tutorService.getAvailableTutors();
-        res.json({ tutors });
+        const { page = 1, limit = 6, search, level, mode } = req.query;
+        const result = await tutorService.getAvailableTutors(
+            parseInt(page), 
+            parseInt(limit), 
+            { search, level, mode }
+        );
+        res.json(result);
     } catch (e) { next(e); }
 }
 
@@ -34,7 +39,10 @@ export async function updateTutorAvailability(req, res, next) {
 export async function requestTutor(req, res, next) {
     try {
         const request = await tutorService.createRequest(req.user.sub, req.body);
-        res.status(201).json({ message: 'Request sent to tutor. 10 credits deducted.', request });
+        res.status(201).json({ 
+            message: `Request sent to tutor. ${request.priceCredits} XP points dedicated to this interaction.`, 
+            request 
+        });
     } catch (e) { next(e); }
 }
 

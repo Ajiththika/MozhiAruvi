@@ -45,8 +45,9 @@ export async function updateMyApplication(req, res, next) {
  */
 export async function getTeacherApplications(req, res, next) {
     try {
-        const applications = await teacherApplicationService.getAllApplications(req.query.status);
-        res.json({ applications });
+        const { status, page = 1, limit = 6 } = req.query;
+        const result = await teacherApplicationService.getAllApplications(status, parseInt(page), parseInt(limit));
+        res.json(result);
     } catch (e) { next(e); }
 }
 

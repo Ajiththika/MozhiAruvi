@@ -26,8 +26,24 @@ function forbidden(msg) {
 
 // ── Event CRUD ────────────────────────────────────────────────────────────────
 
-export async function getAllEvents() {
-    return Event.find({ isActive: true }).sort({ date: 1, time: 1 });
+export async function getAllEvents(page = 1, limit = 6) {
+    const skip = (page - 1) * limit;
+    const query = { isActive: true };
+    
+    const [events, totalEvents] = await Promise.all([
+        Event.find(query)
+            .sort({ date: 1, time: 1 })
+            .skip(skip)
+            .limit(limit),
+        Event.countDocuments(query)
+    ]);
+
+    return {
+        events,
+        totalEvents,
+        totalPages: Math.ceil(totalEvents / limit),
+        currentPage: parseInt(page)
+    };
 }
 
 export async function getEventById(eventId) {

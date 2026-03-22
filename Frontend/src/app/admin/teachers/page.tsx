@@ -25,21 +25,33 @@ function StatusBadge({ status }: { status: TeacherApplication["status"] }) {
   );
 }
 
+import { Pagination } from "@/components/Pagination";
+
 export default function AdminTeachersPage() {
   const [applications, setApplications] = useState<TeacherApplication[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [actioning, setActioning] = useState<string | null>(null);
 
-  const load = () => {
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
+
+  const load = (page: number = 1) => {
     setLoading(true);
-    getTeacherApplications()
-      .then(setApplications)
+    getTeacherApplications(page)
+      .then((res) => {
+        setApplications(res.applications);
+        setTotalPages(res.totalPages);
+        setTotalItems(res.totalItems);
+        setCurrentPage(res.currentPage);
+      })
       .catch(() => setError("Could not load applications."))
       .finally(() => setLoading(false));
   };
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { load(currentPage); }, [currentPage]);
 
   const mutate = (updated: TeacherApplication) =>
     setApplications((prev) => prev.map((a) => (a._id === updated._id ? updated : a)));
@@ -141,16 +153,16 @@ export default function AdminTeachersPage() {
           </p>
         </div>
         <button
-          onClick={load}
+          onClick={() => load(currentPage)}
           disabled={loading}
-          className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-600 shadow-sm transition hover:bg-slate-50 disabled:opacity-50 dark:border-slate-200 dark:bg-slate-50 dark:text-slate-600"
+          className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-bold text-slate-600 shadow-sm transition hover:bg-slate-50 disabled:opacity-50 dark:border-slate-200 dark:bg-slate-50 dark:text-slate-600"
         >
           <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} /> Refresh
         </button>
       </div>
 
       {error && (
-        <div className="flex items-center gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-900/50 dark:bg-red-950/20 dark:text-red-400">
+        <div className="flex items-center gap-3 rounded-xl border border-red-200 bg-red-100 px-4 py-3 text-sm text-red-700 font-bold dark:border-red-900/50 dark:bg-red-950/20 dark:text-red-400">
           <AlertCircle className="h-5 w-5 shrink-0" /> {error}
         </div>
       )}
@@ -160,7 +172,14 @@ export default function AdminTeachersPage() {
           <Loader2 className="h-8 w-8 animate-spin text-mozhi-primary" />
         </div>
       ) : (
-        <DataTable title="All Teacher Applications" columns={columns} data={applications} />
+        <div className="space-y-6">
+           <DataTable title={`All Teacher Applications (${totalItems})`} columns={columns} data={applications} />
+           <Pagination 
+             currentPage={currentPage}
+             totalPages={totalPages}
+             onPageChange={setCurrentPage}
+           />
+        </div>
       )}
     </div>
   );

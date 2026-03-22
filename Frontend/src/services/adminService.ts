@@ -41,16 +41,23 @@ export interface JoinRequestAdminView {
   createdAt: string;
 }
 
-// ── User Management ───────────────────────────────────────────────────────────
-
-export async function getAllUsers(): Promise<BaseUser[]> {
-  const res = await api.get<{ users: BaseUser[] }>("/admin/users");
-  return res.data.users;
+export interface PaginatedResponse<T> {
+  totalItems: number;
+  totalPages: number;
+  currentPage: number;
+  [key: string]: T[] | number; // This is a bit hacky but allows res.data[collection]
 }
 
-export async function getAllTutors(): Promise<BaseUser[]> {
-  const res = await api.get<{ tutors: BaseUser[] }>("/admin/tutors");
-  return res.data.tutors;
+// ── User Management ───────────────────────────────────────────────────────────
+
+export async function getAllUsers(page = 1, limit = 6): Promise<PaginatedResponse<BaseUser> & { users: BaseUser[] }> {
+  const res = await api.get<PaginatedResponse<BaseUser> & { users: BaseUser[] }>(`/admin/users?page=${page}&limit=${limit}`);
+  return res.data;
+}
+
+export async function getAllTutors(page = 1, limit = 6): Promise<PaginatedResponse<BaseUser> & { tutors: BaseUser[] }> {
+  const res = await api.get<PaginatedResponse<BaseUser> & { tutors: BaseUser[] }>(`/admin/tutors?page=${page}&limit=${limit}`);
+  return res.data;
 }
 
 export async function deactivateUser(id: string): Promise<BaseUser> {
@@ -83,11 +90,11 @@ export async function updateUserAdmin(
 
 // ── Teacher Applications ──────────────────────────────────────────────────────
 
-export async function getTeacherApplications(): Promise<TeacherApplication[]> {
-  const res = await api.get<{ applications: TeacherApplication[] }>(
-    "/admin/teacher-applications"
+export async function getTeacherApplications(page = 1, limit = 6): Promise<PaginatedResponse<TeacherApplication> & { applications: TeacherApplication[] }> {
+  const res = await api.get<PaginatedResponse<TeacherApplication> & { applications: TeacherApplication[] }>(
+    `/admin/teacher-applications?page=${page}&limit=${limit}`
   );
-  return res.data.applications;
+  return res.data;
 }
 
 export async function approveTeacherApplication(id: string): Promise<TeacherApplication> {

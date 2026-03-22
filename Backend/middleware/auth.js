@@ -22,3 +22,19 @@ export async function authenticate(req, res, next) {
         res.status(401).json({ error: { code: 'INVALID_TOKEN', message: 'Token invalid or expired.' } });
     }
 }
+
+export async function authenticateOptional(req, res, next) {
+    const header = req.headers.authorization;
+    if (!header?.startsWith('Bearer ')) return next();
+    try {
+        const decoded = verifyAccessToken(header.slice(7));
+        // Check if user is active
+        const user = await User.findById(decoded.sub).select('isActive');
+        if (user && user.isActive) {
+            req.user = decoded;
+        }
+        next();
+    } catch {
+        next(); 
+    }
+}

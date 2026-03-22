@@ -4,8 +4,9 @@ import * as eventService from '../services/eventService.js';
 
 export async function listEvents(req, res, next) {
     try {
-        const events = await eventService.getAllEvents();
-        res.json({ events });
+        const { page = 1, limit = 6 } = req.query;
+        const result = await eventService.getAllEvents(parseInt(page), parseInt(limit));
+        res.json(result);
     } catch (e) { next(e); }
 }
 

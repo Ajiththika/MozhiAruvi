@@ -44,9 +44,16 @@ export type UpdateEventPayload = Partial<CreateEventPayload & { isActive: boolea
 
 // ── Public / Participant Endpoints ────────────────────────────────────────────
 
-export async function getEvents(): Promise<MozhiEvent[]> {
-  const res = await api.get<{ events: MozhiEvent[] }>("/events");
-  return res.data.events;
+export interface PaginatedEvents {
+  events: MozhiEvent[];
+  totalEvents: number;
+  totalPages: number;
+  currentPage: number;
+}
+
+export async function getEvents(page = 1, limit = 6): Promise<PaginatedEvents> {
+  const res = await api.get<PaginatedEvents>(`/events?page=${page}&limit=${limit}`);
+  return res.data;
 }
 
 export async function getEventById(id: string): Promise<MozhiEvent> {

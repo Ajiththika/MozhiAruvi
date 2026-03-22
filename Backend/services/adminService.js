@@ -1,12 +1,33 @@
 import User from '../models/User.js';
 
-// Get users safely, omitting sensitive fields
-export async function getAllUsers() {
-    return User.find().select('-password -resetPasswordToken -resetPasswordExpires');
+// Get users with pagination
+export async function getAllUsers(page = 1, limit = 6) {
+    const skip = (page - 1) * limit;
+    const [users, totalItems] = await Promise.all([
+        User.find().select('-password -resetPasswordToken -resetPasswordExpires').sort({ createdAt: -1 }).skip(skip).limit(limit),
+        User.countDocuments()
+    ]);
+    return {
+        users,
+        totalItems,
+        totalPages: Math.ceil(totalItems / limit),
+        currentPage: parseInt(page)
+    };
 }
 
-export async function getAllTutors() {
-    return User.find({ isTutorAvailable: true }).select('-password -resetPasswordToken -resetPasswordExpires');
+export async function getAllTutors(page = 1, limit = 6) {
+    const skip = (page - 1) * limit;
+    const query = { isTutorAvailable: true };
+    const [tutors, totalItems] = await Promise.all([
+        User.find(query).select('-password -resetPasswordToken -resetPasswordExpires').sort({ createdAt: -1 }).skip(skip).limit(limit),
+        User.countDocuments(query)
+    ]);
+    return {
+        tutors,
+        totalItems,
+        totalPages: Math.ceil(totalItems / limit),
+        currentPage: parseInt(page)
+    };
 }
 
 export async function setUserActiveStatus(userId, status) {

@@ -4,8 +4,8 @@ import { Topbar } from "@/components/layout/Topbar";
 import { RoleProtectedRoute } from "@/components/auth/RoleProtectedRoute";
 
 const tutorLinks: SidebarItem[] = [
-  { name: "Dashboard", href: "/tutor/dashboard",  icon: "home" },
-  { name: "Questions", href: "/tutor/questions",  icon: "message-square" },
+  { name: "Dashboard",        href: "/tutor/dashboard",  icon: "home" },
+  { name: "Student Requests", href: "/tutor/questions",  icon: "message-square" },
   { name: "Schedule",  href: "/tutor/schedule",   icon: "calendar-days" },
   { name: "Events",    href: "/tutor/events",     icon: "calendar" },
   { name: "Profile",   href: "/tutor/profile",    icon: "user-circle" },

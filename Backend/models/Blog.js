@@ -10,9 +10,10 @@ const blogSchema = new mongoose.Schema({
     author: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     status: {
         type: String,
-        enum: ['draft', 'pending', 'published', 'rejected'],
-        default: 'pending'
-    }
+        enum: ['draft', 'published', 'pending', 'rejected'],
+        default: 'draft'
+    },
+    savedBy: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
 }, { timestamps: true });
 
 export default mongoose.model('Blog', blogSchema);
