@@ -3,19 +3,19 @@ import Link from "next/link";
 
 export default function InteractiveLessons() {
   return (
-    <section id="lessons" className="py-24 bg-soft-bg px-4 sm:px-6 lg:px-8">
+    <section id="lessons" className="py-10 md:py-14 bg-slate-50 px-4 md:px-8 lg:px-12">
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col lg:flex-row gap-16 items-center">
           
           {/* Left Column */}
           <div className="flex-1">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-light-blue text-sm font-semibold text-primary mb-6">
-              INTERACTIVE LESSONS
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-light text-xs font-bold text-primary tracking-tight">
+              Interactive lessons
             </div>
-            <h2 className="text-3xl md:text-5xl font-bold text-accent-text mb-6">
+            <h2 className="text-3xl md:text-5xl font-bold text-slate-900 tracking-tight mb-6 leading-tight">
               Every Lesson Has Voice Practice
             </h2>
-            <p className="text-lg text-muted mb-8 leading-relaxed">
+            <p className="text-lg text-slate-500 font-medium mb-8 leading-relaxed">
               Each lesson includes listening exercises, pronunciation practice where you speak the words, quizzes, and progression. Level up as you learn.
             </p>
 
@@ -61,14 +61,14 @@ export default function InteractiveLessons() {
           </div>
 
           {/* Right Column (Mock UI Card) */}
-          <div className="flex-1 w-full max-w-lg">
-            <div className="bg-white rounded-3xl p-6 md:p-8 shadow-2xl border border-border-color">
-              <div className="text-sm font-semibold text-muted tracking-wider uppercase mb-6">
-                Pronunciation Practice
+          <div className="flex-1 w-full max-w-lg lg:scale-105">
+            <div className="bg-white rounded-2xl p-6 md:p-8 shadow-sm border border-gray-200">
+              <div className="text-xs font-bold text-slate-500 tracking-tight mb-6">
+                Pronunciation practice
               </div>
 
               <div className="text-center mb-8">
-                <h3 className="text-5xl md:text-6xl font-black text-primary mb-4 drop-shadow-sm">வணக்கம்</h3>
+                <h3 className="text-5xl md:text-6xl font-bold text-primary mb-4 drop-shadow-sm">வணக்கம்</h3>
                 <p className="text-xl font-medium text-accent-text">Vannakkam — Hello</p>
                 <div className="mt-4 flex items-center gap-4">
                   <div className="flex-1 h-2.5 rounded-full bg-soft-bg overflow-hidden border border-border-color/50">

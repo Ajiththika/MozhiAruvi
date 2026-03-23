@@ -26,13 +26,20 @@ function forbidden(msg) {
 
 // ── Event CRUD ────────────────────────────────────────────────────────────────
 
-export async function getAllEvents(page = 1, limit = 6) {
+export async function getAllEvents(page = 1, limit = 6, status = 'all') {
     const skip = (page - 1) * limit;
-    const query = { isActive: true };
+    const today = new Date().toISOString().split('T')[0];
+    
+    let query = { isActive: true };
+    if (status === 'upcoming') {
+        query.date = { $gte: today };
+    } else if (status === 'past') {
+        query.date = { $lt: today };
+    }
     
     const [events, totalEvents] = await Promise.all([
         Event.find(query)
-            .sort({ date: 1, time: 1 })
+            .sort({ date: status === 'past' ? -1 : 1, time: 1 })
             .skip(skip)
             .limit(limit),
         Event.countDocuments(query)
@@ -82,10 +89,15 @@ export async function deleteEvent(eventId) {
 
 // ── Join Requests ────────────────────────────────────────────────────────────
 
-export async function createJoinRequest(eventId, userId, message) {
+export async function createJoinRequest(eventId, userId, registrationData) {
     const event = await Event.findById(eventId);
     if (!event) throw notFound('Event not found.');
     if (!event.isActive) throw forbidden('This event is no longer active.');
+
+    const today = new Date().toISOString().split('T')[0];
+    if (event.date < today) {
+        throw forbidden('You cannot register for a past event.');
+    }
 
     // Block if event is already at capacity (based on approved requests)
     if (event.participantsCount >= event.capacity) {
@@ -93,19 +105,28 @@ export async function createJoinRequest(eventId, userId, message) {
     }
 
     // Check for existing pending or approved request
-    const existing = await EventJoinRequest.findOne({ eventId, userId });
+    // If guest (userId null), check by phoneNumber
+    const existingFilter = userId 
+        ? { eventId, userId } 
+        : { eventId, phoneNumber: registrationData.phoneNumber, userId: { $exists: false } };
+        
+    const existing = await EventJoinRequest.findOne(existingFilter);
     if (existing) {
         if (existing.status === 'pending') {
-            throw conflict('You already have a pending join request for this event.');
+            throw conflict('A pending join request already exists with these details.');
         }
         if (existing.status === 'approved') {
-            throw conflict('You have already been approved for this event.');
+            throw conflict('An approved registration already exists with these details.');
         }
         // If rejected, allow re-application by removing old rejected entry
         await EventJoinRequest.deleteOne({ _id: existing._id });
     }
 
-    return EventJoinRequest.create({ eventId, userId, message: message ?? '' });
+    return EventJoinRequest.create({ 
+        eventId, 
+        userId, 
+        ...registrationData 
+    });
 }
 
 export async function getMyJoinRequests(userId) {

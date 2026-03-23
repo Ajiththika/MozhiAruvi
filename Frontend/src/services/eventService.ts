@@ -32,6 +32,11 @@ export interface JoinRequest {
 }
 
 export interface JoinRequestPayload {
+  fullName: string;
+  phoneNumber: string;
+  country: string;
+  age: number;
+  gender: 'male' | 'female' | 'other' | 'prefer_not_to_say';
   message?: string;
 }
 
@@ -51,8 +56,8 @@ export interface PaginatedEvents {
   currentPage: number;
 }
 
-export async function getEvents(page = 1, limit = 6): Promise<PaginatedEvents> {
-  const res = await api.get<PaginatedEvents>(`/events?page=${page}&limit=${limit}`);
+export async function getEvents(page = 1, limit = 6, status = 'all'): Promise<PaginatedEvents> {
+  const res = await api.get<PaginatedEvents>(`/events?page=${page}&limit=${limit}&status=${status}`);
   return res.data;
 }
 

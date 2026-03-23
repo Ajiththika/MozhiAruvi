@@ -11,10 +11,12 @@ import { cn } from "@/lib/utils";
 
 type ViewTab = "all" | "saved" | "drafts";
 
+import Button from "@/components/common/Button";
 import { Pagination } from "@/components/Pagination";
 
 export default function BlogsPage() {
-  const { user, isAuthenticated } = useAuth();
+  const { user } = useAuth();
+  const isAuthenticated = !!user;
   const [posts, setPosts] = useState<Blog[]>([]);
   const [savedPosts, setSavedPosts] = useState<Blog[]>([]);
   const [myDrafts, setMyDrafts]     = useState<Blog[]>([]);
@@ -94,45 +96,49 @@ export default function BlogsPage() {
   const rest = featured ? filtered.slice(1) : filtered;
 
   return (
-    <div className="min-h-screen flex flex-col font-sans bg-white dark:bg-slate-950">
+    <div className="min-h-screen flex flex-col font-sans bg-white">
       <Navbar />
 
-      <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-16 animate-in fade-in duration-500">
+      <main className="flex-1 w-full max-w-7xl mx-auto px-4 md:px-8 lg:px-12 py-12 md:py-20 animate-in fade-in duration-700">
 
-        {/* Hero Section - Medium Style */}
-        <section className="flex flex-col md:flex-row items-center justify-between gap-8 mb-16 border-b border-slate-100 dark:border-slate-800 pb-16">
-          <div className="text-left max-w-2xl">
-            <h1 className="text-5xl md:text-7xl font-black tracking-tighter text-slate-900 dark:text-white mb-6 uppercase leading-none">
-              Mozhi <span className="text-mozhi-primary">Daily</span>
+        {/* --- 1. Premium Hero Section --- */}
+        <div className="mb-16 md:mb-24 space-y-10">
+          <div className="max-w-3xl">
+            <div className="flex items-center gap-3 mb-6">
+              <span className="h-1.5 w-10 rounded-full bg-primary" />
+              <span className="text-xs font-bold text-primary tracking-tight">Community Library</span>
+            </div>
+            <h1 className="text-4xl md:text-6xl font-bold text-slate-900 tracking-tight leading-tight mb-8">
+              Insights into <br />
+              <span className="text-primary italic">Tamil Culture & Learning</span>
             </h1>
-            <p className="text-xl text-slate-600 dark:text-slate-400 leading-relaxed font-bold">
-              A place to read, write, and deepen your connection with Tamil culture.
+            <p className="text-lg md:text-xl text-slate-600 font-medium leading-relaxed max-w-2xl">
+              A dedicated space for students, tutors, and heritage enthusiasts to share stories, grammar tips, and cultural milestones within our global community.
             </p>
           </div>
 
-          {isAuthenticated && (
-             <div className="flex flex-col sm:flex-row items-center gap-4 w-full md:w-auto">
-               <Link
-                href="/student/blogs/create"
-                className="group w-full sm:w-auto flex items-center justify-center gap-3 rounded-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-10 py-5 text-sm font-black shadow-2xl transition-all hover:scale-105 active:scale-95 uppercase tracking-widest"
-              >
-                <Plus className="w-5 h-5" />
-                Start Writing
-              </Link>
-             </div>
-          )}
-        </section>
+          <div className="flex flex-col sm:flex-row items-center gap-5 pt-6">
+            {isAuthenticated && (
+              <Button href="/student/blogs/create" variant="primary" size="lg" className="w-full sm:w-auto px-10 shadow-xl shadow-primary/10">
+                <Plus className="w-5 h-5 mr-2" /> Start Writing
+              </Button>
+            )}
+            <Button href="#feed" variant="secondary" size="lg" className="w-full sm:w-auto px-10 border-primary text-primary hover:bg-primary/5">
+              Explore Feed
+            </Button>
+          </div>
+        </div>
 
         {/* Management & Discovery Bar */}
-        <section className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
-          <div className="flex items-center gap-1 overflow-x-auto pb-2 md:pb-0 no-scrollbar">
+        <section id="feed" className="flex flex-col md:flex-row md:items-center justify-between gap-8 mb-20 scroll-mt-24">
+          <div className="flex items-center gap-3 overflow-x-auto pb-2 md:pb-0 no-scrollbar">
             <button
               onClick={() => setActiveTab("all")}
               className={cn(
-                "whitespace-nowrap rounded-full px-6 py-2.5 text-xs font-black uppercase tracking-widest transition-all",
+                "whitespace-nowrap rounded-full px-8 py-3.5 text-sm font-bold tracking-tight transition-all",
                 activeTab === "all"
-                  ? "bg-mozhi-primary text-white shadow-lg shadow-mozhi-primary/20"
-                  : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+                  ? "bg-primary text-white shadow-xl shadow-primary/10"
+                  : "text-slate-500 hover:text-primary hover:bg-slate-50"
               )}
             >
               Feed
@@ -142,26 +148,26 @@ export default function BlogsPage() {
                 <button
                   onClick={() => setActiveTab("saved")}
                   className={cn(
-                    "whitespace-nowrap rounded-full px-6 py-2.5 text-xs font-black uppercase tracking-widest transition-all",
+                    "whitespace-nowrap rounded-full px-8 py-3.5 text-sm font-bold tracking-tight transition-all",
                     activeTab === "saved"
-                      ? "bg-mozhi-primary text-white shadow-lg shadow-mozhi-primary/20"
-                      : "text-slate-400 hover:text-slate-900 dark:hover:text-white"
+                      ? "bg-primary text-white shadow-xl shadow-primary/10"
+                      : "text-slate-500 hover:text-primary hover:bg-slate-50"
                   )}
                 >
-                  Saved
+                  Saved Stories
                 </button>
                 <button
                   onClick={() => setActiveTab("drafts")}
                   className={cn(
-                    "whitespace-nowrap rounded-full px-6 py-2.5 text-xs font-black uppercase tracking-widest transition-all relative",
+                    "whitespace-nowrap rounded-full px-8 py-3.5 text-sm font-bold tracking-tight transition-all relative",
                     activeTab === "drafts"
-                      ? "bg-mozhi-primary text-white shadow-lg shadow-mozhi-primary/20"
-                      : "text-slate-400 hover:text-slate-900 dark:hover:text-white"
+                      ? "bg-primary text-white shadow-xl shadow-primary/10"
+                      : "text-slate-500 hover:text-primary hover:bg-slate-50"
                   )}
                 >
                   My Drafts
                   {myDrafts.length > 0 && (
-                    <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-mozhi-secondary text-[8px] text-white animate-pulse">
+                    <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-secondary text-[10px] font-bold text-white ring-4 ring-white">
                       {myDrafts.length}
                     </span>
                   )}
@@ -170,173 +176,193 @@ export default function BlogsPage() {
             )}
           </div>
 
-          <div className="relative w-full md:max-w-xs">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+          <div className="relative w-full md:max-w-sm">
+            <Search className="absolute left-5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Filter stories..."
-              className="w-full rounded-full border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 py-3 pl-11 pr-4 text-xs font-bold text-slate-900 dark:text-white outline-none transition focus:ring-2 focus:ring-mozhi-primary/20"
+              className="w-full rounded-2xl border border-slate-200 bg-slate-50 py-4 pl-12 pr-5 text-sm font-semibold text-slate-700 outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/5 placeholder:text-slate-400"
             />
           </div>
         </section>
 
         {/* Content Area */}
-        {loading && (
+        {loading ? (
           <div className="flex flex-col items-center justify-center py-32 gap-4">
-            <Loader2 className="h-10 w-10 animate-spin text-mozhi-primary" />
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Waking up the ink...</p>
+            <Loader2 className="h-10 w-10 animate-spin text-primary" />
+            <p className="text-xs font-bold text-slate-400 tracking-tight">Gathering the latest stories...</p>
           </div>
-        )}
+        ) : null}
 
         {!loading && filtered.length === 0 && (
           <div className="flex flex-col items-center justify-center py-32 text-center gap-6 animate-in slide-in-from-bottom-4 duration-700">
-            <div className="w-24 h-24 bg-slate-50 dark:bg-slate-900 rounded-full flex items-center justify-center shadow-inner">
+            <div className="w-24 h-24 bg-slate-50 dark:bg-slate-900 rounded-full flex items-center justify-center">
                 <BookOpen className="h-10 w-10 text-slate-200" />
             </div>
             <div>
-              <p className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tighter">
-                {activeTab === "drafts" ? "No unfinished stories" : activeTab === "saved" ? "Nothing bookmarked" : "The feed is quiet"}
+              <p className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
+                {activeTab === "drafts" ? "No drafts found" : activeTab === "saved" ? "Nothing bookmarked" : "No stories match your search"}
               </p>
-              <p className="text-slate-400 mt-2 text-sm font-medium">
-                {activeTab === "drafts" ? "Start something new and it will appear here." : "Your collection is waiting for its first addition."}
+              <p className="text-slate-500 mt-2 text-base font-medium max-w-sm mx-auto">
+                {activeTab === "drafts" ? "Start something new and it will appear here." : "Try adjusting your filters or explore our main feed."}
               </p>
             </div>
           </div>
         )}
 
         {!loading && filtered.length > 0 && (
-          <div className="space-y-16">
-            {/* Featured Section - Only for all feed */}
+          <div className="space-y-20">
+            {/* Featured Section - High-impact card */}
             {featured && (
               <Link
                 href={`/blogs/${featured.slug || featured._id}`}
-                className="group relative flex flex-col md:flex-row gap-0 overflow-hidden rounded-[3rem] bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 transition-all hover:shadow-2xl hover:shadow-mozhi-primary/5"
+                className="group relative flex flex-col md:flex-row gap-0 overflow-hidden rounded-[3rem] bg-white border border-slate-100 transition-all hover:shadow-2xl hover:shadow-primary/5"
               >
-                <div className="w-full md:w-1/2 aspect-[16/10] md:aspect-auto bg-slate-100 dark:bg-slate-800 relative overflow-hidden">
+                <div className="w-full md:w-1/2 aspect-[16/10] md:aspect-auto bg-slate-50 relative overflow-hidden">
                   {featured.featuredImage ? (
                     <img src={featured.featuredImage} alt={featured.title} className="w-full h-full object-cover transition-transform group-hover:scale-105 duration-1000" />
                   ) : (
-                    <div className="absolute inset-0 bg-gradient-to-br from-mozhi-primary/10 to-mozhi-secondary/10 flex items-center justify-center">
-                      <FileText className="h-24 w-24 text-mozhi-primary/10" />
+                    <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center">
+                      <FileText className="h-24 w-24 text-primary/10" />
                     </div>
                   )}
                   <div className="absolute top-8 left-8">
-                     <span className="rounded-full bg-black px-5 py-2 text-[10px] font-black uppercase tracking-widest text-white">
-                        Editor's Choice
+                     <span className="rounded-full bg-slate-900 px-5 py-2 text-xs font-bold text-white tracking-tight">
+                        Featured Story
                      </span>
                   </div>
                 </div>
 
-                <div className="flex flex-col justify-center p-10 md:p-14 md:w-1/2">
-                  <h2 className="text-3xl md:text-5xl font-black text-slate-900 dark:text-white mb-6 group-hover:text-mozhi-primary transition-colors leading-[1] uppercase tracking-tighter">
-                    {featured.title}
-                  </h2>
-                  <p className="text-lg text-slate-500 dark:text-slate-400 mb-8 line-clamp-3 leading-relaxed font-medium">
-                    {featured.excerpt || featured.content.substring(0, 180) + "..."}
-                  </p>
+                <div className="flex flex-col justify-center p-10 md:p-14 md:w-1/2 space-y-8">
+                  <div className="space-y-4">
+                    <span className="text-xs font-bold text-primary tracking-tight">{featured.category || "Tamil Culture"}</span>
+                    <h2 className="text-3xl md:text-5xl font-bold text-slate-900 group-hover:text-primary transition-colors leading-[1.1] tracking-tight">
+                      {featured.title}
+                    </h2>
+                    <p className="text-lg text-slate-600 line-clamp-3 leading-relaxed font-medium">
+                      {featured.excerpt || featured.content.substring(0, 180) + "..."}
+                    </p>
+                  </div>
                   
-                  <div className="flex items-center justify-between pt-8 border-t border-slate-50 dark:border-slate-800 mt-auto">
-                    <div className="flex items-center gap-3">
-                      <div className="h-12 w-12 rounded-full bg-slate-50 dark:bg-slate-800 flex items-center justify-center border border-slate-100 dark:border-slate-700">
-                        <UserCircle className="h-6 w-6 text-slate-400" />
+                  <div className="flex items-center justify-between pt-8 border-t border-slate-50 mt-auto">
+                    <div className="flex items-center gap-4">
+                      <div className="h-12 w-12 rounded-full bg-slate-100 flex items-center justify-center border border-slate-200 shadow-sm">
+                        <UserCircle className="h-7 w-7 text-slate-300" />
                       </div>
                       <div>
-                        <span className="block text-xs font-black text-slate-900 dark:text-white uppercase tracking-widest">{featured.author?.name || "Verified Member"}</span>
-                        <span className="text-[10px] text-slate-500 uppercase font-black tracking-widest">Digital Storyteller</span>
+                        <span className="block text-sm font-bold text-slate-900">
+                          {featured.author?.name || "Verified Member"}
+                          {featured.author?.role === 'admin' && (
+                            <span className="ml-2 text-[10px] font-bold text-primary border border-primary/20 bg-primary/5 px-2 py-0.5 rounded-md">Admin</span>
+                          )}
+                        </span>
+                        <span className="text-xs text-slate-500 font-medium tracking-tight">
+                           {new Date(featured.createdAt).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
+                        </span>
                       </div>
                     </div>
+                    <ArrowRight className="h-6 w-6 text-slate-300 group-hover:text-primary group-hover:translate-x-2 transition-all" />
                   </div>
                 </div>
               </Link>
             )}
 
-            {/* Main Listing Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+            {/* Main Listing Grid - Refined cards in Light Mode */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
               {rest.map((post) => {
                 const isOwner = user && ((post.author as any)?._id === user._id || (post.author as any) === user._id);
                 
                 return (
-                  <div key={post._id} className="group relative flex flex-col h-full">
+                  <div key={post._id} className="group relative flex flex-col h-full animate-in fade-in slide-in-from-bottom-2 duration-500">
                     <Link
                       href={`/blogs/${post.slug || post._id}`}
-                      className="flex flex-col flex-1 overflow-hidden"
+                      className="flex flex-col flex-1"
                     >
-                      <div className="aspect-[1.6/1] w-full bg-slate-50 dark:bg-slate-900 rounded-[2rem] relative overflow-hidden mb-6 border border-slate-50 dark:border-slate-800">
+                      <div className="aspect-[1.6/1] w-full bg-slate-50 rounded-[2.5rem] relative overflow-hidden mb-6 border border-slate-100 transition-all group-hover:shadow-2xl shadow-slate-200/20">
                         {post.featuredImage ? (
                           <img src={post.featuredImage} alt={post.title} className="w-full h-full object-cover transition-transform group-hover:scale-110 duration-700" />
                         ) : (
-                          <div className="absolute inset-0 bg-mozhi-light/5 flex items-center justify-center">
-                            <FileText className="h-12 w-12 text-mozhi-light" />
+                          <div className="absolute inset-0 bg-primary/5 flex items-center justify-center">
+                            <FileText className="h-12 w-12 text-primary/10" />
                           </div>
                         )}
-                        {post.status === 'draft' && (
-                           <div className="absolute top-4 left-4">
-                              <span className="rounded-full bg-white/90 backdrop-blur px-3 py-1 text-[8px] font-black uppercase tracking-widest text-slate-900 shadow-sm border border-slate-100">
-                                Draft Mode
+                        <div className="absolute top-4 left-4 flex gap-2">
+                           {post.status === 'draft' && (
+                              <span className="rounded-full bg-white/90 backdrop-blur px-3 py-1.5 text-[10px] font-bold text-slate-600 shadow-sm border border-slate-100">
+                                Draft
                               </span>
-                           </div>
-                        )}
+                           )}
+                           <span className="rounded-full bg-slate-100 backdrop-blur-md px-3 py-1.5 text-[10px] font-bold text-slate-700 border border-black/5">
+                              {post.category || "Article"}
+                           </span>
+                        </div>
                       </div>
                       
-                      <div className="flex flex-1 flex-col pr-4">
-                        <h4 className="text-xl font-black text-slate-900 dark:text-white mb-3 group-hover:text-mozhi-primary transition-colors line-clamp-2 leading-[1.2] uppercase tracking-tight">
+                      <div className="flex flex-1 flex-col space-y-4">
+                        <h4 className="text-xl font-bold text-slate-900 group-hover:text-primary transition-colors line-clamp-2 leading-tight tracking-tight">
                           {post.title}
                         </h4>
-                        <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed mb-6 line-clamp-2 flex-1 font-medium">
+                        <p className="text-slate-600 text-sm leading-relaxed line-clamp-2 flex-1 font-medium">
                           {post.excerpt || post.content.substring(0, 100) + "..."}
                         </p>
                         
-                        <div className="flex items-center justify-between pb-4">
-                           <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">
-                              By {post.author?.name || "Community"}
-                           </span>
-                           <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">
-                              {new Date(post.createdAt).toLocaleDateString("en-IN", { month: "short", day: "numeric" })}
+                        <div className="flex items-center justify-between pt-5 border-t border-slate-50">
+                           <div className="flex items-center gap-2">
+                              <span className="text-[11px] font-bold text-slate-900 tracking-tight">
+                                {post.author?.name || "Community"}
+                                {post.author?.role === 'admin' && (
+                                  <span className="ml-1.5 text-[9px] font-bold text-primary border border-primary/20 bg-primary/5 px-1.5 py-0.5 rounded-md">Admin</span>
+                                )}
+                              </span>
+                           </div>
+                           <span className="text-[11px] font-bold text-slate-400 tracking-tight">
+                              {new Date(post.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
                            </span>
                         </div>
                       </div>
                     </Link>
                     
-                    {/* Inline Actions for Owner/Interaction */}
-                    <div className="flex items-center gap-2 mt-2 pt-4 border-t border-slate-50 dark:border-slate-800">
+                    {/* Management Actions - Refined Light Design */}
+                    <div className="flex items-center justify-between mt-6 pt-6 border-t border-slate-50">
                        <button
                         onClick={(e) => handleShare(e, post)}
-                        className="flex items-center gap-2 rounded-full bg-slate-50 dark:bg-slate-900 px-4 py-2 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-mozhi-primary hover:bg-mozhi-light/10 transition-all"
+                        className="flex items-center gap-2 text-[11px] font-bold text-slate-400 hover:text-primary transition-all tracking-tight"
                        >
                          {copiedId === post._id ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Share2 className="w-3.5 h-3.5" />}
-                         {copiedId === post._id ? "Copied" : "Share"}
+                         {copiedId === post._id ? "Link Copied" : "Share Story"}
                        </button>
 
                        {isOwner && (
-                         <>
+                         <div className="flex items-center gap-6">
                            <Link
-                            href={`/student/blogs/${post._id}/edit`}
-                            className="flex items-center gap-2 rounded-full bg-slate-50 dark:bg-slate-900 px-4 py-2 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-mozhi-secondary hover:bg-mozhi-light/10 transition-all"
+                             href={`/student/blogs/${post._id}/edit`}
+                             className="flex items-center gap-1.5 text-[11px] font-bold text-slate-400 hover:text-secondary transition-all tracking-tight"
                            >
                               <Edit2 className="w-3.5 h-3.5" /> Edit
                            </Link>
                            <button
-                            onClick={(e) => handleDelete(e, post._id)}
-                            className="flex items-center gap-2 rounded-full bg-slate-50 dark:bg-slate-900 px-4 py-2 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-red-500 hover:bg-red-50/50 transition-all ml-auto"
+                             onClick={(e) => handleDelete(e, post._id)}
+                             className="text-slate-200 hover:text-red-500 transition-all"
                            >
-                              <Trash2 className="w-3.5 h-3.5" />
+                             <Trash2 className="w-3.5 h-3.5" />
                            </button>
-                         </>
+                         </div>
                        )}
                     </div>
                   </div>
                 );
               })}
             </div>
-
-            {activeTab === "all" && totalPages > 1 && (
-              <div className="pt-16 pb-12">
+            
+            {/* Pagination Controls - Refined Light Mode */}
+            {totalBlogs > posts.length && activeTab === 'all' && (
+              <div className="pt-10 border-t border-slate-50">
                 <Pagination 
-                   currentPage={currentPage}
-                   totalPages={totalPages}
-                   onPageChange={setCurrentPage}
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  onPageChange={setCurrentPage}
                 />
               </div>
             )}

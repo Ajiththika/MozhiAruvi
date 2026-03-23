@@ -89,13 +89,15 @@ export default function AdminEventsPage() {
 
   return (
     <div className="space-y-8 animate-in fade-in zoom-in-95 duration-500 pb-12">
-      <div>
-        <h2 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
-          Platform Events Moderation 📅
-        </h2>
-        <p className="mt-1 text-slate-600 dark:text-slate-400">
-          Monitor public community events hosted by tutors to ensure guidelines are followed.
-        </p>
+      <div className="mb-0 flex flex-col md:flex-row md:items-end md:justify-between gap-6 border-b border-slate-100 pb-8">
+        <div>
+           <div className="flex items-center gap-2 mb-2">
+              <span className="h-1.5 w-6 rounded-full bg-mozhi-secondary" />
+              <span className="text-[10px] font-black text-mozhi-secondary uppercase tracking-[0.3em]">Administrator</span>
+           </div>
+           <h1 className="text-3xl md:text-4xl font-black text-slate-900 uppercase tracking-tight">Events Moderation</h1>
+           <p className="mt-2 text-slate-500 font-medium">Monitor public community events hosted by tutors to ensure guidelines are followed.</p>
+        </div>
       </div>
       
       {loading ? (

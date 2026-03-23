@@ -70,12 +70,12 @@ export function Sidebar({ items, basePath }: SidebarProps) {
   };
 
   return (
-    <aside className="hidden w-64 flex-col border-r border-slate-200 bg-white dark:border-slate-200 dark:bg-slate-50 md:flex">
+    <aside className="hidden w-64 flex-col border-r border-gray-100 bg-white md:flex">
       {/* Brand */}
-      <div className="flex h-16 items-center border-b border-slate-200 px-6 dark:border-slate-200">
+      <div className="flex h-16 items-center border-b border-gray-100 px-6">
         <Link
           href={basePath}
-          className="flex items-center gap-2 font-bold tracking-tight text-mozhi-primary dark:text-mozhi-secondary"
+          className="flex items-center gap-2 font-bold tracking-tight text-primary"
         >
           <BookOpen className="h-6 w-6 stroke-[2.5]" />
           <span className="text-xl">Mozhi Aruvi</span>
@@ -103,18 +103,18 @@ export function Sidebar({ items, basePath }: SidebarProps) {
               key={item.name}
               href={item.href}
               className={cn(
-                "group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors duration-200",
+                "group flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all duration-200",
                 isActive
-                  ? "bg-mozhi-light/50 text-mozhi-primary dark:bg-mozhi-primary/20 dark:text-mozhi-secondary"
-                  : "text-slate-600 hover:bg-slate-50 dark:text-slate-600 dark:hover:bg-slate-800/50"
+                  ? "bg-primary text-white shadow-sm"
+                  : "text-slate-500 hover:bg-slate-50 hover:text-primary"
               )}
             >
               <Icon
                 className={cn(
                   "h-5 w-5 shrink-0 transition-colors",
                   isActive
-                    ? "text-mozhi-primary dark:text-mozhi-secondary"
-                    : "text-slate-600 group-hover:text-slate-600 dark:text-slate-600 dark:group-hover:text-slate-600"
+                    ? "text-white"
+                    : "text-slate-400 group-hover:text-primary"
                 )}
               />
               {item.name}
@@ -124,10 +124,10 @@ export function Sidebar({ items, basePath }: SidebarProps) {
       </nav>
 
       {/* Logout */}
-      <div className="border-t border-slate-200 p-4 dark:border-slate-200">
+      <div className="border-t border-gray-100 p-4">
         <button
           onClick={handleLogout}
-          className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-red-600 transition-colors duration-200 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/30"
+          className="flex w-full items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-semibold text-error transition-colors duration-200 hover:bg-error/10"
         >
           <LogOut className="h-5 w-5" />
           Log out

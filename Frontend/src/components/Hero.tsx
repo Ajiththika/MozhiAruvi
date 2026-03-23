@@ -1,5 +1,5 @@
 import React from "react";
-import Link from "next/link";
+import Button from "@/components/common/Button";
 
 /* ─────────────────────────────────────────────
    Decorative Tamil letter configuration.
@@ -12,34 +12,34 @@ const tamilDecorations = [
   {
     char: "அ",
     className:
-      "top-[-20px] left-[-10px] text-[160px] text-mozhi-secondary opacity-[0.7] -rotate-12",
+      "top-[-20px] left-[-10px] text-[160px] text-secondary opacity-[0.4] -rotate-12",
   },
   {
     char: "ழ",
     className:
-      "bottom-[10px] left-[20px] text-[140px] text-blue-300 opacity-[0.6] rotate-6",
+      "bottom-[10px] left-[20px] text-[140px] text-primary opacity-[0.3] rotate-6",
   },
   {
     char: "ம்",
     className:
-      "top-[35%] left-[20px] text-[120px] text-slate-300 opacity-[0.8] rotate-3",
+      "top-[35%] left-[20px] text-[120px] text-slate-300 opacity-[0.5] rotate-3",
   },
 
   // ── Right column ─────────────────────────────
   {
     char: "ஞ",
     className:
-      "top-[5%] right-[-10px] text-[160px] text-mozhi-secondary opacity-[0.7] rotate-12",
+      "top-[5%] right-[-10px] text-[160px] text-secondary opacity-[0.4] rotate-12",
   },
   {
     char: "க",
     className:
-      "bottom-[20px] right-[10px] text-[150px] text-slate-300 opacity-[0.5] -rotate-6",
+      "bottom-[20px] right-[10px] text-[150px] text-slate-300 opacity-[0.3] -rotate-6",
   },
   {
     char: "வ",
     className:
-      "top-[42%] right-[-20px] text-[130px] text-blue-300 opacity-[0.8] -rotate-3",
+      "top-[42%] right-[-20px] text-[130px] text-primary opacity-[0.4] -rotate-3",
   },
 
   // ── Subtle center-spread accents ─────────────
@@ -74,11 +74,11 @@ const tamilDecorations = [
 
 export default function Hero() {
   return (
-    <section className="relative overflow-hidden bg-soft-bg pt-16 pb-24 md:pt-24 md:pb-32 px-4 sm:px-6 lg:px-8">
+    <section className="relative overflow-hidden bg-white py-10 md:py-14 px-4 md:px-8 lg:px-12">
 
       {/* ── Ambient gradient blobs (existing) ── */}
       <div className="absolute top-0 right-0 -translate-y-12 translate-x-1/3 pointer-events-none">
-        <div className="w-[600px] h-[600px] rounded-full bg-light-blue/50 blur-3xl opacity-60" />
+        <div className="w-[600px] h-[600px] rounded-full bg-light/50 blur-3xl opacity-60" />
       </div>
       <div className="absolute bottom-0 left-0 translate-y-1/3 -translate-x-1/3 pointer-events-none">
         <div className="w-[400px] h-[400px] rounded-full bg-primary/10 blur-3xl opacity-50" />
@@ -108,21 +108,23 @@ export default function Hero() {
       <div className="max-w-4xl mx-auto relative z-10 text-center">
 
         {/* Heritage pill badge */}
-        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-primary/20 bg-white/60 backdrop-blur-sm text-sm font-medium text-primary-dark mb-8">
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-primary/20 bg-white/60 backdrop-blur-sm text-sm font-semibold text-dark mb-8">
           <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
           One of the oldest living languages — Over 2000 years of heritage
         </div>
 
         {/* Headline */}
-        <h1 className="text-4xl md:text-6xl font-extrabold text-accent-text tracking-tight mb-4">
-          <span className="block text-primary mb-2">வாழ்க தமிழ் வளர்க கலை</span>
-          <span className="block text-3xl md:text-5xl mt-4 text-slate-800">
-            Long Live Tamil, Flourish the Arts
-          </span>
-        </h1>
+        <div className="space-y-6">
+          <h1 className="text-4xl md:text-5xl font-bold text-slate-900 tracking-tight leading-tight">
+            <span className="block text-primary">வாழ்க தமிழ் வளர்க கலை</span>
+            <span className="block text-2xl md:text-3xl mt-4 text-slate-800">
+              Long Live Tamil, Flourish the Arts
+            </span>
+          </h1>
+        </div>
 
         {/* Description */}
-        <p className="mt-6 text-lg md:text-xl text-muted max-w-2xl mx-auto leading-relaxed">
+        <p className="mt-8 text-base text-slate-600 max-w-xl mx-auto leading-relaxed font-medium">
           Tamil is a classical language spoken by over 80 million people
           worldwide. Join us in preserving and celebrating this beautiful
           language through interactive lessons, expert tutors, and a vibrant
@@ -130,38 +132,44 @@ export default function Hero() {
         </p>
 
         {/* Tamil quote card */}
-        <div className="mt-10 max-w-lg mx-auto p-6 bg-white/70 rounded-2xl border border-border-color shadow-sm backdrop-blur">
-          <p className="text-xl md:text-2xl font-bold text-primary mb-2">
+        <div className="mt-12 max-w-xl mx-auto p-8 bg-white/70 rounded-3xl border border-gray-100 shadow-md backdrop-blur">
+          <p className="text-lg font-bold text-primary mb-3">
             &ldquo;யாதும் ஊரே யாவரும் கேளிர்&rdquo;
           </p>
-          <p className="text-md text-accent-text italic mb-2">
+          <p className="text-base text-slate-700 italic mb-3 leading-relaxed font-bold">
             &ldquo;To us all towns are one, all men our kin.&rdquo;
           </p>
-          <p className="text-sm text-muted">— Kaniyan Pungundranar, Purananuru</p>
+          <div className="flex items-center justify-center gap-2 mt-4 text-[10px] text-slate-500 font-bold border-t border-gray-50 pt-4 tracking-tight">
+             — Kaniyan Pungundranar, Purananuru
+          </div>
         </div>
 
         {/* CTA buttons */}
         <div className="mt-12">
-          <p className="text-lg font-medium text-accent-text mb-6">
+          <p className="text-sm font-semibold text-slate-900 mb-6">
             Ready to Begin Your Tamil Journey?
           </p>
 
           <div className="flex flex-col sm:flex-row justify-center gap-4">
-            <Link
+            <Button
               href="/auth/signup"
-              className="px-8 py-4 text-lg font-semibold rounded-xl bg-primary text-white hover:bg-primary-dark transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 flex items-center justify-center gap-2"
+              variant="primary"
+              size="lg"
+              className="px-8 flex items-center justify-center gap-2"
             >
               Create Free Account <span aria-hidden="true">&rarr;</span>
-            </Link>
-            <Link
+            </Button>
+            <Button
               href="/student/lessons"
-              className="px-8 py-4 text-lg font-semibold rounded-xl bg-white text-primary border-2 border-primary/20 hover:border-primary/50 hover:bg-light-blue/30 transition-all shadow-sm flex items-center justify-center"
+              variant="secondary"
+              size="lg"
+              className="px-8 flex items-center justify-center"
             >
               Learn Today
-            </Link>
+            </Button>
           </div>
 
-          <p className="mt-4 text-sm text-muted">
+          <p className="mt-4 text-xs text-slate-500">
             No credit card required. Start learning in under 60 seconds.
           </p>
         </div>

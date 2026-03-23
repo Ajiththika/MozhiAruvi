@@ -4,8 +4,8 @@ import * as eventService from '../services/eventService.js';
 
 export async function listEvents(req, res, next) {
     try {
-        const { page = 1, limit = 6 } = req.query;
-        const result = await eventService.getAllEvents(parseInt(page), parseInt(limit));
+        const { page = 1, limit = 6, status = 'all' } = req.query;
+        const result = await eventService.getAllEvents(parseInt(page), parseInt(limit), status);
         res.json(result);
     } catch (e) { next(e); }
 }
@@ -42,12 +42,15 @@ export async function deleteEvent(req, res, next) {
 
 export async function submitJoinRequest(req, res, next) {
     try {
+        const registrationData = req.body;
+        const userId = req.user ? req.user.sub : null;
+        
         const request = await eventService.createJoinRequest(
             req.params.id,
-            req.user.sub,
-            req.body.message
+            userId,
+            registrationData
         );
-        res.status(201).json({ message: 'Join request submitted successfully.', request });
+        res.status(201).json({ message: 'Registration submitted successfully.', request });
     } catch (e) { next(e); }
 }
 

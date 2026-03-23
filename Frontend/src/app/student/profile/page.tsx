@@ -176,10 +176,10 @@ export default function StudentProfile() {
                )}
             </div>
             <div className="text-center md:text-left">
-              <h2 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">{user.name}</h2>
+              <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">{user.name}</h2>
               <div className="mt-2 flex flex-wrap justify-center md:justify-start items-center gap-3">
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-bold text-primary uppercase tracking-wider">
-                  Student Portal
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-bold text-primary tracking-tight">
+                  Student portal
                 </span>
                 <span className="flex items-center gap-1 text-sm font-medium text-slate-500">
                   <Mail className="h-3.5 w-3.5" /> {user.email}
@@ -190,8 +190,8 @@ export default function StudentProfile() {
           
           <div className="flex items-center gap-3">
             <div className="text-right hidden sm:block mr-2">
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Progress Level</p>
-              <p className="text-sm font-bold text-slate-700 dark:text-slate-200">{user.level || 'Beginner'}</p>
+              <p className="text-[10px] font-bold text-slate-400 tracking-tight">Progress level</p>
+              <p className="text-sm font-bold text-slate-700 dark:text-slate-200">{user?.level || 'Beginner'}</p>
             </div>
             <button 
               onClick={handleDeactivate}
@@ -224,7 +224,7 @@ export default function StudentProfile() {
                <div className="p-8 space-y-6">
                   <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                      <div className="space-y-1.5">
-                        <label className="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Full Name</label>
+                        <label className="text-xs font-bold text-slate-500 tracking-tight ml-1">Full name</label>
                         <input 
                           type="text" 
                           name="name" 
@@ -236,15 +236,15 @@ export default function StudentProfile() {
                         />
                      </div>
                      <div className="space-y-1.5">
-                        <label className="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Account Created</label>
+                        <label className="text-xs font-bold text-slate-500 tracking-tight ml-1">Account created</label>
                         <div className="w-full rounded-2xl border border-slate-100 bg-slate-50/30 px-5 py-3.5 text-sm font-bold text-slate-400 dark:border-slate-800 dark:bg-slate-800/50">
-                          {new Date(user.createdAt || "").toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
+                          {new Date(user?.createdAt || "").toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
                         </div>
                      </div>
                   </div>
 
                   <div className="space-y-1.5">
-                      <label className="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Bio / About You</label>
+                      <label className="text-xs font-bold text-slate-500 tracking-tight ml-1">Bio / About you</label>
                       <textarea 
                         name="bio" 
                         rows={5} 
@@ -268,14 +268,14 @@ export default function StudentProfile() {
                <div className="p-8 space-y-6">
                  <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                       <label className="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Phone Number</label>
+                       <label className="text-xs font-bold text-slate-500 tracking-tight ml-1">Phone number</label>
                        <div className="relative group">
                           <Phone className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-primary transition-colors" />
                           <input type="tel" name="phoneNumber" value={formData.phoneNumber} onChange={handleChange} placeholder="+1 (555) 000-0000" className="w-full rounded-2xl border border-slate-200 bg-slate-50/50 pl-12 pr-5 py-3.5 text-sm font-medium text-slate-700 outline-none focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/5 transition-all dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200" />
                        </div>
                     </div>
                     <div className="space-y-1.5">
-                       <label className="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Country</label>
+                       <label className="text-xs font-bold text-slate-500 tracking-tight ml-1">Country</label>
                        <div className="relative group">
                           <Globe className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-primary transition-colors" />
                           <input type="text" name="country" value={formData.country} onChange={handleChange} placeholder="e.g. Canada" className="w-full rounded-2xl border border-slate-200 bg-slate-50/50 pl-12 pr-5 py-3.5 text-sm font-medium text-slate-700 outline-none focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/5 transition-all dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200" />
@@ -289,7 +289,7 @@ export default function StudentProfile() {
          {/* Sidebar Area */}
          <div className="lg:col-span-4 space-y-8">
             <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white p-8 shadow-sm dark:border-slate-800 dark:bg-slate-900/50">
-               <h4 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-6">Personal Details</h4>
+               <h4 className="text-xs font-bold text-slate-500 tracking-tight mb-6">Personal details</h4>
                
                <div className="space-y-6">
                   <div className="space-y-2">
@@ -320,25 +320,25 @@ export default function StudentProfile() {
                   </div>
                   <div>
                     <h4 className="font-bold">Student Stats</h4>
-                    <p className="text-[10px] uppercase tracking-wider text-white/70">Performance summary</p>
+                    <p className="text-[10px] tracking-tight text-white/70">Performance summary</p>
                   </div>
                </div>
                
                <div className="grid grid-cols-2 gap-4 mt-6">
                   <div className="rounded-2xl bg-white/10 p-4 backdrop-blur-sm border border-white/10">
                     <p className="text-xs text-white/70 mb-1">XP Points</p>
-                    <p className="text-2xl font-black">{user.xp || 0}</p>
+                    <p className="text-2xl font-bold">{user?.xp || 0}</p>
                   </div>
                   <div className="rounded-2xl bg-white/10 p-4 backdrop-blur-sm border border-white/10">
                     <p className="text-xs text-white/70 mb-1">Credits</p>
-                    <p className="text-2xl font-black">{user.credits || 0}</p>
+                    <p className="text-2xl font-bold">{user?.credits || 0}</p>
                   </div>
                </div>
 
                <button 
                  type="submit" 
                  disabled={loading} 
-                 className="mt-8 w-full flex items-center justify-center gap-3 rounded-2xl bg-white px-6 py-4 text-sm font-black text-primary shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-70 disabled:hover:scale-100"
+                 className="mt-8 w-full flex items-center justify-center gap-3 rounded-2xl bg-white px-6 py-4 text-sm font-bold text-primary shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-70 disabled:hover:scale-100"
                >
                   {loading ? (
                     <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" />

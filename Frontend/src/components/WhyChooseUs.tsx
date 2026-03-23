@@ -67,17 +67,17 @@ const features = [
 
 export default function WhyChooseUs() {
   return (
-    <section className="py-24 bg-white px-4 sm:px-6 lg:px-8">
+    <section className="py-10 md:py-14 bg-white px-4 md:px-8 lg:px-12">
       <div className="max-w-7xl mx-auto">
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-light-blue text-sm font-semibold text-primary mb-4">
-            WHY CHOOSE US
+        <div className="text-center max-w-4xl mx-auto mb-16 space-y-6">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-light text-xs font-bold text-primary tracking-tight">
+            Why choose us
           </div>
-          <h2 className="text-3xl md:text-5xl font-bold text-accent-text mb-4">
+          <h2 className="text-3xl md:text-4xl font-bold text-slate-900 tracking-tight leading-tight">
             Why Learners Love Mozhi Aruvi
           </h2>
-          <p className="text-lg text-muted">
-            We're not just another language app. We bring the soul of Tamil to your screen.
+          <p className="text-base text-slate-700 font-medium max-w-xl mx-auto leading-relaxed">
+            We're not just another language app. We bring the soul of Tamil to your screen through authentic experiences.
           </p>
         </div>
 
@@ -85,15 +85,15 @@ export default function WhyChooseUs() {
           {features.map((feature) => (
             <div 
               key={feature.id} 
-              className="p-8 rounded-2xl bg-white border border-border-color hover:border-primary/40 hover:shadow-lg transition-all duration-300 group"
+              className="p-8 rounded-3xl bg-white border border-gray-100 shadow-sm transition-all duration-300 group hover:border-primary/20 hover:shadow-xl flex flex-col items-start gap-4"
             >
-              <div className="w-14 h-14 rounded-xl bg-soft-bg flex items-center justify-center text-primary mb-6 group-hover:bg-primary group-hover:text-white transition-colors duration-300">
+              <div className="w-16 h-16 rounded-2xl bg-slate-50 flex items-center justify-center text-primary mb-4 group-hover:bg-primary group-hover:text-white transition-colors duration-300">
                 {feature.icon}
               </div>
-              <h3 className="text-xl font-bold text-accent-text mb-3 tracking-tight">
+              <h3 className="text-lg font-bold text-slate-900 tracking-tight">
                 {feature.title}
               </h3>
-              <p className="text-muted leading-relaxed">
+              <p className="text-base text-slate-600 leading-relaxed font-medium">
                 {feature.description}
               </p>
             </div>

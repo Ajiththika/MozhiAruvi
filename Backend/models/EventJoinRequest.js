@@ -10,6 +10,30 @@ const eventJoinRequestSchema = new mongoose.Schema(
         userId: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'User',
+            required: false, // Allow guest registration
+        },
+        fullName: {
+            type: String,
+            required: true,
+            trim: true,
+        },
+        phoneNumber: {
+            type: String,
+            required: true,
+            trim: true,
+        },
+        country: {
+            type: String,
+            required: true,
+            trim: true,
+        },
+        age: {
+            type: Number,
+            required: true,
+        },
+        gender: {
+            type: String,
+            enum: ['male', 'female', 'other', 'prefer_not_to_say'],
             required: true,
         },
         message: {
@@ -35,12 +59,21 @@ const eventJoinRequestSchema = new mongoose.Schema(
     { timestamps: true }
 );
 
-// One user cannot have more than one pending request for the same event
+// One user (or guest by phone) cannot have more than one pending request for the same event
+// We'll use a combination of eventId and (userId OR phoneNumber)
 eventJoinRequestSchema.index(
     { eventId: 1, userId: 1 },
     {
         unique: true,
-        partialFilterExpression: { status: 'pending' },
+        partialFilterExpression: { status: 'pending', userId: { $exists: true } },
+    }
+);
+
+eventJoinRequestSchema.index(
+    { eventId: 1, phoneNumber: 1 },
+    {
+        unique: true,
+        partialFilterExpression: { status: 'pending', userId: { $exists: false } },
     }
 );
 

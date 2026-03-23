@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import * as eventController from '../controllers/eventController.js';
-import { authenticate } from '../middleware/auth.js';
+import { authenticate, authenticateOptional } from '../middleware/auth.js';
 import { requireRole } from '../middleware/rbac.js';
 import { validate } from '../middleware/validate.js';
 
@@ -64,26 +64,31 @@ const updateEventSchema = z
 
 const joinRequestSchema = z
     .object({
+        fullName: z.string().trim().min(3, 'Full name must be at least 3 characters.'),
+        phoneNumber: z.string().trim().min(5, 'Phone number must be valid.'),
+        country: z.string().trim().min(2, 'Country is required.'),
+        age: z.number().min(1, 'Age is required.').max(120),
+        gender: z.enum(['male', 'female', 'other', 'prefer_not_to_say']),
         message: z.string().trim().max(500, 'Message cannot exceed 500 characters.').optional(),
     })
     .strict();
 
 // ── Public / Authenticated Routes ─────────────────────────────────────────────
 
-// GET /api/events — list all active events
-router.get('/', authenticate, eventController.listEvents);
+// GET /api/events — list all active events (optionally filtered by upcoming/past)
+router.get('/', authenticateOptional, eventController.listEvents);
 
 // GET /api/events/my-requests — logged-in user's own join requests
 // NOTE: must be declared BEFORE /:id to avoid "my-requests" being treated as an id
 router.get('/my-requests', authenticate, eventController.getMyJoinRequests);
 
 // GET /api/events/:id — single event detail
-router.get('/:id', authenticate, eventController.getEvent);
+router.get('/:id', authenticateOptional, eventController.getEvent);
 
 // POST /api/events/:id/join-request — submit a join request
 router.post(
     '/:id/join-request',
-    authenticate,
+    authenticateOptional,
     validate(joinRequestSchema),
     eventController.submitJoinRequest
 );

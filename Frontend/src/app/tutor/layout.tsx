@@ -18,8 +18,8 @@ export default function TutorLayout({ children }: { children: React.ReactNode })
         <Sidebar items={tutorLinks} basePath="/tutor/dashboard" />
         <div className="flex flex-1 flex-col overflow-hidden">
           <Topbar title="Tutor Portal" />
-          <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8">
-            <div className="mx-auto max-w-7xl animate-in fade-in zoom-in-95 duration-300">
+          <main className="flex-1 overflow-y-auto px-4 md:px-8 lg:px-12 py-10 md:py-14">
+            <div className="mx-auto max-w-7xl animate-in fade-in zoom-in-95 duration-500">
               {children}
             </div>
           </main>

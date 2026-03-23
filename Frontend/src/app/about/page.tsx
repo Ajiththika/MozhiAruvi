@@ -1,8 +1,7 @@
 import { Metadata } from "next";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import PrimaryButton from "@/components/PrimaryButton";
-import SecondaryButton from "@/components/SecondaryButton";
+import Button from "@/components/common/Button";
 
 export const metadata: Metadata = {
   title: "About - Mozhi Aruvi",
@@ -104,7 +103,7 @@ export default function AboutPage() {
           <div className="absolute inset-0 pointer-events-none">
             <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-light-blue/40 rounded-full blur-3xl -translate-y-1/3 translate-x-1/3" />
             <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-primary/10 rounded-full blur-3xl translate-y-1/3 -translate-x-1/3" />
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-[0.025] font-black text-[18rem] text-primary select-none leading-none">
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-[0.025] text-[18rem] text-primary select-none leading-none">
               த
             </div>
           </div>
@@ -115,23 +114,25 @@ export default function AboutPage() {
               Our Story
             </div>
 
-            <h1 className="text-4xl md:text-6xl font-extrabold text-accent-text tracking-tight mb-6">
-              About{" "}
-              <span className="text-primary">Mozhi Aruvi</span>
-            </h1>
-
-            <p className="text-lg md:text-xl text-muted max-w-2xl mx-auto leading-relaxed mb-6">
+            <div className="space-y-4">
+              <h1 className="text-4xl md:text-5xl font-bold text-slate-900 tracking-tight leading-tight">
+                About{" "}
+                <span className="text-primary">Mozhi Aruvi</span>
+              </h1>
+            </div>
+ 
+            <p className="text-base text-slate-700 max-w-xl mx-auto leading-relaxed mt-6 font-medium">
               Preserving Tamil language and culture through modern, interactive learning — making one of the world's oldest living languages accessible to everyone, everywhere.
             </p>
-
-            <div className="inline-block px-6 py-4 rounded-2xl bg-light-blue/50 border border-primary/20 backdrop-blur-sm mb-10">
-              <p className="text-2xl md:text-3xl font-bold text-primary">தமிழ் மொழி வாழ்க</p>
-              <p className="text-sm text-muted mt-1 italic">Long live the Tamil language</p>
+ 
+            <div className="inline-block px-8 py-5 rounded-3xl bg-primary/5 border border-primary/10 backdrop-blur-sm mt-10 mb-10">
+              <p className="text-2xl md:text-3xl font-bold text-primary tracking-tight">தமிழ் மொழி வாழ்க</p>
+              <p className="text-xs text-slate-500 mt-1 italic font-semibold">Long live the Tamil language</p>
             </div>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <PrimaryButton href="/lessons">Explore Lessons</PrimaryButton>
-              <SecondaryButton href="#community">Join the Community</SecondaryButton>
+              <Button href="/student/lessons" size="lg">Explore Lessons</Button>
+              <Button href="/student/dashboard" variant="secondary" size="lg">Join the Community</Button>
             </div>
           </div>
         </section>
@@ -139,24 +140,24 @@ export default function AboutPage() {
         {/* ── 2. Mission ──────────────────────────────────────────── */}
         <section className="py-24 bg-soft-bg px-4 sm:px-6 lg:px-8">
           <div className="max-w-7xl mx-auto">
-            <div className="text-center mb-16">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-light-blue text-sm font-semibold text-primary mb-4">
-                MISSION
+            <div className="text-center mb-20 space-y-4">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-light text-xs font-bold text-primary tracking-tight">
+                Mission
               </div>
-              <h2 className="text-3xl md:text-5xl font-bold text-accent-text">Our Mission</h2>
+              <h2 className="text-3xl md:text-4xl font-bold text-slate-900 tracking-tight leading-tight">Our Mission</h2>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {missionCards.map((card) => (
                 <div
                   key={card.title}
-                  className="bg-white rounded-2xl p-8 border border-border-color hover:border-primary/30 hover:shadow-xl transition-all duration-300 group"
+                  className="bg-white rounded-3xl p-10 border border-gray-100 hover:border-primary/20 hover:shadow-xl transition-all duration-300 group"
                 >
-                  <div className="w-14 h-14 rounded-xl bg-soft-bg flex items-center justify-center text-primary mb-6 group-hover:bg-primary group-hover:text-white transition-colors duration-300">
+                  <div className="w-16 h-16 rounded-2xl bg-slate-50 flex items-center justify-center text-primary mb-8 group-hover:bg-primary group-hover:text-white transition-colors duration-300">
                     {card.icon}
                   </div>
-                  <h3 className="text-xl font-bold text-accent-text mb-3">{card.title}</h3>
-                  <p className="text-muted leading-relaxed">{card.description}</p>
+                  <h3 className="text-lg font-bold text-slate-900 mb-4">{card.title}</h3>
+                  <p className="text-base text-slate-600 leading-relaxed font-medium">{card.description}</p>
                 </div>
               ))}
             </div>
@@ -168,14 +169,14 @@ export default function AboutPage() {
           <div className="max-w-7xl mx-auto">
             <div className="flex flex-col lg:flex-row gap-16 items-center">
               {/* Text */}
-              <div className="flex-1">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-light-blue text-sm font-semibold text-primary mb-6">
-                  OUR STORY
+              <div className="flex-1 space-y-6">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-light text-xs font-bold text-primary tracking-tight">
+                  Our Story
                 </div>
-                <h2 className="text-3xl md:text-5xl font-bold text-accent-text mb-6">
+                <h2 className="text-3xl md:text-4xl font-bold text-slate-900 tracking-tight leading-tight">
                   Born from a Love of Tamil
                 </h2>
-                <div className="space-y-5 text-muted text-lg leading-relaxed">
+                <div className="space-y-6 text-slate-700 text-base leading-relaxed font-medium">
                   <p>
                     Mozhi Aruvi was founded by Tamil diaspora members who grew up speaking Tamil at home but had no structured, modern platform to deepen their understanding of the language and its rich cultural roots.
                   </p>
@@ -194,8 +195,8 @@ export default function AboutPage() {
                   <div className="absolute -top-4 -right-4 w-full h-full bg-light-blue rounded-3xl -z-10 rotate-2" />
                   <div className="bg-white rounded-3xl border border-border-color shadow-2xl p-8 relative z-10">
                     <div className="text-center mb-8">
-                      <div className="text-6xl font-black text-primary mb-2">வா</div>
-                      <p className="text-muted font-medium">Vaa — Come (invitation)</p>
+                      <div className="text-5xl font-bold text-primary mb-2">வா</div>
+                      <p className="text-xs text-slate-500 font-medium">Vaa — Come (invitation)</p>
                     </div>
                     <div className="space-y-4">
                       <div className="flex items-center gap-4 p-4 bg-soft-bg rounded-xl border border-border-color">
@@ -313,7 +314,7 @@ export default function AboutPage() {
           <div className="absolute inset-0 pointer-events-none">
             <div className="absolute top-0 left-1/4 w-72 h-72 bg-white/5 rounded-full blur-3xl" />
             <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-white/5 rounded-full blur-3xl" />
-            <div className="absolute top-1/2 right-0 -translate-y-1/2 opacity-[0.03] font-black text-[16rem] text-white select-none">ழ</div>
+            <div className="absolute top-1/2 right-0 -translate-y-1/2 opacity-[0.03] text-[16rem] text-white select-none">ழ</div>
           </div>
 
           <div className="max-w-7xl mx-auto relative z-10">
@@ -332,7 +333,7 @@ export default function AboutPage() {
                   key={stat.label}
                   className="text-center p-8 bg-white/10 backdrop-blur-sm rounded-2xl border border-white/20 hover:bg-white/20 transition-colors"
                 >
-                  <div className="text-4xl md:text-5xl font-extrabold text-white mb-2">{stat.value}</div>
+                  <div className="text-4xl md:text-5xl font-bold text-white mb-2">{stat.value}</div>
                   <div className="text-blue-200 font-semibold text-base md:text-lg">{stat.label}</div>
                 </div>
               ))}
@@ -348,26 +349,25 @@ export default function AboutPage() {
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-primary/5 rounded-full blur-3xl" />
           </div>
 
-          <div className="max-w-3xl mx-auto text-center relative z-10">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-light-blue border border-primary/20 text-primary text-sm font-semibold mb-8">
-              <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-              Ready to begin?
+          <div className="max-w-4xl mx-auto relative z-10 space-y-6">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 text-xs font-bold text-white tracking-tight">
+              Join us today
             </div>
 
-            <h2 className="text-3xl md:text-5xl font-extrabold text-accent-text tracking-tight mb-6">
+            <h2 className="text-3xl md:text-4xl font-bold text-white tracking-tight leading-tight">
               Start Your Tamil Learning Journey
             </h2>
-            <p className="text-lg md:text-xl text-muted max-w-2xl mx-auto mb-10 leading-relaxed">
-              Join 1,200+ learners already on their Tamil learning journey. Create your free account today and get 50 credits to start learning immediately.
+            <p className="text-lg md:text-xl text-blue-50 max-w-xl mx-auto leading-relaxed">
+              Experience the depth of one of humankind's greatest heritages through fun, interactive paths.
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <PrimaryButton href="/auth/signup">
+              <Button href="/auth/signup" size="lg">
                 Create Free Account
-              </PrimaryButton>
-              <SecondaryButton href="/lessons">
+              </Button>
+              <Button href="/student/lessons" variant="secondary" size="lg">
                 Explore Lessons
-              </SecondaryButton>
+              </Button>
             </div>
 
             <p className="mt-6 text-sm text-muted">

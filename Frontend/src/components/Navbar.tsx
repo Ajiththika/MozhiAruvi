@@ -5,6 +5,7 @@ import React, { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { User as UserIcon, LogOut, Settings, Award } from "lucide-react";
 import { useRouter } from "next/navigation";
+import Button from "@/components/common/Button";
 
 export default function Navbar() {
   const { user, isLoading, logoutUser } = useAuth();
@@ -27,8 +28,8 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="sticky top-0 z-50 w-full bg-white/80 backdrop-blur-md border-b border-border-color">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <nav className="sticky top-0 z-50 w-full bg-white/80 backdrop-blur-md border-b border-gray-100">
+      <div className="max-w-7xl mx-auto px-4 md:px-8 lg:px-12">
         <div className="flex justify-between items-center h-16">
           <div className="flex-shrink-0 flex items-center">
             <Link href="/" className="text-2xl font-bold text-primary flex items-center gap-2">
@@ -37,16 +38,16 @@ export default function Navbar() {
           </div>
           
           <div className="hidden md:flex items-center space-x-8">
-            <Link href="/student/lessons" className="text-muted hover:text-primary transition-colors font-medium">
+            <Link href="/student/lessons" className="text-slate-500 hover:text-primary transition-colors font-semibold text-sm">
               Lessons
             </Link>
-             <Link href="/student/tutors" className="text-muted hover:text-primary transition-colors font-medium">
+             <Link href="/student/tutors" className="text-slate-500 hover:text-primary transition-colors font-semibold text-sm">
                Tutors
              </Link>
-            <Link href="/events" className="text-muted hover:text-primary transition-colors font-medium">
+            <Link href="/events" className="text-slate-500 hover:text-primary transition-colors font-semibold text-sm">
               Events
             </Link>
-            <Link href="/blogs" className="text-muted hover:text-primary transition-colors font-medium">
+            <Link href="/blogs" className="text-slate-500 hover:text-primary transition-colors font-semibold text-sm">
               Blogs
             </Link>
           </div>
@@ -74,9 +75,9 @@ export default function Navbar() {
                 </button>
 
                 {isMenuOpen && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white border border-border-color rounded-xl shadow-lg py-1 z-50 overflow-hidden">
+                  <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-100 rounded-xl shadow-lg py-1 z-50 overflow-hidden">
                     <div className="px-4 py-3 border-b border-gray-100 bg-gray-50/50">
-                      <p className="text-sm font-medium text-gray-900 truncate">{user.name}</p>
+                      <p className="text-sm font-semibold text-gray-900 truncate">{user.name}</p>
                       <p className="text-xs text-gray-500 truncate">{user.email}</p>
                     </div>
                     
@@ -90,8 +91,8 @@ export default function Navbar() {
                     </Link>
                     
                     {user.role === 'user' && (
-                      <div className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 bg-gray-50/30">
-                        <Award size={16} className="text-yellow-500" />
+                      <div className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 bg-gray-50/30 font-semibold">
+                        <Award size={16} className="text-warning" />
                         <span>XP: {user.xp || 0}</span>
                       </div>
                     )}
@@ -108,12 +109,13 @@ export default function Navbar() {
                 )}
               </div>
             ) : (
-              <Link 
+              <Button 
                 href="/auth/signin" 
-                className="px-4 py-2 rounded-lg text-primary font-medium hover:bg-light-blue transition-colors"
+                variant="primary"
+                size="md"
               >
                 Sign In
-              </Link>
+              </Button>
             )}
           </div>
         </div>

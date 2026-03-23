@@ -105,18 +105,18 @@ export default function AdminLessonsPage() {
 
   return (
     <div className="space-y-8 animate-in fade-in pb-12">
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-         <div>
-            <h2 className="text-2xl font-bold tracking-tight text-slate-800 dark:text-slate-100">
-               Curriculum Engine 🧩
-            </h2>
-            <p className="mt-1 text-slate-600 dark:text-slate-400">
-               Administrate learning paths, manage modules and sections for the tree.
-            </p>
-         </div>
-         <button onClick={() => setShowCreate(true)} className="flex items-center gap-2 rounded-xl bg-mozhi-primary px-5 py-2.5 text-sm font-bold text-white shadow-sm hover:bg-opacity-90 transition">
+      <div className="mb-8 md:mb-10 flex flex-col md:flex-row md:items-end md:justify-between gap-6 border-b border-slate-100 pb-8">
+        <div>
+           <div className="flex items-center gap-2">
+            <span className="h-1.5 w-8 rounded-full bg-mozhi-secondary" />
+            <span className="text-xs font-bold text-mozhi-secondary tracking-tight">Management</span>
+          </div>
+          <h1 className="text-3xl font-bold text-slate-900 tracking-tight leading-tight">Lessons & Curriculum</h1>
+           <p className="mt-2 text-slate-500 font-medium">Manage modules, sections, and paths for the learning tree.</p>
+        </div>
+        <button onClick={() => setShowCreate(true)} className="flex items-center gap-2 rounded-xl bg-mozhi-primary px-5 py-3 text-xs font-bold uppercase tracking-tight text-white shadow-lg shadow-mozhi-primary/20 hover:scale-105 transition">
              <Plus className="h-4 w-4" /> Create Lesson Node
-         </button>
+        </button>
       </div>
 
       {showCreate && (

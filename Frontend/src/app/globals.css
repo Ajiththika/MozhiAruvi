@@ -1,27 +1,35 @@
 @import "tailwindcss";
 
 @theme {
-  /* Core Brand Colors */
-  --color-mozhi-dark: #17325C;
-  --color-mozhi-primary: #2A5794;
-  --color-mozhi-secondary: #4F84B5;
-  --color-mozhi-soft: #93B8C6;
-  --color-mozhi-light: #C1DBE4;
+  /* Design System Fonts */
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
 
-  /* Legacy aliases for backward compatibility with existing codebase */
-  --color-primary: var(--color-mozhi-primary);
-  --color-primary-dark: var(--color-mozhi-dark);
-  --color-secondary: var(--color-mozhi-secondary);
-  --color-light-blue: var(--color-mozhi-light);
-  --color-soft-bg: #f8fafc; /* slate-50 */
-  --color-accent-text: #0f172a; /* slate-900 */
-  --color-muted: #64748b; /* slate-500 */
-  --color-border-color: #e2e8f0; /* slate-200 */
-  --color-accent-gold: #F59E0B; /* Keeping only if functionally necessary elsewhere */
+  /* Primary Brand Palette */
+  --color-primary: #2A5794;
+  --color-secondary: #4F84B5;
+  --color-soft: #93B8C6;
+  --color-light: #C1DBE4;
+  --color-dark: #17325C;
+
+  /* Semantic Colors */
+  --color-success: #10b981; /* green-500 */
+  --color-error: #ef4444;   /* red-500 */
+  --color-warning: #f59e0b; /* amber-500 */
+
+  /* Neutral Surface Colors (Derived) */
+  --color-surface: #ffffff;
+  --color-surface-soft: #f8fafc; /* slate-50 */
 }
 
-body {
-  background-color: #f8fafc; /* Tailwind slate-50 */
-  color: #0f172a; /* Tailwind slate-900 */
-  scroll-behavior: smooth;
+@layer base {
+  body {
+    @apply bg-slate-50 text-slate-900 font-sans antialiased;
+    scroll-behavior: smooth;
+  }
+  
+  /* Reset some common styles to follow the design scale if needed */
+  h1 { @apply text-2xl md:text-3xl font-bold tracking-tight; }
+  h2 { @apply text-xl font-semibold; }
+  h3 { @apply text-base font-semibold; }
 }

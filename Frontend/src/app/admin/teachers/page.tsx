@@ -143,21 +143,21 @@ export default function AdminTeachersPage() {
 
   return (
     <div className="space-y-8 animate-in fade-in zoom-in-95 duration-500 pb-12">
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <div className="mb-0 flex flex-col md:flex-row md:items-end md:justify-between gap-6 border-b border-slate-100 pb-8">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight text-slate-600 dark:text-slate-600">
-            Teacher Applications 🎓
-          </h2>
-          <p className="mt-1 text-slate-600 dark:text-slate-600">
-            Approve, reject, or request revisions on teacher applications.
-          </p>
+            <div className="flex items-center gap-2">
+              <span className="h-1.5 w-8 rounded-full bg-mozhi-secondary" />
+              <span className="text-xs font-bold text-mozhi-secondary tracking-tight">Management</span>
+            </div>
+            <h1 className="text-3xl font-bold text-slate-900 tracking-tight leading-tight">Teacher Applications</h1>
+            <p className="mt-2 text-slate-600 font-medium">Approve, reject, or request revisions on teacher applications.</p>
         </div>
         <button
           onClick={() => load(currentPage)}
           disabled={loading}
-          className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-bold text-slate-600 shadow-sm transition hover:bg-slate-50 disabled:opacity-50 dark:border-slate-200 dark:bg-slate-50 dark:text-slate-600"
+          className="flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-3 text-xs font-bold tracking-tight text-slate-600 shadow-sm transition hover:bg-slate-50 disabled:opacity-50"
         >
-          <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} /> Refresh
+          <RefreshCw className={`h-3 w-3 ${loading ? "animate-spin" : ""}`} /> Refresh Data
         </button>
       </div>
 

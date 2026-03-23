@@ -45,17 +45,17 @@ const steps = [
 
 export default function HowItWorks() {
   return (
-    <section id="how-it-works" className="py-24 bg-white px-4 sm:px-6 lg:px-8">
+    <section id="how-it-works" className="py-10 md:py-14 bg-white px-4 md:px-8 lg:px-12">
       <div className="max-w-7xl mx-auto">
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-light-blue text-sm font-semibold text-primary mb-4">
-            HOW IT WORKS
+        <div className="text-center max-w-4xl mx-auto mb-16 space-y-6">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-light text-xs font-bold text-primary tracking-tight">
+            How it works
           </div>
-          <h2 className="text-3xl md:text-5xl font-bold text-accent-text mb-4">
+          <h2 className="text-3xl md:text-4xl font-bold text-slate-900 tracking-tight leading-tight">
             Start Learning in 4 Simple Steps
           </h2>
-          <p className="text-lg text-muted">
-            From registration to mastery—here's your journey.
+          <p className="text-base text-slate-700 font-medium max-w-xl mx-auto leading-relaxed">
+            From registration to mastery—here's your journey to becoming fluent in Tamil.
           </p>
         </div>
 
@@ -63,18 +63,18 @@ export default function HowItWorks() {
           {steps.map((step) => (
             <div 
               key={step.id} 
-              className="relative p-8 rounded-2xl bg-soft-bg border border-border-color hover:border-primary/30 hover:shadow-xl transition-all duration-300 group overflow-hidden"
+              className="relative p-10 rounded-3xl bg-white border border-gray-100 shadow-sm transition-all duration-300 group overflow-hidden hover:border-primary/20 hover:shadow-xl"
             >
-              <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
-                <span className="text-8xl font-black text-primary">{step.id}</span>
+              <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:opacity-10 transition-opacity">
+                <span className="text-8xl font-bold text-primary">{step.id}</span>
               </div>
               
-              <div className="relative z-10">
-                <div className="w-14 h-14 rounded-xl bg-white shadow-sm flex items-center justify-center text-primary mb-6 group-hover:scale-110 transition-transform">
+              <div className="relative z-10 flex flex-col items-start gap-3">
+                <div className="w-16 h-16 rounded-2xl bg-slate-50 flex items-center justify-center text-primary mb-6 transition-transform group-hover:scale-110">
                   {step.icon}
                 </div>
-                <h3 className="text-xl font-bold text-accent-text mb-3">{step.title}</h3>
-                <p className="text-muted leading-relaxed">
+                <h3 className="text-lg font-bold text-slate-900 mb-3">{step.title}</h3>
+                <p className="text-base text-slate-600 leading-relaxed font-medium">
                   {step.description}
                 </p>
               </div>

@@ -3,13 +3,15 @@
 import React, { useEffect, useState } from "react";
 import { getMyBlogById, updateMyBlog, Blog } from "@/services/blogService";
 import { useRouter, useParams } from "next/navigation";
-import { ArrowLeft, Loader2, CheckCircle2, AlertCircle, Save, Send, BookOpen, UserCircle, LayoutGrid, Image as ImageIcon, FileText } from "lucide-react";
+import { ArrowLeft, Loader2, CheckCircle2, AlertCircle, Save, Send, BookOpen, UserCircle, LayoutGrid, Image as ImageIcon, FileText, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import Button from "@/components/common/Button";
 
 const CATEGORIES = ["Grammar", "Culture", "Pronunciation", "Tutor Tips", "Updates", "General"];
 
-const inputCls = "w-full rounded-[1.5rem] border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 px-6 py-4 text-sm font-medium text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-mozhi-primary/20 outline-none transition-all shadow-sm";
+const labelCls = "text-xs font-bold text-slate-400 tracking-tight ml-2 mb-2 block";
+const inputCls = "w-full rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 px-6 py-4 text-sm font-medium text-slate-900 dark:text-white placeholder:text-slate-300 focus:ring-4 focus:ring-primary/5 focus:border-primary outline-none transition-all shadow-sm";
 
 export default function EditBlogPage() {
   const params = useParams();
@@ -53,7 +55,7 @@ export default function EditBlogPage() {
       const blog = await updateMyBlog(params.id as string, { ...form, status: isDraft ? "draft" : "published" });
       setBanner({ type: "success", message: isDraft ? "Story preserved as draft." : "Updates published to the feed!" });
       setTimeout(() => {
-        if (isDraft) router.push("/blogs");
+        if (isDraft) router.push("/student/blogs");
         else router.push(`/blogs/${blog.slug || blog._id}`);
       }, 1500);
     } catch (err: any) {
@@ -66,40 +68,44 @@ export default function EditBlogPage() {
   const wordCount = form.content.trim() ? form.content.trim().split(/\s+/).length : 0;
 
   if (loading) return (
-    <div className="min-h-screen flex items-center justify-center bg-white">
-      <Loader2 className="h-10 w-10 animate-spin text-mozhi-primary" />
+    <div className="min-h-screen flex items-center justify-center bg-white dark:bg-slate-950">
+      <Loader2 className="h-10 w-10 animate-spin text-primary" />
     </div>
   );
 
   return (
-    <div className="animate-in fade-in duration-700 max-w-5xl mx-auto py-10">
-      <Link href="/student/blogs" className="group mb-12 inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 hover:text-mozhi-primary transition-colors">
-        <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" /> Back to library
+    <div className="animate-in fade-in duration-700 max-w-6xl mx-auto py-10">
+      <Link href="/student/blogs" className="group mb-12 inline-flex items-center gap-2 text-xs font-bold text-slate-400 hover:text-primary transition-colors tracking-tight">
+        <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" /> Back to studio
       </Link>
 
-      <div className="flex flex-col lg:flex-row gap-12">
+      <div className="flex flex-col lg:flex-row gap-16">
         {/* Editor Form */}
-        <div className="flex-1 space-y-8">
-           <div>
-              <h1 className="text-4xl md:text-5xl font-black text-slate-900 dark:text-white uppercase tracking-tighter mb-4 leading-none">
-                Refine <span className="text-mozhi-primary">Story</span>
+        <div className="flex-1 space-y-10">
+           <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                 <Sparkles className="w-5 h-5 text-primary" />
+                 <span className="text-xs font-bold text-primary tracking-tight">Refining Mode</span>
+              </div>
+              <h1 className="text-4xl md:text-5xl font-bold text-slate-900 dark:text-white tracking-tight leading-none">
+                Refine your <span className="text-primary italic">story</span>
               </h1>
-              <p className="text-slate-500 font-medium">Fine-tune your cultural insights for the global feed.</p>
+              <p className="text-slate-500 font-medium max-w-lg leading-relaxed">Fine-tune your cultural insights. Quality content drives deeper community engagement.</p>
            </div>
 
            {/* Banner Feedback */}
            {banner && (
-            <div className={`mb-10 flex items-start gap-4 rounded-[2rem] border px-6 py-4 text-sm font-bold shadow-xl animate-in slide-in-from-top-4 ${
+            <div className={`flex items-start gap-4 rounded-3xl border px-6 py-5 text-sm font-bold shadow-xl animate-in slide-in-from-top-4 ${
               banner.type === "success"
-                ? "border-emerald-200 bg-emerald-50 text-emerald-800 dark:border-emerald-900/40 dark:bg-emerald-950/20 dark:text-emerald-400"
-                : "border-red-200 bg-red-50 text-red-800 dark:border-red-900/40 dark:bg-red-950/20 dark:text-red-400"
+                ? "border-emerald-100 bg-emerald-50 text-emerald-700 shadow-emerald-500/5"
+                : "border-red-100 bg-red-50 text-red-700 shadow-red-500/5"
             }`}>
               {banner.type === "success" ? <CheckCircle2 className="h-6 w-6 shrink-0 mt-0.5" /> : <AlertCircle className="h-6 w-6 shrink-0 mt-0.5" />}
               {banner.message}
             </div>
            )}
 
-           <div className="bg-white dark:bg-slate-900 rounded-[3rem] border border-slate-200 dark:border-slate-800 p-8 md:p-12 shadow-2xl shadow-slate-200/20 dark:shadow-none space-y-8">
+           <div className="bg-white dark:bg-slate-900 rounded-[3rem] border border-slate-100 dark:border-slate-800 p-8 md:p-14 shadow-2xl shadow-slate-200/20 dark:shadow-none space-y-10">
               {/* Title Section */}
               <div className="space-y-4">
                  <input 
@@ -108,88 +114,107 @@ export default function EditBlogPage() {
                   required 
                   value={form.title} 
                   onChange={handleChange} 
-                  className="w-full bg-transparent border-none text-3xl md:text-4xl font-black text-slate-900 dark:text-white placeholder:text-slate-200 focus:ring-0 px-0 outline-none uppercase tracking-tighter leading-tight" 
-                  placeholder="Article Title..." 
+                  className="w-full bg-transparent border-none text-3xl md:text-5xl font-bold text-slate-900 dark:text-white placeholder:text-slate-100 focus:ring-0 px-0 outline-none tracking-tight leading-tight" 
+                  placeholder="The title of your story..." 
                  />
-                 <div className="h-[1px] w-full bg-slate-100 dark:bg-slate-800" />
+                 <div className="h-[1px] w-full bg-slate-50 dark:bg-slate-800" />
               </div>
 
               {/* Sub-meta */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                   <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-2">Topic Category</label>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div>
+                   <label className={labelCls}>Topic Category</label>
                    <div className="relative">
-                      <LayoutGrid className="absolute left-6 top-1/2 -translate-y-1/2 h-4 w-4 text-mozhi-primary" />
+                      <LayoutGrid className="absolute left-6 top-1/2 -translate-y-1/2 h-4 w-4 text-primary opacity-40" />
                       <select name="category" value={form.category} onChange={handleChange} className={cn(inputCls, "pl-14 appearance-none")}>
                         {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
                       </select>
                    </div>
                 </div>
-                <div className="space-y-2">
-                   <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-2">Cover URL</label>
+                <div>
+                   <label className={labelCls}>Featured Cover Image</label>
                    <div className="relative">
-                      <ImageIcon className="absolute left-6 top-1/2 -translate-y-1/2 h-4 w-4 text-mozhi-primary" />
-                      <input type="url" name="featuredImage" value={form.featuredImage} onChange={handleChange} className={cn(inputCls, "pl-14")} placeholder="https://..." />
+                      <ImageIcon className="absolute left-6 top-1/2 -translate-y-1/2 h-4 w-4 text-primary opacity-40" />
+                      <input type="url" name="featuredImage" value={form.featuredImage} onChange={handleChange} className={cn(inputCls, "pl-14")} placeholder="https://unsplash.com/..." />
                    </div>
                 </div>
               </div>
 
               {/* Summary / Excerpt */}
-              <div className="space-y-2">
-                 <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-2">Quick Excerpt</label>
-                 <textarea name="excerpt" rows={2} value={form.excerpt} onChange={handleChange} className={cn(inputCls, "resize-none")} placeholder="A short hook for the feed..." />
+              <div>
+                 <label className={labelCls}>Article Preview (Excerpt)</label>
+                 <textarea name="excerpt" rows={2} value={form.excerpt} onChange={handleChange} className={cn(inputCls, "resize-none h-24")} placeholder="Briefly describe what your readers can expect..." />
               </div>
 
               {/* Main Content Body */}
-              <div className="space-y-4 pt-4">
+              <div className="pt-6 space-y-4">
                  <div className="flex items-center justify-between px-2">
-                     <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Content Engine</span>
-                     <span className="text-[10px] font-black uppercase tracking-widest text-mozhi-primary">{wordCount} Words</span>
+                      <label className={labelCls}>Body Content</label>
+                      <span className="text-[10px] font-bold text-primary border border-primary/20 bg-primary/5 px-2 py-0.5 rounded-md">{wordCount} Words</span>
                  </div>
-                 <textarea name="content" required rows={18} value={form.content} onChange={handleChange} className={cn(inputCls, "resize-none text-base md:text-lg leading-relaxed font-medium bg-transparent border-slate-100")} placeholder="Tell your story..." />
+                 <textarea name="content" required rows={16} value={form.content} onChange={handleChange} className={cn(inputCls, "resize-none text-base md:text-lg leading-relaxed font-medium bg-white dark:bg-slate-950/50 border-slate-100 dark:border-slate-800 h-[30rem]")} placeholder="Start sharing your knowledge..." />
               </div>
            </div>
         </div>
 
         {/* Action Sidebar / Settings */}
-        <div className="w-full lg:w-80 space-y-6">
-           <div className="sticky top-10 space-y-6">
-              <div className="bg-slate-900 rounded-[2.5rem] p-8 text-white shadow-2xl">
-                 <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-6">Article Status</p>
-                 <div className="flex flex-col gap-4">
-                    <button
+        <div className="w-full lg:w-80 shrink-0">
+           <div className="sticky top-10 space-y-8">
+              <div className="bg-slate-900 rounded-[3rem] p-10 text-white shadow-2xl shadow-slate-900/10">
+                 <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-8 px-2">Update story</p>
+                 <div className="flex flex-col gap-5">
+                    <Button
                       onClick={() => handleSubmit(false)}
                       disabled={submitting}
-                      className="w-full flex items-center justify-center gap-3 rounded-full bg-mozhi-primary px-6 py-5 text-sm font-black text-white hover:scale-[1.03] transition-all uppercase tracking-widest shadow-xl shadow-mozhi-primary/20 disabled:opacity-50"
+                      className="w-full h-16 rounded-2xl bg-primary text-white hover:scale-[1.02] shadow-xl shadow-primary/20 disabled:opacity-50"
                     >
-                      {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-                      Publish Story
-                    </button>
+                      {submitting ? <Loader2 className="w-5 h-5 animate-spin mr-3" /> : <Send className="w-5 h-5 mr-3" />}
+                      Push Updates
+                    </Button>
                     <button
                       onClick={() => handleSubmit(true)}
                       disabled={submitting}
-                      className="w-full flex items-center justify-center gap-3 rounded-full bg-white/5 border border-white/10 px-6 py-5 text-sm font-black text-white hover:bg-white/10 transition-all uppercase tracking-widest disabled:opacity-50"
+                      className="w-full h-16 flex items-center justify-center gap-3 rounded-2xl border border-white/10 bg-white/5 text-sm font-bold text-white hover:bg-white/10 transition-all disabled:opacity-50"
                     >
-                      <Save className="w-4 h-4" /> Move to Draft
+                      <Save className="w-5 h-5 mr-1" /> Move to Draft
                     </button>
                  </div>
                  
-                 <div className="mt-8 pt-8 border-t border-white/5 space-y-6 text-xs text-slate-400 font-bold uppercase tracking-widest">
-                    <p>Revision Mode Active</p>
-                    <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden">
-                       <div className="h-full w-full bg-mozhi-primary animate-pulse" />
+                 <div className="mt-12 pt-10 border-t border-white/5 space-y-8">
+                    <div className="flex items-center gap-4 group">
+                       <div className="h-12 w-12 rounded-2xl bg-white/5 flex items-center justify-center border border-white/10 transition-colors group-hover:bg-primary/20">
+                          <UserCircle className="w-6 h-6 text-primary" />
+                       </div>
+                       <div>
+                          <p className="text-[9px] font-bold uppercase tracking-widest text-slate-500 mb-0.5">Author</p>
+                          <p className="text-xs font-bold text-white">Community Member</p>
+                       </div>
+                    </div>
+                    <div className="flex items-center gap-4 group">
+                       <div className="h-12 w-12 rounded-2xl bg-white/5 flex items-center justify-center border border-white/10 transition-colors group-hover:bg-primary/20">
+                          <BookOpen className="w-6 h-6 text-primary" />
+                       </div>
+                       <div>
+                          <p className="text-[9px] font-bold uppercase tracking-widest text-slate-500 mb-0.5">Visibility</p>
+                          <p className="text-xs font-bold text-white">Public Revision</p>
+                       </div>
                     </div>
                  </div>
               </div>
 
-              {/* Writing Tips */}
-              <div className="bg-mozhi-light/10 border border-mozhi-light/20 rounded-[2.5rem] p-8">
-                 <h4 className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-mozhi-primary mb-4">
-                    <FileText className="w-4 h-4" /> Editing Tip
+              {/* Revision Sidebar */}
+              <div className="bg-primary/5 dark:bg-primary/10 border border-primary/10 rounded-[3rem] p-10">
+                 <h4 className="flex items-center gap-2 text-xs font-bold text-primary mb-6 tracking-tight">
+                    <FileText className="w-4 h-4" /> Editing Policy
                  </h4>
-                 <p className="text-[10px] text-slate-500 font-medium leading-relaxed">
-                    Moving an article to draft will unpublish it from the feed immediately. It will only be visible to you in your library.
+                 <p className="text-[11px] font-medium text-slate-600 dark:text-slate-400 leading-relaxed mb-6">
+                    Changes made to published stories will go live immediately after submission. Please ensure accuracy before pushing.
                  </p>
+                 <div className="flex items-center gap-2 text-slate-400">
+                    <div className="h-1 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                       <div className="h-full w-full bg-primary animate-pulse" />
+                    </div>
+                 </div>
               </div>
            </div>
         </div>

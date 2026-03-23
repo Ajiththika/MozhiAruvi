@@ -1,5 +1,6 @@
 import React from "react";
 import Link from "next/link";
+import { Calendar } from "lucide-react";
 
 const events = [
   {
@@ -50,55 +51,62 @@ const events = [
 
 export default function CulturalEvents() {
   return (
-    <section id="events" className="py-24 bg-white px-4 sm:px-6 lg:px-8">
+    <section id="events" className="py-10 md:py-14 bg-slate-50 px-4 md:px-8 lg:px-12">
       <div className="max-w-7xl mx-auto">
+        <div className="text-center max-w-4xl mx-auto mb-16 space-y-6">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-light text-xs font-bold text-primary tracking-tight">
+            Community & culture
+          </div>
+          <h2 className="text-3xl md:text-4xl font-bold text-slate-900 tracking-tight leading-tight">
+            Live Cultural Events
+          </h2>
+          <p className="text-base text-slate-700 font-medium max-w-xl mx-auto leading-relaxed">
+            Language is best learned through the heart of its culture. Join our regular gatherings to experience Tamil heritage in action.
+          </p>
+        </div>
         <div className="flex flex-col lg:flex-row gap-16 items-center">
           
           {/* Left Column (Event Cards) */}
-          <div className="flex-1 w-full max-w-lg grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <div className="flex-[1.2] w-full max-w-2xl grid grid-cols-1 sm:grid-cols-2 gap-6">
             {events.map((event) => (
               <div 
-                key={event.id}
-                className="bg-soft-bg rounded-2xl p-6 border border-border-color hover:border-primary/40 hover:shadow-lg transition-all duration-300 group cursor-pointer"
+                key={event.id} 
+                className="p-8 rounded-3xl bg-white border border-gray-100 shadow-sm transition-all duration-300 group hover:border-primary/20 hover:shadow-xl cursor-pointer flex flex-col gap-4"
               >
-                <div className="flex items-center justify-between mb-4">
-                  <div className="w-10 h-10 rounded-full bg-white text-primary flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="w-12 h-12 rounded-2xl bg-slate-50 text-primary flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform">
                     {event.icon}
                   </div>
-                  <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-full ${
-                    event.type === 'Online' ? 'bg-mozhi-light text-primary-dark' : 'bg-green-100 text-green-700'
+                  <span className={`text-xs font-bold px-3 py-1 rounded-full ${
+                    event.type === 'Online' ? 'bg-light text-primary' : 'bg-success/10 text-success'
                   }`}>
                     {event.type}
                   </span>
                 </div>
-                <h4 className="font-bold text-accent-text text-lg mb-1">{event.title}</h4>
-                <div className="text-sm font-medium text-muted flex items-center gap-1.5">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                  </svg>
-                  {event.date}
+                <div>
+                  <h4 className="font-bold text-slate-900 text-lg mb-1 tracking-tight">{event.title}</h4>
+                  <div className="text-xs font-semibold text-slate-400 flex items-center gap-2">
+                    <Calendar className="w-4 h-4 text-primary/60" />
+                    {event.date}
+                  </div>
                 </div>
               </div>
             ))}
           </div>
 
           {/* Right Column (Text) */}
-          <div className="flex-1 w-full">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-light-blue text-sm font-semibold text-primary mb-6">
-              CULTURAL EVENTS
-            </div>
-            <h2 className="text-3xl md:text-5xl font-bold text-accent-text mb-6">
-              Join Our Cultural Events &amp; Celebrate Tamil Heritage
-            </h2>
-            <p className="text-lg text-muted mb-8 leading-relaxed">
-              Experience Tamil culture through poetry readings, festival celebrations, film screenings, interactive workshops, and more. Connect with fellow enthusiasts and deepen your understanding beyond the classroom.
+          <div className="flex-1 w-full text-center lg:text-left space-y-6">
+            <h3 className="text-3xl md:text-4xl font-bold text-slate-900 tracking-tight leading-tight">
+              Celebrate Tamil Heritage Together
+            </h3>
+            <p className="text-base text-slate-700 font-medium leading-relaxed max-w-xl">
+              Experience Tamil culture through poetry readings, festival celebrations, film screenings, and interactive workshops. Connect with fellow enthusiasts and deepen your understanding beyond the classroom.
             </p>
-
             <Link 
               href="/events" 
-              className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-primary text-white font-semibold hover:bg-primary-dark transition-all shadow-md hover:-translate-y-0.5"
+              className="inline-flex items-center justify-center gap-2 px-8 py-3 rounded-xl bg-primary text-white text-sm font-semibold hover:scale-[1.02] active:scale-[0.98] transition-all shadow-md"
             >
-              Browse Events
+              Browse All Events <span>&rarr;</span>
             </Link>
           </div>
 

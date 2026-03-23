@@ -8,6 +8,7 @@ import { getMe, SafeUser } from "@/services/authService";
 import { getPendingRequests, TutorRequest, updateTutorAvailability } from "@/services/tutorService";
 import { getEvents, MozhiEvent } from "@/services/eventService";
 import { cn } from "@/lib/utils";
+import Button from "@/components/common/Button";
 
 export default function TutorDashboard() {
   const [user, setUser] = useState<SafeUser | null>(null);
@@ -45,8 +46,8 @@ export default function TutorDashboard() {
   if (loading) {
     return (
       <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4">
-        <Loader2 className="h-10 w-10 animate-spin text-mozhi-primary" />
-        <p className="text-sm font-black text-slate-500 uppercase tracking-widest animate-pulse">Initializing Dashboard...</p>
+        <Loader2 className="h-10 w-10 animate-spin text-primary" />
+        <p className="text-sm font-semibold text-slate-500 tracking-tight animate-pulse">Initializing Dashboard...</p>
       </div>
     );
   }
@@ -55,15 +56,16 @@ export default function TutorDashboard() {
 
   return (
     <div className="mx-auto max-w-6xl space-y-10 animate-in fade-in slide-in-from-bottom-2 duration-500 pb-20">
-      {/* Welcome Header */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-        <div>
-          <h2 className="text-4xl font-black tracking-tight text-slate-900 dark:text-white uppercase">
-            Hello, {user?.name?.split(" ")[0] ?? "Tutor"}!
-          </h2>
-          <p className="text-slate-500 font-medium mt-1">
-            You have <span className="text-mozhi-primary font-bold">{activeRequests} student requests</span> waiting for your attention.
-          </p>
+      <div className="mb-0 flex flex-col md:flex-row md:items-end md:justify-between gap-6 border-b border-gray-100 pb-8">
+        <div className="space-y-4">
+           <div className="flex items-center gap-2">
+              <span className="h-1.5 w-8 rounded-full bg-secondary" />
+               <span className="text-xs font-bold text-secondary tracking-tight">Tutor portal</span>
+           </div>
+           <h1 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight leading-tight">Hello, {user?.name?.split(" ")[0]}!</h1>
+           <p className="text-base text-slate-700 font-medium leading-relaxed max-w-xl">
+             You have <span className="text-primary font-bold">{activeRequests} student requests</span> waiting for your expert guidance today.
+           </p>
         </div>
 
         {/* Availability Quick Toggle */}
@@ -71,19 +73,19 @@ export default function TutorDashboard() {
           onClick={handleAvailabilityToggle}
           disabled={toggling}
           className={cn(
-            "flex items-center gap-3 rounded-2xl border px-6 py-4 text-xs font-black uppercase tracking-widest shadow-sm transition-all",
+            "flex items-center gap-3 rounded-xl border px-5 py-3 text-xs font-semibold shadow-sm transition-all",
             isAvailable
-              ? "border-emerald-200 bg-emerald-50 text-emerald-700 hover:scale-[1.02]"
-              : "border-slate-200 bg-white text-slate-500 hover:bg-slate-50 opacity-90"
+              ? "border-success/20 bg-success/10 text-success"
+              : "border-gray-200 bg-white text-slate-500"
           )}
         >
-          {isAvailable ? <ToggleRight className="h-5 w-5" /> : <ToggleLeft className="h-5 w-5" />}
+          {isAvailable ? <ToggleRight className="h-4 w-4" /> : <ToggleLeft className="h-4 w-4" />}
           {isAvailable ? "Student Facing: ON" : "Student Facing: OFF"}
         </button>
       </div>
 
       {error && (
-        <div className="flex items-center gap-3 rounded-2xl border border-red-100 bg-red-50 px-6 py-4 text-sm text-red-700">
+        <div className="flex items-center gap-3 rounded-2xl border border-error bg-error/10 px-6 py-4 text-sm text-error">
           <AlertCircle className="h-5 w-5 shrink-0" /> {error}
         </div>
       )}
@@ -93,108 +95,107 @@ export default function TutorDashboard() {
         <StatCard
           title="Active Requests"
           value={String(activeRequests)}
+          description="Pending student help requests"
           icon={MessageSquare}
           trend={activeRequests > 0 ? "up" : "neutral"}
-          trendValue={activeRequests > 0 ? "Pending" : "All clear"}
-          className={activeRequests > 0 ? "border-mozhi-primary/20 bg-mozhi-primary/[0.03] shadow-sm" : ""}
+          trendValue={activeRequests > 0 ? "Outstanding" : "All clear"}
+          className={activeRequests > 0 ? "border-primary/10 bg-primary/5" : ""}
         />
         <StatCard
-          title="Student Credits"
+          title="Earnings/Credits"
           value={String(user?.credits ?? "0")}
+          description="Total balance in your wallet"
           icon={Sparkles}
-          trend="neutral"
-          trendValue="XP Balance"
         />
         <StatCard
           title="Live Events"
           value={String(events.length)}
+          description="Events you are hosting"
           icon={Video}
-          trend="neutral"
-          trendValue="Hosted by you"
         />
         <StatCard
           title="Account Status"
           value={isAvailable ? "Online" : "Away"}
+          description={isAvailable ? "Visible to students" : "Hidden from search"}
           icon={Star}
-          trend="neutral"
-          trendValue="Visibility"
-          className={isAvailable ? "border-emerald-100 bg-emerald-50/50" : ""}
+          className={isAvailable ? "border-success/10 bg-success/10" : ""}
         />
       </div>
 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
         {/* Quick actions */}
-        <div className="lg:col-span-8 flex flex-col rounded-[2.5rem] border border-slate-200 bg-white p-8 shadow-sm dark:bg-slate-900 border-opacity-50">
-          <h3 className="text-xs font-black text-slate-500 uppercase tracking-[0.2em] mb-6">Operations Center</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {[
-              { label: "Manage Requests", desc: `${activeRequests} pending from students`, href: "/tutor/questions", icon: MessageSquare, color: "bg-mozhi-primary" },
-              { label: "Teaching Schedule", desc: "Manage your weekly availability", href: "/tutor/schedule", icon: Video, color: "bg-mozhi-secondary" },
-              { label: "Community Events", desc: "Create and manage live group calls", href: "/tutor/events", icon: Layers, color: "bg-emerald-600" },
-              { label: "Public Profile", desc: "Showcase your expertise & bio", href: "/tutor/profile", icon: Users, color: "bg-slate-900" },
-            ].map((action) => {
-              const Icon = action.icon;
-              return (
-              <Link
-                key={action.href}
-                href={action.href}
-                className={cn(
-                    action.color,
-                    "group flex items-center justify-between rounded-3xl p-6 text-white transition-all shadow-lg hover:scale-[1.02] active:scale-[0.98]"
-                )}
-              >
-                <div>
-                  <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white/10 mb-3 group-hover:bg-white/20 transition-colors">
-                     <Icon className="h-5 w-5" />
+        <div className="lg:col-span-8 flex flex-col rounded-3xl border border-gray-100 bg-white p-8 md:p-10 shadow-sm transition-all hover:shadow-xl">
+          <div className="space-y-6">
+            <h3 className="text-xs font-bold text-slate-500 tracking-[0.2em] uppercase">Operations Center</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              {[
+                { label: "Manage Requests", desc: `${activeRequests} pending`, href: "/tutor/questions", icon: MessageSquare },
+                { label: "Teaching Schedule", desc: "Weekly availability", href: "/tutor/schedule", icon: Video },
+                { label: "Community Events", desc: "Live group calls", href: "/tutor/events", icon: Layers },
+                { label: "Public Profile", desc: "Showcase bio", href: "/tutor/profile", icon: Users },
+              ].map((action) => {
+                const Icon = action.icon;
+                return (
+                <Link
+                  key={action.href}
+                  href={action.href}
+                  className="group flex items-center justify-between rounded-3xl border border-gray-100 p-6 transition-all hover:bg-slate-50 hover:border-primary/20"
+                >
+                  <div className="flex items-center gap-5">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-light/30 text-primary transition-colors group-hover:bg-primary group-hover:text-white">
+                       <Icon className="h-6 w-6" />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-slate-900 text-base tracking-tight">{action.label}</h4>
+                      <p className="text-sm text-slate-600 mt-1 font-medium">{action.desc}</p>
+                    </div>
                   </div>
-                  <p className="font-black text-sm uppercase tracking-widest">{action.label}</p>
-                  <p className="text-[10px] opacity-70 mt-1 font-bold">{action.desc}</p>
-                </div>
-                <ArrowRight className="h-5 w-5 opacity-40 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
-              </Link>
-            )})}
+                  <ArrowRight className="h-5 w-5 text-slate-300 group-hover:text-primary group-hover:translate-x-1 transition-all" />
+                </Link>
+              )})}
+            </div>
           </div>
         </div>
 
         {/* Inbox Preview */}
-        <div className="lg:col-span-4 flex flex-col rounded-[2.5rem] border border-slate-200 bg-white p-8 shadow-sm dark:bg-slate-900 border-opacity-50">
+        <div className="lg:col-span-4 flex flex-col rounded-2xl border border-gray-100 bg-white p-8 shadow-sm">
           <div className="flex items-center justify-between mb-8">
-            <h3 className="text-xs font-black text-slate-500 uppercase tracking-[0.2em]">Live Inbox</h3>
+            <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-widest">Live Inbox</h3>
             {activeRequests > 0 && (
-              <span className="inline-flex h-6 w-10 items-center justify-center rounded-full bg-red-100 text-[10px] font-black text-red-600 uppercase">
+              <span className="inline-flex h-6 px-2 items-center justify-center rounded-full bg-error/10 text-[10px] font-semibold text-error">
                 {activeRequests} New
               </span>
             )}
           </div>
 
           {activeRequests === 0 ? (
-            <div className="flex flex-1 flex-col items-center justify-center rounded-3xl border-2 border-dashed border-slate-100 p-8 text-center">
-               <CheckCircle2 className="h-10 w-10 text-slate-100 mb-4" />
-               <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Everything resolved</p>
+            <div className="flex flex-1 flex-col items-center justify-center rounded-2xl border border-dashed border-gray-100 p-8 text-center">
+               <CheckCircle2 className="h-10 w-10 text-gray-200 mb-4" />
+               <p className="text-xs font-semibold text-slate-400">Everything resolved</p>
             </div>
           ) : (
             <div className="space-y-4">
               {pendingQs.slice(0, 3).map((q) => (
-                <div key={q._id} className="flex flex-col gap-3 rounded-2xl border border-slate-100 p-5 hover:bg-slate-50 transition-colors border-opacity-50">
+                <div key={q._id} className="flex flex-col gap-3 rounded-2xl border border-gray-100 p-5 hover:bg-slate-50 transition-colors">
                    <div className="flex items-center gap-2">
                        <span className={cn(
-                           "text-[8px] font-black uppercase px-2 py-0.5 rounded-md",
-                           q.requestType === 'question' ? 'bg-blue-50 text-blue-500' : 'bg-emerald-50 text-emerald-500'
+                           "text-[10px] font-semibold px-2 py-0.5 rounded-md",
+                           q.requestType === 'question' ? 'bg-primary/10 text-primary' : 'bg-success/10 text-success'
                        )}>
                            {q.requestType || 'Request'}
                        </span>
-                       <span className="text-[10px] text-slate-400 font-bold">{new Date(q.createdAt).toLocaleDateString()}</span>
+                       <span className="text-xs text-slate-400 font-medium">{new Date(q.createdAt).toLocaleDateString()}</span>
                    </div>
-                  <p className="text-xs font-bold text-slate-600 line-clamp-2">
+                  <p className="text-xs font-semibold text-slate-900 line-clamp-2">
                     "{q.content}"
                   </p>
-                  <Link href="/tutor/questions" className="text-[10px] font-black text-mozhi-primary hover:text-mozhi-secondary flex items-center gap-1 uppercase tracking-widest">
+                  <Link href="/tutor/questions" className="text-xs font-semibold text-primary hover:text-secondary flex items-center gap-1">
                     Quick Reply <ArrowRight className="h-3 w-3" />
                   </Link>
                 </div>
               ))}
               {activeRequests > 3 && (
-                <Link href="/tutor/questions" className="block text-center text-[10px] font-black text-slate-400 hover:text-mozhi-primary uppercase tracking-widest mt-4">
+                <Link href="/tutor/questions" className="block text-center text-xs font-medium text-slate-400 hover:text-primary mt-4">
                    +{activeRequests - 3} more requests
                 </Link>
               )}

@@ -5,6 +5,7 @@ import { MoveUpRight, MoveDownRight } from "lucide-react";
 export interface StatCardProps {
   title: string;
   value: string | number;
+  description?: string;
   icon: React.ElementType;
   trend?: "up" | "down" | "neutral";
   trendValue?: string;
@@ -14,6 +15,7 @@ export interface StatCardProps {
 export function StatCard({
   title,
   value,
+  description,
   icon: Icon,
   trend,
   trendValue,
@@ -22,44 +24,37 @@ export function StatCard({
   return (
     <div
       className={cn(
-        "flex flex-col gap-2 rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition-all hover:shadow-md dark:border-slate-700 dark:bg-slate-800",
+        "flex flex-col gap-3 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm transition-all hover:border-primary/20",
         className
       )}
     >
       <div className="flex items-center justify-between">
-        <p className="text-sm font-medium text-slate-600 dark:text-slate-300">
-          {title}
-        </p>
-        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-mozhi-light/50 dark:bg-mozhi-primary/20">
-          <Icon className="h-5 w-5 text-mozhi-primary dark:text-mozhi-secondary" />
+        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-light/30">
+          <Icon className="h-5 w-5 text-primary" />
         </div>
+        {trend && (
+           <div className={cn(
+             "flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold",
+             trend === "up" ? "bg-success/10 text-success" : 
+             trend === "down" ? "bg-error/10 text-error" : 
+             "bg-slate-100 text-slate-500"
+           )}>
+             {trend === "up" ? <MoveUpRight className="h-3 w-3" /> : 
+              trend === "down" ? <MoveDownRight className="h-3 w-3" /> : 
+              null}
+             {trendValue}
+           </div>
+        )}
       </div>
       <div>
-        <h3 className="text-2xl font-bold tracking-tight text-slate-600 dark:text-slate-300">
+        <p className="text-sm font-medium text-slate-500 mb-1">{title}</p>
+        <h3 className="text-2xl font-bold tracking-tight text-slate-900">
           {value}
         </h3>
-        {trend && trendValue && (
-          <div className="mt-1 flex items-center gap-1 text-xs font-medium">
-            {trend === "up" ? (
-              <MoveUpRight className="h-4 w-4 text-emerald-600 dark:text-emerald-500" />
-            ) : trend === "down" ? (
-              <MoveDownRight className="h-4 w-4 text-red-600 dark:text-red-500" />
-            ) : null}
-            <span
-              className={cn(
-                trend === "up"
-                  ? "text-emerald-600 dark:text-emerald-500"
-                  : trend === "down"
-                  ? "text-red-600 dark:text-red-500"
-                  : "text-slate-600 dark:text-slate-300"
-              )}
-            >
-              {trendValue}
-            </span>
-            <span className="text-slate-600 dark:text-slate-300 ml-1 font-normal">
-              vs last month
-            </span>
-          </div>
+        {description && (
+          <p className="mt-1 text-xs font-medium text-slate-400">
+            {description}
+          </p>
         )}
       </div>
     </div>

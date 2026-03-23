@@ -7,13 +7,14 @@ import Link from "next/link";
 import { getAllUsers, getAllTutors, getTeacherApplications, getAdminStats, AdminStats, BaseUser, TeacherApplication } from "@/services/adminService";
 import { getEvents, MozhiEvent } from "@/services/eventService";
 import { getMe, SafeUser } from "@/services/authService";
+import Button from "@/components/common/Button";
 
 function StatusBadge({ status }: { status: TeacherApplication["status"] }) {
   const map: Record<string, string> = {
-    pending: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-500",
-    approved: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-500",
-    rejected: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-500",
-    needs_revision: "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400",
+    pending: "bg-warning/10 text-warning",
+    approved: "bg-success/10 text-success",
+    rejected: "bg-error/10 text-error",
+    needs_revision: "bg-warning/10 text-warning",
   };
   return (
     <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold capitalize ${map[status] ?? ""}`}>
@@ -56,64 +57,68 @@ export default function AdminDashboard() {
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
-      <div>
-        <h2 className="text-2xl font-bold tracking-tight text-slate-800 dark:text-slate-100">
-          Admin Overview 🛡️
-        </h2>
-        <p className="text-slate-600 dark:text-slate-400 mt-1">
-          Platform health at a glance. Logged in as <strong>{admin?.name}</strong>.
-        </p>
+      <div className="mb-0 flex flex-col md:flex-row md:items-end md:justify-between gap-6 border-b border-gray-100 pb-8">
+        <div className="space-y-4">
+           <div className="flex items-center gap-2">
+              <span className="h-1.5 w-8 rounded-full bg-secondary" />
+              <span className="text-xs font-bold text-secondary tracking-tight">Administrator</span>
+           </div>
+           <h1 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight leading-tight">Admin Overview</h1>
+           <p className="text-base text-slate-700 font-medium leading-relaxed max-w-xl">
+             Platform health at a glance. You are currently logged in as <strong className="text-primary">{admin?.name}</strong> with full administrative access.
+           </p>
+        </div>
       </div>
 
       {error && (
-        <div className="flex items-center gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-900/50 dark:bg-red-950/20 dark:text-red-400">
+        <div className="flex items-center gap-3 rounded-xl border border-error bg-error/10 px-4 py-3 text-sm text-error">
           <AlertCircle className="h-5 w-5 shrink-0" /> {error}
         </div>
       )}
 
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
-          title="Total Users"
+          title="Total Platform Users"
           value={String(stats?.totalUsers ?? 0)}
+          description={`${stats?.activeUsers ?? 0} currently active`}
           icon={Users}
-          trend="neutral"
-          trendValue={`${stats?.activeUsers ?? 0} active`}
+          className="border-primary/10 bg-primary/5"
         />
         <StatCard
-          title="Active Tutors"
+          title="Verified Tutors"
           value={String(stats?.totalTutors ?? 0)}
+          description="Teachers on the platform"
           icon={GraduationCap}
-          trend="neutral"
-          trendValue="Verified teachers"
-          className="border-emerald-100 bg-emerald-50/30 dark:border-emerald-900/40 dark:bg-emerald-950/20"
+          trend={tutors.length > 0 ? "up" : "neutral"}
+          trendValue="Live"
         />
         <StatCard
-          title="Pending Applications"
+          title="Pending Reviews"
           value={String(stats?.pendingApps ?? 0)}
+          description="Teacher applications to review"
           icon={BookOpen}
           trend={(stats?.pendingApps ?? 0) > 0 ? "up" : "neutral"}
-          trendValue={(stats?.pendingApps ?? 0) > 0 ? "Needs review" : "All reviewed"}
-          className={(stats?.pendingApps ?? 0) > 0 ? "border-yellow-100 bg-yellow-50/30 dark:border-yellow-900/40 dark:bg-yellow-950/20" : ""}
+          trendValue={(stats?.pendingApps ?? 0) > 0 ? "Action Required" : "Steady"}
+          className={(stats?.pendingApps ?? 0) > 0 ? "border-warning/10 bg-warning/5" : ""}
         />
         <StatCard
-          title="Total Events"
+          title="Active Events"
           value={String(stats?.totalEvents ?? 0)}
+          description="Across all categories"
           icon={Calendar}
-          trend="neutral"
-          trendValue="Across the platform"
         />
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* Pending Applications Table */}
-        <div className="lg:col-span-2 rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-200 dark:bg-slate-50">
-          <div className="flex items-center justify-between border-b border-slate-200 px-6 py-4 dark:border-slate-200">
-            <h3 className="font-bold text-slate-600 dark:text-slate-600">
+        <div className="lg:col-span-2 rounded-3xl border border-gray-100 bg-white shadow-sm overflow-hidden flex flex-col">
+          <div className="flex items-center justify-between border-b border-gray-50 px-8 py-6">
+            <h3 className="text-base font-bold text-slate-900 tracking-tight">
               Teacher Applications
             </h3>
-            <Link href="/admin/teachers" className="text-xs font-bold text-mozhi-primary hover:text-mozhi-secondary dark:text-mozhi-secondary">
+            <Button href="/admin/teachers" variant="ghost" size="sm" className="text-primary hover:text-secondary font-bold">
               View All →
-            </Link>
+            </Button>
           </div>
 
           {applications.length === 0 ? (
@@ -123,15 +128,15 @@ export default function AdminDashboard() {
               {applications.slice(0, 5).map((app) => (
                 <div key={app._id} className="flex items-center justify-between px-6 py-4">
                   <div>
-                    <p className="text-sm font-bold text-slate-600 dark:text-slate-600">{app.fullName}</p>
-                    <p className="text-xs text-slate-600 dark:text-slate-600">{app.userId?.email}</p>
+                    <p className="text-sm font-semibold text-slate-900">{app.fullName}</p>
+                    <p className="text-xs text-slate-500">{app.userId?.email}</p>
                   </div>
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-4">
                     <StatusBadge status={app.status} />
                     {app.status === "pending" && (
-                      <Link href="/admin/teachers" className="text-xs font-bold text-mozhi-primary hover:underline dark:text-mozhi-secondary">
+                      <Button href="/admin/teachers" variant="secondary" size="sm">
                         Review
-                      </Link>
+                      </Button>
                     )}
                   </div>
                 </div>
@@ -141,28 +146,30 @@ export default function AdminDashboard() {
         </div>
 
         {/* Quick Admin Actions */}
-        <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-200 dark:bg-slate-50">
-          <h3 className="font-bold text-slate-600 dark:text-slate-600 mb-4">Quick Actions</h3>
+        <div className="rounded-3xl border border-gray-100 bg-white p-8 shadow-sm flex flex-col h-fit transition-all hover:shadow-xl">
+          <h3 className="text-xs font-bold text-slate-500 uppercase tracking-[0.2em] mb-8">Quick Actions</h3>
           <div className="flex flex-col gap-3">
             {[
-              { label: "Manage Users", href: "/admin/users", count: stats?.totalUsers || 0, color: "text-mozhi-primary dark:text-mozhi-secondary" },
-              { label: "Review Teachers", href: "/admin/teachers", count: stats?.pendingApps || 0, color: "text-yellow-600 dark:text-yellow-500" },
-              { label: "Curriculum Builder", href: "/admin/lessons", count: null, color: "text-mozhi-primary dark:text-mozhi-secondary" },
-              { label: "Moderate Events", href: "/admin/events", count: stats?.totalEvents || 0, color: "text-emerald-600 dark:text-emerald-500" },
+              { label: "Manage Users", href: "/admin/users", count: stats?.totalUsers || 0 },
+              { label: "Review Teachers", href: "/admin/teachers", count: stats?.pendingApps || 0 },
+              { label: "Curriculum Builder", href: "/admin/lessons", count: null },
+              { label: "Moderate Events", href: "/admin/events", count: stats?.totalEvents || 0 },
             ].map((action) => (
-              <Link
+              <Button
                 key={action.href}
                 href={action.href}
-                className="flex items-center justify-between rounded-xl border border-slate-200 px-4 py-3.5 transition-colors hover:bg-slate-50 dark:border-slate-200 dark:hover:bg-slate-50"
+                variant="ghost"
+                size="md"
+                className="justify-between w-full hover:bg-slate-50 border border-gray-50 rounded-2xl group transition-all"
               >
-                <span className={`text-sm font-bold ${action.color}`}>{action.label}</span>
-                <div className="flex items-center gap-2">
+                <span className="text-sm font-bold text-slate-700 group-hover:text-primary">{action.label}</span>
+                <div className="flex items-center gap-3">
                   {action.count !== null && (
-                    <span className="text-xs font-medium text-slate-600">{action.count}</span>
+                    <span className="text-[10px] font-bold bg-primary/10 text-primary px-3 py-1 rounded-full">{action.count}</span>
                   )}
-                  <ArrowRight className="h-4 w-4 text-slate-600" />
+                  <ArrowRight className="h-4 w-4 text-slate-300 group-hover:text-primary group-hover:translate-x-1 transition-all" />
                 </div>
-              </Link>
+              </Button>
             ))}
           </div>
         </div>

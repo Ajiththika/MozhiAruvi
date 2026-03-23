@@ -30,7 +30,7 @@ export function TutorCard({ tutor }: { tutor: Tutor }) {
             {profilePhoto ? (
               <img src={profilePhoto} alt={name} className="h-full w-full rounded-2xl object-cover" />
             ) : (
-              <span className="text-2xl font-black text-mozhi-primary dark:text-mozhi-secondary">
+              <span className="text-2xl font-bold text-mozhi-primary dark:text-mozhi-secondary">
                 {name.charAt(0)}
               </span>
             )}
@@ -45,14 +45,14 @@ export function TutorCard({ tutor }: { tutor: Tutor }) {
         <div className="flex-1 min-w-0 pt-1">
           <div className="flex items-start justify-between gap-2">
             <div>
-              <h3 className="text-lg font-black text-slate-800 dark:text-white leading-tight uppercase tracking-tight group-hover:text-mozhi-primary transition-colors">{name}</h3>
-              <p className="mt-1 text-[10px] font-black text-mozhi-primary dark:text-mozhi-secondary uppercase tracking-widest truncate">
+              <h3 className="text-lg font-bold text-slate-800 dark:text-white leading-tight uppercase tracking-tight group-hover:text-mozhi-primary transition-colors">{name}</h3>
+              <p className="mt-1 text-[10px] font-bold text-mozhi-primary dark:text-mozhi-secondary uppercase tracking-widest truncate">
                 {specialization ?? "Tamil Language Guide"}
               </p>
             </div>
             {hourlyRate && (
               <div className="text-right">
-                <span className="block text-sm font-black text-slate-900 dark:text-white">{hourlyRate} XP</span>
+                <span className="block text-sm font-bold text-slate-900 dark:text-white">{hourlyRate} XP</span>
                 <span className="text-[8px] font-bold text-slate-500 uppercase tracking-widest">Per Session</span>
               </div>
             )}
@@ -104,7 +104,7 @@ export function TutorCard({ tutor }: { tutor: Tutor }) {
 
       {/* Bottom Info & CTA */}
       <div className="mt-6 flex flex-col gap-4 p-6 pt-0">
-          <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-widest text-slate-400 border-t border-slate-50 dark:border-slate-800 pt-4">
+          <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-widest text-slate-400 border-t border-slate-50 dark:border-slate-800 pt-4">
              <div className="flex items-center gap-1.5">
                 <Globe className="h-3 w-3 text-mozhi-secondary" />
                 <span>{languages?.[0] || "Tamil"} Expert</span>
@@ -117,7 +117,7 @@ export function TutorCard({ tutor }: { tutor: Tutor }) {
         
           <Link
             href={`/student/tutors/${_id}`}
-            className="flex items-center justify-center gap-2 rounded-2xl bg-mozhi-primary py-3.5 text-[10px] font-black text-white uppercase tracking-[0.2em] shadow-lg shadow-mozhi-primary/20 transition-all hover:bg-mozhi-primary hover:scale-[1.02] active:scale-95"
+            className="flex items-center justify-center gap-2 rounded-2xl bg-mozhi-primary py-3.5 text-[10px] font-bold text-white uppercase tracking-[0.2em] shadow-lg shadow-mozhi-primary/20 transition-all hover:bg-mozhi-primary hover:scale-[1.02] active:scale-95"
           >
             Explore Profile
             <ArrowRight className="h-3 w-3 group-hover:translate-x-1 transition-transform" />

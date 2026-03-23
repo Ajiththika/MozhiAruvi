@@ -3,7 +3,7 @@ import Link from "next/link";
 
 export default function TutorSupport() {
   return (
-    <section id="tutors" className="py-24 bg-soft-bg px-4 sm:px-6 lg:px-8 overflow-hidden">
+    <section id="tutors" className="py-10 md:py-14 bg-white px-4 md:px-8 lg:px-12 overflow-hidden">
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col lg:flex-row-reverse gap-16 items-center">
           
@@ -11,13 +11,13 @@ export default function TutorSupport() {
           
           {/* Left Column (Text) */}
           <div className="flex-1 w-full relative z-10">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-light-blue text-sm font-semibold text-primary mb-6">
-              TUTOR SUPPORT
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-light text-xs font-bold text-primary tracking-tight">
+              Tutor support
             </div>
-            <h2 className="text-3xl md:text-5xl font-bold text-accent-text mb-6">
+            <h2 className="text-3xl md:text-5xl font-bold text-slate-900 tracking-tight mb-6 leading-tight">
               Stuck on a Lesson? <br/> Ask a Tutor.
             </h2>
-            <p className="text-lg text-muted mb-8 leading-relaxed">
+            <p className="text-lg text-slate-500 font-medium mb-8 leading-relaxed">
               When lessons get tough, don't struggle alone. Send a question directly to an expert Tamil tutor from within any lesson. Need deeper help? Book a private one-on-one class for personalized guidance.
             </p>
 
@@ -57,24 +57,24 @@ export default function TutorSupport() {
           </div>
 
           {/* Right Column (Mock UI) */}
-          <div className="flex-1 w-full max-w-lg relative">
-            <div className="absolute top-10 -left-10 w-full h-full bg-light-blue/40 rounded-3xl -z-10 rotate-3"></div>
+          <div className="flex-1 w-full max-w-lg relative lg:scale-105">
+            <div className="absolute top-10 -left-10 w-full h-full bg-light-blue/20 rounded-2xl -z-10 rotate-3"></div>
             
-            <div className="bg-white rounded-3xl border border-border-color shadow-xl overflow-hidden">
+            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
               <div className="bg-soft-bg border-b border-border-color p-4 flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="w-3 h-3 rounded-full bg-red-400"></div>
                   <div className="w-3 h-3 rounded-full bg-yellow-400"></div>
                   <div className="w-3 h-3 rounded-full bg-green-400"></div>
                 </div>
-                <div className="text-xs font-semibold text-muted tracking-wider uppercase">Tutor Support</div>
+                <div className="text-xs font-bold text-slate-500 tracking-tight">Tutor support</div>
               </div>
 
               <div className="p-6 space-y-6">
                 
                 {/* Student Question */}
                 <div className="space-y-2">
-                  <div className="text-xs font-semibold text-muted uppercase tracking-wider pl-1">Question</div>
+                  <div className="text-xs font-bold text-slate-500 tracking-tight pl-1">Question</div>
                   <div className="bg-light-blue/30 border border-primary/10 rounded-2xl rounded-tr-none p-4 text-accent-text shadow-sm ml-8 relative">
                     <p className="font-medium text-[15px]">"How do I pronounce the 'zh' (ழ) sound in Tamil? I keep getting it wrong. Any tips?"</p>
                   </div>
@@ -92,7 +92,7 @@ export default function TutorSupport() {
                 <div className="space-y-2">
                   <div className="flex items-center gap-3 mb-1">
                     <div className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center font-bold text-sm shadow-sm ring-2 ring-white">KR</div>
-                    <div className="text-xs font-semibold text-muted uppercase tracking-wider">Tutor Answer</div>
+                    <div className="text-xs font-bold text-slate-500 tracking-tight">Tutor answer</div>
                   </div>
                   <div className="bg-white border border-border-color rounded-2xl rounded-tl-none p-4 text-accent-text shadow-sm relative mr-8">
                     <p className="text-[15px] leading-relaxed">
