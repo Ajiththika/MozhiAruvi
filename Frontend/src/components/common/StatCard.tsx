@@ -30,7 +30,7 @@ export function StatCard({
         <p className="text-sm font-medium text-slate-600 dark:text-slate-300">
           {title}
         </p>
-        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-mozhi-light/50/50 dark:bg-mozhi-primary/20">
+        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-mozhi-light/50 dark:bg-mozhi-primary/20">
           <Icon className="h-5 w-5 text-mozhi-primary dark:text-mozhi-secondary" />
         </div>
       </div>

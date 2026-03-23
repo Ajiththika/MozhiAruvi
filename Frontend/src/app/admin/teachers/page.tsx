@@ -87,7 +87,7 @@ export default function AdminTeachersPage() {
       cell: (row) => (
         <div className="flex flex-col">
           <span className="font-bold text-slate-600 dark:text-slate-600 text-sm">{row.fullName}</span>
-          <span className="text-xs text-slate-600 dark:text-slate-600">{row.applicant?.email}</span>
+          <span className="text-xs text-slate-600 dark:text-slate-600">{row.userId?.email}</span>
         </div>
       ),
     },

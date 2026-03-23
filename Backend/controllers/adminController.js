@@ -46,3 +46,10 @@ export async function editUser(req, res, next) {
         res.json({ message: 'User updated successfully.', user: user.toSafeObject() });
     } catch (e) { next(e); }
 }
+
+export async function getStats(req, res, next) {
+    try {
+        const stats = await adminService.getDashboardStats();
+        res.json(stats);
+    } catch (e) { next(e); }
+}

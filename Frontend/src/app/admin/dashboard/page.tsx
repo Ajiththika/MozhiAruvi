@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { StatCard } from "@/components/common/StatCard";
 import { Users, GraduationCap, BookOpen, Calendar, Loader2, AlertCircle, ArrowRight } from "lucide-react";
 import Link from "next/link";
-import { getAllUsers, getAllTutors, getTeacherApplications, BaseUser, TeacherApplication } from "@/services/adminService";
+import { getAllUsers, getAllTutors, getTeacherApplications, getAdminStats, AdminStats, BaseUser, TeacherApplication } from "@/services/adminService";
 import { getEvents, MozhiEvent } from "@/services/eventService";
 import { getMe, SafeUser } from "@/services/authService";
 
@@ -24,6 +24,7 @@ function StatusBadge({ status }: { status: TeacherApplication["status"] }) {
 
 export default function AdminDashboard() {
   const [admin, setAdmin] = useState<SafeUser | null>(null);
+  const [stats, setStats] = useState<AdminStats | null>(null);
   const [users, setUsers] = useState<BaseUser[]>([]);
   const [tutors, setTutors] = useState<BaseUser[]>([]);
   const [applications, setApplications] = useState<TeacherApplication[]>([]);
@@ -32,20 +33,18 @@ export default function AdminDashboard() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    Promise.all([getMe(), getAllUsers(), getAllTutors(), getTeacherApplications(), getEvents()])
-      .then(([me, us, ts, apps, evs]) => {
+    Promise.all([getMe(), getAdminStats(), getAllUsers(), getAllTutors(), getTeacherApplications(), getEvents()])
+      .then(([me, st, us, ts, apps, evs]) => {
         setAdmin(me);
-        setUsers(us);
-        setTutors(ts);
-        setApplications(apps);
-        setEvents(evs);
+        setStats(st);
+        setUsers(us.users);
+        setTutors(ts.tutors);
+        setApplications(apps.applications);
+        setEvents(evs.events);
       })
       .catch(() => setError("Could not load dashboard data. Check backend connection."))
       .finally(() => setLoading(false));
   }, []);
-
-  const pendingApps = applications.filter((a) => a.status === "pending");
-  const activeUsers = users.filter((u) => u.isActive);
 
   if (loading) {
     return (
@@ -58,10 +57,10 @@ export default function AdminDashboard() {
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
       <div>
-        <h2 className="text-2xl font-bold tracking-tight text-slate-600 dark:text-slate-600">
+        <h2 className="text-2xl font-bold tracking-tight text-slate-800 dark:text-slate-100">
           Admin Overview 🛡️
         </h2>
-        <p className="text-slate-600 dark:text-slate-600 mt-1">
+        <p className="text-slate-600 dark:text-slate-400 mt-1">
           Platform health at a glance. Logged in as <strong>{admin?.name}</strong>.
         </p>
       </div>
@@ -75,14 +74,14 @@ export default function AdminDashboard() {
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
           title="Total Users"
-          value={String(users.length)}
+          value={String(stats?.totalUsers ?? 0)}
           icon={Users}
           trend="neutral"
-          trendValue={`${activeUsers.length} active`}
+          trendValue={`${stats?.activeUsers ?? 0} active`}
         />
         <StatCard
           title="Active Tutors"
-          value={String(tutors.length)}
+          value={String(stats?.totalTutors ?? 0)}
           icon={GraduationCap}
           trend="neutral"
           trendValue="Verified teachers"
@@ -90,18 +89,18 @@ export default function AdminDashboard() {
         />
         <StatCard
           title="Pending Applications"
-          value={String(pendingApps.length)}
+          value={String(stats?.pendingApps ?? 0)}
           icon={BookOpen}
-          trend={pendingApps.length > 0 ? "up" : "neutral"}
-          trendValue={pendingApps.length > 0 ? "Needs review" : "All reviewed"}
-          className={pendingApps.length > 0 ? "border-yellow-100 bg-yellow-50/30 dark:border-yellow-900/40 dark:bg-yellow-950/20" : ""}
+          trend={(stats?.pendingApps ?? 0) > 0 ? "up" : "neutral"}
+          trendValue={(stats?.pendingApps ?? 0) > 0 ? "Needs review" : "All reviewed"}
+          className={(stats?.pendingApps ?? 0) > 0 ? "border-yellow-100 bg-yellow-50/30 dark:border-yellow-900/40 dark:bg-yellow-950/20" : ""}
         />
         <StatCard
-          title="Events"
-          value={String(events.length)}
+          title="Total Events"
+          value={String(stats?.totalEvents ?? 0)}
           icon={Calendar}
           trend="neutral"
-          trendValue="Platform-wide"
+          trendValue="Across the platform"
         />
       </div>
 
@@ -125,7 +124,7 @@ export default function AdminDashboard() {
                 <div key={app._id} className="flex items-center justify-between px-6 py-4">
                   <div>
                     <p className="text-sm font-bold text-slate-600 dark:text-slate-600">{app.fullName}</p>
-                    <p className="text-xs text-slate-600 dark:text-slate-600">{app.applicant?.email}</p>
+                    <p className="text-xs text-slate-600 dark:text-slate-600">{app.userId?.email}</p>
                   </div>
                   <div className="flex items-center gap-3">
                     <StatusBadge status={app.status} />
@@ -146,10 +145,10 @@ export default function AdminDashboard() {
           <h3 className="font-bold text-slate-600 dark:text-slate-600 mb-4">Quick Actions</h3>
           <div className="flex flex-col gap-3">
             {[
-              { label: "Manage Users", href: "/admin/users", count: users.length, color: "text-mozhi-primary dark:text-mozhi-secondary" },
-              { label: "Review Teachers", href: "/admin/teachers", count: pendingApps.length, color: "text-yellow-600 dark:text-yellow-500" },
+              { label: "Manage Users", href: "/admin/users", count: stats?.totalUsers || 0, color: "text-mozhi-primary dark:text-mozhi-secondary" },
+              { label: "Review Teachers", href: "/admin/teachers", count: stats?.pendingApps || 0, color: "text-yellow-600 dark:text-yellow-500" },
               { label: "Curriculum Builder", href: "/admin/lessons", count: null, color: "text-mozhi-primary dark:text-mozhi-secondary" },
-              { label: "Moderate Events", href: "/admin/events", count: events.length, color: "text-emerald-600 dark:text-emerald-500" },
+              { label: "Moderate Events", href: "/admin/events", count: stats?.totalEvents || 0, color: "text-emerald-600 dark:text-emerald-500" },
             ].map((action) => (
               <Link
                 key={action.href}

@@ -161,7 +161,7 @@ export async function approveApplication(applicationId, adminId) {
         },
     });
 
-    return application.populate([
+    return await application.populate([
         { path: 'userId', select: 'name email role isTutorAvailable' },
         { path: 'reviewedBy', select: 'name email' },
     ]);
@@ -185,7 +185,7 @@ export async function rejectApplication(applicationId, adminId, { rejectionReaso
     application.reviewedAt = new Date();
     await application.save();
 
-    return application.populate([
+    return await application.populate([
         { path: 'userId', select: 'name email role' },
         { path: 'reviewedBy', select: 'name email' },
     ]);
@@ -213,7 +213,7 @@ export async function requestRevision(applicationId, adminId, adminNotes) {
     application.reviewedAt = new Date();
     await application.save();
 
-    return application.populate([
+    return await application.populate([
         { path: 'userId', select: 'name email role' },
         { path: 'reviewedBy', select: 'name email' },
     ]);

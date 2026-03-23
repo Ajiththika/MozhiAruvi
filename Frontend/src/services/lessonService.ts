@@ -35,6 +35,7 @@ export interface Question {
 export interface SubmitAnswerItem {
   questionId: string;
   selectedOptionIndex: number;
+  isSpeakingCompleted?: boolean;
 }
 
 export interface Progress {

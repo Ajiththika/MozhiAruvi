@@ -35,7 +35,36 @@ api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
 api.interceptors.response.use(
   (response) => response,
   (error: AxiosError) => {
-    // Return error without attempting automatic refresh
+    const originalRequest = error.config as any;
+
+    // Only attempt refresh if it's a 401, not already retrying, and not a login/logout/refresh request
+    if (
+      error.response?.status === 401 && 
+      !originalRequest._retry && 
+      !originalRequest.url?.includes("/auth/login") &&
+      !originalRequest.url?.includes("/auth/refresh")
+    ) {
+      originalRequest._retry = true;
+      return axios
+        .post<{ accessToken: string }>(
+          `${api.defaults.baseURL}/auth/refresh`,
+          {},
+          { withCredentials: true }
+        )
+        .then((res) => {
+          const newToken = res.data.accessToken;
+          authStore.set(newToken);
+          if (originalRequest.headers) {
+            originalRequest.headers.Authorization = `Bearer ${newToken}`;
+          }
+          return api(originalRequest);
+        })
+        .catch((refreshError) => {
+          authStore.clear();
+          return Promise.reject(refreshError);
+        });
+    }
+
     return Promise.reject(error);
   }
 );

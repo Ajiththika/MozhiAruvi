@@ -4,9 +4,11 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { setLevel } from "@/services/userService";
 import { Loader2, CheckCircle2, ChevronRight, BookOpen, GraduationCap, Mountain } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
 
 export default function PlacementPage() {
   const router = useRouter();
+  const { user, setUser } = useAuth();
   const [saving, setSaving] = useState(false);
   const [selectedLevel, setSelectedLevel] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -33,11 +35,12 @@ export default function PlacementPage() {
   ];
 
   async function handleComplete() {
-    if (!selectedLevel) return;
+    if (!selectedLevel || !user) return;
     setSaving(true);
     setError(null);
     try {
-      await setLevel(selectedLevel as any);
+      const res = await setLevel(selectedLevel as any);
+      setUser(res);
       router.push("/student/lessons");
     } catch (e: any) {
       setError("Could not save level. Please try again.");

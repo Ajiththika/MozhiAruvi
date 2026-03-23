@@ -1,14 +1,14 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { SafeUser, getMe, refresh } from "@/services/authService";
+import { SafeUser, getMe, refresh, logout } from "@/services/authService";
 import { authStore } from "@/lib/authStore";
 
 interface AuthContextType {
   user: SafeUser | null;
   isLoading: boolean;
   setUser: React.Dispatch<React.SetStateAction<SafeUser | null>>;
-  logoutUser: () => void;
+  logoutUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -38,8 +38,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     initAuth();
   }, []);
 
-  const logoutUser = () => {
-    setUser(null);
+  const logoutUser = async () => {
+    try {
+      await logout();
+    } catch {
+      authStore.clear();
+    } finally {
+      setUser(null);
+    }
   };
 
   return (

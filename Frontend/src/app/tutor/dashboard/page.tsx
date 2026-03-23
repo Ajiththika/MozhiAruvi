@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { StatCard } from "@/components/common/StatCard";
-import { Users, MessageSquare, Star, ToggleRight, ToggleLeft, Loader2, AlertCircle, ArrowRight, Video, Layers, Sparkles } from "lucide-react";
+import { Users, MessageSquare, Star, ToggleRight, ToggleLeft, Loader2, AlertCircle, ArrowRight, Video, Layers, Sparkles, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
 import { getMe, SafeUser } from "@/services/authService";
 import { getPendingRequests, TutorRequest, updateTutorAvailability } from "@/services/tutorService";

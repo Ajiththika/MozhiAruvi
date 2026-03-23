@@ -7,9 +7,11 @@ import { AuthInput, SocialLogin } from '../shared';
 import { login } from '@/services/authService';
 import { getRoleDashboardRoute } from '@/lib/roleUtils';
 import { isAxiosError } from 'axios';
+import { useAuth } from '@/context/AuthContext';
 
 export default function SignInForm() {
   const router = useRouter();
+  const { setUser } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -22,6 +24,7 @@ export default function SignInForm() {
 
     try {
       const res = await login({ email, password });
+      setUser(res.user);
       router.push(getRoleDashboardRoute(res.user.role));
     } catch (err) {
       if (isAxiosError(err)) {

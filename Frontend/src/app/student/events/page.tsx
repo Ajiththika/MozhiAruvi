@@ -18,7 +18,7 @@ export default function StudentEventsPage() {
   useEffect(() => {
     Promise.all([getEvents(), getMyJoinRequests()])
       .then(([evs, reqs]) => {
-        setEvents(evs);
+        setEvents(evs.events);
         setMyRequests(reqs);
       })
       .catch(() => setError("Could not load events. Please try again."))

@@ -32,7 +32,7 @@ export async function updateTutorProfile(req, res, next) {
 export async function updateTutorAvailability(req, res, next) {
     try {
         const tutor = await tutorService.updateTutorAvailability(req.user.sub, req.body.isTutorAvailable);
-        res.json({ message: 'Availability updated.', isTutorAvailable: tutor.isTutorAvailable });
+        res.json({ message: 'Availability updated.', tutor });
     } catch (e) { next(e); }
 }
 

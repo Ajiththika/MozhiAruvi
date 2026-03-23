@@ -284,7 +284,7 @@ export default function LessonInteractiveSession() {
           </div>
           <div className="hidden sm:flex items-center gap-4">
             <div className="h-3 w-40 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
-              <div className="h-full rounded-full bg-emerald-500 transition-all duration-700 ease-in-out w-full" style={{ width: `${progress}%` }} />
+              <div className="h-full rounded-full bg-emerald-500 transition-all duration-700 ease-in-out" style={{ width: `${progress}%` }} />
             </div>
             <span className="text-sm font-bold text-slate-600 dark:text-slate-400">{progress}%</span>
           </div>

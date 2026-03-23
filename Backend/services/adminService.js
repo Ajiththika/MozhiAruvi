@@ -75,3 +75,21 @@ export async function editUser(userId, updateData) {
     await user.save();
     return user;
 }
+
+export async function getDashboardStats() {
+    const [totalUsers, activeUsers, totalTutors, pendingApps, totalEvents] = await Promise.all([
+        User.countDocuments(),
+        User.countDocuments({ isActive: true }),
+        User.countDocuments({ isTutorAvailable: true }),
+        import('../models/TeacherApplication.js').then(m => m.default.countDocuments({ status: 'pending' })),
+        import('../models/Event.js').then(m => m.default.countDocuments())
+    ]);
+
+    return {
+        totalUsers,
+        activeUsers,
+        totalTutors,
+        pendingApps,
+        totalEvents
+    };
+}

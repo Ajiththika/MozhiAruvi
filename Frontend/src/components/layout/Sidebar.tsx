@@ -20,7 +20,7 @@ import {
   GraduationCap,
   Shield,
 } from "lucide-react";
-import { logout } from "@/services/authService";
+import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 
 // ── Centralised icon map ──────────────────────────────────────────────────────
@@ -62,13 +62,10 @@ interface SidebarProps {
 export function Sidebar({ items, basePath }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
+  const { logoutUser } = useAuth();
 
   const handleLogout = async () => {
-    try {
-      await logout();
-    } catch {
-      // swallow — clear anyway
-    }
+    await logoutUser();
     router.push("/auth/signin");
   };
 

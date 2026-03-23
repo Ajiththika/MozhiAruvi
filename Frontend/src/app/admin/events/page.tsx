@@ -23,7 +23,7 @@ export default function AdminEventsPage() {
   const fetchEvents = () => {
     setLoading(true);
     getEvents()
-      .then(setEvents)
+      .then(res => setEvents(res.events))
       .catch(console.error)
       .finally(() => setLoading(false));
   };

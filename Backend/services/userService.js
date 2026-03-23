@@ -7,15 +7,17 @@ export async function getUserInfo(userId) {
         const err = new Error('User not found'); err.status = 404; err.code = 'NOT_FOUND'; throw err;
     }
 
-    // Refill logic: 1 credit per hour up to 25
+    const oneHour = 1000 * 60 * 60;
     if (user.learningCredits < 25) {
         const now = new Date();
-        const diffMs = now - (user.lastCreditUpdate || now);
-        const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+        const lastUpdate = user.lastCreditUpdate || now;
+        const diffMs = now - lastUpdate;
+        const diffHours = Math.floor(diffMs / oneHour);
         if (diffHours > 0) {
             const newCredits = Math.min(25, user.learningCredits + diffHours);
             user.learningCredits = newCredits;
-            user.lastCreditUpdate = now;
+            // Shift lastUpdate forward by exact hours to keep the 'partial hour' credit progress
+            user.lastCreditUpdate = new Date(lastUpdate.getTime() + (diffHours * oneHour));
             await user.save();
         }
     } else if (!user.lastCreditUpdate) {

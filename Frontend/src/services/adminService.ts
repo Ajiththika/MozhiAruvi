@@ -26,7 +26,7 @@ export interface BaseUser {
 
 export interface TeacherApplication {
   _id: string;
-  applicant: { _id: string; name: string; email: string };
+  userId: { _id: string; name: string; email: string };
   fullName: string;
   status: "pending" | "approved" | "rejected" | "needs_revision";
   reviewedAt?: string;
@@ -46,6 +46,20 @@ export interface PaginatedResponse<T> {
   totalPages: number;
   currentPage: number;
   [key: string]: T[] | number; // This is a bit hacky but allows res.data[collection]
+}
+
+// ── Global Stats ─────────────────────────────────────────────────────────────
+export interface AdminStats {
+  totalUsers: number;
+  activeUsers: number;
+  totalTutors: number;
+  pendingApps: number;
+  totalEvents: number;
+}
+
+export async function getAdminStats(): Promise<AdminStats> {
+  const res = await api.get<AdminStats>("/admin/stats");
+  return res.data;
 }
 
 // ── User Management ───────────────────────────────────────────────────────────

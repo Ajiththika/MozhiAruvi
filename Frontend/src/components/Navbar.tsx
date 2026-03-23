@@ -4,7 +4,6 @@ import Link from "next/link";
 import React, { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { User as UserIcon, LogOut, Settings, Award } from "lucide-react";
-import { logout } from "@/services/authService";
 import { useRouter } from "next/navigation";
 
 export default function Navbar() {
@@ -14,8 +13,7 @@ export default function Navbar() {
 
   const handleLogout = async () => {
     try {
-      await logout();
-      logoutUser();
+      await logoutUser();
       router.push("/");
     } catch (err) {
       console.error(err);

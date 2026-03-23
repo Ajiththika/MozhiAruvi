@@ -8,6 +8,7 @@ import { requireRole } from '../middleware/rbac.js';
 const router = Router();
 
 // Retrieve all users (admins can view)
+router.get('/stats', authenticate, requireRole('admin'), adminController.getStats);
 router.get('/users', authenticate, requireRole('admin'), adminController.getUsers);
 
 // Retrieve all tutors (admins can view)

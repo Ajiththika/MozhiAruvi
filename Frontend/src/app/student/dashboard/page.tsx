@@ -63,7 +63,7 @@ export default function StudentDashboard() {
           icon={BookOpen}
           trend="neutral"
           trendValue="In curriculum"
-          className="border-blue-100 bg-mozhi-light/50/30 dark:border-blue-900/40 dark:bg-mozhi-dark/50"
+          className="border-blue-100 bg-mozhi-light/50 dark:border-blue-900/40 dark:bg-mozhi-dark/50"
         />
         <StatCard
           title="Event RSVPs"
