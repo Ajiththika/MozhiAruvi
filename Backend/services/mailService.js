@@ -30,8 +30,6 @@ export async function sendPasswordResetEmail(to, resetUrl) {
     try {
         transporter = createTransporter();
     } catch (configError) {
-        console.warn('[MAIL] SMTP not configured —', configError.message);
-        console.log(`[MAIL] Reset link for ${to}: ${resetUrl}`);
         return;
     }
 
@@ -67,9 +65,7 @@ export async function sendPasswordResetEmail(to, resetUrl) {
 
     try {
         const info = await transporter.sendMail(mailOptions);
-        console.log(`[MAIL] ✅ Reset email sent to ${to} — messageId: ${info.messageId}`);
     } catch (error) {
-        console.error('[MAIL] ❌ SMTP sendMail failed:', error);
         throw new Error('Failed to send reset email. Please check your email configuration.');
     }
 }

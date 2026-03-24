@@ -49,92 +49,99 @@ export default function AdminDashboard() {
 
   if (loading) {
     return (
-      <div className="flex min-h-[60vh] items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-mozhi-primary" />
+      <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
+        <div className="h-10 w-10 animate-spin rounded-full border-[3px] border-primary border-t-transparent"></div>
+        <p className="font-bold text-slate-400 uppercase tracking-widest text-[10px] italic">Admin Access Initializing...</p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-500">
-      <div className="mb-0 flex flex-col md:flex-row md:items-end md:justify-between gap-6 border-b border-gray-100 pb-8">
-        <div className="space-y-4">
-           <div className="flex items-center gap-2">
-              <span className="h-1.5 w-8 rounded-full bg-secondary" />
-              <span className="text-xs font-bold text-secondary tracking-tight">Administrator</span>
+    <div className="space-y-12 animate-in fade-in slide-in-from-bottom-2 duration-1000">
+      <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-10 border-b border-slate-50 pb-12">
+        <div className="space-y-6">
+           <div className="flex items-center gap-3">
+              <span className="h-2 w-12 rounded-full bg-slate-900 shadow-sm" />
+              <label>Administrator System</label>
            </div>
-           <h1 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight leading-tight">Admin Overview</h1>
-           <p className="text-base text-slate-700 font-medium leading-relaxed max-w-xl">
-             Platform health at a glance. You are currently logged in as <strong className="text-primary">{admin?.name}</strong> with full administrative access.
+           <h1 className="text-4xl md:text-5xl font-black tracking-tighter">Admin Overview</h1>
+           <p className="text-lg md:text-xl font-medium max-w-2xl leading-relaxed">
+             Platform health at a glance. You are currently logged in as <strong className="text-primary italic">{admin?.name}</strong> with full administrative access.
            </p>
         </div>
       </div>
 
       {error && (
-        <div className="flex items-center gap-3 rounded-xl border border-error bg-error/10 px-4 py-3 text-sm text-error">
-          <AlertCircle className="h-5 w-5 shrink-0" /> {error}
+        <div className="flex items-center gap-4 rounded-3xl border border-red-100 bg-red-50 p-6 text-red-700 shadow-sm animate-in zoom-in-95">
+          <AlertCircle className="h-6 w-6 shrink-0 opacity-50" /> 
+          <p className="font-bold text-sm italic">{error}</p>
         </div>
       )}
 
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
           title="Total Platform Users"
-          value={String(stats?.totalUsers ?? 0)}
+          value={stats?.totalUsers ?? 0}
           description={`${stats?.activeUsers ?? 0} currently active`}
           icon={Users}
-          className="border-primary/10 bg-primary/5"
+          className="border-primary/5 bg-primary/5 shadow-primary/5"
         />
         <StatCard
           title="Verified Tutors"
-          value={String(stats?.totalTutors ?? 0)}
+          value={stats?.totalTutors ?? 0}
           description="Teachers on the platform"
           icon={GraduationCap}
-          trend={tutors.length > 0 ? "up" : "neutral"}
+          trend="up"
           trendValue="Live"
         />
         <StatCard
           title="Pending Reviews"
-          value={String(stats?.pendingApps ?? 0)}
-          description="Teacher applications to review"
+          value={stats?.pendingApps ?? 0}
+          description="Applications for review"
           icon={BookOpen}
           trend={(stats?.pendingApps ?? 0) > 0 ? "up" : "neutral"}
           trendValue={(stats?.pendingApps ?? 0) > 0 ? "Action Required" : "Steady"}
-          className={(stats?.pendingApps ?? 0) > 0 ? "border-warning/10 bg-warning/5" : ""}
+          className={(stats?.pendingApps ?? 0) > 0 ? "border-amber-100 bg-amber-50 shadow-amber-200/20" : ""}
         />
         <StatCard
           title="Active Events"
-          value={String(stats?.totalEvents ?? 0)}
-          description="Across all categories"
+          value={stats?.totalEvents ?? 0}
+          description="Gatherings & Workshops"
           icon={Calendar}
         />
       </div>
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-12 lg:grid-cols-12">
         {/* Pending Applications Table */}
-        <div className="lg:col-span-2 rounded-3xl border border-gray-100 bg-white shadow-sm overflow-hidden flex flex-col">
-          <div className="flex items-center justify-between border-b border-gray-50 px-8 py-6">
-            <h3 className="text-base font-bold text-slate-900 tracking-tight">
+        <div className="lg:col-span-8 card-premium border border-slate-100 shadow-2xl shadow-slate-200/50 overflow-hidden flex flex-col">
+          <div className="flex items-center justify-between border-b border-slate-50 px-10 py-8">
+            <h3 className="tracking-tight italic">
               Teacher Applications
             </h3>
-            <Button href="/admin/teachers" variant="ghost" size="sm" className="text-primary hover:text-secondary font-bold">
-              View All →
+            <Button href="/admin/teachers" variant="ghost" size="sm" className="font-black uppercase tracking-widest text-[10px]">
+              View All <ArrowRight className="h-3 w-3 ml-2" />
             </Button>
           </div>
 
           {applications.length === 0 ? (
-            <div className="flex items-center justify-center py-12 text-sm text-slate-600">No applications yet.</div>
+            <div className="flex items-center justify-center h-64 text-sm font-bold text-slate-400 uppercase tracking-widest italic grow italic">No applications awaiting review.</div>
           ) : (
-            <div className="divide-y divide-zinc-100 dark:divide-zinc-800">
+            <div className="divide-y divide-slate-50">
               {applications.slice(0, 5).map((app) => (
-                <div key={app._id} className="flex items-center justify-between px-6 py-4">
-                  <div>
-                    <p className="text-sm font-semibold text-slate-900">{app.fullName}</p>
-                    <p className="text-xs text-slate-500">{app.userId?.email}</p>
+                <div key={app._id} className="flex items-center justify-between px-10 py-6 hover:bg-slate-50/50 transition-colors">
+                  <div className="flex items-center gap-5">
+                    <div className="w-12 h-12 rounded-2xl bg-slate-900 text-white flex items-center justify-center font-black text-sm shadow-xl">
+                      {app.fullName.charAt(0)}
+                    </div>
+                    <div>
+                      <p className="font-black text-slate-900 tracking-tight leading-none mb-1.5">{app.fullName}</p>
+                      <p className="text-xs font-bold text-slate-400 lowercase">{app.userId?.email}</p>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-6">
                     <StatusBadge status={app.status} />
                     {app.status === "pending" && (
-                      <Button href="/admin/teachers" variant="secondary" size="sm">
+                      <Button href="/admin/teachers" variant="primary" size="sm" className="px-5 shadow-lg shadow-primary/20">
                         Review
                       </Button>
                     )}
@@ -146,34 +153,49 @@ export default function AdminDashboard() {
         </div>
 
         {/* Quick Admin Actions */}
-        <div className="rounded-3xl border border-gray-100 bg-white p-8 shadow-sm flex flex-col h-fit transition-all hover:shadow-xl">
-          <h3 className="text-xs font-bold text-slate-500 uppercase tracking-[0.2em] mb-8">Quick Actions</h3>
-          <div className="flex flex-col gap-3">
-            {[
-              { label: "Manage Users", href: "/admin/users", count: stats?.totalUsers || 0 },
-              { label: "Review Teachers", href: "/admin/teachers", count: stats?.pendingApps || 0 },
-              { label: "Curriculum Builder", href: "/admin/lessons", count: null },
-              { label: "Moderate Events", href: "/admin/events", count: stats?.totalEvents || 0 },
-            ].map((action) => (
-              <Button
-                key={action.href}
-                href={action.href}
-                variant="ghost"
-                size="md"
-                className="justify-between w-full hover:bg-slate-50 border border-gray-50 rounded-2xl group transition-all"
-              >
-                <span className="text-sm font-bold text-slate-700 group-hover:text-primary">{action.label}</span>
-                <div className="flex items-center gap-3">
-                  {action.count !== null && (
-                    <span className="text-[10px] font-bold bg-primary/10 text-primary px-3 py-1 rounded-full">{action.count}</span>
-                  )}
-                  <ArrowRight className="h-4 w-4 text-slate-300 group-hover:text-primary group-hover:translate-x-1 transition-all" />
-                </div>
-              </Button>
-            ))}
+        <div className="lg:col-span-4 space-y-8">
+          <div className="card-premium p-10 border border-slate-100 shadow-2xl shadow-slate-200/50 flex flex-col h-fit">
+            <label className="text-slate-400 mb-8 block uppercase">Quick Admin Actions</label>
+            <div className="flex flex-col gap-4">
+              {[
+                { label: "Manage Users", href: "/admin/users", count: stats?.totalUsers || 0, icon: Users },
+                { label: "Review Teachers", href: "/admin/teachers", count: stats?.pendingApps || 0, icon: GraduationCap },
+                { label: "System Events", href: "/admin/events", count: stats?.totalEvents || 0, icon: Calendar },
+                { label: "Course Editor", href: "/admin/lessons", count: null, icon: BookOpen },
+              ].map((action) => (
+                <Button
+                  key={action.href}
+                  href={action.href}
+                  variant="ghost"
+                  size="xl"
+                  className="justify-between w-full bg-slate-50/30 border border-slate-100 hover:bg-slate-900 hover:text-white hover:border-slate-900 group shadow-sm transition-all duration-500 pr-6"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="p-2 rounded-xl bg-white/10 shadow-sm border border-slate-200 group-hover:border-white/20">
+                      <action.icon className="h-4 w-4 text-slate-400 group-hover:text-primary transition-colors" />
+                    </div>
+                    <span className="font-bold italic tracking-tight">{action.label}</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    {action.count !== null && (
+                      <span className="text-[10px] font-black bg-primary/10 text-primary px-3 py-1 rounded-full group-hover:bg-white/10 group-hover:text-white transition-colors">{action.count}</span>
+                    )}
+                    <ArrowRight className="h-4 w-4 text-slate-200 group-hover:text-primary group-hover:translate-x-1 transition-all duration-500" />
+                  </div>
+                </Button>
+              ))}
+            </div>
+          </div>
+          
+          <div className="rounded-[2.5rem] bg-slate-900 p-10 text-white shadow-2xl shadow-slate-900/30 relative overflow-hidden group">
+             <div className="absolute top-0 right-0 -m-12 h-40 w-40 rounded-full bg-primary/10 blur-3xl transition-colors duration-1000 group-hover:bg-primary/20"></div>
+             <label className="text-white/40 mb-4 block uppercase tracking-widest text-[10px]">Security Notice</label>
+             <p className="text-sm font-bold italic leading-relaxed text-white/80">
+               "Keep your administrative credentials secure. Regularly review audit logs for sensitive operations."
+             </p>
           </div>
         </div>
       </div>
     </div>
   );
-}
+}

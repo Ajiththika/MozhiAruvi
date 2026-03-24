@@ -49,44 +49,50 @@ const events = [
   },
 ];
 
+import Button from "./common/Button";
+
 export default function CulturalEvents() {
   return (
-    <section id="events" className="py-10 md:py-14 bg-slate-50 px-4 md:px-8 lg:px-12">
-      <div className="max-w-7xl mx-auto">
-        <div className="text-center max-w-4xl mx-auto mb-16 space-y-6">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-light text-xs font-bold text-primary tracking-tight">
-            Community & culture
+    <section id="events" className="section-spacing bg-slate-50">
+      <div className="container-wide">
+        <div className="text-center max-w-4xl mx-auto mb-20 space-y-6">
+          <div className="flex items-center justify-center gap-3 mb-6">
+            <span className="h-1.5 w-12 rounded-full bg-primary" />
+            <label>Community & Culture</label>
+            <span className="h-1.5 w-12 rounded-full bg-primary" />
           </div>
-          <h2 className="text-3xl md:text-4xl font-bold text-slate-900 tracking-tight leading-tight">
+          <h2>
             Live Cultural Events
           </h2>
-          <p className="text-base text-slate-700 font-medium max-w-xl mx-auto leading-relaxed">
+          <p className="max-w-xl mx-auto">
             Language is best learned through the heart of its culture. Join our regular gatherings to experience Tamil heritage in action.
           </p>
         </div>
-        <div className="flex flex-col lg:flex-row gap-16 items-center">
+        <div className="flex flex-col lg:flex-row gap-20 items-center">
           
           {/* Left Column (Event Cards) */}
-          <div className="flex-[1.2] w-full max-w-2xl grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <div className="flex-[1.2] w-full max-w-2xl grid grid-cols-1 sm:grid-cols-2 gap-8">
             {events.map((event) => (
               <div 
                 key={event.id} 
-                className="p-8 rounded-3xl bg-white border border-gray-100 shadow-sm transition-all duration-300 group hover:border-primary/20 hover:shadow-xl cursor-pointer flex flex-col gap-4"
+                className="card-premium p-10 flex flex-col gap-6 border border-white transition-all duration-500 hover:shadow-2xl hover:shadow-slate-200/50"
               >
-                <div className="flex items-center justify-between mb-2">
-                  <div className="w-12 h-12 rounded-2xl bg-slate-50 text-primary flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform">
+                <div className="flex items-center justify-between">
+                  <div className="w-14 h-14 rounded-2xl bg-slate-50 text-primary flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform duration-500 border border-slate-100/50">
                     {event.icon}
                   </div>
-                  <span className={`text-xs font-bold px-3 py-1 rounded-full ${
-                    event.type === 'Online' ? 'bg-light text-primary' : 'bg-success/10 text-success'
+                  <span className={`text-[10px] font-extrabold px-3 py-1 rounded-full uppercase tracking-widest border ${
+                    event.type === 'Online' 
+                    ? 'bg-primary/5 text-primary border-primary/10' 
+                    : 'bg-emerald-50 text-emerald-600 border-emerald-100'
                   }`}>
                     {event.type}
                   </span>
                 </div>
                 <div>
-                  <h4 className="font-bold text-slate-900 text-lg mb-1 tracking-tight">{event.title}</h4>
-                  <div className="text-xs font-semibold text-slate-400 flex items-center gap-2">
-                    <Calendar className="w-4 h-4 text-primary/60" />
+                  <h4 className="mb-2">{event.title}</h4>
+                  <div className="text-xs font-bold text-slate-400 flex items-center gap-2 italic">
+                    <Calendar className="w-4 h-4 text-primary/40 shrink-0" />
                     {event.date}
                   </div>
                 </div>
@@ -95,19 +101,23 @@ export default function CulturalEvents() {
           </div>
 
           {/* Right Column (Text) */}
-          <div className="flex-1 w-full text-center lg:text-left space-y-6">
-            <h3 className="text-3xl md:text-4xl font-bold text-slate-900 tracking-tight leading-tight">
+          <div className="flex-1 w-full text-center lg:text-left space-y-10">
+            <h3>
               Celebrate Tamil Heritage Together
             </h3>
-            <p className="text-base text-slate-700 font-medium leading-relaxed max-w-xl">
+            <p className="max-w-xl">
               Experience Tamil culture through poetry readings, festival celebrations, film screenings, and interactive workshops. Connect with fellow enthusiasts and deepen your understanding beyond the classroom.
             </p>
-            <Link 
-              href="/events" 
-              className="inline-flex items-center justify-center gap-2 px-8 py-3 rounded-xl bg-primary text-white text-sm font-semibold hover:scale-[1.02] active:scale-[0.98] transition-all shadow-md"
-            >
-              Browse All Events <span>&rarr;</span>
-            </Link>
+            <div className="pt-4">
+              <Button 
+                href="/events" 
+                variant="primary"
+                size="lg"
+                className="w-full sm:w-auto"
+              >
+                Browse All Events <span>&rarr;</span>
+              </Button>
+            </div>
           </div>
 
         </div>
@@ -115,3 +125,4 @@ export default function CulturalEvents() {
     </section>
   );
 }
+

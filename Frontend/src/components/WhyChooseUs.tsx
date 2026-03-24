@@ -67,33 +67,35 @@ const features = [
 
 export default function WhyChooseUs() {
   return (
-    <section className="py-10 md:py-14 bg-white px-4 md:px-8 lg:px-12">
-      <div className="max-w-7xl mx-auto">
-        <div className="text-center max-w-4xl mx-auto mb-16 space-y-6">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-light text-xs font-bold text-primary tracking-tight">
-            Why choose us
+    <section className="section-spacing bg-white">
+      <div className="container-wide">
+        <div className="text-center max-w-4xl mx-auto mb-20 space-y-6">
+          <div className="flex items-center justify-center gap-3 mb-6">
+            <span className="h-1.5 w-12 rounded-full bg-primary" />
+            <label>Why choose us</label>
+            <span className="h-1.5 w-12 rounded-full bg-primary" />
           </div>
-          <h2 className="text-3xl md:text-4xl font-bold text-slate-900 tracking-tight leading-tight">
+          <h2>
             Why Learners Love Mozhi Aruvi
           </h2>
-          <p className="text-base text-slate-700 font-medium max-w-xl mx-auto leading-relaxed">
+          <p className="max-w-xl mx-auto">
             We're not just another language app. We bring the soul of Tamil to your screen through authentic experiences.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12 lg:gap-16">
           {features.map((feature) => (
             <div 
               key={feature.id} 
-              className="p-8 rounded-3xl bg-white border border-gray-100 shadow-sm transition-all duration-300 group hover:border-primary/20 hover:shadow-xl flex flex-col items-start gap-4"
+              className="card-premium p-10 flex flex-col items-start gap-4 border border-slate-50 transition-all duration-500 group hover:shadow-2xl hover:shadow-primary/5"
             >
-              <div className="w-16 h-16 rounded-2xl bg-slate-50 flex items-center justify-center text-primary mb-4 group-hover:bg-primary group-hover:text-white transition-colors duration-300">
+              <div className="w-20 h-20 rounded-2xl bg-slate-50 flex items-center justify-center text-primary mb-6 transition-all duration-500 group-hover:bg-slate-900 group-hover:text-white group-hover:scale-110 shadow-sm border border-slate-100/50">
                 {feature.icon}
               </div>
-              <h3 className="text-lg font-bold text-slate-900 tracking-tight">
+              <h3>
                 {feature.title}
               </h3>
-              <p className="text-base text-slate-600 leading-relaxed font-medium">
+              <p className="text-sm">
                 {feature.description}
               </p>
             </div>
@@ -103,3 +105,4 @@ export default function WhyChooseUs() {
     </section>
   );
 }
+
