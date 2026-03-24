@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { requireRole } from '../middleware/rbac.js';
 import * as tutorController from '../controllers/tutorController.js';
 import { authenticate } from '../middleware/auth.js';
 import { validate } from '../middleware/validate.js';
@@ -18,6 +19,8 @@ const requestTutorSchema = z.object({
         preferredTime: z.string().optional(),
         sessionsCount: z.number().optional(),
         additionalNotes: z.string().optional(),
+        lessonTitle: z.string().optional(),
+        lessonModule: z.number().optional(),
     }).optional(),
 }).strict();
 
@@ -46,30 +49,31 @@ const updateAvailabilitySchema = z.object({
     isTutorAvailable: z.boolean()
 }).strict();
 
-// ── Public (Learner) ────────────────────────────────────────────────────────
-// Browse available tutors (from User model where isTutorAvailable is true)
+// ── Public (Learner) ─────────────────────────────────────────────────────────
+// IMPORTANT: static paths (/my-requests, /pending) MUST come before /:id
+
+// Browse available tutors
 router.get('/', authenticate, tutorController.listAvailableTutors);
 
-// Get specific tutor by ID
-router.get('/:id', authenticate, tutorController.getTutorById);
+// Learner: view own request history ← before /:id to avoid collision
+router.get('/my-requests', authenticate, tutorController.getLearnerRequests);
 
 // Request a tutor's help
 router.post('/request', authenticate, validate(requestTutorSchema), tutorController.requestTutor);
 
-// View learner's own requests
-router.get('/my-requests', authenticate, tutorController.getLearnerRequests);
-
-// ── Tutor Specific ──────────────────────────────────────────────────────────
-import { requireRole } from '../middleware/rbac.js';
+// ── Tutor Specific ───────────────────────────────────────────────────────────
 
 // Update tutor profile
 router.patch('/me', authenticate, requireRole('teacher'), upload.single('profilePhoto'), validate(updateTutorProfileSchema), tutorController.updateTutorProfile);
 router.patch('/me/availability', authenticate, requireRole('teacher'), validate(updateAvailabilitySchema), tutorController.updateTutorAvailability);
 
-// These endpoint implementations implicitly check if req.user is the assigned tutor
+// Tutor request management ← before /:id
 router.get('/pending', authenticate, requireRole('teacher'), tutorController.getTutorPendingRequests);
 router.patch('/requests/:id/accept', authenticate, requireRole('teacher'), tutorController.acceptRequest);
 router.patch('/requests/:id/decline', authenticate, requireRole('teacher'), tutorController.declineRequest);
 router.patch('/requests/:id/resolve', authenticate, requireRole('teacher'), validate(respondTutorSchema), tutorController.resolveRequest);
+
+// Get specific tutor by ID ← dynamic route LAST
+router.get('/:id', authenticate, tutorController.getTutorById);
 
 export default router;

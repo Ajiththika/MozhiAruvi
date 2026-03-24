@@ -3,12 +3,11 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import {
-  ArrowLeft, Play, HelpCircle, Loader2, AlertCircle, CheckCircle2, XCircle, Info, BookOpen, Mic, MicOff, SettingsIcon, Zap
-} from "lucide-react";
+import { ArrowLeft, Play, HelpCircle, Loader2, AlertCircle, CheckCircle2, XCircle, Info, BookOpen, Mic, MicOff, SettingsIcon, Zap, MessageCircle, X, Send, User } from "lucide-react";
 import { getLessonById, getLessonQuestions, submitAnswers, evaluateSpeaking, Lesson, Question } from "@/services/lessonService";
 import { getMe, SafeUser } from "@/services/authService";
 import { consumeCredit } from "@/services/userService";
+import { getAvailableTutors, requestTutor, Tutor } from "@/services/tutorService";
 import { cn } from "@/lib/utils";
 
 type Phase = "loading" | "ready" | "out_of_credits" | "completed" | "error";
@@ -33,6 +32,16 @@ export default function LessonInteractiveSession() {
   const [submitting, setSubmitting] = useState(false);
   const [credits, setCredits] = useState(25);
 
+  // Ask-a-Tutor state
+  const [showAskPanel, setShowAskPanel] = useState(false);
+  const [tutors, setTutors] = useState<Tutor[]>([]);
+  const [tutorsLoading, setTutorsLoading] = useState(false);
+  const [selectedTutorId, setSelectedTutorId] = useState("");
+  const [askQuestion, setAskQuestion] = useState("");
+  const [askSubmitting, setAskSubmitting] = useState(false);
+  const [askSuccess, setAskSuccess] = useState(false);
+  const [askError, setAskError] = useState<string | null>(null);
+
   // Audio Recording State
   const [isRecording, setIsRecording] = useState(false);
   const [isProcessingAudio, setIsProcessingAudio] = useState(false);
@@ -56,6 +65,49 @@ export default function LessonInteractiveSession() {
       })
       .catch(() => setPhase("error"));
   }, [id]);
+
+  const openAskPanel = async () => {
+    setShowAskPanel(true);
+    setAskSuccess(false);
+    setAskError(null);
+    setAskQuestion("");
+    setSelectedTutorId("");
+    if (tutors.length === 0) {
+      setTutorsLoading(true);
+      try {
+        const res = await getAvailableTutors(1, 6);
+        setTutors(res.tutors);
+        if (res.tutors.length > 0) setSelectedTutorId(res.tutors[0]._id);
+      } catch { /* silent */ } finally { setTutorsLoading(false); }
+    } else if (tutors.length > 0 && !selectedTutorId) {
+      setSelectedTutorId(tutors[0]._id);
+    }
+  };
+
+  const handleAskSubmit = async () => {
+    if (!askQuestion.trim() || !selectedTutorId) return;
+    setAskSubmitting(true);
+    setAskError(null);
+    try {
+      await requestTutor({
+        teacherId: selectedTutorId,
+        lessonId: id,
+        requestType: "question",
+        content: askQuestion.trim(),
+        metadata: {
+          lessonTitle: lesson?.title,
+          lessonModule: lesson?.moduleNumber,
+          topics: [lesson?.title ?? "General"],
+        },
+      });
+      setAskSuccess(true);
+      setAskQuestion("");
+    } catch (e: any) {
+      setAskError(e.response?.data?.error?.message || e.response?.data?.message || "Failed to send question.");
+    } finally {
+      setAskSubmitting(false);
+    }
+  };
 
   const correctAnswersCount = Object.values(feedback).filter(f => f === "correct").length;
   const progress = questions.length > 0 ? Math.round((correctAnswersCount / questions.length) * 100) : 0;
@@ -450,6 +502,151 @@ export default function LessonInteractiveSession() {
           </div>
         </div>
       )}
-    </div>
+    {/* Ask-a-Tutor floating button */}
+    {phase === "ready" && (
+      <>
+        <button
+          onClick={openAskPanel}
+          className="fixed bottom-28 right-4 md:right-8 z-40 flex items-center gap-2 rounded-full bg-mozhi-primary px-5 py-3 text-xs font-bold text-white shadow-2xl shadow-mozhi-primary/30 hover:bg-mozhi-primary/90 transition-all hover:-translate-y-0.5 active:scale-95 border border-mozhi-primary/20"
+        >
+          <MessageCircle className="h-4 w-4" />
+          Ask a Tutor
+        </button>
+
+        {showAskPanel && (
+          <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
+            {/* Backdrop */}
+            <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setShowAskPanel(false)} />
+
+            {/* Panel */}
+            <div className="relative w-full sm:max-w-lg bg-white dark:bg-slate-900 rounded-t-[2.5rem] sm:rounded-[2.5rem] shadow-2xl p-8 animate-in slide-in-from-bottom-4 sm:zoom-in-95 duration-300 overflow-y-auto max-h-[85vh]">
+              {/* Header */}
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="h-1 w-6 rounded-full bg-mozhi-primary" />
+                    <span className="text-[10px] font-black uppercase tracking-widest text-mozhi-primary">Lesson Support</span>
+                  </div>
+                  <h3 className="text-xl font-bold text-slate-900 dark:text-white">Ask a Tutor</h3>
+                </div>
+                <button
+                  onClick={() => setShowAskPanel(false)}
+                  className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 hover:bg-slate-200 transition-colors"
+                >
+                  <X size={16} />
+                </button>
+              </div>
+
+              {/* Lesson context chip */}
+              {lesson && (
+                <div className="mb-6 flex items-center gap-2 rounded-xl bg-mozhi-primary/5 border border-mozhi-primary/10 px-4 py-2.5">
+                  <BookOpen className="h-4 w-4 text-mozhi-primary shrink-0" />
+                  <div>
+                    <p className="text-[10px] font-black text-mozhi-primary uppercase tracking-wider">In context of:</p>
+                    <p className="text-sm font-bold text-slate-800 dark:text-slate-200">{lesson.title}</p>
+                  </div>
+                </div>
+              )}
+
+              {askSuccess ? (
+                <div className="flex flex-col items-center gap-4 py-8 text-center">
+                  <div className="h-16 w-16 rounded-full bg-emerald-50 border border-emerald-100 flex items-center justify-center">
+                    <CheckCircle2 className="h-8 w-8 text-emerald-500" />
+                  </div>
+                  <p className="font-bold text-slate-900 dark:text-white">Question sent!</p>
+                  <p className="text-sm text-slate-500">Your tutor will reply in your question history. You'll see it in your student dashboard.</p>
+                  <button
+                    onClick={() => setShowAskPanel(false)}
+                    className="mt-2 text-xs font-bold text-mozhi-primary hover:underline"
+                  >
+                    Back to Lesson
+                  </button>
+                </div>
+              ) : (
+                <div className="space-y-5">
+                  {/* Tutor selector */}
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-slate-500 tracking-tight">Select a Tutor</label>
+                    {tutorsLoading ? (
+                      <div className="flex items-center gap-2 py-3 text-sm text-slate-400">
+                        <Loader2 className="h-4 w-4 animate-spin" /> Loading tutors...
+                      </div>
+                    ) : tutors.length === 0 ? (
+                      <div className="rounded-xl border border-dashed border-slate-200 py-6 text-center text-sm text-slate-400">
+                        No tutors available right now. Try again later.
+                      </div>
+                    ) : (
+                      <div className="space-y-2 max-h-40 overflow-y-auto pr-1">
+                        {tutors.map(t => (
+                          <button
+                            key={t._id}
+                            onClick={() => setSelectedTutorId(t._id)}
+                            className={cn(
+                              "w-full flex items-center gap-3 rounded-2xl border p-3 text-left transition-all",
+                              selectedTutorId === t._id
+                                ? "border-mozhi-primary bg-mozhi-primary/5 shadow-sm"
+                                : "border-slate-100 bg-white dark:bg-slate-800 dark:border-slate-700 hover:border-mozhi-primary/30"
+                            )}
+                          >
+                            {t.profilePhoto ? (
+                              <img src={t.profilePhoto} alt={t.name} className="h-9 w-9 rounded-xl object-cover shrink-0" />
+                            ) : (
+                              <div className="h-9 w-9 rounded-xl bg-mozhi-primary/10 flex items-center justify-center shrink-0">
+                                <User className="h-4 w-4 text-mozhi-primary" />
+                              </div>
+                            )}
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-bold text-slate-800 dark:text-slate-200 truncate">{t.name}</p>
+                              <p className="text-[11px] text-slate-500 truncate">{t.specialization || "Tamil Tutor"}</p>
+                            </div>
+                            {selectedTutorId === t._id && (
+                              <CheckCircle2 className="h-4 w-4 text-mozhi-primary shrink-0" />
+                            )}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Question textarea */}
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-slate-500 tracking-tight">Your Question</label>
+                    <textarea
+                      rows={4}
+                      value={askQuestion}
+                      onChange={e => setAskQuestion(e.target.value)}
+                      placeholder={`What's confusing you in "${lesson?.title || 'this lesson'}"?`}
+                      className="w-full resize-none rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3 text-sm font-medium text-slate-700 dark:text-slate-200 outline-none focus:ring-4 focus:ring-mozhi-primary/10 focus:border-mozhi-primary transition-all"
+                    />
+                  </div>
+
+                  {askError && (
+                    <div className="flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-2.5 text-sm text-red-700">
+                      <AlertCircle size={14} className="shrink-0" /> {askError}
+                    </div>
+                  )}
+
+                  <button
+                    onClick={handleAskSubmit}
+                    disabled={askSubmitting || !askQuestion.trim() || !selectedTutorId}
+                    className={cn(
+                      "w-full flex items-center justify-center gap-2 rounded-2xl py-3.5 text-sm font-bold text-white transition-all",
+                      askSubmitting || !askQuestion.trim() || !selectedTutorId
+                        ? "bg-slate-300 dark:bg-slate-700 cursor-not-allowed"
+                        : "bg-mozhi-primary hover:bg-mozhi-primary/90 shadow-lg shadow-mozhi-primary/20 active:scale-[0.98]"
+                    )}
+                  >
+                    {askSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                    {askSubmitting ? "Sending..." : "Send Question"}
+                  </button>
+                   <p className="text-center text-[11px] text-slate-400 font-semibold">This will deduct 10 XP from your balance</p>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+      </>
+    )}
+  </div>
   );
 }

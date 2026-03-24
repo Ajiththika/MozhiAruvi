@@ -105,13 +105,30 @@ export async function createRequest(studentId, data) {
 }
 
 export async function getStudentRequests(studentId) {
-    return TutorRequest.find({ studentId }).populate('teacherId', 'name email').sort('-createdAt');
+    return TutorRequest.find({ studentId })
+        .populate('teacherId', 'name email profilePhoto')
+        .populate('lessonId', 'title moduleNumber')
+        .sort('-createdAt');
 }
 
 export async function getTutorRequests(teacherId, status) {
     const query = { teacherId };
     if (status) query.status = status;
-    return TutorRequest.find(query).populate('studentId', 'name email').sort('createdAt');
+    return TutorRequest.find(query)
+        .populate('studentId', 'name email')
+        .populate('lessonId', 'title moduleNumber')
+        .sort('createdAt');
+}
+
+/** Returns pending + accepted requests for tutor inbox */
+export async function getActiveTutorRequests(teacherId) {
+    return TutorRequest.find({
+        teacherId,
+        status: { $in: ['pending', 'accepted'] }
+    })
+        .populate('studentId', 'name email')
+        .populate('lessonId', 'title moduleNumber')
+        .sort('createdAt');
 }
 
 export async function updateRequestStatus(teacherId, requestId, status) {

@@ -23,7 +23,7 @@ export default function TeacherRequestsPage() {
   const [replies, setReplies] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState<string | null>(null);
   const [search, setSearch] = useState("");
-  const [filter, setFilter] = useState<"all" | "pending" | "replied" | "resolved">("all");
+  const [filter, setFilter] = useState<"all" | "pending" | "replied" | "resolved">("pending");
 
   useEffect(() => {
     fetchRequests();
@@ -96,7 +96,7 @@ export default function TeacherRequestsPage() {
         </div>
         <div className="flex items-center gap-2">
            <div className="bg-slate-50 rounded-2xl p-1.5 flex gap-1 border border-slate-100 shadow-inner">
-              {(["all", "pending", "replied"] as const).map(t => (
+              {(["all", "pending", "replied", "resolved"] as const).map(t => (
                  <button 
                   key={t}
                   onClick={() => setFilter(t)}
@@ -151,13 +151,18 @@ export default function TeacherRequestsPage() {
                         <div className={cn("h-14 w-14 rounded-[1.25rem] flex items-center justify-center shadow-sm", config.color)}>
                            <Icon className="h-7 w-7" />
                         </div>
-                        <div>
+                       <div>
                            <div className="flex items-center gap-2 mb-1">
-                              <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Student: {(r as any).studentId?.name || "Verified Learner"}</span>
+                              <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Student: {typeof (r as any).studentId === 'object' ? (r as any).studentId?.name : "Verified Learner"}</span>
                               <span className="h-1 w-1 rounded-full bg-slate-200" />
                               <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{new Date(r.createdAt).toLocaleDateString()}</span>
                            </div>
                            <h3 className="text-xl font-bold text-slate-900">{config.label} Request</h3>
+                           {typeof (r as any).lessonId === 'object' && (r as any).lessonId?.title && (
+                             <div className="mt-2 inline-flex items-center gap-1.5 rounded-lg bg-primary/5 border border-primary/10 px-3 py-1 text-[11px] font-bold text-primary">
+                               📖 {(r as any).lessonId.title}{(r as any).lessonId.moduleNumber ? ` · Module ${(r as any).lessonId.moduleNumber}` : ""}
+                             </div>
+                           )}
                         </div>
                       </div>
                       

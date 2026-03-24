@@ -55,7 +55,7 @@ export async function getLearnerRequests(req, res, next) {
 
 export async function getTutorPendingRequests(req, res, next) {
     try {
-        const requests = await tutorService.getTutorRequests(req.user.sub, 'pending');
+        const requests = await tutorService.getActiveTutorRequests(req.user.sub);
         res.json({ requests });
     } catch (e) { next(e); }
 }

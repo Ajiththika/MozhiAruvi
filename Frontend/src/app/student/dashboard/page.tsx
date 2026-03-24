@@ -2,13 +2,14 @@
 
 import React, { useEffect, useState } from "react";
 import { StatCard } from "@/components/common/StatCard";
-import { BookOpen, Target, Flame, Trophy, Loader2, AlertCircle, ArrowRight, PenTool, BookMarked, UserCircle } from "lucide-react";
+import { BookOpen, Target, Flame, Trophy, Loader2, AlertCircle, ArrowRight, PenTool, BookMarked, UserCircle, MessageCircle, CheckCircle, Clock, XCircle } from "lucide-react";
 import Link from "next/link";
 import Button from "@/components/common/Button";
 import { getMe, SafeUser } from "@/services/authService";
 import { getLessons, Lesson } from "@/services/lessonService";
 import { getMyJoinRequests, JoinRequest } from "@/services/eventService";
 import { getMyBlogs, Blog } from "@/services/blogService";
+import { getMyTutorRequests, TutorRequest } from "@/services/tutorService";
 import { cn } from "@/lib/utils";
 
 export default function StudentDashboard() {
@@ -16,16 +17,18 @@ export default function StudentDashboard() {
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [joinRequests, setJoinRequests] = useState<JoinRequest[]>([]);
   const [blogs, setBlogs] = useState<Blog[]>([]);
+  const [questions, setQuestions] = useState<TutorRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    Promise.all([getMe(), getLessons(), getMyJoinRequests(), getMyBlogs()])
-      .then(([u, { lessons }, jrs, b]) => {
+    Promise.all([getMe(), getLessons(), getMyJoinRequests(), getMyBlogs(), getMyTutorRequests()])
+      .then(([u, { lessons }, jrs, b, qs]) => {
         setUser(u);
         setLessons(lessons);
         setJoinRequests(jrs);
         setBlogs(b);
+        setQuestions(qs.slice(0, 5));
       })
       .catch(() => setError("Could not load dashboard data."))
       .finally(() => setLoading(false));
@@ -226,6 +229,61 @@ export default function StudentDashboard() {
             </div>
           </div>
           
+          {/* My Tutor Questions */}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between px-2">
+              <h3 className="text-lg font-bold text-slate-900 tracking-tight">My Questions</h3>
+              <Link href="/student/tutors" className="text-sm font-bold text-primary hover:underline">Find Tutors</Link>
+            </div>
+
+            {questions.length === 0 ? (
+              <div className="flex flex-col items-center justify-center rounded-[2.5rem] border border-dashed border-slate-200 p-8 text-center bg-slate-50/50 gap-3">
+                <MessageCircle className="h-8 w-8 text-slate-300" />
+                <p className="text-sm font-bold text-slate-500">No questions yet</p>
+                <p className="text-xs text-slate-400">Ask a tutor during any lesson for help</p>
+              </div>
+            ) : (
+              <div className="flex flex-col gap-3">
+                {questions.map(q => {
+                  const statusMap = {
+                    pending: { icon: <Clock className="h-3 w-3" />, label: "Pending", cls: "bg-amber-50 text-amber-600 border-amber-100" },
+                    accepted: { icon: <Clock className="h-3 w-3" />, label: "Accepted", cls: "bg-blue-50 text-blue-600 border-blue-100" },
+                    replied: { icon: <CheckCircle className="h-3 w-3" />, label: "Replied", cls: "bg-emerald-50 text-emerald-600 border-emerald-100" },
+                    resolved: { icon: <CheckCircle className="h-3 w-3" />, label: "Resolved", cls: "bg-emerald-50 text-emerald-600 border-emerald-100" },
+                    declined: { icon: <XCircle className="h-3 w-3" />, label: "Declined", cls: "bg-red-50 text-red-600 border-red-100" },
+                  };
+                  const st = statusMap[q.status] ?? statusMap.pending;
+                  const lessonCtx = typeof q.lessonId === "object" ? q.lessonId : null;
+                  const teacherInfo = typeof q.teacherId === "object" ? q.teacherId : null;
+                  return (
+                    <div key={q._id} className="rounded-3xl border border-slate-100 bg-white p-5 shadow-sm flex flex-col gap-3">
+                      <div className="flex items-start justify-between gap-2">
+                        <p className="text-sm font-bold text-slate-800 line-clamp-2 flex-1">{q.content}</p>
+                        <span className={cn("shrink-0 inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-black uppercase tracking-wide", st.cls)}>
+                          {st.icon} {st.label}
+                        </span>
+                      </div>
+                      {lessonCtx && (
+                        <p className="text-[11px] font-semibold text-primary truncate">
+                          📖 {lessonCtx.title}
+                        </p>
+                      )}
+                      {q.teacherReply && (
+                        <div className="rounded-2xl bg-primary/5 border border-primary/10 px-3 py-2.5">
+                          <p className="text-[10px] font-black text-primary uppercase tracking-wider mb-1">Tutor Reply</p>
+                          <p className="text-xs font-medium text-slate-700 line-clamp-3">{q.teacherReply}</p>
+                        </div>
+                      )}
+                      {teacherInfo && (
+                        <p className="text-[11px] text-slate-400 font-semibold">via {teacherInfo.name}</p>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
           {/* Contribution Prompt */}
           <div className="bg-slate-900 rounded-[2.5rem] p-8 text-white shadow-2xl relative overflow-hidden group">
              <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-primary/20 to-transparent pointer-events-none" />

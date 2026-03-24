@@ -26,9 +26,9 @@ export interface Tutor {
 
 export interface TutorRequest {
   _id: string;
-  teacherId: string;
-  studentId?: string;
-  lessonId?: string;
+  teacherId: string | { _id: string; name: string; email: string; profilePhoto?: string };
+  studentId?: string | { _id: string; name: string; email: string };
+  lessonId?: string | { _id: string; title: string; moduleNumber?: number };
   requestType: "question" | "live_class" | "multi_class";
   content: string;
   status: "pending" | "accepted" | "declined" | "replied" | "resolved";
@@ -40,6 +40,8 @@ export interface TutorRequest {
     preferredTime?: string;
     sessionsCount?: number;
     additionalNotes?: string;
+    lessonTitle?: string;
+    lessonModule?: number;
   };
 }
 
@@ -53,6 +55,8 @@ export interface RequestTutorPayload {
     preferredTime?: string;
     sessionsCount?: number;
     additionalNotes?: string;
+    lessonTitle?: string;
+    lessonModule?: number;
   };
 }
 
