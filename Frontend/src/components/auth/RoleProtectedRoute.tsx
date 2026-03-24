@@ -46,7 +46,8 @@ export function RoleProtectedRoute({ children, allowedRoles }: RoleProtectedRout
         }
       } catch (err) {
         if (isMounted) {
-          router.replace("/auth/signin");
+          const currentPath = window.location.pathname;
+          router.replace(`/auth/signin?redirect=${encodeURIComponent(currentPath)}`);
         }
       } finally {
         if (isMounted) {

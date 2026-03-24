@@ -85,18 +85,20 @@ export function TutorRequestModal({ tutor, onClose, initialType = "question" }: 
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
       <div className="w-full max-w-xl rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
         {sent ? (
-          <div className="flex flex-col items-center gap-4 py-12 px-8 text-center">
-            <div className="h-20 w-20 rounded-full bg-emerald-50 dark:bg-emerald-950/30 flex items-center justify-center mb-2">
-              <CheckCircle2 className="h-10 w-10 text-emerald-500" />
+          <div className="flex flex-col items-center gap-6 py-16 px-10 text-center animate-in zoom-in-95 duration-500">
+            <div className="h-24 w-24 rounded-[2rem] bg-emerald-50 flex items-center justify-center mb-2 shadow-inner border border-emerald-100">
+              <CheckCircle2 className="h-12 w-12 text-emerald-500" />
             </div>
-            <h3 className="text-2xl font-black text-slate-900 dark:text-slate-100">Request Sent!</h3>
-            <p className="text-slate-500 dark:text-slate-400">
-              Your <strong>{info.label}</strong> request has been sent to <strong>{tutor.name}</strong>. 
-              We'll notify you when the teacher responds.
-            </p>
+            <div className="space-y-2">
+              <h3 className="text-3xl font-bold text-slate-900">Request Sent!</h3>
+              <p className="text-slate-500 font-medium leading-relaxed">
+                Your <strong>{info.label}</strong> has been successfully beamed to <strong>{tutor.name}</strong>. 
+                Keep an eye on your Inbox for their expert response.
+              </p>
+            </div>
             <button 
               onClick={onClose} 
-              className="mt-6 w-full rounded-2xl bg-mozhi-primary py-4 text-sm font-bold text-white shadow-lg shadow-mozhi-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
+              className="mt-4 w-full rounded-[1.5rem] bg-slate-900 py-4.5 text-sm font-bold text-white shadow-xl hover:bg-primary transition-all duration-300 active:scale-95"
             >
               Back to Dashboard
             </button>
@@ -104,27 +106,27 @@ export function TutorRequestModal({ tutor, onClose, initialType = "question" }: 
         ) : (
           <>
             {/* Header */}
-            <div className="bg-slate-50 dark:bg-slate-800/50 p-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-xl bg-white dark:bg-slate-800 shadow-sm flex items-center justify-center">
-                  <info.icon className="h-5 w-5 text-mozhi-primary" />
+            <div className="bg-slate-50/50 p-7 border-b border-slate-100 flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="h-12 w-12 rounded-2xl bg-white shadow-sm border border-slate-100 flex items-center justify-center">
+                  <info.icon className="h-6 w-6 text-primary" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold text-slate-900 dark:text-white">New Request</h3>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">Send to {tutor.name}</p>
+                  <h3 className="text-xl font-bold text-slate-900">New Request</h3>
+                  <p className="text-xs text-slate-500 font-medium tracking-tight">Direct session with {tutor.name}</p>
                 </div>
               </div>
               <button 
                 onClick={onClose} 
-                className="h-10 w-10 rounded-full hover:bg-slate-200/50 dark:hover:bg-slate-700 flex items-center justify-center transition-colors"
+                className="h-10 w-10 rounded-full hover:bg-slate-200/50 flex items-center justify-center transition-colors border border-transparent hover:border-slate-200"
               >
-                <X className="h-5 w-5 text-slate-500" />
+                <X className="h-5 w-5 text-slate-400" />
               </button>
             </div>
 
-            <div className="p-6 space-y-6">
+            <div className="p-8 space-y-8">
               {/* Type Selection */}
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-3 gap-4">
                 {(Object.keys(REQUEST_INFO) as RequestType[]).map((key) => {
                   const item = REQUEST_INFO[key];
                   const Icon = item.icon;
@@ -134,14 +136,14 @@ export function TutorRequestModal({ tutor, onClose, initialType = "question" }: 
                       key={key}
                       onClick={() => setType(key)}
                       className={cn(
-                        "flex flex-col items-center gap-2 p-3 rounded-2xl border transition-all text-center",
+                        "group/type flex flex-col items-center gap-3 p-4 rounded-[1.5rem] border-2 transition-all text-center",
                         active 
-                          ? "border-mozhi-primary bg-mozhi-primary/[0.03] ring-2 ring-mozhi-primary/20" 
-                          : "border-slate-100 dark:border-slate-800 hover:border-slate-200 dark:hover:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800"
+                          ? "border-primary bg-primary/5 ring-4 ring-primary/5" 
+                          : "border-slate-50 hover:border-slate-200 hover:bg-slate-50/50"
                       )}
                     >
-                      <Icon className={cn("h-5 w-5", active ? "text-mozhi-primary" : "text-slate-400")} />
-                      <span className={cn("text-[10px] font-bold uppercase tracking-wider", active ? "text-mozhi-primary" : "text-slate-500")}>
+                      <Icon className={cn("h-5 w-5 transition-transform group-hover/type:scale-110", active ? "text-primary" : "text-slate-400")} />
+                      <span className={cn("text-[10px] font-bold uppercase tracking-wider", active ? "text-primary" : "text-slate-500")}>
                         {key.replace("_", " ")}
                       </span>
                     </button>
@@ -160,7 +162,7 @@ export function TutorRequestModal({ tutor, onClose, initialType = "question" }: 
                     value={content}
                     onChange={(e) => setContent(e.target.value)}
                     placeholder={info.placeholder}
-                    className="w-full rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800 px-4 py-3 text-sm text-slate-800 dark:text-slate-200 outline-none focus:ring-2 focus:ring-mozhi-primary/20 transition-all resize-none"
+                    className="w-full rounded-2xl border border-slate-200 bg-slate-50/50 px-4 py-3 text-sm text-slate-800 outline-none focus:ring-2 focus:ring-primary/20 transition-all resize-none"
                   />
                 </div>
 
@@ -174,7 +176,7 @@ export function TutorRequestModal({ tutor, onClose, initialType = "question" }: 
                       placeholder="e.g. Wednesday 6:00 PM EST"
                       value={metadata.preferredTime || ""}
                       onChange={(e) => setMetadata({ ...metadata, preferredTime: e.target.value })}
-                      className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800 px-4 py-2.5 text-sm text-slate-800 dark:text-slate-200 outline-none focus:ring-2 focus:ring-mozhi-primary/20"
+                      className="w-full rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-2.5 text-sm text-slate-800 outline-none focus:ring-2 focus:ring-primary/20"
                     />
                   </div>
                 )}
@@ -198,15 +200,17 @@ export function TutorRequestModal({ tutor, onClose, initialType = "question" }: 
               </div>
 
               {/* Price Note */}
-              <div className="flex items-center gap-3 p-4 rounded-2xl bg-mozhi-primary/5 border border-mozhi-primary/10">
-                <Hash className="h-5 w-5 text-mozhi-primary" />
+              <div className="flex items-center gap-4 p-5 rounded-[2rem] bg-primary/5 border border-primary/10">
+                <div className="h-10 w-10 rounded-xl bg-white shadow-sm flex items-center justify-center">
+                   <Hash className="h-5 w-5 text-primary" />
+                </div>
                 <div className="flex-1">
-                   <p className="text-[10px] font-bold text-mozhi-primary uppercase tracking-widest">Service Cost</p>
-                   <p className="text-sm font-bold text-slate-700 dark:text-slate-200">{info.price} XP points</p>
+                   <p className="text-[10px] font-bold text-primary uppercase tracking-wider">Interaction Cost</p>
+                   <p className="text-sm font-bold text-slate-700">{info.price} XP points</p>
                 </div>
                 {error && (
-                  <div className="flex items-center gap-1 text-red-500 font-bold text-xs">
-                    <AlertCircle className="h-3 w-3" /> Balance low
+                  <div className="flex items-center gap-1.5 text-red-500 font-bold text-xs bg-white px-3 py-1 rounded-lg border border-red-100">
+                    <AlertCircle className="h-3.5 w-3.5" /> Balance low
                   </div>
                 )}
               </div>
@@ -218,20 +222,20 @@ export function TutorRequestModal({ tutor, onClose, initialType = "question" }: 
               )}
 
               {/* Footer */}
-              <div className="flex gap-3 pt-2">
+              <div className="flex gap-4 pt-4">
                 <button 
                   onClick={onClose} 
-                  className="flex-1 rounded-2xl border border-slate-200 dark:border-slate-700 py-3.5 text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all"
+                  className="flex-1 rounded-[1.5rem] border border-slate-200 py-4 text-sm font-bold text-slate-500 hover:bg-slate-50 hover:text-slate-700 transition-all"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleSend}
                   disabled={sending || !content.trim()}
-                  className="flex-[2] flex items-center justify-center gap-2 rounded-2xl bg-mozhi-primary py-3.5 text-sm font-bold text-white shadow-lg shadow-mozhi-primary/20 hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50 disabled:hover:scale-100 transition-all"
+                  className="flex-[2] flex items-center justify-center gap-3 rounded-[1.5rem] bg-primary py-4 text-sm font-bold text-white shadow-xl shadow-primary/20 hover:scale-[1.01] hover:bg-slate-900 active:scale-[0.99] disabled:opacity-30 disabled:hover:scale-100 transition-all"
                 >
-                  {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-                  {sending ? "Sending Request..." : `Request for ${info.price} XP`}
+                  {sending ? <Loader2 className="h-5 w-5 animate-spin" /> : <Send className="h-5 w-5" />}
+                  {sending ? "Processing..." : `Send for ${info.price} XP`}
                 </button>
               </div>
             </div>

@@ -5,6 +5,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Search, Calendar, ArrowRight, UserCircle, Loader2, BookOpen, Plus, BookmarkCheck, LayoutGrid, FileText, Trash2, Edit2, Share2, Check } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { getPublicBlogs, getSavedBlogs, getMyBlogs, deleteMyBlog, Blog } from "@/services/blogService";
 import { useAuth } from "@/context/AuthContext";
 import { cn } from "@/lib/utils";
@@ -15,6 +16,7 @@ import Button from "@/components/common/Button";
 import { Pagination } from "@/components/Pagination";
 
 export default function BlogsPage() {
+  const router = useRouter();
   const { user } = useAuth();
   const isAuthenticated = !!user;
   const [posts, setPosts] = useState<Blog[]>([]);
@@ -118,11 +120,19 @@ export default function BlogsPage() {
           </div>
 
           <div className="flex flex-col sm:flex-row items-center gap-5 pt-6">
-            {isAuthenticated && (
-              <Button href="/student/blogs/create" variant="primary" size="lg" className="w-full sm:w-auto px-10 shadow-xl shadow-primary/10">
-                <Plus className="w-5 h-5 mr-2" /> Start Writing
-              </Button>
-            )}
+            <button
+              onClick={() => {
+                const target = "/student/blogs/create";
+                if (!user) {
+                  router.push(`/auth/signin?redirect=${encodeURIComponent(target)}`);
+                } else {
+                  router.push(target);
+                }
+              }}
+              className="w-full sm:w-auto px-10 rounded-2xl bg-primary py-4 text-sm font-bold text-white shadow-xl shadow-primary/10 transition-all hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center"
+            >
+              <Plus className="w-5 h-5 mr-2" /> Start Writing
+            </button>
             <Button href="#feed" variant="secondary" size="lg" className="w-full sm:w-auto px-10 border-primary text-primary hover:bg-primary/5">
               Explore Feed
             </Button>

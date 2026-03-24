@@ -1,7 +1,11 @@
+"use client";
+
 import React from "react";
 import Link from "next/link";
 import { Lock, PlayCircle, CheckCircle2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/context/AuthContext";
+import { useRouter } from "next/navigation";
 
 export interface LessonCardProps {
   id: string;
@@ -22,6 +26,8 @@ export function LessonCard({
   status,
   thumbnailUrl,
 }: LessonCardProps) {
+  const { user } = useAuth();
+  const router = useRouter();
   const isLocked = status === "locked";
   const isCompleted = status === "completed";
 
@@ -102,8 +108,15 @@ export function LessonCard({
                 Locked
              </button>
           ) : (
-             <Link
-               href={`/student/lessons/${id}`}
+             <button
+               onClick={() => {
+                 const target = `/student/lessons/${id}`;
+                 if (!user) {
+                   router.push(`/auth/signin?redirect=${encodeURIComponent(target)}`);
+                 } else {
+                   router.push(target);
+                 }
+               }}
                className={cn(
                   "flex w-full items-center justify-center rounded-xl py-2.5 text-sm font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-zinc-950",
                   isCompleted
@@ -112,7 +125,7 @@ export function LessonCard({
                )}
              >
                 {isCompleted ? "Review Lesson" : "Start Learning"}
-             </Link>
+             </button>
           )}
         </div>
       </div>

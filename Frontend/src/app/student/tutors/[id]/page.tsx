@@ -7,6 +7,8 @@ import {
   ArrowLeft, Loader2, AlertCircle, Globe, Clock, Wifi, Layers,
   BookOpen, MessageSquare, GraduationCap, Video, Sparkles, UserCheck2,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
 import { getTutorById, Tutor } from "@/services/tutorService";
 import { cn } from "@/lib/utils";
 import { TutorRequestModal } from "@/components/student/TutorRequestModal";
@@ -25,12 +27,23 @@ const modeLabel: Record<string, string> = {
 
 export default function TutorProfilePage() {
   const { id } = useParams<{ id: string }>();
+  const router = useRouter();
+  const { user } = useAuth();
   const [tutor, setTutor] = useState<Tutor | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [modalState, setModalState] = useState<{ open: boolean; type: "question" | "live_class" | "multi_class" }>({
     open: false, type: "question"
   });
+
+  const handleProtectedBooking = (type: "question" | "live_class" | "multi_class") => {
+    if (!user) {
+      const currentPath = window.location.pathname;
+      router.push(`/auth/signin?redirect=${encodeURIComponent(currentPath)}`);
+      return;
+    }
+    setModalState({ open: true, type });
+  };
 
   useEffect(() => {
     getTutorById(id)
@@ -84,63 +97,68 @@ export default function TutorProfilePage() {
            <span className="text-xs font-bold text-mozhi-primary uppercase tracking-widest">{tutor.name}</span>
         </nav>
 
-        <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
+        <div className="grid grid-cols-1 gap-12 lg:grid-cols-12">
           {/* ── Left Column: Profile Details ── */}
-          <div className="lg:col-span-8 flex flex-col gap-8">
+          <div className="lg:col-span-8 flex flex-col gap-10">
             
             {/* Main Identity Banner */}
-            <div className="relative overflow-hidden rounded-[2.5rem] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl dark:shadow-none">
-              <div className="absolute top-0 right-0 h-64 w-64 rounded-full bg-mozhi-primary/5 blur-3xl -mr-20 -mt-20" />
-              <div className="absolute bottom-0 left-0 h-40 w-40 rounded-full bg-mozhi-secondary/5 blur-2xl -ml-20 -mb-20" />
+            <div className="relative overflow-hidden rounded-[3.5rem] bg-white border border-slate-100 p-10 md:p-14 shadow-2xl shadow-slate-200/40">
+              <div className="absolute top-0 right-0 h-[400px] w-[400px] rounded-full bg-primary/5 blur-3xl -mr-40 -mt-40" />
+              <div className="absolute bottom-0 left-0 h-[300px] w-[300px] rounded-full bg-secondary/5 blur-3xl -ml-40 -mb-40" />
               
-              <div className="relative px-8 pt-8 pb-10">
-                <div className="flex flex-col sm:flex-row items-center sm:items-start gap-8">
+              <div className="relative">
+                <div className="flex flex-col md:flex-row items-center md:items-start gap-10">
                   {/* Photo Container */}
-                  <div className="relative group">
-                    <div className="h-32 w-32 overflow-hidden rounded-3xl bg-slate-100 dark:bg-slate-800 shadow-inner group-hover:shadow-lg transition-all duration-500 border-4 border-white dark:border-slate-800">
+                  <div className="relative">
+                    <div className="h-40 w-40 overflow-hidden rounded-[2.5rem] bg-slate-50 border-4 border-white shadow-2xl transition-all duration-700 hover:rotate-2">
                       {tutor.profilePhoto ? (
-                        <img src={tutor.profilePhoto} alt={tutor.name} className="h-full w-full object-cover transition-transform group-hover:scale-110" />
+                        <img src={tutor.profilePhoto} alt={tutor.name} className="h-full w-full object-cover transition-transform hover:scale-110 duration-500" />
                       ) : (
-                        <div className="flex h-full w-full items-center justify-center bg-mozhi-light/20">
-                           <GraduationCap className="h-16 w-16 text-mozhi-primary" />
+                        <div className="flex h-full w-full items-center justify-center bg-primary/5">
+                           <GraduationCap className="h-20 w-20 text-primary" />
                         </div>
                       )}
                     </div>
                     {tutor.isTutorAvailable && (
-                      <div className="absolute -bottom-2 -right-2 flex h-8 w-8 items-center justify-center rounded-2xl bg-emerald-500 text-white shadow-lg shadow-emerald-500/30">
-                        <UserCheck2 className="h-5 w-5" />
+                      <div className="absolute -bottom-3 -right-3 flex h-12 w-12 items-center justify-center rounded-[1.5rem] bg-emerald-500 text-white shadow-xl shadow-emerald-500/30 border-4 border-white">
+                        <UserCheck2 className="h-6 w-6" />
                       </div>
                     )}
                   </div>
-
+ 
                   {/* Identity Info */}
-                  <div className="flex-1 text-center sm:text-left pt-2">
-                    <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-                      <div>
-                        <h1 className="text-4xl font-black tracking-tight text-slate-900 dark:text-white uppercase">{tutor.name}</h1>
-                        <p className="mt-2 text-md font-extrabold text-mozhi-primary dark:text-mozhi-secondary uppercase tracking-widest">{tutor.specialization ?? "Tamil Language Expert"}</p>
+                   <div className="flex-1 text-center md:text-left pt-2 space-y-4">
+                    <div className="space-y-2">
+                       <div className="flex flex-col md:flex-row items-center md:items-baseline gap-3">
+                        <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-slate-900">{tutor.name}</h1>
+                        <span className="flex items-center gap-1 px-3 py-1 rounded-full bg-primary/5 border border-primary/10 text-[10px] font-bold text-primary uppercase tracking-widest">
+                           <Sparkles className="h-3 w-3" /> Expert Teacher
+                        </span>
                       </div>
-                      <div className="flex flex-col items-end">
-                        <div className={cn(
-                          "flex items-center gap-1.5 rounded-full px-4 py-1.5 text-xs font-black uppercase tracking-widest",
-                          tutor.isTutorAvailable ? "bg-emerald-50 text-emerald-700 border border-emerald-100 shadow-sm shadow-emerald-100" : "bg-slate-100 text-slate-500"
-                        )}>
-                          <div className={cn("h-2 w-2 rounded-full", tutor.isTutorAvailable ? "bg-emerald-500 animate-pulse" : "bg-slate-400")} />
-                          {tutor.isTutorAvailable ? "Available Now" : "Currently Busy"}
-                        </div>
-                      </div>
+                      <p className="text-xl font-semibold text-primary/80 leading-relaxed italic">
+                        {tutor.specialization ?? "Tamil Language & Culture Expert"}
+                      </p>
                     </div>
 
-                    <div className="mt-6 flex flex-wrap justify-center sm:justify-start gap-3">
+                    <div className="flex flex-wrap justify-center md:justify-start gap-3 pt-2">
                        {tutor.levelSupport?.map(lvl => (
-                          <span key={lvl} className={cn("rounded-2xl px-4 py-1 text-xs font-bold uppercase tracking-wider", levelColors[lvl])}>
-                             {lvl} Support
+                          <span key={lvl} className={cn("rounded-xl px-5 py-2 text-xs font-bold border capitalize transition-all hover:scale-105", levelColors[lvl])}>
+                             {lvl} Level
                           </span>
                        ))}
-                       <span className="inline-flex items-center gap-2 rounded-2xl bg-sky-50 dark:bg-sky-950/20 px-4 py-1 text-xs font-bold text-sky-700 dark:text-sky-400 border border-sky-100 dark:border-sky-900/40">
+                       <span className="inline-flex items-center gap-2 rounded-xl bg-sky-50 text-sky-700 px-5 py-2 text-xs font-bold border border-sky-100 dark:bg-sky-950/20 dark:text-sky-400 dark:border-sky-900/40">
                           {tutor.teachingMode === "online" ? <Wifi className="h-3.5 w-3.5" /> : <Layers className="h-3.5 w-3.5" />}
                           {modeLabel[tutor.teachingMode || "online"]}
                        </span>
+                    </div>
+
+                    <div className="pt-4 flex items-center justify-center md:justify-start gap-4 border-t border-slate-50 mt-4">
+                       <div className="flex items-center gap-2 group cursor-default">
+                          <div className={cn("h-2.5 w-2.5 rounded-full", tutor.isTutorAvailable ? "bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.6)]" : "bg-slate-300")} />
+                          <span className={cn("text-xs font-bold uppercase tracking-widest", tutor.isTutorAvailable ? "text-emerald-600" : "text-slate-400")}>
+                             {tutor.isTutorAvailable ? "Accepting Students" : "Away"}
+                          </span>
+                       </div>
                     </div>
                   </div>
                 </div>
@@ -148,35 +166,35 @@ export default function TutorProfilePage() {
             </div>
 
             {/* Profile Content Blocks */}
-            <div className="space-y-8">
+            <div className="space-y-10">
               {/* About section */}
               {tutor.bio && (
-                <div className="rounded-[2.5rem] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-8 shadow-sm">
-                  <h2 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em] mb-6 flex items-center gap-3">
-                    <BookOpen className="h-5 w-5 text-mozhi-secondary" /> Expert Biography
+                <div className="rounded-[3rem] bg-white border border-slate-100 p-10 md:p-14 shadow-xl shadow-slate-200/20">
+                  <h2 className="text-xl font-bold text-slate-900 mb-8 flex items-center gap-3">
+                    <BookOpen className="h-6 w-6 text-primary" /> Professional Background
                   </h2>
-                  <p className="text-md leading-relaxed font-medium text-slate-600 dark:text-slate-300 whitespace-pre-line px-2">{tutor.bio}</p>
+                  <p className="text-lg leading-relaxed font-medium text-slate-600 whitespace-pre-line">{tutor.bio}</p>
                 </div>
               )}
 
               {/* Teaching Details */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
-                <div className="rounded-[2rem] bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 p-6 flex items-start gap-4">
-                   <div className="rounded-2xl bg-white dark:bg-slate-800 p-3 shadow-sm border border-slate-100 dark:border-slate-700 flex items-center justify-center shrink-0">
-                      <Sparkles className="h-6 w-6 text-yellow-500" />
+                <div className="rounded-[2.5rem] bg-white border border-slate-100 p-8 flex flex-col gap-6 shadow-xl shadow-slate-200/20 transition-all hover:border-primary/20">
+                   <div className="h-14 w-14 rounded-2xl bg-primary/5 flex items-center justify-center border border-primary/10">
+                      <Sparkles className="h-7 w-7 text-primary" />
                    </div>
                    <div>
-                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Teaching Focus</p>
-                     <p className="text-sm font-bold text-slate-700 dark:text-slate-200 leading-snug">{tutor.experience || "Native Teacher with extensive experience in conversational and formal Tamil."}</p>
+                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-3">Teaching Philosophy</p>
+                     <p className="text-md font-bold text-slate-800 leading-relaxed">{tutor.experience || "Native Teacher with extensive experience in conversational and formal Tamil instruction."}</p>
                    </div>
                 </div>
-                <div className="rounded-[2rem] bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 p-6 flex items-start gap-4">
-                   <div className="rounded-2xl bg-white dark:bg-slate-800 p-3 shadow-sm border border-slate-100 dark:border-slate-700 flex items-center justify-center shrink-0">
-                      <Globe className="h-6 w-6 text-mozhi-primary" />
+                <div className="rounded-[2.5rem] bg-white border border-slate-100 p-8 flex flex-col gap-6 shadow-xl shadow-slate-200/20 transition-all hover:border-secondary/20">
+                   <div className="h-14 w-14 rounded-2xl bg-secondary/5 flex items-center justify-center border border-secondary/10">
+                      <Globe className="h-7 w-7 text-secondary" />
                    </div>
                    <div>
-                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Communication</p>
-                     <p className="text-sm font-bold text-slate-700 dark:text-slate-200 leading-snug">Fluent in {tutor.languages?.join(", ") || "Tamil and English"}</p>
+                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-3">Language Mastery</p>
+                     <p className="text-md font-bold text-slate-800 leading-relaxed">Expert communication in {tutor.languages?.join(", ") || "Tamil and English"}.</p>
                    </div>
                 </div>
               </div>
@@ -186,72 +204,72 @@ export default function TutorProfilePage() {
           {/* ── Right Column: Booking & Actions ── */}
           <div className="lg:col-span-4 flex flex-col gap-8">
             
-            <div className="sticky top-24 space-y-4">
-              <div className="rounded-[2.5rem] bg-slate-900 p-8 text-white shadow-2xl shadow-mozhi-primary/20 border border-slate-800">
-                <div className="flex items-center justify-between mb-8 border-b border-slate-800 pb-6">
-                   <div>
-                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Base Interaction Fee</p>
-                      <p className="text-3xl font-black">{tutor.hourlyRate || "10"} <span className="text-sm text-slate-500 font-bold uppercase ml-1">XP Points</span></p>
+            <div className="sticky top-24 space-y-6">
+              <div className="rounded-[3rem] bg-slate-900 p-10 text-white shadow-2xl shadow-primary/20 border border-slate-800">
+                <div className="flex items-center justify-between mb-10 border-b border-white/10 pb-8">
+                   <div className="space-y-1">
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Base Session Fee</p>
+                      <p className="text-4xl font-bold">{tutor.hourlyRate || "10"} <span className="text-xs text-slate-500 font-bold uppercase ml-1">XP Points</span></p>
                    </div>
-                   <div className="h-12 w-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center">
-                      <Sparkles className="h-6 w-6 text-mozhi-soft" />
+                   <div className="h-14 w-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center">
+                      <Sparkles className="h-7 w-7 text-secondary" />
                    </div>
                 </div>
 
-                <div className="space-y-3">
+                <div className="space-y-4">
                    <button 
-                     onClick={() => setModalState({ open: true, type: "question" })}
+                     onClick={() => handleProtectedBooking("question")}
                      disabled={!tutor.isTutorAvailable}
-                     className="group w-full flex items-center justify-between gap-3 rounded-2xl bg-white p-4 text-sm font-black text-slate-900 transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
+                     className="group w-full flex items-center justify-between gap-4 rounded-2xl bg-white p-5 text-sm font-bold text-slate-900 transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
                    >
-                      <div className="flex items-center gap-3">
-                         <div className="h-8 w-8 rounded-xl bg-slate-100 flex items-center justify-center group-hover:bg-mozhi-primary/10 transition-colors">
-                            <MessageSquare className="h-4 w-4 text-mozhi-primary" />
+                      <div className="flex items-center gap-4">
+                         <div className="h-10 w-10 rounded-xl bg-slate-100 flex items-center justify-center group-hover:bg-primary/10 transition-colors">
+                            <MessageSquare className="h-5 w-5 text-primary" />
                          </div>
                          <span>Ask a Question</span>
                       </div>
-                      <span className="text-[10px] bg-slate-100 px-2 py-0.5 rounded-lg text-slate-500">10 XP</span>
+                      <span className="text-[10px] bg-slate-100 px-3 py-1 rounded-full text-slate-500 font-black">10 XP</span>
                    </button>
 
                    <button 
-                     onClick={() => setModalState({ open: true, type: "live_class" })}
+                     onClick={() => handleProtectedBooking("live_class")}
                      disabled={!tutor.isTutorAvailable}
-                     className="group w-full flex items-center justify-between gap-3 rounded-2xl border-2 border-white/10 p-4 text-sm font-black text-white transition-all hover:bg-white/5 active:scale-[0.98] disabled:opacity-50"
+                     className="group w-full flex items-center justify-between gap-4 rounded-2xl border-2 border-white/10 p-5 text-sm font-bold text-white transition-all hover:bg-white/5 active:scale-[0.98] disabled:opacity-50"
                    >
-                      <div className="flex items-center gap-3">
-                         <div className="h-8 w-8 rounded-xl bg-white/5 flex items-center justify-center group-hover:bg-white/10 transition-colors">
-                            <Video className="h-4 w-4 text-mozhi-soft" />
+                      <div className="flex items-center gap-4">
+                         <div className="h-10 w-10 rounded-xl bg-white/5 flex items-center justify-center group-hover:bg-white/10 transition-colors">
+                            <Video className="h-5 w-5 text-secondary" />
                          </div>
                          <span>Live 1:1 Class</span>
                       </div>
-                      <span className="text-[10px] bg-white/5 px-2 py-0.5 rounded-lg text-slate-500">30 XP</span>
+                      <span className="text-[10px] bg-white/5 px-3 py-1 rounded-full text-slate-500 font-black">30 XP</span>
                    </button>
 
                    <button 
-                     onClick={() => setModalState({ open: true, type: "multi_class" })}
+                     onClick={() => handleProtectedBooking("multi_class")}
                      disabled={!tutor.isTutorAvailable}
-                     className="group w-full flex items-center justify-between gap-3 rounded-2xl border-2 border-white/10 p-4 text-sm font-black text-white transition-all hover:bg-white/5 active:scale-[0.98] disabled:opacity-50"
+                     className="group w-full flex items-center justify-between gap-4 rounded-2xl border-2 border-white/10 p-5 text-sm font-bold text-white transition-all hover:bg-white/5 active:scale-[0.98] disabled:opacity-50"
                    >
-                      <div className="flex items-center gap-3">
-                         <div className="h-8 w-8 rounded-xl bg-white/5 flex items-center justify-center group-hover:bg-white/10 transition-colors">
-                            <Layers className="h-4 w-4 text-mozhi-secondary" />
+                      <div className="flex items-center gap-4">
+                         <div className="h-10 w-10 rounded-xl bg-white/5 flex items-center justify-center group-hover:bg-white/10 transition-colors">
+                            <Layers className="h-5 w-5 text-secondary" />
                          </div>
                          <span>5-Session Package</span>
                       </div>
-                      <span className="text-[10px] bg-white/5 px-2 py-0.5 rounded-lg text-slate-500">100 XP</span>
+                      <span className="text-[10px] bg-white/5 px-3 py-1 rounded-full text-slate-500 font-black">100 XP</span>
                    </button>
                 </div>
 
-                <div className="mt-8 pt-6 border-t border-slate-800 text-center">
-                   <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest leading-relaxed">
-                      Questions are usually answered within {tutor.responseTime || "24 hours"}. Credits are fully refunded if your request is declined or unanswered.
+                <div className="mt-10 pt-8 border-t border-white/10 text-center">
+                   <p className="text-[11px] text-slate-500 font-medium leading-relaxed">
+                      Teachers usually respond within {tutor.responseTime || "24 hours"}. Credits are fully refunded if your request is declined.
                    </p>
                 </div>
               </div>
 
               <Link 
                 href="/student/tutors/my-requests" 
-                className="flex items-center justify-center gap-3 w-full rounded-[2rem] border-2 border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 py-4 text-sm font-black text-slate-700 dark:text-slate-300 transition-all hover:border-mozhi-primary hover:text-mozhi-primary dark:hover:border-mozhi-secondary dark:hover:text-mozhi-secondary"
+                className="flex items-center justify-center gap-3 w-full rounded-[2.5rem] border-2 border-slate-100 bg-white py-5 text-xs font-bold text-slate-600 transition-all hover:border-primary hover:text-primary shadow-xl shadow-slate-200/20"
               >
                  <ArrowLeft className="h-4 w-4" /> My Tutor Requests
               </Link>

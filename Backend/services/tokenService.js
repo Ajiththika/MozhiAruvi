@@ -36,6 +36,7 @@ export async function createRefreshToken(userId, meta = {}) {
 }
 
 export async function rotateRefreshToken(oldRaw, meta = {}) {
+    // Only consider active, unexpired sessions
     const sessions = await Session.find({ revoked: false, expiresAt: { $gt: new Date() } });
 
     let matched = null;
@@ -43,14 +44,12 @@ export async function rotateRefreshToken(oldRaw, meta = {}) {
         if (await bcrypt.compare(oldRaw, s.tokenHash)) { matched = s; break; }
     }
 
-    if (!matched) return null;
-
-    // Reuse detection: already consumed → revoke all sessions for that user
-    if (matched.revoked) {
-        await Session.updateMany({ userId: matched.userId }, { revoked: true });
+    if (!matched) {
+        console.warn('[rotateRefreshToken] No matching active session found for provided refresh token.');
         return null;
     }
 
+    // Rotate: revoke the old session and create a new one
     matched.revoked = true;
     await matched.save();
 
@@ -74,7 +73,8 @@ export function setRefreshCookie(res, token) {
         httpOnly: true,
         secure: process.env.COOKIE_SECURE === 'true',
         sameSite: process.env.COOKIE_SAMESITE || 'lax',
-        maxAge: DAYS * 86_400_000,
+        path: '/',                  // ← CRITICAL: without this, cookie is scoped to the
+        maxAge: DAYS * 86_400_000,  //   login route path and is never sent to /api/auth/refresh
     });
 }
 
@@ -83,5 +83,6 @@ export function clearRefreshCookie(res) {
         httpOnly: true,
         secure: process.env.COOKIE_SECURE === 'true',
         sameSite: process.env.COOKIE_SAMESITE || 'lax',
+        path: '/',                  // ← Must match the path used in setRefreshCookie
     });
 }

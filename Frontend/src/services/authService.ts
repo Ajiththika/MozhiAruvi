@@ -29,6 +29,8 @@ export interface SafeUser {
   specialization?: string;
   experience?: string;
   hourlyRate?: number;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface AuthResponse {

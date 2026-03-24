@@ -1,7 +1,12 @@
-import React from "react";
-import Link from "next/link";
+"use client";
+
+import { useAuth } from "@/context/AuthContext";
+import { useRouter } from "next/navigation";
 
 export default function TutorSupport() {
+  const { user } = useAuth();
+  const router = useRouter();
+
   return (
     <section id="tutors" className="py-10 md:py-14 bg-white px-4 md:px-8 lg:px-12 overflow-hidden">
       <div className="max-w-7xl mx-auto">
@@ -48,12 +53,19 @@ export default function TutorSupport() {
               </li>
             </ul>
 
-            <Link 
-              href="/student/tutors" 
+            <button 
+              onClick={() => {
+                const target = "/student/tutors";
+                if (!user) {
+                  router.push(`/auth/signin?redirect=${encodeURIComponent(target)}`);
+                } else {
+                  router.push(target);
+                }
+              }}
               className="mt-4 md:mt-8 inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl bg-primary text-white hover:bg-primary-dark transition-all font-semibold shadow-xl shadow-primary/20 w-full sm:w-auto"
             >
               Explore Tutors
-            </Link>
+            </button>
           </div>
 
           {/* Right Column (Mock UI) */}

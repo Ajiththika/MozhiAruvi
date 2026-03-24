@@ -30,16 +30,36 @@ export async function loginUser(req) {
 }
 
 export async function refreshTokens(req) {
+    // [refresh] Step 1: Check cookie exists
     const oldRaw = req.cookies?.rt;
+    console.log('[refresh] Cookie "rt" present:', !!oldRaw);
     if (!oldRaw) {
+        console.warn('[refresh] 401 — refresh token cookie missing from request.');
         const err = new Error('Refresh token missing.'); err.status = 401; err.code = 'NO_REFRESH_TOKEN'; throw err;
     }
+
+    // [refresh] Step 2: Rotate session
     const result = await tokenService.rotateRefreshToken(oldRaw, meta(req));
+    console.log('[refresh] Session rotation result:', result ? 'success' : 'null (not found or expired)');
     if (!result) {
+        console.warn('[refresh] 401 — session not found, expired, or already revoked.');
         const err = new Error('Session expired or reuse detected.'); err.status = 401; err.code = 'INVALID_REFRESH_TOKEN'; throw err;
     }
+
+    // [refresh] Step 3: Load user from new session
     const session = await Session.findById(result.sessionId);
+    if (!session) {
+        console.error('[refresh] 500 — new session not found immediately after creation (MongoDB issue).');
+        const err = new Error('Session not found after rotation.'); err.status = 500; err.code = 'SESSION_ERROR'; throw err;
+    }
+
     const user = await User.findById(session.userId);
+    if (!user) {
+        console.error('[refresh] 401 — user not found for session userId:', session.userId);
+        const err = new Error('User not found.'); err.status = 401; err.code = 'USER_NOT_FOUND'; throw err;
+    }
+
+    console.log('[refresh] ✓ Success — new access token issued for user:', user._id);
     return { accessToken: tokenService.signAccessToken(user, result.sessionId), raw: result.raw };
 }
 

@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import {
   MessageSquare, Filter, Search, CheckCircle2, Loader2, AlertCircle,
-  Video, Layers, Calendar, Clock, ArrowRight, User, Ban, CheckCircle
+  Video, Layers, Calendar, Clock, ArrowRight, User, Ban, CheckCircle, Send
 } from "lucide-react";
 import {
   getPendingRequests, resolveRequest, acceptRequest, declineRequest, TutorRequest,
@@ -11,9 +11,9 @@ import {
 import { cn } from "@/lib/utils";
 
 const TYPE_CONFIG = {
-  question: { label: "Question", icon: MessageSquare, color: "text-blue-500 bg-blue-50 dark:bg-blue-900/20" },
-  live_class: { label: "Live Class", icon: Video, color: "text-emerald-500 bg-emerald-50 dark:bg-emerald-900/20" },
-  multi_class: { label: "Package", icon: Layers, color: "text-violet-500 bg-violet-50 dark:bg-violet-900/20" },
+  question: { label: "Question", icon: MessageSquare, color: "text-blue-600 bg-blue-50" },
+  live_class: { label: "Live Class", icon: Video, color: "text-emerald-600 bg-emerald-50" },
+  multi_class: { label: "Package", icon: Layers, color: "text-violet-600 bg-violet-50" },
 };
 
 export default function TeacherRequestsPage() {
@@ -85,24 +85,24 @@ export default function TeacherRequestsPage() {
   return (
     <div className="mx-auto max-w-5xl space-y-8 animate-in fade-in duration-500 pb-20 px-2">
       {/* Page Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-slate-100 dark:border-slate-800 pb-8">
-        <div>
-           <div className="flex items-center gap-2 mb-2">
-              <span className="h-2 w-8 rounded-full bg-mozhi-primary" />
-              <span className="text-[10px] font-black text-mozhi-primary uppercase tracking-[0.3em]">Teacher Inbox</span>
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-10 pb-12 border-b border-slate-100">
+        <div className="space-y-4">
+           <div className="flex items-center gap-2">
+              <span className="h-1.5 w-10 rounded-full bg-primary" />
+              <span className="text-[10px] font-bold text-primary uppercase tracking-[0.2em]">Interaction Hub</span>
            </div>
-           <h1 className="text-4xl font-black text-slate-900 dark:text-white uppercase tracking-tight">Active Requests</h1>
-           <p className="mt-2 text-slate-500 dark:text-slate-400 font-medium">Manage your student sessions, questions, and learning packages.</p>
+           <h1 className="text-4xl md:text-5xl font-bold text-slate-900 tracking-tight leading-tight">Incoming Sessions</h1>
+           <p className="text-lg text-slate-600 font-medium leading-relaxed max-w-xl">Efficiently manage your student questions, live bookings, and teaching packages from a single dashboard.</p>
         </div>
         <div className="flex items-center gap-2">
-           <div className="bg-slate-50 dark:bg-slate-800 rounded-2xl p-1 flex gap-1 border border-slate-100 dark:border-slate-700">
+           <div className="bg-slate-50 rounded-2xl p-1.5 flex gap-1 border border-slate-100 shadow-inner">
               {(["all", "pending", "replied"] as const).map(t => (
                  <button 
                   key={t}
                   onClick={() => setFilter(t)}
                   className={cn(
-                    "px-4 py-2 rounded-xl text-xs font-bold uppercase transition-all",
-                    filter === t ? "bg-white dark:bg-slate-700 text-mozhi-primary shadow-sm" : "text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                    "px-6 py-2.5 rounded-xl text-xs font-bold capitalize transition-all duration-300",
+                    filter === t ? "bg-white text-primary shadow-xl shadow-slate-200/40 border border-slate-100" : "text-slate-400 hover:text-slate-600"
                   )}
                  >
                     {t}
@@ -144,114 +144,117 @@ export default function TeacherRequestsPage() {
               >
                 <div className="flex flex-col lg:flex-row">
                   {/* Left: Content */}
-                  <div className="flex-1 p-8">
-                    <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
-                      <div className="flex items-center gap-4">
-                        <div className={cn("h-12 w-12 rounded-2xl flex items-center justify-center", config.color)}>
-                           <Icon className="h-6 w-6" />
+                  {/* Left: Content */}
+                  <div className="flex-1 p-10">
+                    <div className="flex flex-wrap items-center justify-between gap-6 mb-8">
+                      <div className="flex items-center gap-5">
+                        <div className={cn("h-14 w-14 rounded-[1.25rem] flex items-center justify-center shadow-sm", config.color)}>
+                           <Icon className="h-7 w-7" />
                         </div>
                         <div>
-                           <div className="flex items-center gap-2">
-                              <span className="text-xs font-black uppercase tracking-widest text-slate-400">Student ID: {(r as any).studentId?.name || "Member"}</span>
-                              <span className="h-1 w-1 rounded-full bg-slate-300" />
-                              <span className="text-[10px] font-bold text-slate-400 uppercase">{new Date(r.createdAt).toLocaleDateString()}</span>
+                           <div className="flex items-center gap-2 mb-1">
+                              <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Student: {(r as any).studentId?.name || "Verified Learner"}</span>
+                              <span className="h-1 w-1 rounded-full bg-slate-200" />
+                              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{new Date(r.createdAt).toLocaleDateString()}</span>
                            </div>
-                           <h3 className="text-lg font-black text-slate-900 dark:text-white uppercase tracking-tight">{config.label} Request</h3>
+                           <h3 className="text-xl font-bold text-slate-900">{config.label} Request</h3>
                         </div>
                       </div>
                       
                       <div className={cn(
-                        "rounded-full px-4 py-1.5 text-[10px] font-black uppercase tracking-[0.15em] border",
+                        "rounded-full px-5 py-2 text-[10px] font-black uppercase tracking-[0.2em] border shadow-sm",
                         isPending ? "bg-amber-50 text-amber-600 border-amber-100" : "bg-emerald-50 text-emerald-600 border-emerald-100"
                       )}>
                          {r.status}
                       </div>
                     </div>
 
-                    <div className="relative rounded-3xl bg-slate-50 dark:bg-slate-800/50 p-6 mb-6">
-                       <p className="text-md font-medium text-slate-700 dark:text-slate-200 leading-relaxed italic">
+                    <div className="relative rounded-[2rem] bg-slate-50 p-8 border border-slate-100 mb-8">
+                       <p className="text-lg font-medium text-slate-700 leading-relaxed italic">
                          "{r.content}"
                        </p>
                     </div>
 
                     {/* Metadata Section */}
                     {r.metadata && Object.keys(r.metadata).length > 0 && (
-                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6 px-1">
+                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8 px-2">
                           {r.metadata.preferredTime && (
-                             <div className="flex items-center gap-3 text-xs font-bold text-slate-500">
-                                <Clock className="h-4 w-4 text-mozhi-primary" />
-                                <span>Preferred: <span className="text-slate-900 dark:text-slate-200">{r.metadata.preferredTime}</span></span>
+                             <div className="flex items-center gap-4 text-xs font-bold text-slate-500">
+                                <Clock className="h-4.5 w-4.5 text-primary" />
+                                <span>Requested Time: <span className="text-slate-900 bg-white px-3 py-1 rounded-lg border border-slate-100 ml-1">{r.metadata.preferredTime}</span></span>
                              </div>
                           )}
                           {r.metadata.sessionsCount && (
-                             <div className="flex items-center gap-3 text-xs font-bold text-slate-500">
-                                <Layers className="h-4 w-4 text-mozhi-primary" />
-                                <span>Sessions: <span className="text-slate-900 dark:text-slate-200">{r.metadata.sessionsCount} classes</span></span>
+                             <div className="flex items-center gap-4 text-xs font-bold text-slate-500">
+                                <Layers className="h-4.5 w-4.5 text-secondary" />
+                                <span>Package Details: <span className="text-slate-900 bg-white px-3 py-1 rounded-lg border border-slate-100 ml-1">{r.metadata.sessionsCount} classes</span></span>
                              </div>
                           )}
                        </div>
                     )}
 
                     {r.teacherReply && (
-                       <div className="mt-4 rounded-3xl bg-mozhi-primary/5 border border-mozhi-primary/10 p-6 animate-in slide-in-from-top-2">
-                          <p className="text-[10px] font-black text-mozhi-primary uppercase tracking-widest mb-2">Your Professional Reply</p>
-                          <p className="text-sm font-bold text-slate-700 dark:text-slate-200 leading-relaxed">{r.teacherReply}</p>
+                       <div className="mt-6 rounded-[2rem] bg-primary/5 border border-primary/10 p-8 animate-in slide-in-from-top-2 relative">
+                          <div className="absolute -top-3 left-8 bg-primary text-white px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest shadow-md">
+                             Sent Response
+                          </div>
+                          <p className="text-md font-bold text-slate-700 leading-relaxed whitespace-pre-line">{r.teacherReply}</p>
                        </div>
                     )}
                   </div>
 
                   {/* Right: Actions */}
-                  <div className="lg:w-80 bg-slate-50 dark:bg-slate-800/40 border-t lg:border-t-0 lg:border-l border-slate-100 dark:border-slate-800 p-8 flex flex-col justify-center">
+                  <div className="lg:w-96 bg-slate-50 border-t lg:border-t-0 lg:border-l border-slate-100 p-10 flex flex-col justify-center">
                     {!isResolved ? (
-                      <div className="space-y-4">
+                      <div className="space-y-6">
                         {isPending ? (
-                          <div className="flex flex-col gap-3">
+                          <div className="flex flex-col gap-4">
                              <button
                                onClick={() => handleStatusUpdate(r._id, "accept")}
                                disabled={submitting === r._id}
-                               className="flex w-full items-center justify-center gap-2 rounded-2xl bg-mozhi-primary py-4 text-xs font-black text-white uppercase tracking-widest shadow-lg shadow-mozhi-primary/20 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 transition-all"
+                               className="flex w-full items-center justify-center gap-3 rounded-[1.5rem] bg-slate-900 py-5 text-xs font-bold text-white shadow-2xl transition-all hover:bg-emerald-600 active:scale-95 disabled:opacity-50"
                              >
-                                <CheckCircle className="h-4 w-4" />
+                                <CheckCircle className="h-5 w-5" />
                                 Accept Request
                              </button>
                              <button
                                onClick={() => handleStatusUpdate(r._id, "decline")}
                                disabled={submitting === r._id}
-                               className="flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-slate-200 dark:border-slate-700 py-4 text-xs font-black text-slate-500 uppercase tracking-widest hover:bg-red-50 hover:text-red-500 hover:border-red-100 transition-all"
+                               className="flex w-full items-center justify-center gap-3 rounded-[1.5rem] bg-white border border-slate-200 py-5 text-xs font-bold text-slate-400 transition-all hover:bg-red-50 hover:text-red-600 hover:border-red-200 active:scale-95 shadow-sm"
                              >
-                                <Ban className="h-4 w-4" />
+                                <Ban className="h-5 w-5" />
                                 Decline
                              </button>
-                             <p className="text-[10px] text-center text-slate-400 font-bold px-2">Accepting will allow you to send a personalized reply.</p>
+                             <p className="text-[11px] text-center text-slate-400 font-medium px-4 leading-relaxed">Accepting the session will notify the student and allow you to submit your response.</p>
                           </div>
                         ) : (
-                          <div className="space-y-4 animate-in zoom-in-95 duration-300">
+                          <div className="space-y-5 animate-in zoom-in-95 duration-300">
                             <textarea
-                              rows={4}
+                              rows={5}
                               value={replies[r._id] ?? ""}
                               onChange={(e) => setReplies((prev) => ({ ...prev, [r._id]: e.target.value }))}
-                              placeholder="Craft your response to the student..."
-                              className="w-full resize-none rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-4 text-sm font-medium focus:ring-2 focus:ring-mozhi-primary/20 focus:outline-none transition-all"
+                              placeholder="Craft your expert response..."
+                              className="w-full resize-none rounded-[1.5rem] border border-slate-200 bg-white p-6 text-sm font-medium focus:ring-4 focus:ring-primary/5 focus:outline-none transition-all shadow-xl shadow-slate-200/20"
                             />
                             <button
                               onClick={() => handleReply(r._id)}
                               disabled={submitting === r._id || !replies[r._id]?.trim()}
-                              className="flex w-full items-center justify-center gap-2 rounded-2xl bg-slate-900 py-4 text-xs font-black text-white uppercase tracking-widest shadow-xl hover:bg-slate-800 disabled:opacity-50 transition-all"
+                              className="flex w-full items-center justify-center gap-3 rounded-[1.5rem] bg-primary py-5 text-sm font-bold text-white shadow-xl shadow-primary/20 hover:bg-slate-900 disabled:opacity-50 transition-all active:scale-95"
                             >
-                               {submitting === r._id ? <Loader2 className="h-4 w-4 animate-spin" /> : <MessageSquare className="h-4 w-4" />}
-                               Submit Response
+                               {submitting === r._id ? <Loader2 className="h-5 w-5 animate-spin" /> : <Send className="h-5 w-5" />}
+                               Submit Interaction
                             </button>
-                             <p className="text-[10px] text-center text-slate-400 font-bold px-2">Fulfilling this request will credit {r.priceCredits} XP points to your balance.</p>
+                             <p className="text-[11px] text-center text-slate-400 font-medium px-4 leading-relaxed">Completing this interaction will credit <strong>{r.priceCredits} XP</strong> to your balance.</p>
                           </div>
                         )}
                       </div>
                     ) : (
-                      <div className="flex flex-col items-center justify-center text-center p-4">
-                        <div className="h-12 w-12 rounded-full bg-emerald-50 dark:bg-emerald-950/30 flex items-center justify-center mb-4">
-                           <CheckCircle2 className="h-6 w-6 text-emerald-500" />
+                      <div className="flex flex-col items-center justify-center text-center py-10">
+                        <div className="h-16 w-16 rounded-[2rem] bg-emerald-50 border border-emerald-100 flex items-center justify-center mb-6 shadow-inner">
+                           <CheckCircle2 className="h-8 w-8 text-emerald-500" />
                         </div>
-                        <h4 className="text-sm font-black text-slate-900 dark:text-white uppercase">Request Fulfilled</h4>
-                        <p className="text-[10px] font-bold text-slate-400 mt-1 uppercase">Earned {r.priceCredits} XP</p>
+                        <h4 className="text-lg font-bold text-slate-900">Request Resolved</h4>
+                        <p className="text-xs font-bold text-emerald-600 mt-2 uppercase tracking-widest">Earned {r.priceCredits} XP Credits</p>
                       </div>
                     )}
                   </div>

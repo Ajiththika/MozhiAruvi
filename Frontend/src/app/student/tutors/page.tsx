@@ -1,15 +1,16 @@
 "use client";
 
 import React, { useEffect, useState, useMemo } from "react";
-import { Search, Loader2, AlertCircle, GraduationCap, Wifi, Layers } from "lucide-react";
+import { Search, Loader2, AlertCircle, GraduationCap, Wifi, Layers, Video } from "lucide-react";
 import { TutorCard } from "@/components/student/TutorCard";
 import { getAvailableTutors, Tutor } from "@/services/tutorService";
 import { cn } from "@/lib/utils";
+import Button from "@/components/common/Button";
+import { Pagination } from "@/components/Pagination";
 
 type LevelFilter = "all" | "beginner" | "intermediate" | "advanced";
 type ModeFilter  = "all" | "online" | "offline" | "both";
 
-import { Pagination } from "@/components/Pagination";
 
 export default function StudentTutorsDirectory() {
   const [tutors, setTutors]     = useState<Tutor[]>([]);
@@ -65,50 +66,69 @@ export default function StudentTutorsDirectory() {
   ];
 
   return (
-    <div className="space-y-8 animate-in fade-in zoom-in-95 duration-500 pb-16">
-      {/* Page header */}
-      <div>
-        <h2 className="text-2xl font-bold tracking-tight text-slate-800 flex items-center gap-2">
-          <GraduationCap className="h-6 w-6 text-mozhi-secondary" /> Find Your Tamil Tutor
-        </h2>
-        <p className="mt-1 text-slate-500 font-medium">
-          Browse certified teachers, check availability, and send a session request — all from here.
-        </p>
+    <div className="space-y-12 animate-in fade-in zoom-in-95 duration-700 pb-16">
+      
+      {/* --- 1. Premium Page Header --- */}
+      <div className="relative overflow-hidden rounded-[3rem] bg-white border border-slate-100 p-8 md:p-14 shadow-2xl shadow-slate-200/20">
+        <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-primary/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+        <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-secondary/5 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
+        
+        <div className="relative z-10 max-w-3xl space-y-6">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/5 border border-primary/10 text-[10px] font-black text-primary uppercase tracking-[0.2em]">
+            <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+            Verified Native Tutors
+          </div>
+          <h2 className="text-4xl md:text-5xl font-black text-slate-900 tracking-tight leading-tight">
+            Learn Tamil with <br/> 
+            <span className="text-primary italic">Expert Guidance.</span>
+          </h2>
+          <p className="text-lg text-slate-600 font-medium leading-relaxed max-w-xl">
+            Connect with native speakers and certified professionals. Filter by specialization, level, or teaching mode to find your perfect learning partner.
+          </p>
+        </div>
       </div>
 
-      {/* Search + Filter bar */}
-      <div className="flex flex-col gap-3">
-        <div className="relative">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
-          <input
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search by name, specialty, or keywords…"
-            className="w-full rounded-2xl border border-slate-200 bg-white py-3.5 pl-12 pr-4 text-sm font-medium outline-none transition-all placeholder:text-slate-400 focus:border-mozhi-primary focus:ring-4 focus:ring-mozhi-primary/10 shadow-sm"
-          />
+      {/* --- 2. Enhanced Filter & Search Bar --- */}
+      <div className="space-y-8">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-6 border-b border-slate-100">
+           <div className="relative w-full lg:max-w-md">
+             <Search className="absolute left-5 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
+             <input
+               type="text"
+               value={search}
+               onChange={(e) => setSearch(e.target.value)}
+               placeholder="Search by name, skill, or language…"
+               className="w-full rounded-[2rem] border border-slate-100 bg-white py-4 pl-14 pr-6 text-sm font-semibold text-slate-700 outline-none transition-all placeholder:text-slate-400 focus:border-primary focus:ring-4 focus:ring-primary/5 shadow-xl shadow-slate-200/20"
+             />
+           </div>
+
+           <div className="flex flex-wrap items-center gap-4">
+              <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest hidden sm:inline">Filter by:</span>
+              <div className="flex flex-wrap gap-2">
+                {levelOpts.map(opt => (
+                  <button key={opt.value} onClick={() => setLevel(opt.value)}
+                    className={cn(
+                      "rounded-xl border px-5 py-2.5 text-[11px] font-black uppercase tracking-widest transition-all",
+                      level === opt.value
+                        ? "border-primary bg-primary text-white shadow-lg shadow-primary/20"
+                        : "border-slate-100 bg-white text-slate-500 hover:border-primary/30 hover:bg-slate-50"
+                    )}>
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+           </div>
         </div>
 
-        <div className="flex flex-wrap gap-2">
-          {levelOpts.map(opt => (
-            <button key={opt.value} onClick={() => setLevel(opt.value)}
-              className={cn(
-                "rounded-full border px-4 py-2 text-xs font-bold transition-all",
-                level === opt.value
-                  ? "border-mozhi-primary bg-mozhi-primary text-white shadow-lg shadow-mozhi-primary/20"
-                  : "border-slate-200 bg-white text-slate-600 hover:border-mozhi-primary/50 hover:bg-slate-50"
-              )}>
-              {opt.label}
-            </button>
-          ))}
-          <div className="w-px bg-slate-200 mx-2 self-stretch" />
+        <div className="flex flex-wrap items-center gap-3">
+          <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Teaching Mode:</span>
           {modeOpts.map(opt => (
             <button key={opt.value} onClick={() => setMode(opt.value)}
               className={cn(
-                "flex items-center gap-1.5 rounded-full border px-4 py-2 text-xs font-bold transition-all",
+                "flex items-center gap-2 rounded-xl border px-5 py-2.5 text-[11px] font-black uppercase tracking-widest transition-all",
                 mode === opt.value
-                  ? "border-sky-500 bg-sky-500 text-white shadow-lg shadow-sky-500/20"
-                  : "border-slate-200 bg-white text-slate-600 hover:border-sky-500/50 hover:bg-slate-50"
+                  ? "border-secondary bg-secondary text-white shadow-lg shadow-secondary/20"
+                  : "border-slate-100 bg-white text-slate-500 hover:border-secondary/30 hover:bg-slate-50"
               )}>
               {opt.icon}{opt.label}
             </button>
@@ -116,50 +136,60 @@ export default function StudentTutorsDirectory() {
         </div>
       </div>
 
-      {/* States */}
-      {loading ? (
-        <div className="flex flex-col items-center justify-center py-24 gap-4">
-          <Loader2 className="h-10 w-10 animate-spin text-mozhi-primary" />
-          <p className="text-sm font-bold text-slate-500">Finding available tutors…</p>
-        </div>
-      ) : error ? (
-        <div className="flex items-center gap-3 rounded-2xl border border-red-200 bg-red-100 px-4 py-4 text-sm text-red-700 font-bold">
-          <AlertCircle className="h-5 w-5 shrink-0" /> {error}
-        </div>
-      ) : (
-        <>
-          {tutors.length === 0 ? (
-            <div className="py-24 text-center">
-              <div className="h-20 w-20 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                <GraduationCap className="h-10 w-10 text-slate-300" />
-              </div>
-              <h3 className="text-lg font-bold text-slate-800 mb-2">No tutors found</h3>
-              <p className="text-slate-500 max-w-sm mx-auto">
-                {search ? <>We couldn't find any tutors matching <strong>"{search}"</strong>. Try adjusting your filters.</> : "No tutors available right now. Check back soon!"}
-              </p>
+      {/* --- 3. Results Section --- */}
+      <div className="min-h-[400px]">
+        {loading ? (
+          <div className="flex flex-col items-center justify-center py-32 gap-6">
+            <div className="h-12 w-12 border-4 border-primary border-t-transparent rounded-full animate-spin shadow-xl ring-4 ring-primary/5" />
+            <p className="text-sm font-bold text-slate-400 uppercase tracking-widest animate-pulse">Syncing with our global network…</p>
+          </div>
+        ) : error ? (
+          <div className="flex items-center justify-between rounded-3xl border border-red-100 bg-red-50/50 px-8 py-6 text-sm text-red-600 font-bold">
+            <div className="flex items-center gap-4">
+               <AlertCircle className="h-6 w-6 shrink-0" /> 
+               <span>{error}</span>
             </div>
-          ) : (
-            <div className="space-y-10">
-              <div className="flex items-center justify-between border-b border-slate-100 pb-4">
-                <p className="text-sm font-bold text-slate-500">
-                   Showing total {totalTutors} native Tamil tutors
+            <button onClick={() => loadTutors(1)} className="text-xs underline uppercase tracking-widest">Retry</button>
+          </div>
+        ) : (
+          <>
+            {tutors.length === 0 ? (
+              <div className="py-24 text-center bg-white rounded-[3rem] border border-dashed border-slate-200">
+                <div className="h-24 w-24 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-8">
+                  <GraduationCap className="h-12 w-12 text-slate-200" />
+                </div>
+                <h3 className="text-2xl font-black text-slate-800 mb-3 uppercase tracking-tight">No teachers found</h3>
+                <p className="text-slate-500 max-w-sm mx-auto font-medium">
+                  {search ? <>We couldn't find matches for <strong>"{search}"</strong>. Try broadening your criteria.</> : "Expand your search filters to find more tutors."}
                 </p>
+                <Button onClick={() => {setSearch(""); setLevel("all"); setMode("all");}} variant="secondary" className="mt-8 px-10">Clear all filters</Button>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
-                {tutors.map((tutor) => (
-                  <TutorCard key={tutor._id} tutor={tutor} />
-                ))}
+            ) : (
+              <div className="space-y-12">
+                <div className="flex items-center justify-between">
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] px-2">
+                     Explored {totalTutors} native Tamil experts
+                  </p>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-10">
+                  {tutors.map((tutor) => (
+                    <TutorCard key={tutor._id} tutor={tutor} />
+                  ))}
+                </div>
+                
+                <div className="pt-12 border-t border-slate-100">
+                  <Pagination 
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={setCurrentPage}
+                  />
+                </div>
               </div>
-              
-              <Pagination 
-                currentPage={currentPage}
-                totalPages={totalPages}
-                onPageChange={setCurrentPage}
-              />
-            </div>
-          )}
-        </>
-      )}
+            )}
+          </>
+        )}
+      </div>
     </div>
   );
 }

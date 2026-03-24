@@ -56,15 +56,15 @@ export default function TutorDashboard() {
 
   return (
     <div className="mx-auto max-w-6xl space-y-10 animate-in fade-in slide-in-from-bottom-2 duration-500 pb-20">
-      <div className="mb-0 flex flex-col md:flex-row md:items-end md:justify-between gap-6 border-b border-gray-100 pb-8">
-        <div className="space-y-4">
+      <div className="mb-0 flex flex-col md:flex-row md:items-end md:justify-between gap-10 border-b border-slate-100 pb-12">
+        <div className="space-y-6">
            <div className="flex items-center gap-2">
-              <span className="h-1.5 w-8 rounded-full bg-secondary" />
-               <span className="text-xs font-bold text-secondary tracking-tight">Tutor portal</span>
+              <span className="h-1.5 w-10 rounded-full bg-secondary" />
+               <span className="text-[10px] font-bold text-secondary uppercase tracking-[0.2em]">Tutor Operations</span>
            </div>
-           <h1 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight leading-tight">Hello, {user?.name?.split(" ")[0]}!</h1>
-           <p className="text-base text-slate-700 font-medium leading-relaxed max-w-xl">
-             You have <span className="text-primary font-bold">{activeRequests} student requests</span> waiting for your expert guidance today.
+           <h1 className="text-4xl md:text-5xl font-bold text-slate-900 tracking-tight">Welcome, {user?.name?.split(" ")[0]}</h1>
+           <p className="text-lg text-slate-600 font-medium leading-relaxed max-w-xl">
+             You have <span className="text-primary font-bold">{activeRequests} active requests</span> awaiting your expert guidance today.
            </p>
         </div>
 
@@ -73,14 +73,14 @@ export default function TutorDashboard() {
           onClick={handleAvailabilityToggle}
           disabled={toggling}
           className={cn(
-            "flex items-center gap-3 rounded-xl border px-5 py-3 text-xs font-semibold shadow-sm transition-all",
+            "flex items-center gap-4 rounded-2xl border-2 px-8 py-4 text-xs font-bold transition-all shadow-xl shadow-slate-200/20 active:scale-95",
             isAvailable
-              ? "border-success/20 bg-success/10 text-success"
-              : "border-gray-200 bg-white text-slate-500"
+              ? "border-emerald-100 bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
+              : "border-slate-100 bg-white text-slate-500 hover:border-primary/20"
           )}
         >
-          {isAvailable ? <ToggleRight className="h-4 w-4" /> : <ToggleLeft className="h-4 w-4" />}
-          {isAvailable ? "Student Facing: ON" : "Student Facing: OFF"}
+          {isAvailable ? <ToggleRight className="h-5 w-5" /> : <ToggleLeft className="h-5 w-5" />}
+          {isAvailable ? "Status: Accepting Students" : "Status: Away"}
         </button>
       </div>
 
@@ -124,33 +124,38 @@ export default function TutorDashboard() {
 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
         {/* Quick actions */}
-        <div className="lg:col-span-8 flex flex-col rounded-3xl border border-gray-100 bg-white p-8 md:p-10 shadow-sm transition-all hover:shadow-xl">
-          <div className="space-y-6">
-            <h3 className="text-xs font-bold text-slate-500 tracking-[0.2em] uppercase">Operations Center</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <div className="lg:col-span-8 flex flex-col rounded-[3rem] bg-white border border-slate-100 p-10 md:p-14 shadow-2xl shadow-slate-200/20">
+          <div className="space-y-10">
+            <h3 className="text-xl font-bold text-slate-900 flex items-center gap-3">
+               <Layers className="h-6 w-6 text-primary" /> Operations Center
+            </h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
               {[
-                { label: "Manage Requests", desc: `${activeRequests} pending`, href: "/tutor/questions", icon: MessageSquare },
-                { label: "Teaching Schedule", desc: "Weekly availability", href: "/tutor/schedule", icon: Video },
-                { label: "Community Events", desc: "Live group calls", href: "/tutor/events", icon: Layers },
-                { label: "Public Profile", desc: "Showcase bio", href: "/tutor/profile", icon: Users },
+                { label: "Manage Requests", desc: `${activeRequests} pending now`, href: "/tutor/questions", icon: MessageSquare, color: "primary" },
+                { label: "Schedule Slots", desc: "Set weekly availability", href: "/tutor/schedule", icon: Video, color: "secondary" },
+                { label: "Community Events", desc: "Manage your live calls", href: "/tutor/events", icon: Video, color: "primary" },
+                { label: "Public Profile", desc: "Update your teaching bio", href: "/tutor/profile", icon: Users, color: "secondary" },
               ].map((action) => {
                 const Icon = action.icon;
                 return (
                 <Link
                   key={action.href}
                   href={action.href}
-                  className="group flex items-center justify-between rounded-3xl border border-gray-100 p-6 transition-all hover:bg-slate-50 hover:border-primary/20"
+                  className="group flex items-center justify-between rounded-[2.5rem] border border-slate-50 bg-white p-8 transition-all hover:bg-slate-50 hover:border-slate-200 shadow-xl shadow-slate-200/20"
                 >
-                  <div className="flex items-center gap-5">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-light/30 text-primary transition-colors group-hover:bg-primary group-hover:text-white">
-                       <Icon className="h-6 w-6" />
+                  <div className="flex items-center gap-6">
+                    <div className={cn(
+                      "flex h-16 w-16 items-center justify-center rounded-2xl transition-all group-hover:scale-110 duration-500",
+                      action.color === 'primary' ? 'bg-primary/5 text-primary border border-primary/10' : 'bg-secondary/5 text-secondary border border-secondary/10'
+                    )}>
+                       <Icon className="h-8 w-8" />
                     </div>
                     <div>
-                      <h4 className="font-bold text-slate-900 text-base tracking-tight">{action.label}</h4>
-                      <p className="text-sm text-slate-600 mt-1 font-medium">{action.desc}</p>
+                      <h4 className="font-bold text-slate-900 text-lg tracking-tight">{action.label}</h4>
+                      <p className="text-sm text-slate-500 mt-1 font-medium">{action.desc}</p>
                     </div>
                   </div>
-                  <ArrowRight className="h-5 w-5 text-slate-300 group-hover:text-primary group-hover:translate-x-1 transition-all" />
+                  <ArrowRight className="h-6 w-6 text-slate-200 group-hover:text-primary group-hover:translate-x-2 transition-all duration-300" />
                 </Link>
               )})}
             </div>
@@ -158,45 +163,48 @@ export default function TutorDashboard() {
         </div>
 
         {/* Inbox Preview */}
-        <div className="lg:col-span-4 flex flex-col rounded-2xl border border-gray-100 bg-white p-8 shadow-sm">
-          <div className="flex items-center justify-between mb-8">
-            <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-widest">Live Inbox</h3>
+        <div className="lg:col-span-4 flex flex-col rounded-[3rem] bg-white border border-slate-100 p-10 shadow-2xl shadow-slate-200/20">
+          <div className="flex items-center justify-between mb-10">
+            <h3 className="text-lg font-bold text-slate-900">Live Inbox</h3>
             {activeRequests > 0 && (
-              <span className="inline-flex h-6 px-2 items-center justify-center rounded-full bg-error/10 text-[10px] font-semibold text-error">
+              <span className="inline-flex h-8 px-4 items-center justify-center rounded-full bg-primary/10 text-[10px] font-black text-primary uppercase tracking-widest border border-primary/10">
                 {activeRequests} New
               </span>
             )}
           </div>
 
           {activeRequests === 0 ? (
-            <div className="flex flex-1 flex-col items-center justify-center rounded-2xl border border-dashed border-gray-100 p-8 text-center">
-               <CheckCircle2 className="h-10 w-10 text-gray-200 mb-4" />
-               <p className="text-xs font-semibold text-slate-400">Everything resolved</p>
+            <div className="flex flex-1 flex-col items-center justify-center rounded-[2.5rem] border border-dashed border-slate-200 p-10 text-center space-y-4">
+               <div className="h-16 w-16 rounded-full bg-slate-50 flex items-center justify-center border border-slate-100 shadow-inner">
+                  <CheckCircle2 className="h-8 w-8 text-slate-200" />
+               </div>
+               <p className="text-sm font-bold text-slate-400">Everything resolved for now.</p>
             </div>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-6">
               {pendingQs.slice(0, 3).map((q) => (
-                <div key={q._id} className="flex flex-col gap-3 rounded-2xl border border-gray-100 p-5 hover:bg-slate-50 transition-colors">
-                   <div className="flex items-center gap-2">
-                       <span className={cn(
-                           "text-[10px] font-semibold px-2 py-0.5 rounded-md",
-                           q.requestType === 'question' ? 'bg-primary/10 text-primary' : 'bg-success/10 text-success'
-                       )}>
-                           {q.requestType || 'Request'}
-                       </span>
-                       <span className="text-xs text-slate-400 font-medium">{new Date(q.createdAt).toLocaleDateString()}</span>
+                <div key={q._id} className="flex flex-col gap-4 rounded-[2rem] border border-slate-50 bg-slate-50/50 p-6 hover:bg-white hover:border-primary/20 transition-all duration-300 shadow-sm hover:shadow-xl">
+                   <div className="flex items-center justify-between">
+                       <div className={cn(
+                            "text-[10px] font-black px-3 py-1 rounded-lg uppercase tracking-widest",
+                            q.requestType === 'question' ? 'bg-blue-50 text-blue-600' : 'bg-emerald-50 text-emerald-600'
+                        )}>
+                            {q.requestType || 'Request'}
+                       </div>
+                       <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{new Date(q.createdAt).toLocaleDateString()}</span>
                    </div>
-                  <p className="text-xs font-semibold text-slate-900 line-clamp-2">
+                  <p className="text-sm font-semibold text-slate-800 line-clamp-2 leading-relaxed">
                     "{q.content}"
                   </p>
-                  <Link href="/tutor/questions" className="text-xs font-semibold text-primary hover:text-secondary flex items-center gap-1">
-                    Quick Reply <ArrowRight className="h-3 w-3" />
+                  <Link href="/tutor/questions" className="text-xs font-bold text-primary flex items-center gap-2 group/reply">
+                    <span>Attend to student</span> 
+                    <ArrowRight className="h-4 w-4 group-hover/reply:translate-x-1 transition-transform" />
                   </Link>
                 </div>
               ))}
               {activeRequests > 3 && (
-                <Link href="/tutor/questions" className="block text-center text-xs font-medium text-slate-400 hover:text-primary mt-4">
-                   +{activeRequests - 3} more requests
+                <Link href="/tutor/questions" className="block text-center text-xs font-bold text-slate-400 hover:text-primary mt-6 tracking-widest uppercase py-4 rounded-2xl border border-dashed border-slate-200 hover:border-primary/20 transition-all">
+                   +{activeRequests - 3} more interactions
                 </Link>
               )}
             </div>

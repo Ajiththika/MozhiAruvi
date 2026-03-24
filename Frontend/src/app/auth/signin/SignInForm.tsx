@@ -2,20 +2,32 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { AuthInput, SocialLogin } from '../shared';
 import { login } from '@/services/authService';
 import { getRoleDashboardRoute } from '@/lib/roleUtils';
 import { isAxiosError } from 'axios';
 import { useAuth } from '@/context/AuthContext';
+import { useEffect } from 'react';
 
 export default function SignInForm() {
   const router = useRouter();
-  const { setUser } = useAuth();
+  const searchParams = useSearchParams();
+  const { user, setUser } = useAuth();
+  
+  const redirectParam = searchParams.get('redirect');
+  
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    // IF user already logged in: redirect to "/"
+    if (user) {
+      router.push('/');
+    }
+  }, [user, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,7 +37,13 @@ export default function SignInForm() {
     try {
       const res = await login({ email, password });
       setUser(res.user);
-      router.push(getRoleDashboardRoute(res.user.role));
+      
+      // After login success: Check for "redirect" query param
+      if (redirectParam) {
+        router.push(redirectParam);
+      } else {
+        router.push(getRoleDashboardRoute(res.user.role));
+      }
     } catch (err) {
       if (isAxiosError(err)) {
         if (!err.response) {

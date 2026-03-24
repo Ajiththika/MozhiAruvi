@@ -38,12 +38,32 @@ export default function Navbar() {
           </div>
           
           <div className="hidden md:flex items-center space-x-8">
-            <Link href="/student/lessons" className="text-slate-500 hover:text-primary transition-colors font-semibold text-sm">
+            <button
+              onClick={() => {
+                const target = "/student/lessons";
+                if (!user) {
+                  router.push(`/auth/signin?redirect=${encodeURIComponent(target)}`);
+                } else {
+                  router.push(target);
+                }
+              }}
+              className="text-slate-500 hover:text-primary transition-colors font-semibold text-sm"
+            >
               Lessons
-            </Link>
-             <Link href="/student/tutors" className="text-slate-500 hover:text-primary transition-colors font-semibold text-sm">
-               Tutors
-             </Link>
+            </button>
+            <button
+              onClick={() => {
+                const target = "/student/tutors";
+                if (!user) {
+                  router.push(`/auth/signin?redirect=${encodeURIComponent(target)}`);
+                } else {
+                  router.push(target);
+                }
+              }}
+              className="text-slate-500 hover:text-primary transition-colors font-semibold text-sm"
+            >
+              Tutors
+            </button>
             <Link href="/events" className="text-slate-500 hover:text-primary transition-colors font-semibold text-sm">
               Events
             </Link>

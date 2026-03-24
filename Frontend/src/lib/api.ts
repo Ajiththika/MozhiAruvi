@@ -30,39 +30,45 @@ api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   return config;
 });
 
+// ── Dedicated client for token refresh (no interceptors, avoids ∞ loop) ──────
+const refreshClient = axios.create({
+  baseURL: process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5000/api",
+  withCredentials: true,
+  headers: { "Content-Type": "application/json" },
+});
+
 // ── 3. Response interceptor ──────────────────────────────────────────────
 
 api.interceptors.response.use(
   (response) => response,
-  (error: AxiosError) => {
+  async (error: AxiosError) => {
     const originalRequest = error.config as any;
 
     // Only attempt refresh if it's a 401, not already retrying, and not a login/logout/refresh request
     if (
-      error.response?.status === 401 && 
-      !originalRequest._retry && 
+      error.response?.status === 401 &&
+      !originalRequest._retry &&
       !originalRequest.url?.includes("/auth/login") &&
-      !originalRequest.url?.includes("/auth/refresh")
+      !originalRequest.url?.includes("/auth/refresh") &&
+      !originalRequest.url?.includes("/auth/logout")
     ) {
       originalRequest._retry = true;
-      return axios
-        .post<{ accessToken: string }>(
-          `${api.defaults.baseURL}/auth/refresh`,
-          {},
-          { withCredentials: true }
-        )
-        .then((res) => {
-          const newToken = res.data.accessToken;
-          authStore.set(newToken);
-          if (originalRequest.headers) {
-            originalRequest.headers.Authorization = `Bearer ${newToken}`;
-          }
-          return api(originalRequest);
-        })
-        .catch((refreshError) => {
-          authStore.clear();
-          return Promise.reject(refreshError);
-        });
+      try {
+        const res = await refreshClient.post<{ accessToken: string }>(
+          "/auth/refresh",
+          {}
+        );
+        const newToken = res.data.accessToken;
+        authStore.set(newToken);
+        if (originalRequest.headers) {
+          originalRequest.headers.Authorization = `Bearer ${newToken}`;
+        }
+        return api(originalRequest);
+      } catch (refreshError) {
+        // Refresh failed — session truly expired or invalid; clear local state
+        authStore.clear();
+        return Promise.reject(refreshError);
+      }
     }
 
     return Promise.reject(error);
