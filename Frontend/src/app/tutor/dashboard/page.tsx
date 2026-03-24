@@ -6,7 +6,7 @@ import { Users, MessageSquare, Star, ToggleRight, ToggleLeft, Loader2, AlertCirc
 import Link from "next/link";
 import { getMe, SafeUser } from "@/services/authService";
 import { getPendingRequests, TutorRequest, updateTutorAvailability } from "@/services/tutorService";
-import { getEvents, MozhiEvent } from "@/services/eventService";
+import { getMyEvents, MozhiEvent } from "@/services/eventService";
 import { cn } from "@/lib/utils";
 import Button from "@/components/common/Button";
 
@@ -20,12 +20,13 @@ export default function TutorDashboard() {
   const [isAvailable, setIsAvailable] = useState(false);
 
   useEffect(() => {
-    Promise.all([getMe(), getPendingRequests(), getEvents()])
-      .then(([u, qs, evRes]) => {
+    const today = new Date().toISOString().split('T')[0];
+    Promise.all([getMe(), getPendingRequests(), getMyEvents()])
+      .then(([u, qs, evs]) => {
         setUser(u);
         setIsAvailable(u.isTutorAvailable ?? false);
         setPendingQs(qs.filter((q) => q.status === "pending" || q.status === "accepted"));
-        setEvents(evRes.events);
+        setEvents(evs.filter(e => e.date >= today));
       })
       .catch(() => setError("Could not load dashboard data."))
       .finally(() => setLoading(false));

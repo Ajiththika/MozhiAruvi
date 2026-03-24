@@ -162,16 +162,64 @@ export async function resolveRequest(teacherId, requestId, responseText) {
         const err = new Error('Request not found or unauthorized'); err.status = 404; err.code = 'NOT_FOUND'; throw err;
     }
 
-    // Allow replying to pending or accepted requests
-    if (request.status === 'resolved' || request.status === 'declined') {
-        const err = new Error('Cannot reply to a finalized request'); err.status = 400; err.code = 'INVALID_STATE'; throw err;
+    // Status transition: allow replying to pending or accepted
+    if (request.status === 'declined') {
+        const err = new Error('Cannot reply to a declined request'); err.status = 400; err.code = 'INVALID_STATE'; throw err;
     }
 
-    request.status = 'replied'; // or 'resolved' if it's the final answer
-    request.teacherReply = responseText;
+    const wasPending = request.status === 'pending' || request.status === 'accepted';
+    
+    // Add to thread
+    request.messages.push({
+        senderRole: 'teacher',
+        content: responseText,
+        createdAt: new Date()
+    });
 
-    // Distribute paid credits to tutor's balance if not already done
-    await User.findByIdAndUpdate(teacherId, { $inc: { credits: request.priceCredits } });
+    request.status = 'replied'; 
+    request.teacherReply = responseText; // Legacy compatibility
+
+    // Distribute paid credits to tutor's balance ONLY ONCE (first reply)
+    if (wasPending) {
+        await User.findByIdAndUpdate(teacherId, { $inc: { credits: request.priceCredits } });
+    }
+
+    await request.save();
+    return request;
+}
+
+/** 
+ * Generic message addition for continuation of the doubt-solving flow
+ */
+export async function addRequestMessage(userId, requestId, content, role) {
+    const request = await TutorRequest.findById(requestId);
+    if (!request) {
+        const err = new Error('Request not found'); err.status = 404; throw err;
+    }
+
+    // Role check
+    const isStudent = request.studentId.toString() === userId.toString();
+    const isTeacher = request.teacherId.toString() === userId.toString();
+    
+    if (role === 'student' && !isStudent) {
+        const err = new Error('Unauthorized'); err.status = 403; throw err;
+    }
+    if (role === 'teacher' && !isTeacher) {
+        const err = new Error('Unauthorized'); err.status = 403; throw err;
+    }
+
+    request.messages.push({
+        senderRole: role,
+        content,
+        createdAt: new Date()
+    });
+
+    // Update status to alert the other party
+    if (role === 'student') {
+        request.status = 'pending'; // Needs teacher attention again
+    } else {
+        request.status = 'replied';
+    }
 
     await request.save();
     return request;

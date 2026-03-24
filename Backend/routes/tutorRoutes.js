@@ -73,6 +73,9 @@ router.patch('/requests/:id/accept', authenticate, requireRole('teacher'), tutor
 router.patch('/requests/:id/decline', authenticate, requireRole('teacher'), tutorController.declineRequest);
 router.patch('/requests/:id/resolve', authenticate, requireRole('teacher'), validate(respondTutorSchema), tutorController.resolveRequest);
 
+// Consolidated messaging for doubt-solving flow
+router.post('/requests/:id/message', authenticate, tutorController.addMessage);
+
 // Get specific tutor by ID ← dynamic route LAST
 router.get('/:id', authenticate, tutorController.getTutorById);
 

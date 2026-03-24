@@ -64,14 +64,13 @@ const updateEventSchema = z
 
 const joinRequestSchema = z
     .object({
-        fullName: z.string().trim().min(3, 'Full name must be at least 3 characters.'),
-        phoneNumber: z.string().trim().min(5, 'Phone number must be valid.'),
-        country: z.string().trim().min(2, 'Country is required.'),
-        age: z.number().min(1, 'Age is required.').max(120),
-        gender: z.enum(['male', 'female', 'other', 'prefer_not_to_say']),
+        fullName: z.string().trim().min(3, 'Full name must be at least 3 characters.').optional(),
+        phoneNumber: z.string().trim().min(5, 'Phone number must be valid.').optional(),
+        country: z.string().trim().min(2, 'Country is required.').optional(),
+        age: z.number().min(1, 'Age is required.').max(120).optional(),
+        gender: z.enum(['male', 'female', 'other', 'prefer_not_to_say']).optional(),
         message: z.string().trim().max(500, 'Message cannot exceed 500 characters.').optional(),
-    })
-    .strict();
+    });
 
 // ── Public / Authenticated Routes ─────────────────────────────────────────────
 
@@ -81,6 +80,9 @@ router.get('/', authenticateOptional, eventController.listEvents);
 // GET /api/events/my-requests — logged-in user's own join requests
 // NOTE: must be declared BEFORE /:id to avoid "my-requests" being treated as an id
 router.get('/my-requests', authenticate, eventController.getMyJoinRequests);
+
+// GET /api/events/my-events — tutor sees their own created events
+router.get('/my-events', authenticate, requireRole('teacher'), eventController.getMyEvents);
 
 // GET /api/events/:id — single event detail
 router.get('/:id', authenticateOptional, eventController.getEvent);

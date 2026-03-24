@@ -15,6 +15,7 @@ const EventStatusBadge = ({ isActive }: { isActive: boolean }) => {
 export default function AdminEventsPage() {
   const [events, setEvents] = useState<MozhiEvent[]>([]);
   const [loading, setLoading] = useState(true);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchEvents();
@@ -22,20 +23,21 @@ export default function AdminEventsPage() {
 
   const fetchEvents = () => {
     setLoading(true);
-    getEvents()
+    getEvents(1, 50)
       .then(res => setEvents(res.events))
       .catch(console.error)
       .finally(() => setLoading(false));
   };
 
   const handleDelete = async (id: string) => {
-    if (!window.confirm("Are you sure you want to delete this event?")) return;
+    setDeletingId(id);
     try {
       await deleteEvent(id);
-      fetchEvents();
+      setEvents(prev => prev.filter(e => e._id !== id));
     } catch (err) {
       console.error(err);
-      alert("Failed to delete event");
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -52,22 +54,23 @@ export default function AdminEventsPage() {
          </div>
       ),
     },
-    { header: "Host Tutor", accessorKey: "organizedBy", cell: (row) => <span className="text-sm font-medium text-slate-800 dark:text-slate-200">{row.organizedBy?.name || 'Unknown'}</span> },
+    { header: "Host Tutor", accessorKey: "createdBy", cell: (row) => <span className="text-sm font-medium text-slate-800 dark:text-slate-200">{(row as any).createdBy?.name || 'Unknown'}</span> },
     {
       header: "Schedule",
       accessorKey: "date",
       cell: (row) => (
          <div className="flex items-center gap-1.5 text-sm text-slate-600 dark:text-slate-300">
-            <CalendarIcon className="h-4 w-4" /> {row.date} {row.time}
+            <CalendarIcon className="h-4 w-4" />
+            {new Date(row.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })} {row.time}
          </div>
       )
     },
     {
       header: "Attendees",
-      accessorKey: "attendees",
+      accessorKey: "participantsCount",
       cell: (row) => (
          <div className="flex items-center gap-1.5 text-sm font-medium text-mozhi-primary dark:text-mozhi-secondary">
-            <Users className="h-4 w-4" /> {row.attendees?.length || 0} registered
+            <Users className="h-4 w-4" /> {(row as any).participantsCount ?? 0} / {row.capacity}
          </div>
       )
     },
@@ -78,9 +81,12 @@ export default function AdminEventsPage() {
       className: "text-right",
       cell: (row) => (
          <div className="flex justify-end gap-2">
-            <button className="text-sm font-semibold text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 transition">Inspect</button>
-            <button onClick={() => handleDelete(row._id)} className="text-sm font-semibold text-red-600 hover:text-red-500 dark:text-red-500 transition ml-2 inline-flex items-center gap-1">
-               <Trash2 className="w-4 h-4" /> Cancel
+            <button
+              onClick={() => handleDelete(row._id)}
+              disabled={deletingId === row._id}
+              className="text-sm font-semibold text-red-600 hover:text-red-500 transition ml-2 inline-flex items-center gap-1 disabled:opacity-40"
+            >
+               <Trash2 className="w-4 h-4" /> {deletingId === row._id ? 'Deactivating...' : 'Deactivate'}
             </button>
          </div>
       )

@@ -8,11 +8,18 @@ export interface EventCardProps {
   type: "Workshop" | "Webinar" | "Meetup";
   date: string;
   time: string;
-  attendees: number;
-  maxAttendees: number;
+  /** Number of participants registered */
+  participantsCount?: number;
+  /** Alias for backward compat */
+  attendees?: number;
+  capacity: number;
+  /** Alias for backward compat */
+  maxAttendees?: number;
   hostName: string;
+  location?: string;
   image?: string;
   isJoined?: boolean;
+  isLoading?: boolean;
   onRsvp?: () => void;
 }
 
@@ -22,14 +29,20 @@ export function EventCard({
   type,
   date,
   time,
+  participantsCount,
   attendees,
+  capacity,
   maxAttendees,
   hostName,
+  location,
   image,
   isJoined = false,
+  isLoading = false,
   onRsvp,
 }: EventCardProps) {
-  const isFull = attendees >= maxAttendees;
+  const joined = participantsCount ?? attendees ?? 0;
+  const max = capacity ?? maxAttendees ?? 0;
+  const isFull = joined >= max;
 
   return (
     <div className="flex flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition-all hover:border-primary/20">
@@ -61,10 +74,10 @@ export function EventCard({
                <Clock className="h-4 w-4 text-success" /> <span>{time}</span>
             </div>
             <div className="flex items-center gap-2">
-               <Users className="h-4 w-4 text-warning" /> <span>{attendees} / {maxAttendees} joined</span>
+               <Users className="h-4 w-4 text-warning" /> <span>{joined} / {max} joined</span>
             </div>
             <div className="flex items-center gap-2">
-               <MapPin className="h-4 w-4 text-slate-400" /> <span>Hosted by {hostName}</span>
+               <MapPin className="h-4 w-4 text-slate-400" /> <span>{location ? location : `Hosted by ${hostName}`}</span>
             </div>
          </div>
 
@@ -75,15 +88,15 @@ export function EventCard({
                </button>
             ) : isFull ? (
                <button disabled className="w-full rounded-xl bg-slate-100 py-2.5 text-sm font-semibold text-slate-400">
-                  Waitlist Full
+                  Event Full
                </button>
             ) : (
                <button
                  onClick={onRsvp}
-                 disabled={!onRsvp}
+                 disabled={isLoading || !onRsvp}
                  className="flex w-full items-center justify-center rounded-xl bg-primary py-2.5 text-sm font-semibold text-white shadow-sm transition hover:scale-[1.02] active:scale-[0.98] disabled:opacity-60"
                >
-                  {!onRsvp ? "Joining..." : "RSVP"}
+                  {isLoading ? "Joining..." : "RSVP Now"}
                </button>
             )}
          </div>

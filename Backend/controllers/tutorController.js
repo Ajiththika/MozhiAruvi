@@ -80,3 +80,11 @@ export async function resolveRequest(req, res, next) {
         res.json({ message: 'Request resolved and response sent.', request });
     } catch (e) { next(e); }
 }
+
+export async function addMessage(req, res, next) {
+    try {
+        const { role, content } = req.body; // role: 'student' | 'teacher'
+        const request = await tutorService.addRequestMessage(req.user.sub, req.params.id, content, role);
+        res.json({ message: 'Message added.', request });
+    } catch (e) { next(e); }
+}

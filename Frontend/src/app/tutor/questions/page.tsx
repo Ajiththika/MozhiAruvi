@@ -175,13 +175,36 @@ export default function TeacherRequestsPage() {
                     </div>
 
                     <div className="relative rounded-[2rem] bg-slate-50 p-8 border border-slate-100 mb-8">
-                       <p className="text-lg font-medium text-slate-700 leading-relaxed italic">
+                       <p className="text-sm font-black text-primary uppercase tracking-[0.2em] mb-4">Initial Question</p>
+                       <p className="text-lg font-bold text-slate-700 leading-relaxed italic">
                          "{r.content}"
                        </p>
                     </div>
 
+                    {/* Threaded conversation */}
+                    {r.messages && r.messages.length > 0 && (
+                       <div className="space-y-6 mb-8">
+                          {r.messages.map((msg, idx) => (
+                             <div key={idx} className={cn(
+                                "p-6 rounded-2xl border transition-all animate-in slide-in-from-bottom-2",
+                                msg.senderRole === "teacher" 
+                                   ? "bg-primary/5 border-primary/10 ml-8" 
+                                   : "bg-white border-slate-100 mr-8 shadow-sm"
+                             )}>
+                                <div className="flex items-center gap-2 mb-3">
+                                   <User className={cn("h-3 w-3", msg.senderRole === "teacher" ? "text-primary" : "text-slate-400")} />
+                                   <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                                      {msg.senderRole === "teacher" ? "Your Response" : "Follow-up Question"}
+                                   </span>
+                                   <span className="text-[9px] text-slate-300 ml-auto">{new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                                </div>
+                                <p className="text-sm font-bold text-slate-700 leading-relaxed whitespace-pre-line">{msg.content}</p>
+                             </div>
+                          ))}
+                       </div>
+                    )}
                     {/* Metadata Section */}
-                    {r.metadata && Object.keys(r.metadata).length > 0 && (
+                    {r.metadata && (r.metadata.preferredTime || r.metadata.sessionsCount) && (
                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8 px-2">
                           {r.metadata.preferredTime && (
                              <div className="flex items-center gap-4 text-xs font-bold text-slate-500">
@@ -197,69 +220,55 @@ export default function TeacherRequestsPage() {
                           )}
                        </div>
                     )}
-
-                    {r.teacherReply && (
-                       <div className="mt-6 rounded-[2rem] bg-primary/5 border border-primary/10 p-8 animate-in slide-in-from-top-2 relative">
-                          <div className="absolute -top-3 left-8 bg-primary text-white px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest shadow-md">
-                             Sent Response
-                          </div>
-                          <p className="text-md font-bold text-slate-700 leading-relaxed whitespace-pre-line">{r.teacherReply}</p>
-                       </div>
-                    )}
                   </div>
 
                   {/* Right: Actions */}
                   <div className="lg:w-96 bg-slate-50 border-t lg:border-t-0 lg:border-l border-slate-100 p-10 flex flex-col justify-center">
-                    {!isResolved ? (
-                      <div className="space-y-6">
-                        {isPending ? (
-                          <div className="flex flex-col gap-4">
-                             <button
-                               onClick={() => handleStatusUpdate(r._id, "accept")}
-                               disabled={submitting === r._id}
-                               className="flex w-full items-center justify-center gap-3 rounded-[1.5rem] bg-slate-900 py-5 text-xs font-bold text-white shadow-2xl transition-all hover:bg-emerald-600 active:scale-95 disabled:opacity-50"
-                             >
-                                <CheckCircle className="h-5 w-5" />
-                                Accept Request
-                             </button>
-                             <button
-                               onClick={() => handleStatusUpdate(r._id, "decline")}
-                               disabled={submitting === r._id}
-                               className="flex w-full items-center justify-center gap-3 rounded-[1.5rem] bg-white border border-slate-200 py-5 text-xs font-bold text-slate-400 transition-all hover:bg-red-50 hover:text-red-600 hover:border-red-200 active:scale-95 shadow-sm"
-                             >
-                                <Ban className="h-5 w-5" />
-                                Decline
-                             </button>
-                             <p className="text-[11px] text-center text-slate-400 font-medium px-4 leading-relaxed">Accepting the session will notify the student and allow you to submit your response.</p>
-                          </div>
-                        ) : (
-                          <div className="space-y-5 animate-in zoom-in-95 duration-300">
-                            <textarea
-                              rows={5}
-                              value={replies[r._id] ?? ""}
-                              onChange={(e) => setReplies((prev) => ({ ...prev, [r._id]: e.target.value }))}
-                              placeholder="Craft your expert response..."
-                              className="w-full resize-none rounded-[1.5rem] border border-slate-200 bg-white p-6 text-sm font-medium focus:ring-4 focus:ring-primary/5 focus:outline-none transition-all shadow-xl shadow-slate-200/20"
-                            />
-                            <button
-                              onClick={() => handleReply(r._id)}
-                              disabled={submitting === r._id || !replies[r._id]?.trim()}
-                              className="flex w-full items-center justify-center gap-3 rounded-[1.5rem] bg-primary py-5 text-sm font-bold text-white shadow-xl shadow-primary/20 hover:bg-slate-900 disabled:opacity-50 transition-all active:scale-95"
-                            >
-                               {submitting === r._id ? <Loader2 className="h-5 w-5 animate-spin" /> : <Send className="h-5 w-5" />}
-                               Submit Interaction
-                            </button>
-                             <p className="text-[11px] text-center text-slate-400 font-medium px-4 leading-relaxed">Completing this interaction will credit <strong>{r.priceCredits} XP</strong> to your balance.</p>
-                          </div>
-                        )}
+                    {r.status === "declined" ? (
+                       <div className="flex flex-col items-center justify-center text-center py-10 opacity-50">
+                          <Ban className="h-8 w-8 text-slate-400 mb-4" />
+                          <h4 className="text-sm font-bold text-slate-500 uppercase tracking-widest">Declined</h4>
+                       </div>
+                    ) : r.status === "pending" ? (
+                      <div className="flex flex-col gap-4">
+                         <button
+                           onClick={() => handleStatusUpdate(r._id, "accept")}
+                           disabled={submitting === r._id}
+                           className="flex w-full items-center justify-center gap-3 rounded-[1.5rem] bg-slate-900 py-5 text-xs font-bold text-white shadow-2xl transition-all hover:bg-emerald-600 active:scale-95 disabled:opacity-50"
+                         >
+                            <CheckCircle className="h-5 w-5" />
+                            Accept Request
+                         </button>
+                         <button
+                           onClick={() => handleStatusUpdate(r._id, "decline")}
+                           disabled={submitting === r._id}
+                           className="flex w-full items-center justify-center gap-3 rounded-[1.5rem] bg-white border border-slate-200 py-5 text-xs font-bold text-slate-400 transition-all hover:bg-red-50 hover:text-red-600 hover:border-red-200 active:scale-95 shadow-sm"
+                         >
+                            <Ban className="h-5 w-5" />
+                            Decline
+                         </button>
+                         <p className="text-[11px] text-center text-slate-400 font-medium px-4 leading-relaxed">Accepting the session will notify the student and allow you to submit your response.</p>
                       </div>
                     ) : (
-                      <div className="flex flex-col items-center justify-center text-center py-10">
-                        <div className="h-16 w-16 rounded-[2rem] bg-emerald-50 border border-emerald-100 flex items-center justify-center mb-6 shadow-inner">
-                           <CheckCircle2 className="h-8 w-8 text-emerald-500" />
-                        </div>
-                        <h4 className="text-lg font-bold text-slate-900">Request Resolved</h4>
-                        <p className="text-xs font-bold text-emerald-600 mt-2 uppercase tracking-widest">Earned {r.priceCredits} XP Credits</p>
+                      <div className="space-y-5 animate-in zoom-in-95 duration-300">
+                        <textarea
+                          rows={4}
+                          value={replies[r._id] ?? ""}
+                          onChange={(e) => setReplies((prev) => ({ ...prev, [r._id]: e.target.value }))}
+                          placeholder={r.status === "replied" ? "Send a follow-up response..." : "Craft your expert response..."}
+                          className="w-full resize-none rounded-[1.5rem] border border-slate-200 bg-white p-6 text-sm font-medium focus:ring-4 focus:ring-primary/5 focus:outline-none transition-all shadow-xl shadow-slate-200/20"
+                        />
+                        <button
+                          onClick={() => handleReply(r._id)}
+                          disabled={submitting === r._id || !replies[r._id]?.trim()}
+                          className="flex w-full items-center justify-center gap-3 rounded-[1.5rem] bg-primary py-5 text-sm font-bold text-white shadow-xl shadow-primary/20 hover:bg-slate-900 disabled:opacity-50 transition-all active:scale-95"
+                        >
+                           {submitting === r._id ? <Loader2 className="h-5 w-5 animate-spin" /> : <Send className="h-5 w-5" />}
+                           {r.status === "replied" ? "Send Follow-up" : "Submit Interaction"}
+                        </button>
+                         <p className="text-[11px] text-center text-slate-400 font-medium px-4 leading-relaxed">
+                            {r.status === "replied" ? "Keep the communication going to solve the doubt." : `Completing this interaction will credit ${r.priceCredits} XP to your balance.`}
+                         </p>
                       </div>
                     )}
                   </div>

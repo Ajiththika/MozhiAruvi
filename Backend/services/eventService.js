@@ -39,6 +39,7 @@ export async function getAllEvents(page = 1, limit = 6, status = 'all') {
     
     const [events, totalEvents] = await Promise.all([
         Event.find(query)
+            .populate('createdBy', 'name email')
             .sort({ date: status === 'past' ? -1 : 1, time: 1 })
             .skip(skip)
             .limit(limit),
@@ -54,9 +55,14 @@ export async function getAllEvents(page = 1, limit = 6, status = 'all') {
 }
 
 export async function getEventById(eventId) {
-    const event = await Event.findById(eventId);
+    const event = await Event.findById(eventId).populate('createdBy', 'name email');
     if (!event) throw notFound('Event not found.');
     return event;
+}
+
+export async function getTutorEvents(tutorId) {
+    return Event.find({ createdBy: tutorId, isActive: true })
+        .sort({ date: 1, time: 1 });
 }
 
 export async function createEvent(data, creatorId) {

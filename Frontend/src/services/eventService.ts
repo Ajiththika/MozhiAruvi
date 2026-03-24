@@ -18,31 +18,35 @@ export interface MozhiEvent {
   capacity: number;
   location: string;
   isActive: boolean;
-  organizedBy: { _id: string; name: string };
-  attendees: string[];
+  createdBy?: { _id: string; name: string; email?: string };
+  participantsCount: number;
 }
 
 export interface JoinRequest {
   _id: string;
-  user: { _id: string; name: string; email: string };
-  event: MozhiEvent | string;
+  user?: { _id: string; name: string; email: string };
+  userId?: { _id: string; name: string; email: string };
+  /** Backend populates as `eventId`, not `event` */
+  eventId: MozhiEvent | string;
+  /** Alias kept for backward compat in older code */
+  event?: MozhiEvent | string;
   status: "pending" | "approved" | "rejected";
   message?: string;
   createdAt: string;
 }
 
 export interface JoinRequestPayload {
-  fullName: string;
-  phoneNumber: string;
-  country: string;
-  age: number;
-  gender: 'male' | 'female' | 'other' | 'prefer_not_to_say';
+  fullName?: string;
+  phoneNumber?: string;
+  country?: string;
+  age?: number;
+  gender?: 'male' | 'female' | 'other' | 'prefer_not_to_say';
   message?: string;
 }
 
 export type CreateEventPayload = Omit<
   MozhiEvent,
-  "_id" | "isActive" | "organizedBy" | "attendees"
+  "_id" | "isActive" | "createdBy" | "participantsCount"
 >;
 
 export type UpdateEventPayload = Partial<CreateEventPayload & { isActive: boolean }>;
@@ -83,6 +87,11 @@ export async function submitJoinRequest(
 }
 
 // ── Admin / Teacher Endpoints ─────────────────────────────────────────────────
+
+export async function getMyEvents(): Promise<MozhiEvent[]> {
+  const res = await api.get<{ events: MozhiEvent[] }>("/events/my-events");
+  return res.data.events;
+}
 
 export async function createEvent(payload: CreateEventPayload): Promise<MozhiEvent> {
   const res = await api.post<{ event: MozhiEvent }>("/events", payload);

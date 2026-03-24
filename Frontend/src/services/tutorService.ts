@@ -32,6 +32,14 @@ export interface TutorRequest {
   requestType: "question" | "live_class" | "multi_class";
   content: string;
   status: "pending" | "accepted" | "declined" | "replied" | "resolved";
+  
+  /** Threaded conversation messages */
+  messages?: {
+    senderRole: "student" | "teacher";
+    content: string;
+    createdAt: string;
+  }[];
+
   teacherReply?: string;
   priceCredits?: number;
   createdAt: string;
@@ -154,4 +162,16 @@ export async function updateTutorProfile(payload: TutorProfilePayload): Promise<
 export async function updateTutorAvailability(isTutorAvailable: boolean): Promise<Tutor> {
   const res = await api.patch<{ tutor: Tutor }>("/tutors/me/availability", { isTutorAvailable });
   return res.data.tutor;
+}
+
+export async function addRequestMessage(
+  requestId: string,
+  content: string,
+  role: "student" | "teacher"
+): Promise<TutorRequest> {
+  const res = await api.post<{ request: TutorRequest }>(
+    `/tutors/requests/${requestId}/message`,
+    { content, role }
+  );
+  return res.data.request;
 }

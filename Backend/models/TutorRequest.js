@@ -29,8 +29,15 @@ const tutorRequestSchema = new mongoose.Schema({
         default: 'pending'
     },
     
-    teacherReply: { type: String }, // Provided when replied or resolved
-    priceCredits: { type: Number, default: 10 }, // Cost based on requestType (could be dynamic)
+    // Threaded conversation
+    messages: [{
+        senderRole: { type: String, enum: ['student', 'teacher'], required: true },
+        content: { type: String, required: true },
+        createdAt: { type: Date, default: Date.now }
+    }],
+    
+    teacherReply: { type: String }, // Legacy: First teacher response
+    priceCredits: { type: Number, default: 10 }, 
 }, { timestamps: true });
 
 export default mongoose.model('TutorRequest', tutorRequestSchema);

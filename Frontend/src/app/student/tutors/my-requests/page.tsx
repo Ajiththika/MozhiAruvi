@@ -1,207 +1,212 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { MessageSquare, Loader2, AlertCircle, ArrowLeft, Send, User, CheckCircle2, Clock } from "lucide-react";
 import Link from "next/link";
-import { 
-  MessageSquare, Video, Layers, Clock, CheckCircle2, AlertCircle, 
-  Loader2, ArrowRight, GraduationCap, XCircle, Search, Calendar, Sparkles
-} from "lucide-react";
-import { getMyTutorRequests, TutorRequest } from "@/services/tutorService";
+import { getMyTutorRequests, addRequestMessage, TutorRequest } from "@/services/tutorService";
 import { cn } from "@/lib/utils";
 
-const TYPE_CONFIG = {
-  question: { label: "Question", icon: MessageSquare, color: "text-blue-600 bg-blue-50" },
-  live_class: { label: "Live Class", icon: Video, color: "text-emerald-600 bg-emerald-50" },
-  multi_class: { label: "Package", icon: Layers, color: "text-violet-600 bg-violet-50" },
-};
-
-const STATUS_CONFIG = {
-  pending: { label: "Pending", color: "bg-amber-50 text-amber-700 border-amber-100" },
-  accepted: { label: "Accepted", color: "bg-blue-50 text-blue-700 border-blue-100" },
-  declined: { label: "Declined", color: "bg-red-50 text-red-700 border-red-100" },
-  replied: { label: "Replied", color: "bg-emerald-50 text-emerald-700 border-emerald-100" },
-  resolved: { label: "Resolved", color: "bg-slate-50 text-slate-700 border-slate-100" },
-};
-
-export default function MyTutorRequestsPage() {
+export default function StudentRequestsPage() {
   const [requests, setRequests] = useState<TutorRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [search, setSearch] = useState("");
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [reply, setReply] = useState("");
+  const [sending, setSending] = useState(false);
 
   useEffect(() => {
-    getMyTutorRequests()
-      .then(setRequests)
-      .catch(() => setError("Could not load your requests. Please try again."))
-      .finally(() => setLoading(false));
+    fetchRequests();
   }, []);
 
-  const filtered = requests.filter(r => 
-    !search.trim() || 
-    r.content.toLowerCase().includes(search.toLowerCase()) ||
-    (r as any).teacherId?.name?.toLowerCase().includes(search.toLowerCase())
-  );
+  const fetchRequests = async () => {
+    try {
+      const data = await getMyTutorRequests();
+      setRequests(data);
+    } catch (e) {
+      setError("Could not load your tutor requests.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  if (loading) return (
-    <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 text-center">
-      <Loader2 className="h-10 w-10 animate-spin text-mozhi-primary" />
-      <p className="text-sm font-bold text-slate-500 uppercase tracking-widest animate-pulse">Syncing your teacher interactions...</p>
-    </div>
-  );
+  const handleSendMessage = async (requestId: string) => {
+    if (!reply.trim()) return;
+    setSending(true);
+    try {
+      const updated = await addRequestMessage(requestId, reply.trim(), "student");
+      setRequests(prev => prev.map(r => r._id === requestId ? updated : r));
+      setReply("");
+    } catch (e) {
+      alert("Failed to send message.");
+    } finally {
+      setSending(false);
+    }
+  };
+
+  const selectedRequest = requests.find(r => r._id === selectedId);
 
   return (
-    <div className="mx-auto max-w-5xl space-y-8 animate-in fade-in duration-700 pb-20 px-2">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 pb-10 border-b border-slate-100">
-        <div className="space-y-4">
-           <div className="flex items-center gap-2">
-              <span className="h-1.5 w-8 rounded-full bg-secondary" />
-              <span className="text-[10px] font-bold text-secondary uppercase tracking-[0.2em]">Learning Support</span>
-           </div>
-           <h1 className="text-4xl font-bold text-slate-900 tracking-tight">Tutor Requests</h1>
-           <p className="text-lg text-slate-600 font-medium leading-relaxed max-w-xl">Track your questions, monitor session status, and review personalized feedback from your teachers.</p>
-        </div>
-        <div className="relative w-full md:w-80">
-           <Search className="absolute left-5 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
-           <input 
-             type="text" 
-             value={search}
-             onChange={(e) => setSearch(e.target.value)}
-             placeholder="Search your requests..."
-             className="w-full rounded-[2rem] bg-white border border-slate-100 py-4 pl-14 pr-6 text-sm font-semibold text-slate-700 focus:ring-4 focus:ring-primary/5 transition-all outline-none shadow-xl shadow-slate-200/20"
-           />
+    <div className="mx-auto max-w-6xl space-y-8 animate-in fade-in duration-700 pb-20">
+      <div className="flex items-center gap-4">
+        <Link href="/student/dashboard" className="h-10 w-10 rounded-full border border-slate-200 flex items-center justify-center hover:bg-slate-50 transition-colors">
+          <ArrowLeft className="h-5 w-5 text-slate-400" />
+        </Link>
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Doubt Support History</h1>
+          <p className="text-sm text-slate-500 font-medium">Clear your doubts with expert guidance.</p>
         </div>
       </div>
 
-      {error && (
-        <div className="flex items-center gap-3 rounded-2xl border border-red-100 bg-red-50 px-6 py-4 text-sm text-red-700 dark:border-red-950/20 dark:text-red-400">
-          <AlertCircle className="h-5 w-5 shrink-0" /> {error}
+      {loading ? (
+        <div className="flex flex-col items-center justify-center py-32 gap-4">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <p className="text-sm font-bold text-slate-400 uppercase tracking-widest">Loading interactions...</p>
         </div>
-      )}
-
-      {filtered.length === 0 ? (
-        <div className="py-32 flex flex-col items-center text-center">
-            <div className="h-20 w-20 rounded-full bg-slate-50 dark:bg-slate-800 flex items-center justify-center mb-6">
-               <GraduationCap className="h-10 w-10 text-slate-200 dark:text-slate-700" />
-            </div>
-            <h3 className="text-xl font-bold text-slate-400 uppercase tracking-widest">No requests found</h3>
-            <p className="text-sm text-slate-400 mt-2">Browse the directory to connect with native Tamil teachers.</p>
-            <Link 
-              href="/student/tutors" 
-              className="mt-8 rounded-2xl bg-mozhi-primary px-8 py-3.5 text-xs font-black text-white uppercase tracking-widest hover:scale-105 transition-all"
-            >
-              Explore Tutors
-            </Link>
+      ) : error ? (
+        <div className="rounded-2xl border border-red-100 bg-red-50 p-6 text-sm text-red-600 flex items-center gap-3 font-bold">
+          <AlertCircle className="h-5 w-5" /> {error}
+        </div>
+      ) : requests.length === 0 ? (
+        <div className="py-24 text-center bg-white rounded-[3rem] border border-dashed border-slate-200">
+           <MessageSquare className="h-12 w-12 text-slate-200 mx-auto mb-6" />
+           <h3 className="text-xl font-bold text-slate-800 uppercase tracking-widest">No requests yet</h3>
+           <p className="text-slate-400 mt-2">Any questions you ask your tutors will appear here.</p>
+           <Link href="/student/tutors" className="mt-8 inline-block text-sm font-bold text-primary hover:underline">Find a Teacher →</Link>
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-6">
-          {filtered.map((r) => {
-            const config = TYPE_CONFIG[r.requestType] || TYPE_CONFIG.question;
-            const status = STATUS_CONFIG[r.status] || STATUS_CONFIG.pending;
-            const Icon = config.icon;
-            const teacher = (r as any).teacherId;
-
-            return (
-              <div 
-                key={r._id}
-                className="group overflow-hidden rounded-[2.5rem] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-xl transition-all duration-300"
-              >
-                <div className="flex flex-col md:flex-row">
-                  {/* Status Banner (Mobile top indicator) */}
-                  <div className={cn("md:hidden h-1.5 w-full", r.status === 'replied' ? 'bg-emerald-500' : 'bg-slate-200')} />
-
-                  <div className="flex-1 p-10">
-                    <div className="flex items-start justify-between gap-6 mb-8">
-                      <div className="flex items-center gap-5">
-                        <div className={cn("h-14 w-14 rounded-[1.25rem] flex items-center justify-center shrink-0 shadow-sm", config.color)}>
-                           <Icon className="h-7 w-7" />
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 ring-1 ring-slate-100 rounded-[2.5rem] bg-slate-50/30 p-2 overflow-hidden min-h-[600px]">
+          {/* List */}
+          <div className="lg:col-span-4 bg-white rounded-[2rem] border border-slate-100 overflow-y-auto max-h-[600px] shadow-sm">
+            <div className="p-6 border-b border-slate-50">
+               <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest">Recent Doubts</h3>
+            </div>
+            <div className="divide-y divide-slate-50">
+              {requests.map((r) => {
+                const teacher = typeof r.teacherId === 'object' ? r.teacherId : null;
+                const active = selectedId === r._id;
+                return (
+                  <button
+                    key={r._id}
+                    onClick={() => setSelectedId(r._id)}
+                    className={cn(
+                      "w-full p-6 text-left transition-all hover:bg-slate-50 flex items-start gap-4",
+                      active && "bg-primary/5 ring-1 ring-inset ring-primary/10"
+                    )}
+                  >
+                    <div className="h-10 w-10 shrink-0 rounded-xl bg-slate-100 overflow-hidden border border-slate-50 shadow-inner">
+                      {teacher?.profilePhoto ? (
+                        <img src={teacher.profilePhoto} className="h-full w-full object-cover" />
+                      ) : (
+                        <div className="h-full w-full flex items-center justify-center bg-primary/5 text-primary font-bold">
+                          {teacher?.name?.charAt(0) || "T"}
                         </div>
-                        <div>
-                           <h3 className="text-xl font-bold text-slate-900">{config.label} Request</h3>
-                           <p className="text-xs font-bold text-primary uppercase tracking-widest mt-1">To Teacher: {teacher?.name || "Verified Tutor"}</p>
-                        </div>
-                      </div>
-                      <div className={cn("rounded-full px-5 py-2 text-[10px] font-black uppercase tracking-widest border shadow-sm", status.color)}>
-                         {status.label}
-                      </div>
+                      )}
                     </div>
-
-                    <div className="space-y-6">
-                       <div className="bg-slate-50 rounded-[2rem] p-8 border border-slate-100">
-                          <p className="text-lg font-medium text-slate-700 italic leading-relaxed">
-                            "{r.content}"
-                          </p>
-                          <div className="mt-6 flex flex-wrap items-center gap-6 pt-6 border-t border-slate-200/50">
-                             <div className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                                <Calendar className="h-3.5 w-3.5" />
-                                {new Date(r.createdAt).toLocaleString()}
-                             </div>
-                             <div className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                                <Sparkles className="h-3.5 w-3.5 text-secondary" />
-                                {r.priceCredits} XP points
-                             </div>
-                          </div>
+                    <div className="flex-1 min-w-0">
+                       <div className="flex items-center justify-between mb-1">
+                          <span className="text-[10px] font-black uppercase text-primary/70">{r.requestType}</span>
+                          <span className="text-[9px] text-slate-400">{new Date(r.createdAt).toLocaleDateString()}</span>
                        </div>
-
-                       {r.teacherReply && (
-                          <div className="relative rounded-[2rem] bg-emerald-50 border border-emerald-100 p-10 shadow-inner animate-in slide-in-from-bottom-2">
-                             <div className="absolute -top-3 left-10 bg-emerald-500 text-white px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg">
-                                Teacher's Expert Response
-                             </div>
-                             <p className="text-md font-bold text-slate-700 leading-relaxed whitespace-pre-line">
-                               {r.teacherReply}
-                             </p>
-                          </div>
-                       )}
-
-                       {r.status === 'declined' && (
-                          <div className="rounded-[2rem] bg-red-50 border border-red-100 p-8 flex items-center gap-5">
-                             <div className="h-10 w-10 rounded-full bg-red-100 flex items-center justify-center shrink-0">
-                                <XCircle className="h-6 w-6 text-red-500" />
-                             </div>
-                             <p className="text-sm font-bold text-red-700">Request declined. {r.priceCredits} XP has been fully refunded.</p>
-                          </div>
-                       )}
+                       <p className={cn("text-sm font-bold truncate", active ? "text-primary" : "text-slate-800")}>{r.content}</p>
+                       <div className="flex items-center gap-2 mt-2">
+                          <span className={cn(
+                            "px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-tighter border",
+                            r.status === "replied" ? "bg-emerald-50 text-emerald-600 border-emerald-100" : "bg-amber-50 text-amber-600 border-amber-100"
+                          )}>
+                             {r.status}
+                          </span>
+                       </div>
                     </div>
-                  </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
 
-
-                  {/* Right Sidebar: Details & Action */}
-                  <div className="md:w-72 bg-slate-50 border-t md:border-t-0 md:border-l border-slate-100 p-10 flex flex-col justify-between">
-                    <div className="space-y-8">
-                       {r.metadata?.preferredTime && (
-                          <div className="space-y-4">
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Active Schedule</p>
-                            <div className="space-y-3">
-                               <div className="flex items-center gap-3 text-xs font-bold text-slate-700 bg-white p-3 rounded-xl border border-slate-100">
-                                  <Clock className="h-4 w-4 text-primary" />
-                                  <span>{r.metadata.preferredTime}</span>
-                               </div>
-                               {r.metadata.sessionsCount && (
-                                  <div className="flex items-center gap-3 text-xs font-bold text-slate-700 bg-white p-3 rounded-xl border border-slate-100">
-                                     <Layers className="h-4 w-4 text-secondary" />
-                                     <span>{r.metadata.sessionsCount} Sessions</span>
-                                  </div>
-                               )}
-                            </div>
-                          </div>
-                       )}
-                    </div>
-
-                    <div className="pt-10 mt-auto">
-                       <Link 
-                         href={`/student/tutors/${r.teacherId}`}
-                         className="flex items-center justify-between w-full group py-3 border-t border-slate-200/50"
-                       >
-                          <span className="text-xs font-bold uppercase tracking-widest text-slate-400 group-hover:text-primary transition-colors">Tutor Profile</span>
-                          <ArrowRight className="h-4 w-4 text-slate-300 group-hover:text-primary group-hover:translate-x-1 transition-all" />
-                       </Link>
-                    </div>
-                  </div>
-                </div>
+          {/* Thread Detail */}
+          <div className="lg:col-span-8 bg-white rounded-[2rem] border border-slate-100 flex flex-col shadow-sm relative overflow-hidden">
+            {!selectedId ? (
+              <div className="flex flex-col items-center justify-center h-full text-center gap-4 opacity-40">
+                <MessageSquare className="h-12 w-12" />
+                <p className="text-sm font-bold uppercase tracking-widest">Select a doubt to view details</p>
               </div>
-            );
-          })}
+            ) : (
+              <>
+                {/* Thread Header */}
+                <div className="p-8 border-b border-slate-50 bg-slate-50/30 flex items-center justify-between">
+                  <div>
+                    <h3 className="text-lg font-bold text-slate-900">
+                      {typeof selectedRequest?.teacherId === 'object' ? selectedRequest.teacherId.name : "Tutor Response"}
+                    </h3>
+                    <p className="text-xs text-slate-500 font-medium">ID: {selectedRequest?._id.slice(-8).toUpperCase()}</p>
+                  </div>
+                  <span className={cn(
+                    "px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] border shadow-sm",
+                    selectedRequest?.status === "replied" ? "bg-emerald-50 text-emerald-600 border-emerald-100" : "bg-amber-50 text-amber-600 border-amber-100"
+                  )}>
+                    {selectedRequest?.status}
+                  </span>
+                </div>
+
+                {/* Messages Container */}
+                <div className="flex-1 overflow-y-auto p-8 space-y-8 max-h-[450px]">
+                   {/* The initial question */}
+                   <div className="bg-slate-50 rounded-[2rem] p-8 border border-slate-100 relative group transition-all hover:bg-white hover:shadow-xl hover:shadow-slate-100/50">
+                      <div className="absolute -top-3 left-8 bg-slate-900 text-white px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest">Your Question</div>
+                      <p className="text-lg font-bold text-slate-700 leading-relaxed italic">"{selectedRequest?.content}"</p>
+                      {selectedRequest?.lessonId && typeof selectedRequest.lessonId === 'object' && (
+                        <div className="mt-4 inline-flex items-center gap-2 rounded-lg bg-primary/5 px-3 py-1 text-[11px] font-bold text-primary">
+                           📖 {selectedRequest.lessonId.title}
+                        </div>
+                      )}
+                   </div>
+
+                   {/* The replies thread */}
+                   {selectedRequest?.messages?.map((msg, idx) => (
+                      <div key={idx} className={cn(
+                        "flex flex-col gap-2 transition-all animate-in slide-in-from-bottom-3",
+                        msg.senderRole === "student" ? "items-end" : "items-start"
+                      )}>
+                         <div className={cn(
+                           "max-w-[85%] p-6 rounded-[1.8rem] text-sm font-bold leading-relaxed shadow-sm border",
+                           msg.senderRole === "student" 
+                             ? "bg-slate-900 text-white border-slate-800 rounded-tr-none" 
+                             : "bg-white text-slate-700 border-slate-100 rounded-tl-none shadow-xl shadow-slate-100/30"
+                         )}>
+                            {msg.content}
+                         </div>
+                         <span className="text-[9px] font-black text-slate-300 uppercase tracking-widest px-2">
+                            {msg.senderRole === "teacher" ? "Expert Response" : "You"} · {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                         </span>
+                      </div>
+                   ))}
+                </div>
+
+                {/* Reply Box */}
+                <div className="p-6 bg-slate-50 border-t border-slate-100">
+                  <div className="flex gap-4">
+                    <textarea
+                      rows={1}
+                      value={reply}
+                      onChange={e => setReply(e.target.value)}
+                      placeholder="Type your follow-up message..."
+                      className="flex-1 rounded-2xl border border-slate-200 bg-white px-6 py-3.5 text-sm font-bold text-slate-700 outline-none focus:ring-4 focus:ring-primary/10 transition-all resize-none shadow-inner"
+                    />
+                    <button
+                      onClick={() => handleSendMessage(selectedId!)}
+                      disabled={sending || !reply.trim()}
+                      className="h-12 w-12 shrink-0 rounded-2xl bg-primary flex items-center justify-center text-white shadow-xl shadow-primary/20 hover:bg-slate-900 transition-all active:scale-90 disabled:opacity-30"
+                    >
+                      {sending ? <Loader2 className="h-5 w-5 animate-spin" /> : <Send className="h-5 w-5" />}
+                    </button>
+                  </div>
+                  <p className="mt-3 text-[10px] text-center text-slate-400 font-bold uppercase tracking-widest">
+                    Maintain a professional interaction for best results.
+                  </p>
+                </div>
+              </>
+            )}
+          </div>
         </div>
       )}
     </div>

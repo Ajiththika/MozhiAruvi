@@ -10,6 +10,13 @@ export async function listEvents(req, res, next) {
     } catch (e) { next(e); }
 }
 
+export async function getMyEvents(req, res, next) {
+    try {
+        const events = await eventService.getTutorEvents(req.user.sub);
+        res.json({ events });
+    } catch (e) { next(e); }
+}
+
 export async function getEvent(req, res, next) {
     try {
         const event = await eventService.getEventById(req.params.id);
