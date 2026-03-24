@@ -9,11 +9,12 @@ import { getRoleDashboardRoute } from '@/lib/roleUtils';
 import { isAxiosError } from 'axios';
 import { useAuth } from '@/context/AuthContext';
 import { useEffect } from 'react';
+import Button from '@/components/common/Button';
 
 export default function SignInForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { user, setUser } = useAuth();
+  const { user, isLoading, setUser } = useAuth();
   
   const redirectParam = searchParams.get('redirect');
   
@@ -22,12 +23,13 @@ export default function SignInForm() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
+  // Wait until auth state is resolved, then redirect already-logged-in users
   useEffect(() => {
-    // IF user already logged in: redirect to "/"
-    if (user) {
-      router.push('/');
+    if (!isLoading && user) {
+      const dest = redirectParam || getRoleDashboardRoute(user.role);
+      router.replace(dest);
     }
-  }, [user, router]);
+  }, [isLoading, user, router, redirectParam]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -109,13 +111,15 @@ export default function SignInForm() {
           </div>
         </div>
 
-        <button 
+        <Button 
           type="submit" 
-          disabled={loading}
-          className="w-full py-4 px-4 rounded-xl bg-primary text-white font-bold text-[17px] hover:bg-primary-dark hover:-translate-y-0.5 focus:ring-4 focus:ring-primary/20 transition-all shadow-md hover:shadow-xl mt-4 disabled:opacity-50 disabled:pointer-events-none"
+          isLoading={loading}
+          variant="primary"
+          size="xl"
+          className="w-full mt-4"
         >
-          {loading ? "Signing in..." : "Sign In"}
-        </button>
+          Sign In
+        </Button>
       </form>
 
       <div className="mt-8 mb-8 flex items-center">

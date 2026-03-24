@@ -25,7 +25,8 @@ export interface TeacherApplication {
   _id: string;
   fullName: string;
   status: "pending" | "approved" | "rejected" | "needs_revision";
-  adminFeedback?: string;
+  adminNotes?: string;
+  rejectionReason?: string;
   createdAt: string;
 }
 

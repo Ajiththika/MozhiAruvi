@@ -2,12 +2,11 @@
 
 @theme {
   /* Design System Fonts */
-  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
 
   /* Primary Brand Palette */
   --color-primary: #2A5794;
-  --color-primary-dark: #17325C;
   --color-secondary: #4F84B5;
   --color-soft: #93B8C6;
   --color-light: #C1DBE4;
@@ -18,43 +17,19 @@
   --color-error: #ef4444;   /* red-500 */
   --color-warning: #f59e0b; /* amber-500 */
 
-  /* Neutral Surface Colors */
+  /* Neutral Surface Colors (Derived) */
   --color-surface: #ffffff;
   --color-surface-soft: #f8fafc; /* slate-50 */
 }
 
 @layer base {
   body {
-    @apply bg-slate-50 text-slate-900 font-sans antialiased selection:bg-primary/10 selection:text-primary;
+    @apply bg-slate-50 text-slate-900 font-sans antialiased;
     scroll-behavior: smooth;
   }
   
-  /* Standardized Typography Hierarchy */
-  h1 { @apply text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight text-slate-900 leading-[1.1]; }
-  h2 { @apply text-3xl md:text-4xl font-bold tracking-tight text-slate-900 leading-tight; }
-  h3 { @apply text-xl md:text-2xl font-bold tracking-tight text-slate-900; }
-  h4 { @apply text-lg md:text-xl font-bold tracking-tight text-slate-800; }
-  
-  p { @apply text-base text-slate-600 leading-relaxed font-medium; }
-  
-  label { @apply text-xs font-bold text-slate-500 uppercase tracking-wider; }
-
-  /* Input defaults */
-  input, textarea, select {
-    @apply rounded-2xl border border-slate-200 bg-white px-5 py-3.5 text-sm font-medium text-slate-700 outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all;
-  }
-}
-
-@layer components {
-  .container-wide {
-    @apply max-w-7xl mx-auto px-4 md:px-8 lg:px-12;
-  }
-  
-  .card-premium {
-    @apply rounded-[2rem] border border-slate-100 bg-white p-8 shadow-xl shadow-slate-200/20 transition-all hover:shadow-2xl hover:shadow-primary/5;
-  }
-  
-  .section-spacing {
-    @apply py-20 md:py-28 lg:py-32;
-  }
+  /* Reset some common styles to follow the design scale if needed */
+  h1 { @apply text-2xl md:text-3xl font-bold tracking-tight; }
+  h2 { @apply text-xl font-semibold; }
+  h3 { @apply text-base font-semibold; }
 }

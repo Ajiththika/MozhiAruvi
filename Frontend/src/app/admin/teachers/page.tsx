@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { DataTable, ColumnDef } from "@/components/admin/DataTable";
-import { Loader2, AlertCircle, CheckCircle2, XCircle, RefreshCw, MessageSquare } from "lucide-react";
+import { Loader2, AlertCircle, CheckCircle2, XCircle, MessageSquare, X, RefreshCw } from "lucide-react";
 import {
   getTeacherApplications,
   approveTeacherApplication,
@@ -10,28 +10,101 @@ import {
   requestRevisionTeacherApplication,
   TeacherApplication,
 } from "@/services/adminService";
+import { Pagination } from "@/components/Pagination";
+import Button from "@/components/common/Button";
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
 
 function StatusBadge({ status }: { status: TeacherApplication["status"] }) {
   const map: Record<string, string> = {
-    pending: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400",
-    approved: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400",
-    rejected: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400",
-    needs_revision: "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400",
+    pending: "bg-amber-50 text-amber-700 border border-amber-200",
+    approved: "bg-emerald-50 text-emerald-700 border border-emerald-200",
+    rejected: "bg-red-50 text-red-700 border border-red-200",
+    needs_revision: "bg-orange-50 text-orange-700 border border-orange-200",
+  };
+  const labels: Record<string, string> = {
+    pending: "Pending",
+    approved: "Approved",
+    rejected: "Rejected",
+    needs_revision: "Needs Revision",
   };
   return (
-    <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold capitalize ${map[status] ?? ""}`}>
-      {status.replace("_", " ")}
+    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold ${map[status] ?? ""}`}>
+      {labels[status] ?? status}
     </span>
   );
 }
 
-import { Pagination } from "@/components/Pagination";
+// ── Action Modal ──────────────────────────────────────────────────────────────
+
+interface ActionModalProps {
+  title: string;
+  label: string;
+  placeholder: string;
+  onConfirm: (reason: string) => void;
+  onCancel: () => void;
+  isLoading: boolean;
+  confirmVariant?: "danger" | "secondary";
+}
+
+function ActionModal({ title, label, placeholder, onConfirm, onCancel, isLoading, confirmVariant = "danger" }: ActionModalProps) {
+  const [reason, setReason] = useState("");
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+      <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
+        <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4">
+          <h3 className="text-base font-bold text-slate-800">{title}</h3>
+          <button onClick={onCancel} className="rounded-full p-1 text-slate-400 hover:bg-slate-100 transition-colors">
+            <X size={18} />
+          </button>
+        </div>
+        <div className="p-6 space-y-4">
+          <label className="text-xs font-bold text-slate-500 uppercase">{label}</label>
+          <textarea
+            rows={3}
+            value={reason}
+            onChange={(e) => setReason(e.target.value)}
+            placeholder={placeholder}
+            className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all resize-none"
+          />
+        </div>
+        <div className="flex items-center justify-end gap-3 border-t border-slate-100 px-6 py-4">
+          <Button variant="ghost" onClick={onCancel}>Cancel</Button>
+          <Button
+            variant={confirmVariant}
+            isLoading={isLoading}
+            onClick={() => onConfirm(reason)}
+          >
+            Confirm
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Main Page ─────────────────────────────────────────────────────────────────
+
+type StatusFilter = "all" | "pending" | "approved" | "rejected" | "needs_revision";
+
+const STATUS_TABS: { label: string; value: StatusFilter }[] = [
+  { label: "All", value: "all" },
+  { label: "Pending", value: "pending" },
+  { label: "Approved", value: "approved" },
+  { label: "Rejected", value: "rejected" },
+  { label: "Needs Revision", value: "needs_revision" },
+];
 
 export default function AdminTeachersPage() {
   const [applications, setApplications] = useState<TeacherApplication[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [actioning, setActioning] = useState<string | null>(null);
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+
+  // Modal state
+  type ModalType = "reject" | "revision" | null;
+  const [modal, setModal] = useState<{ type: ModalType; id: string } | null>(null);
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
@@ -40,7 +113,8 @@ export default function AdminTeachersPage() {
 
   const load = (page: number = 1) => {
     setLoading(true);
-    getTeacherApplications(page)
+    const filterParam = statusFilter === "all" ? undefined : statusFilter;
+    getTeacherApplications(page, 8, filterParam as any)
       .then((res) => {
         setApplications(res.applications);
         setTotalPages(res.totalPages);
@@ -51,7 +125,8 @@ export default function AdminTeachersPage() {
       .finally(() => setLoading(false));
   };
 
-  useEffect(() => { load(currentPage); }, [currentPage]);
+  useEffect(() => { setCurrentPage(1); }, [statusFilter]);
+  useEffect(() => { load(currentPage); }, [currentPage, statusFilter]);
 
   const mutate = (updated: TeacherApplication) =>
     setApplications((prev) => prev.map((a) => (a._id === updated._id ? updated : a)));
@@ -59,24 +134,27 @@ export default function AdminTeachersPage() {
   const handleApprove = async (id: string) => {
     setActioning(id);
     try { mutate(await approveTeacherApplication(id)); }
-    catch { /* toast */ }
+    catch (e: any) { setError(e.response?.data?.message || "Failed to approve."); }
     finally { setActioning(null); }
   };
 
-  const handleReject = async (id: string) => {
-    const reason = prompt("Reason for rejection (optional):");
-    setActioning(id);
-    try { mutate(await rejectTeacherApplication(id, reason ?? "")); }
-    catch { /* toast */ }
+  const handleReject = async (reason: string) => {
+    if (!modal) return;
+    setActioning(modal.id);
+    try {
+      mutate(await rejectTeacherApplication(modal.id, reason));
+      setModal(null);
+    } catch (e: any) { setError(e.response?.data?.message || "Failed to reject."); }
     finally { setActioning(null); }
   };
 
-  const handleRevision = async (id: string) => {
-    const reason = prompt("What needs to be revised?");
-    if (!reason) return;
-    setActioning(id);
-    try { mutate(await requestRevisionTeacherApplication(id, reason)); }
-    catch { /* toast */ }
+  const handleRevision = async (notes: string) => {
+    if (!modal) return;
+    setActioning(modal.id);
+    try {
+      mutate(await requestRevisionTeacherApplication(modal.id, notes));
+      setModal(null);
+    } catch (e: any) { setError(e.response?.data?.message || "Failed to request revision."); }
     finally { setActioning(null); }
   };
 
@@ -85,10 +163,19 @@ export default function AdminTeachersPage() {
       header: "Applicant",
       accessorKey: "fullName",
       cell: (row) => (
-        <div className="flex flex-col">
-          <span className="font-bold text-slate-600 dark:text-slate-600 text-sm">{row.fullName}</span>
-          <span className="text-xs text-slate-600 dark:text-slate-600">{row.userId?.email}</span>
+        <div className="flex flex-col gap-0.5">
+          <span className="font-bold text-slate-800 text-sm">{row.fullName}</span>
+          <span className="text-xs text-slate-500">{row.userId?.email}</span>
         </div>
+      ),
+    },
+    {
+      header: "Specialization",
+      accessorKey: "specialization",
+      cell: (row) => (
+        <span className="text-xs font-semibold text-slate-600 truncate max-w-[140px] block">
+          {row.specialization || "—"}
+        </span>
       ),
     },
     {
@@ -100,8 +187,8 @@ export default function AdminTeachersPage() {
       header: "Reviewed",
       accessorKey: "reviewedAt",
       cell: (row) => (
-        <span className="text-xs text-slate-600 dark:text-slate-600">
-          {row.reviewedAt ? new Date(row.reviewedAt).toLocaleDateString() : "—"}
+        <span className="text-xs text-slate-500">
+          {row.reviewedAt ? new Date(row.reviewedAt).toLocaleDateString("en-GB") : "Awaiting"}
         </span>
       ),
     },
@@ -110,77 +197,126 @@ export default function AdminTeachersPage() {
       accessorKey: "_id",
       className: "text-right",
       cell: (row) =>
-        row.status === "pending" ? (
+        row.status === "pending" || row.status === "needs_revision" ? (
           <div className="flex items-center justify-end gap-2">
-            <button
+            <Button
               onClick={() => handleApprove(row._id)}
-              disabled={actioning === row._id}
-              className="flex items-center gap-1 rounded-lg border border-emerald-200 px-2.5 py-1.5 text-xs font-bold text-emerald-700 transition hover:bg-emerald-50 disabled:opacity-50 dark:border-emerald-800 dark:text-emerald-400 dark:hover:bg-emerald-950/20"
+              isLoading={actioning === row._id}
+              variant="secondary"
+              size="sm"
+              className="flex items-center gap-1.5 text-emerald-700 border-emerald-200 hover:bg-emerald-50"
             >
-              {actioning === row._id ? <RefreshCw className="h-3 w-3 animate-spin" /> : <CheckCircle2 className="h-3 w-3" />}
-              Approve
-            </button>
-            <button
-              onClick={() => handleRevision(row._id)}
+              <CheckCircle2 size={12} /> Approve
+            </Button>
+            {row.status === "pending" && (
+              <Button
+                onClick={() => setModal({ type: "revision", id: row._id })}
+                disabled={actioning === row._id}
+                variant="outline"
+                size="sm"
+                className="flex items-center gap-1.5 text-orange-700 border-orange-200 hover:bg-orange-50"
+              >
+                <MessageSquare size={12} /> Revise
+              </Button>
+            )}
+            <Button
+              onClick={() => setModal({ type: "reject", id: row._id })}
               disabled={actioning === row._id}
-              className="flex items-center gap-1 rounded-lg border border-orange-200 px-2.5 py-1.5 text-xs font-bold text-orange-700 transition hover:bg-orange-50 disabled:opacity-50 dark:border-orange-800 dark:text-orange-400 dark:hover:bg-orange-950/20"
+              variant="danger"
+              size="sm"
+              className="flex items-center gap-1.5"
             >
-              <MessageSquare className="h-3 w-3" /> Revise
-            </button>
-            <button
-              onClick={() => handleReject(row._id)}
-              disabled={actioning === row._id}
-              className="flex items-center gap-1 rounded-lg border border-red-200 px-2.5 py-1.5 text-xs font-bold text-red-700 transition hover:bg-red-50 disabled:opacity-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-950/20"
-            >
-              <XCircle className="h-3 w-3" /> Reject
-            </button>
+              <XCircle size={12} /> Reject
+            </Button>
           </div>
         ) : (
-          <span className="text-xs text-slate-600 capitalize">{row.status.replace("_", " ")}</span>
+          <StatusBadge status={row.status} />
         ),
     },
   ];
 
   return (
-    <div className="space-y-8 animate-in fade-in zoom-in-95 duration-500 pb-12">
-      <div className="mb-0 flex flex-col md:flex-row md:items-end md:justify-between gap-6 border-b border-slate-100 pb-8">
-        <div>
-            <div className="flex items-center gap-2">
-              <span className="h-1.5 w-8 rounded-full bg-mozhi-secondary" />
-              <span className="text-xs font-bold text-mozhi-secondary tracking-tight">Management</span>
+    <>
+      {/* Action modals */}
+      {modal?.type === "reject" && (
+        <ActionModal
+          title="Reject Application"
+          label="Reason for rejection"
+          placeholder="Explain why this application is being rejected..."
+          onConfirm={handleReject}
+          onCancel={() => setModal(null)}
+          isLoading={actioning === modal.id}
+          confirmVariant="danger"
+        />
+      )}
+      {modal?.type === "revision" && (
+        <ActionModal
+          title="Request Revision"
+          label="Revision notes for applicant"
+          placeholder="Describe what needs to be updated or clarified..."
+          onConfirm={handleRevision}
+          onCancel={() => setModal(null)}
+          isLoading={actioning === modal.id}
+          confirmVariant="secondary"
+        />
+      )}
+
+      <div className="space-y-8 animate-in fade-in zoom-in-95 duration-500 pb-12">
+        {/* Page Header */}
+        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 border-b border-slate-100 pb-8">
+          <div>
+            <div className="flex items-center gap-2 mb-2">
+              <span className="h-1.5 w-6 rounded-full bg-secondary" />
+              <span className="text-[10px] font-black text-secondary uppercase tracking-[0.3em]">Management</span>
             </div>
-            <h1 className="text-3xl font-bold text-slate-900 tracking-tight leading-tight">Teacher Applications</h1>
-            <p className="mt-2 text-slate-600 font-medium">Approve, reject, or request revisions on teacher applications.</p>
+            <h1 className="text-3xl md:text-4xl font-black text-slate-900 uppercase tracking-tight">Teacher Applications</h1>
+            <p className="mt-2 text-slate-500 font-medium">Review, approve, or reject teacher applications from users.</p>
+          </div>
+          <Button
+            onClick={() => load(currentPage)}
+            isLoading={loading}
+            variant="outline"
+            size="md"
+            className="text-xs font-black uppercase tracking-widest"
+          >
+            Refresh Data
+          </Button>
         </div>
-        <button
-          onClick={() => load(currentPage)}
-          disabled={loading}
-          className="flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-3 text-xs font-bold tracking-tight text-slate-600 shadow-sm transition hover:bg-slate-50 disabled:opacity-50"
-        >
-          <RefreshCw className={`h-3 w-3 ${loading ? "animate-spin" : ""}`} /> Refresh Data
-        </button>
+
+        {/* Status Filter Tabs */}
+        <div className="flex flex-wrap gap-2">
+          {STATUS_TABS.map((tab) => (
+            <button
+              key={tab.value}
+              onClick={() => setStatusFilter(tab.value)}
+              className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all ${
+                statusFilter === tab.value
+                  ? "bg-primary text-white shadow-md shadow-primary/20"
+                  : "bg-white border border-slate-200 text-slate-600 hover:border-primary hover:text-primary"
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
+        {error && (
+          <div className="flex items-center gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 font-bold">
+            <AlertCircle className="h-5 w-5 shrink-0" /> {error}
+          </div>
+        )}
+
+        {loading ? (
+          <div className="flex items-center justify-center py-24">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          </div>
+        ) : (
+          <div className="space-y-6">
+            <DataTable title={`Applications (${totalItems})`} columns={columns} data={applications} />
+            <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
+          </div>
+        )}
       </div>
-
-      {error && (
-        <div className="flex items-center gap-3 rounded-xl border border-red-200 bg-red-100 px-4 py-3 text-sm text-red-700 font-bold dark:border-red-900/50 dark:bg-red-950/20 dark:text-red-400">
-          <AlertCircle className="h-5 w-5 shrink-0" /> {error}
-        </div>
-      )}
-
-      {loading ? (
-        <div className="flex items-center justify-center py-24">
-          <Loader2 className="h-8 w-8 animate-spin text-mozhi-primary" />
-        </div>
-      ) : (
-        <div className="space-y-6">
-           <DataTable title={`All Teacher Applications (${totalItems})`} columns={columns} data={applications} />
-           <Pagination 
-             currentPage={currentPage}
-             totalPages={totalPages}
-             onPageChange={setCurrentPage}
-           />
-        </div>
-      )}
-    </div>
+    </>
   );
 }

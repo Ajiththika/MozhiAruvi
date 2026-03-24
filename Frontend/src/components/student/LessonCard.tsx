@@ -36,14 +36,14 @@ export function LessonCard({
       className={cn(
         "group relative flex flex-col overflow-hidden rounded-2xl border transition-all duration-300",
         isLocked
-          ? "border-slate-200 bg-slate-/50 dark:border-slate-200 dark:bg-slate-900/50"
+          ? "border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-900/50"
           : isCompleted
-          ? "border-emerald-200 bg-emerald-50/10 shadow-sm hover:shadow-md dark:border-emerald-900/30 dark:bg-emerald-950/10"
-          : "border-mozhi-light bg-white shadow-sm hover:shadow-md dark:border-blue-900/30 dark:bg-slate-50"
+          ? "border-success/20 bg-success/5 shadow-sm hover:shadow-md dark:border-success/10 dark:bg-success/5"
+          : "border-light bg-white shadow-sm hover:shadow-md dark:border-slate-800 dark:bg-slate-900"
       )}
     >
       {/* Thumbnail Area */}
-      <div className="relative h-40 w-full overflow-hidden bg-slate-50 dark:bg-slate-50">
+      <div className="relative h-40 w-full overflow-hidden bg-slate-100 dark:bg-slate-800">
         {thumbnailUrl ? (
            <img
              src={thumbnailUrl}
@@ -56,23 +56,23 @@ export function LessonCard({
         ) : (
            <div className={cn(
               "flex h-full w-full items-center justify-center transition-transform duration-500 group-hover:scale-105",
-              isLocked ? "bg-slate-50 dark:bg-slate-50" : "bg-mozhi-light dark:bg-mozhi-primary/20"
+              isLocked ? "bg-slate-100 dark:bg-slate-800" : "bg-light dark:bg-primary/20"
            )}>
                <PlayCircle className={cn(
                   "h-12 w-12",
-                  isLocked ? "text-slate-600 dark:text-slate-600" : "text-mozhi-secondary dark:text-mozhi-secondary"
+                  isLocked ? "text-slate-400 dark:text-slate-500" : "text-secondary dark:text-secondary"
                )} />
            </div>
         )}
 
         {/* Status Overlay icon */}
-        <div className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-white/90 shadow-sm backdrop-blur-sm dark:bg-slate-/90">
+        <div className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-white/90 shadow-sm backdrop-blur-sm dark:bg-slate-900/90">
           {isLocked ? (
-            <Lock className="h-4 w-4 text-slate-600 dark:text-slate-600" />
+            <Lock className="h-4 w-4 text-slate-500 dark:text-slate-400" />
           ) : isCompleted ? (
-            <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-500" />
+            <CheckCircle2 className="h-4 w-4 text-success" />
           ) : (
-             <PlayCircle className="h-4 w-4 text-mozhi-primary dark:text-mozhi-secondary" />
+             <PlayCircle className="h-4 w-4 text-primary dark:text-secondary" />
           )}
         </div>
       </div>
@@ -82,21 +82,21 @@ export function LessonCard({
         <h3
           className={cn(
             "text-lg font-bold leading-tight",
-            isLocked ? "text-slate-600 dark:text-slate-600" : "text-slate-600 dark:text-slate-600"
+            isLocked ? "text-slate-400 dark:text-slate-500" : "text-slate-900 dark:text-white"
           )}
         >
           {title}
         </h3>
-        <p className="mt-2 line-clamp-2 flex-1 text-sm text-slate-600 dark:text-slate-600">
+        <p className="mt-2 line-clamp-2 flex-1 text-sm text-slate-600 dark:text-slate-400">
           {description}
         </p>
 
         {/* Meta */}
-        <div className="mt-4 flex items-center justify-between text-xs font-semibold">
-           <span className="text-slate-600 dark:text-slate-600">
+        <div className="mt-4 flex items-center justify-between text-[11px] font-bold uppercase tracking-wider">
+           <span className="text-slate-400 dark:text-slate-500">
               {duration}
            </span>
-           <span className="rounded-md bg-amber-100 px-2 py-1 text-amber-800 dark:bg-amber-900/30 dark:text-amber-500">
+           <span className="rounded-md bg-amber-50 px-2 py-0.5 text-amber-600 border border-amber-200/50 dark:bg-amber-900/20 dark:text-amber-500 dark:border-amber-900/40">
               +{xpReward} XP
            </span>
         </div>
@@ -104,7 +104,7 @@ export function LessonCard({
         {/* Action Button */}
         <div className="mt-5">
           {isLocked ? (
-             <button disabled className="w-full rounded-xl bg-slate-50 py-2.5 text-sm font-semibold text-slate-600 dark:bg-slate-50 dark:text-slate-600">
+             <button disabled className="w-full rounded-xl bg-slate-100 py-2 text-sm font-bold text-slate-400 dark:bg-slate-800 dark:text-slate-600">
                 Locked
              </button>
           ) : (
@@ -118,10 +118,10 @@ export function LessonCard({
                  }
                }}
                className={cn(
-                  "flex w-full items-center justify-center rounded-xl py-2.5 text-sm font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-zinc-950",
+                  "flex w-full items-center justify-center rounded-xl py-2.5 text-[13px] font-bold transition-all active:scale-95 focus:outline-none focus:ring-4 focus:ring-primary/10",
                   isCompleted
-                    ? "border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 dark:border-slate-200 dark:bg-slate-50 dark:text-slate-600 dark:hover:bg-slate-50 focus:ring-slate-300"
-                    : "bg-mozhi-primary text-white hover:bg-mozhi-primary focus:ring-mozhi-primary"
+                    ? "border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700 hover:shadow-sm"
+                    : "bg-primary text-white hover:bg-primary/95 shadow-md shadow-primary/20 hover:shadow-lg hover:-translate-y-0.5"
                )}
              >
                 {isCompleted ? "Review Lesson" : "Start Learning"}

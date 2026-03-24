@@ -42,8 +42,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       await logout();
     } catch {
-      authStore.clear();
+      // silently handle — we still clear local state below
     } finally {
+      authStore.clear();
       setUser(null);
     }
   };

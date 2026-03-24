@@ -2,7 +2,8 @@
 
 import React, { useEffect, useState } from "react";
 import { DataTable, ColumnDef } from "@/components/admin/DataTable";
-import { Loader2, AlertCircle, ShieldCheck, ShieldAlert, CheckCircle2, XCircle, RefreshCw, Edit2, X, Save } from "lucide-react";
+import { Loader2, AlertCircle, ShieldCheck, ShieldAlert, CheckCircle2, XCircle, Edit2, X, Save } from "lucide-react";
+import { cn } from "@/lib/utils";
 import {
   getAllUsers,
   deactivateUser,
@@ -11,6 +12,7 @@ import {
   BaseUser,
 } from "@/services/adminService";
 import { Pagination } from "@/components/Pagination";
+import Button from "@/components/common/Button";
 
 function RoleBadge({ role }: { role: BaseUser["role"] }) {
   const map: Record<string, string> = {
@@ -138,31 +140,29 @@ export default function UsersClient() {
       className: "text-right",
       cell: (row) => (
         <div className="flex items-center justify-end gap-2">
-          <button
+          <Button
             onClick={() => handleEditOpen(row)}
-            className="flex items-center gap-1 rounded-lg border border-slate-200 px-2 py-1.5 text-xs font-bold text-slate-600 hover:bg-slate-50 transition-colors"
+            variant="outline"
+            size="sm"
+            className="flex items-center gap-1.5"
           >
             <Edit2 size={12} /> Edit
-          </button>
+          </Button>
           
           {row.role !== "admin" && (
-            <button
+            <Button
               onClick={() => handleToggle(row)}
-              disabled={actioning === row._id}
-              className={`flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-bold transition-colors disabled:opacity-50 ${
-                row.isActive
-                  ? "border-red-200 text-red-600 hover:bg-red-50"
-                  : "border-emerald-200 text-emerald-600 hover:bg-emerald-50"
-              }`}
-            >
-              {actioning === row._id ? (
-                <RefreshCw className="h-3 w-3 animate-spin" />
-              ) : row.isActive ? (
-                <><XCircle className="h-3 w-3" /> Suspend</>
-              ) : (
-                <><CheckCircle2 className="h-3 w-3" /> Activate</>
+              isLoading={actioning === row._id}
+              variant={row.isActive ? "danger" : "secondary"}
+              size="sm"
+              className={cn(
+                "flex items-center gap-1.5",
+                !row.isActive && "border-emerald-200 text-emerald-600 hover:bg-emerald-50 hover:border-emerald-300"
               )}
-            </button>
+            >
+              {!actioning && (row.isActive ? <XCircle size={12} /> : <CheckCircle2 size={12} />)}
+              {row.isActive ? "Suspend" : "Activate"}
+            </Button>
           )}
         </div>
       ),
@@ -180,13 +180,15 @@ export default function UsersClient() {
            <h1 className="text-3xl md:text-4xl font-black text-slate-900 uppercase tracking-tight">User Database</h1>
            <p className="mt-2 text-slate-500 font-medium">View, edit, or suspend student and tutor accounts.</p>
         </div>
-        <button
+        <Button
           onClick={() => load(currentPage)}
-          disabled={loading}
-          className="flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-xs font-black uppercase tracking-widest text-slate-600 shadow-sm transition hover:bg-slate-50 disabled:opacity-50"
+          isLoading={loading}
+          variant="outline"
+          size="md"
+          className="text-xs font-black uppercase tracking-widest"
         >
-          <RefreshCw className={`h-3 w-3 ${loading ? "animate-spin" : ""}`} /> Refresh Data
-        </button>
+          Refresh Data
+        </Button>
       </div>
 
       {error && (
@@ -232,7 +234,7 @@ export default function UsersClient() {
                     name="name" 
                     value={editFormData.name || ""} 
                     onChange={handleEditChange}
-                    className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:ring-1 focus:ring-primary outline-none" 
+                    className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-medium outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all transition-all" 
                   />
                 </div>
                 <div className="space-y-1.5">
@@ -254,7 +256,7 @@ export default function UsersClient() {
                     name="phoneNumber" 
                     value={editFormData.phoneNumber || ""} 
                     onChange={handleEditChange}
-                    className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:ring-1 focus:ring-primary outline-none" 
+                    className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-medium outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all transition-all" 
                   />
                 </div>
                 <div className="space-y-1.5">
@@ -263,7 +265,7 @@ export default function UsersClient() {
                     name="country" 
                     value={editFormData.country || ""} 
                     onChange={handleEditChange}
-                    className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:ring-1 focus:ring-primary outline-none" 
+                    className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-medium outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all transition-all" 
                   />
                 </div>
                 <div className="space-y-1.5">
@@ -273,7 +275,7 @@ export default function UsersClient() {
                     name="age" 
                     value={editFormData.age || ""} 
                     onChange={handleEditChange}
-                    className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:ring-1 focus:ring-primary outline-none" 
+                    className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-medium outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all transition-all" 
                   />
                 </div>
                 <div className="space-y-1.5">
@@ -312,7 +314,7 @@ export default function UsersClient() {
                       name="specialization" 
                       value={editFormData.specialization || ""} 
                       onChange={handleEditChange}
-                      className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:ring-1 focus:ring-primary outline-none" 
+                      className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-medium outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all transition-all" 
                     />
                   </div>
                   <div className="space-y-1.5">
@@ -321,28 +323,27 @@ export default function UsersClient() {
                       name="experience" 
                       value={editFormData.experience || ""} 
                       onChange={handleEditChange}
-                      className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:ring-1 focus:ring-primary outline-none" 
+                      className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-medium outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all transition-all" 
                     />
                   </div>
                 </div>
               )}
               
               <div className="mt-8 flex items-center justify-end gap-3 border-t border-slate-100 pt-6">
-                <button 
-                  type="button" 
+                <Button 
+                  variant="ghost" 
                   onClick={() => setEditingUser(null)}
-                  className="px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-50 rounded-lg transition-colors"
                 >
                   Cancel
-                </button>
-                <button 
+                </Button>
+                <Button 
                   type="submit" 
-                  disabled={isSaving}
-                  className="flex items-center gap-2 bg-primary px-6 py-2 rounded-lg text-sm font-bold text-white shadow-md hover:bg-primary-dark transition-colors disabled:opacity-50"
+                  isLoading={isSaving}
+                  variant="primary"
+                  size="md"
                 >
-                  {isSaving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
                   Save Changes
-                </button>
+                </Button>
               </div>
             </form>
           </div>

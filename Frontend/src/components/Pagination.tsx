@@ -1,8 +1,7 @@
-"use client";
-
 import React from "react";
 import { ChevronLeft, ChevronRight, MoreHorizontal } from "lucide-react";
 import { cn } from "@/lib/utils";
+import Button from "@/components/common/Button";
 
 interface PaginationProps {
   currentPage: number;
@@ -46,7 +45,7 @@ export function Pagination({
       );
 
       if (currentPage > 3) {
-        pages.push(<span key="dots-1" className="px-2 text-slate-400"><MoreHorizontal className="h-4 w-4" /></span>);
+        pages.push(<span key="dots-1" className="px-2 text-slate-400 mt-2"><MoreHorizontal className="h-4 w-4" /></span>);
       }
 
       const start = Math.max(2, currentPage - 1);
@@ -65,7 +64,7 @@ export function Pagination({
       }
 
       if (currentPage < totalPages - 2) {
-        pages.push(<span key="dots-2" className="px-2 text-slate-400"><MoreHorizontal className="h-4 w-4" /></span>);
+        pages.push(<span key="dots-2" className="px-2 text-slate-400 mt-2"><MoreHorizontal className="h-4 w-4" /></span>);
       }
 
       pages.push(
@@ -83,25 +82,29 @@ export function Pagination({
 
   return (
     <nav className={cn("flex items-center justify-center gap-2 py-8", className)}>
-      <button
+      <Button
+        variant="outline"
+        size="md"
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage <= 1}
-        className="flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 transition hover:bg-slate-50 disabled:opacity-30 disabled:hover:bg-white"
+        className="w-10 h-10 p-0"
         aria-label="Previous page"
       >
         <ChevronLeft className="h-4 w-4" />
-      </button>
+      </Button>
 
       <div className="flex items-center gap-1">{renderPageNumbers()}</div>
 
-      <button
+      <Button
+        variant="outline"
+        size="md"
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage >= totalPages}
-        className="flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 transition hover:bg-slate-50 disabled:opacity-30 disabled:hover:bg-white"
+        className="w-10 h-10 p-0"
         aria-label="Next page"
       >
         <ChevronRight className="h-4 w-4" />
-      </button>
+      </Button>
     </nav>
   );
 }
@@ -116,16 +119,17 @@ function PageButton({
   onClick: () => void;
 }) {
   return (
-    <button
+    <Button
+      variant={active ? "primary" : "ghost"}
+      size="md"
       onClick={onClick}
       className={cn(
-        "flex h-9 min-w-[36px] items-center justify-center rounded-xl px-2 text-sm font-bold transition-all",
-        active
-          ? "bg-mozhi-primary text-white shadow-lg shadow-mozhi-primary/20"
-          : "text-slate-600 hover:bg-slate-100 dark:text-slate-300"
+        "min-w-[40px] h-10 p-0 text-sm",
+        active ? "shadow-md" : "text-slate-600 hover:bg-slate-100"
       )}
     >
       {page}
-    </button>
+    </Button>
   );
 }
+

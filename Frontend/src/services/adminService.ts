@@ -28,7 +28,15 @@ export interface TeacherApplication {
   _id: string;
   userId: { _id: string; name: string; email: string };
   fullName: string;
+  bio?: string;
+  experience?: string;
+  specialization?: string;
+  motivation?: string;
+  hourlyRate?: number;
+  teachingMode?: string;
   status: "pending" | "approved" | "rejected" | "needs_revision";
+  adminNotes?: string;
+  rejectionReason?: string;
   reviewedAt?: string;
 }
 
@@ -104,9 +112,11 @@ export async function updateUserAdmin(
 
 // ── Teacher Applications ──────────────────────────────────────────────────────
 
-export async function getTeacherApplications(page = 1, limit = 6): Promise<PaginatedResponse<TeacherApplication> & { applications: TeacherApplication[] }> {
+export async function getTeacherApplications(page = 1, limit = 8, status?: string): Promise<PaginatedResponse<TeacherApplication> & { applications: TeacherApplication[] }> {
+  const params = new URLSearchParams({ page: String(page), limit: String(limit) });
+  if (status) params.append("status", status);
   const res = await api.get<PaginatedResponse<TeacherApplication> & { applications: TeacherApplication[] }>(
-    `/admin/teacher-applications?page=${page}&limit=${limit}`
+    `/admin/teacher-applications?${params.toString()}`
   );
   return res.data;
 }
@@ -120,11 +130,12 @@ export async function approveTeacherApplication(id: string): Promise<TeacherAppl
 
 export async function rejectTeacherApplication(
   id: string,
-  reason: string
+  rejectionReason: string,
+  adminNotes?: string,
 ): Promise<TeacherApplication> {
   const res = await api.patch<{ application: TeacherApplication }>(
     `/admin/teacher-applications/${id}/reject`,
-    { reason }
+    { rejectionReason, adminNotes }
   );
   return res.data.application;
 }

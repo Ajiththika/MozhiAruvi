@@ -8,6 +8,7 @@ import { register } from '@/services/authService';
 import { getRoleDashboardRoute } from '@/lib/roleUtils';
 import { isAxiosError } from 'axios';
 import { useAuth } from '@/context/AuthContext';
+import Button from '@/components/common/Button';
 
 export default function SignUpForm() {
   const router = useRouter();
@@ -107,13 +108,15 @@ export default function SignUpForm() {
           required 
         />
 
-        <button 
+        <Button 
           type="submit" 
-          disabled={loading}
-          className="w-full py-4 px-4 rounded-xl bg-primary text-white font-bold text-[17px] hover:bg-primary-dark hover:-translate-y-0.5 focus:ring-4 focus:ring-primary/20 transition-all shadow-md hover:shadow-xl mt-6 disabled:opacity-50 disabled:pointer-events-none"
+          isLoading={loading}
+          variant="primary"
+          size="xl"
+          className="w-full mt-6"
         >
-          {loading ? "Creating Account..." : "Create Free Account"}
-        </button>
+          Create Free Account
+        </Button>
       </form>
 
       <div className="mt-8 mb-8 flex items-center">

@@ -45,38 +45,36 @@ const steps = [
 
 export default function HowItWorks() {
   return (
-    <section id="how-it-works" className="section-spacing bg-white">
-      <div className="container-wide">
-        <div className="text-center max-w-4xl mx-auto mb-20 space-y-6">
-          <div className="flex items-center justify-center gap-3 mb-6">
-            <span className="h-1.5 w-12 rounded-full bg-primary" />
-            <label>The Process</label>
-            <span className="h-1.5 w-12 rounded-full bg-primary" />
+    <section id="how-it-works" className="py-10 md:py-14 bg-white px-4 md:px-8 lg:px-12">
+      <div className="max-w-7xl mx-auto">
+        <div className="text-center max-w-4xl mx-auto mb-16 space-y-6">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-light text-xs font-bold text-primary tracking-tight">
+            How it works
           </div>
-          <h2>
+          <h2 className="text-3xl md:text-4xl font-bold text-slate-900 tracking-tight leading-tight">
             Start Learning in 4 Simple Steps
           </h2>
-          <p className="max-w-xl mx-auto">
+          <p className="text-base text-slate-700 font-medium max-w-xl mx-auto leading-relaxed">
             From registration to mastery—here's your journey to becoming fluent in Tamil.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {steps.map((step) => (
             <div 
               key={step.id} 
-              className="card-premium group relative p-12 overflow-hidden border border-slate-50 shadow-xl shadow-slate-200/20"
+              className="relative p-10 rounded-3xl bg-white border border-gray-100 shadow-sm transition-all duration-300 group overflow-hidden hover:border-primary/20 hover:shadow-xl"
             >
-              <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity duration-1000 select-none">
-                <span className="text-9xl font-extrabold text-primary">{step.id}</span>
+              <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:opacity-10 transition-opacity">
+                <span className="text-8xl font-bold text-primary">{step.id}</span>
               </div>
               
-              <div className="relative z-10 flex flex-col items-start gap-4">
-                <div className="w-20 h-20 rounded-2xl bg-slate-50 flex items-center justify-center text-primary mb-8 transition-transform group-hover:scale-110 duration-500 shadow-sm border border-slate-100/50">
+              <div className="relative z-10 flex flex-col items-start gap-3">
+                <div className="w-16 h-16 rounded-2xl bg-slate-50 flex items-center justify-center text-primary mb-6 transition-transform group-hover:scale-110">
                   {step.icon}
                 </div>
-                <h3>{step.title}</h3>
-                <p className="text-sm">
+                <h3 className="text-lg font-bold text-slate-900 mb-3">{step.title}</h3>
+                <p className="text-base text-slate-600 leading-relaxed font-medium">
                   {step.description}
                 </p>
               </div>
@@ -87,4 +85,3 @@ export default function HowItWorks() {
     </section>
   );
 }
-

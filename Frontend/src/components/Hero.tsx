@@ -110,7 +110,7 @@ export default function Hero() {
         {/* Heritage pill badge */}
         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-primary/20 bg-white/60 backdrop-blur-sm text-sm font-semibold text-dark mb-8">
           <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-          One of the oldest living languages — Over 2000 years of heritage
+          One of the oldest living languages - Over 2000 years of heritage
         </div>
 
         {/* Headline */}
@@ -118,15 +118,14 @@ export default function Hero() {
           <h1 className="text-4xl md:text-5xl font-bold text-slate-900 tracking-tight leading-tight">
             <span className="block text-primary">வாழ்க தமிழ் வளர்க கலை</span>
             <span className="block text-2xl md:text-3xl mt-4 text-slate-800">
-              Long Live Tamil, Flourish the Arts
+              Long Live Tamil Flourish the Arts
             </span>
           </h1>
         </div>
 
         {/* Description */}
         <p className="mt-8 text-base text-slate-600 max-w-xl mx-auto leading-relaxed font-medium">
-          Tamil is a classical language spoken by over 80 million people
-          worldwide. Join us in preserving and celebrating this beautiful
+          Join us in preserving and celebrating this beautiful
           language through interactive lessons, expert tutors, and a vibrant
           community.
         </p>
@@ -140,7 +139,7 @@ export default function Hero() {
             &ldquo;To us all towns are one, all men our kin.&rdquo;
           </p>
           <div className="flex items-center justify-center gap-2 mt-4 text-[10px] text-slate-500 font-bold border-t border-gray-50 pt-4 tracking-tight">
-             — Kaniyan Pungundranar, Purananuru
+            - Kaniyan Pungundranar, Purananuru
           </div>
         </div>
 
