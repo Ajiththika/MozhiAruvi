@@ -20,10 +20,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     async function initAuth() {
       try {
-        if (!authStore.get()) {
-          // Attempt to refresh token on initial load
+        // Only attempt refresh if we have a hint that a session exists
+        if (!authStore.get() && authStore.hasSessionHint()) {
           await refresh();
         }
+        
+        // If we have a token (either from refresh or already in store), get user data
         if (authStore.get()) {
           const userData = await getMe();
           setUser(userData);

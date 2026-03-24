@@ -22,11 +22,18 @@ export async function login(req, res, next) {
 // ── Refresh ───────────────────────────────────────────────────────────────────
 export async function refresh(req, res, next) {
     try {
+        if (!req.cookies?.rt) {
+            return res.status(401).json({ message: 'Session expired or refresh token missing.' });
+        }
         const { accessToken, raw } = await authService.refreshTokens(req);
         tokenService.setRefreshCookie(res, raw);
         res.json({ accessToken });
     } catch (e) {
         tokenService.clearRefreshCookie(res);
+        // If it's a known 401 from the service, return it cleanly
+        if (e.status === 401) {
+            return res.status(401).json({ message: e.message || 'Refresh failed.' });
+        }
         next(e);
     }
 }
