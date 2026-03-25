@@ -37,43 +37,23 @@ export default function Navbar() {
           </div>
           
           <div className="hidden md:flex items-center space-x-8">
-            <button
-              onClick={() => {
-                const target = "/student/lessons";
-                if (!user) {
-                  router.push(`/auth/signin?redirect=${encodeURIComponent(target)}`);
-                } else {
-                  router.push(target);
-                }
-              }}
-              className="text-slate-500 hover:text-primary transition-colors font-semibold text-sm"
-            >
+            <Link href="/lessons" className="text-gray-500 hover:text-primary transition-colors font-semibold text-sm">
               Lessons
-            </button>
-            <button
-              onClick={() => {
-                const target = "/student/tutors";
-                if (!user) {
-                  router.push(`/auth/signin?redirect=${encodeURIComponent(target)}`);
-                } else {
-                  router.push(target);
-                }
-              }}
-              className="text-slate-500 hover:text-primary transition-colors font-semibold text-sm"
-            >
+            </Link>
+            <Link href="/tutors" className="text-gray-500 hover:text-primary transition-colors font-semibold text-sm">
               Tutors
-            </button>
-            <Link href="/events" className="text-slate-500 hover:text-primary transition-colors font-semibold text-sm">
+            </Link>
+            <Link href="/events" className="text-gray-500 hover:text-primary transition-colors font-semibold text-sm">
               Events
             </Link>
-            <Link href="/blogs" className="text-slate-500 hover:text-primary transition-colors font-semibold text-sm">
+            <Link href="/blogs" className="text-gray-500 hover:text-primary transition-colors font-semibold text-sm">
               Blogs
             </Link>
           </div>
           
           <div className="flex items-center space-x-4">
             {isLoading ? (
-              <div className="w-8 h-8 rounded-full bg-slate-200 animate-pulse"></div>
+              <div className="w-8 h-8 rounded-full bg-gray-200 animate-pulse"></div>
             ) : user ? (
               <div className="relative">
                 <button
@@ -96,7 +76,7 @@ export default function Navbar() {
                 {isMenuOpen && (
                   <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-100 rounded-xl shadow-lg py-1 z-50 overflow-hidden">
                     <div className="px-4 py-3 border-b border-gray-100 bg-gray-50/50">
-                      <p className="text-sm font-semibold text-gray-900 truncate">{user.name}</p>
+                      <p className="text-sm font-semibold text-gray-800 truncate">{user.name}</p>
                       <p className="text-xs text-gray-500 truncate">{user.email}</p>
                     </div>
                     

@@ -64,13 +64,13 @@ function TutorApplicationSection() {
     needs_revision: { bg: "bg-orange-50 border-orange-200", icon: <AlertCircle className="h-5 w-5 text-orange-500" />, title: "Revision Required", desc: "The admin has requested changes to your application.", badge: "bg-orange-100 text-orange-700" },
   };
 
-  const inputClass = "w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200";
-  const labelClass = "text-xs font-bold text-slate-500 tracking-tight ml-1";
+  const inputClass = "w-full rounded-xl border border-gray-100 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all  dark:bg-gray-800 dark:text-gray-200";
+  const labelClass = "text-xs font-bold text-gray-500 tracking-tight ml-1";
 
   return (
-    <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900/50">
-      <div className="border-b border-slate-100 px-8 py-5 dark:border-slate-800 flex items-center justify-between">
-        <h3 className="flex items-center gap-2.5 text-lg font-bold text-slate-800 dark:text-white">
+    <div className="overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-sm  dark:bg-white/50">
+      <div className="border-b border-gray-100 px-8 py-5  flex items-center justify-between">
+        <h3 className="flex items-center gap-2.5 text-lg font-bold text-gray-800 dark:text-white">
           <GraduationCap className="h-5 w-5 text-secondary" />
           Become a Tutor
         </h3>
@@ -86,7 +86,7 @@ function TutorApplicationSection() {
 
       <div className="p-6">
         {appLoading ? (
-          <div className="flex items-center gap-3 text-slate-500 text-sm font-medium">
+          <div className="flex items-center gap-3 text-gray-500 text-sm font-medium">
             <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
             Checking application status...
           </div>
@@ -96,25 +96,25 @@ function TutorApplicationSection() {
               {statusConfig[application.status]?.icon}
               <div className="flex-1">
                 <div className="flex items-center gap-3 flex-wrap">
-                  <p className="font-bold text-slate-800">{statusConfig[application.status]?.title}</p>
+                  <p className="font-bold text-gray-800">{statusConfig[application.status]?.title}</p>
                   <span className={`text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full ${statusConfig[application.status]?.badge}`}>
                     {application.status.replace("_", " ")}
                   </span>
                 </div>
-                <p className="mt-1 text-sm text-slate-600">{statusConfig[application.status]?.desc}</p>
+                <p className="mt-1 text-sm text-gray-600">{statusConfig[application.status]?.desc}</p>
                 {application.adminNotes && (
                   <div className="mt-3 rounded-xl bg-white/60 border border-white px-4 py-3 text-sm">
-                    <p className="text-[10px] font-black uppercase tracking-wider text-slate-400 mb-1">Admin Notes</p>
-                    <p className="text-slate-700 font-medium">{application.adminNotes}</p>
+                    <p className="text-[10px] font-black uppercase tracking-wider text-gray-400 mb-1">Admin Notes</p>
+                    <p className="text-gray-700 font-medium">{application.adminNotes}</p>
                   </div>
                 )}
                 {application.rejectionReason && (
                   <div className="mt-3 rounded-xl bg-white/60 border border-white px-4 py-3 text-sm">
-                    <p className="text-[10px] font-black uppercase tracking-wider text-slate-400 mb-1">Rejection Reason</p>
-                    <p className="text-slate-700 font-medium">{application.rejectionReason}</p>
+                    <p className="text-[10px] font-black uppercase tracking-wider text-gray-400 mb-1">Rejection Reason</p>
+                    <p className="text-gray-700 font-medium">{application.rejectionReason}</p>
                   </div>
                 )}
-                <p className="mt-3 text-[11px] text-slate-400 font-semibold">
+                <p className="mt-3 text-[11px] text-gray-400 font-semibold">
                   Submitted: {new Date(application.createdAt).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}
                 </p>
               </div>
@@ -130,7 +130,7 @@ function TutorApplicationSection() {
           </div>
         ) : !showForm ? (
           <div className="flex flex-col items-start gap-4">
-            <p className="text-sm text-slate-600 font-medium max-w-lg">
+            <p className="text-sm text-gray-600 font-medium max-w-lg">
               Share your knowledge of Tamil language and culture. Apply to become a verified tutor and connect with learners.
             </p>
             <Button variant="primary" size="md" onClick={() => setShowForm(true)}>
@@ -309,7 +309,7 @@ export default function StudentProfile() {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] gap-3">
         <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
-        <p className="text-slate-500 font-medium font-sans">Fetching your profile details...</p>
+        <p className="text-gray-500 font-medium font-sans">Fetching your profile details...</p>
       </div>
     );
   }
@@ -318,7 +318,7 @@ export default function StudentProfile() {
     return (
       <div className="p-8 text-center flex flex-col items-center gap-4">
         <AlertCircle className="h-12 w-12 text-red-400" />
-        <p className="text-slate-600 font-medium">Session expired or unavailable. Please try signing in again.</p>
+        <p className="text-gray-600 font-medium">Session expired or unavailable. Please try signing in again.</p>
         <button 
           onClick={() => window.location.href = "/auth/signin"}
           className="bg-primary text-white px-6 py-2 rounded-lg font-bold"
@@ -332,7 +332,7 @@ export default function StudentProfile() {
   return (
     <div className="mx-auto max-w-5xl space-y-8 py-8 px-4 sm:px-6 lg:px-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
       {/* Header section with glassmorphism */}
-      <div className="relative overflow-hidden rounded-3xl bg-white p-8 shadow-xl border border-slate-100 dark:bg-slate-800 dark:border-slate-700">
+      <div className="relative overflow-hidden rounded-3xl bg-white p-8 shadow-xl border border-gray-100 dark:bg-gray-800 ">
         <div className="absolute top-0 right-0 -m-8 h-64 w-64 rounded-full bg-primary/5 blur-3xl"></div>
         <div className="absolute bottom-0 left-0 -m-8 h-64 w-64 rounded-full bg-secondary/5 blur-3xl"></div>
         
@@ -341,15 +341,15 @@ export default function StudentProfile() {
             <div className="group relative">
                <div 
                  onClick={triggerFileInput}
-                 className="flex h-32 w-32 cursor-pointer items-center justify-center overflow-hidden rounded-2xl bg-slate-100 shadow-inner group-hover:shadow-md transition-all duration-300 relative border-2 border-transparent group-hover:border-primary/20"
+                 className="flex h-32 w-32 cursor-pointer items-center justify-center overflow-hidden rounded-2xl bg-gray-100 shadow-inner group-hover:shadow-md transition-all duration-300 relative border-2 border-transparent group-hover:border-primary/20"
                >
                   {(previewUrl || user.profilePhoto) ? (
                     <img src={previewUrl || user.profilePhoto || ""} alt="Profile" className="w-full h-full object-cover" />
                   ) : (
-                    <UserCircle className="h-20 w-20 text-slate-300 group-hover:scale-110 transition-transform duration-500" />
+                    <UserCircle className="h-20 w-20 text-gray-300 group-hover:scale-110 transition-transform duration-500" />
                   )}
                   {/* Overlay on hover */}
-                  <div className="absolute inset-0 bg-black/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="absolute inset-0 bg-white/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                     <Camera className="h-8 w-8 text-white" />
                   </div>
                </div>
@@ -360,7 +360,7 @@ export default function StudentProfile() {
                  accept="image/*" 
                  className="hidden" 
                />
-               <div className="absolute -bottom-2 -right-2 rounded-xl bg-white p-1.5 shadow-lg border border-slate-100 dark:bg-slate-700 dark:border-slate-600">
+               <div className="absolute -bottom-2 -right-2 rounded-xl bg-white p-1.5 shadow-lg border border-gray-100 dark:bg-slate-700 dark:border-slate-600">
                   <div className="h-4 w-4 rounded-full bg-emerald-500 ring-4 ring-emerald-50"></div>
                </div>
                
@@ -376,12 +376,12 @@ export default function StudentProfile() {
                )}
             </div>
             <div className="text-center md:text-left">
-              <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">{user.name}</h2>
+              <h2 className="text-3xl font-bold tracking-tight text-gray-800 dark:text-white">{user.name}</h2>
               <div className="mt-2 flex flex-wrap justify-center md:justify-start items-center gap-3">
                 <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-bold text-primary tracking-tight">
                   Student portal
                 </span>
-                <span className="flex items-center gap-1 text-sm font-medium text-slate-500">
+                <span className="flex items-center gap-1 text-sm font-medium text-gray-500">
                   <Mail className="h-3.5 w-3.5" /> {user.email}
                 </span>
               </div>
@@ -390,8 +390,8 @@ export default function StudentProfile() {
           
           <div className="flex items-center gap-3">
             <div className="text-right hidden sm:block mr-2">
-              <p className="text-[10px] font-bold text-slate-400 tracking-tight">Progress level</p>
-              <p className="text-sm font-bold text-slate-700 dark:text-slate-200">{user?.level || 'Beginner'}</p>
+              <p className="text-[10px] font-bold text-gray-400 tracking-tight">Progress level</p>
+              <p className="text-sm font-bold text-gray-700 dark:text-gray-200">{user?.level || 'Beginner'}</p>
             </div>
             <button 
               onClick={handleDeactivate}
@@ -413,9 +413,9 @@ export default function StudentProfile() {
       <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-8 lg:grid-cols-12">
          {/* Main content Area */}
          <div className="lg:col-span-8 space-y-8">
-            <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition-all hover:shadow-md dark:border-slate-800 dark:bg-slate-900/50">
-               <div className="border-b border-slate-100 px-8 py-5 dark:border-slate-800">
-                  <h3 className="flex items-center gap-2.5 text-lg font-bold text-slate-800 dark:text-white">
+            <div className="overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-sm transition-all hover:shadow-md  dark:bg-white/50">
+               <div className="border-b border-gray-100 px-8 py-5 ">
+                  <h3 className="flex items-center gap-2.5 text-lg font-bold text-gray-800 dark:text-white">
                      <UserCircle className="h-5 w-5 text-secondary" /> 
                      Profile Information
                   </h3>
@@ -424,7 +424,7 @@ export default function StudentProfile() {
                <div className="p-8 space-y-6">
                   <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                      <div className="space-y-1.5">
-                        <label className="text-xs font-bold text-slate-500 tracking-tight ml-1">Full name</label>
+                        <label className="text-xs font-bold text-gray-500 tracking-tight ml-1">Full name</label>
                         <input 
                           type="text" 
                           name="name" 
@@ -432,34 +432,34 @@ export default function StudentProfile() {
                           onChange={handleChange} 
                           required 
                           placeholder="Your display name"
-                          className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-700 outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200" 
+                          className="w-full rounded-xl border border-gray-100 bg-white px-4 py-3 text-sm font-medium text-gray-700 outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all  dark:bg-gray-800 dark:text-gray-200" 
                         />
                      </div>
                      <div className="space-y-1.5">
-                        <label className="text-xs font-bold text-slate-500 tracking-tight ml-1">Account created</label>
-                        <div className="w-full rounded-xl border border-slate-100 bg-slate-50 px-4 py-3 text-sm font-bold text-slate-400 dark:border-slate-800 dark:bg-slate-800/50">
+                        <label className="text-xs font-bold text-gray-500 tracking-tight ml-1">Account created</label>
+                        <div className="w-full rounded-xl border border-gray-100 bg-gray-50 px-4 py-3 text-sm font-bold text-gray-400  dark:bg-gray-800/50">
                           {new Date(user?.createdAt || "").toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
                         </div>
                      </div>
                   </div>
 
                   <div className="space-y-1.5">
-                      <label className="text-xs font-bold text-slate-500 tracking-tight ml-1">Bio / About you</label>
+                      <label className="text-xs font-bold text-gray-500 tracking-tight ml-1">Bio / About you</label>
                       <textarea 
                         name="bio" 
                         rows={5} 
                         value={formData.bio} 
                         onChange={handleChange} 
                         placeholder="Tell the community about your learning journey..."
-                        className="w-full resize-none rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-700 outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
+                        className="w-full resize-none rounded-xl border border-gray-100 bg-white px-4 py-3 text-sm font-medium text-gray-700 outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all  dark:bg-gray-800 dark:text-gray-200"
                       ></textarea>
                   </div>
                </div>
             </div>
 
-            <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition-all hover:shadow-md dark:border-slate-800 dark:bg-slate-900/50">
-               <div className="border-b border-slate-100 px-8 py-5 dark:border-slate-800">
-                  <h3 className="flex items-center gap-2.5 text-lg font-bold text-slate-800 dark:text-white">
+            <div className="overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-sm transition-all hover:shadow-md  dark:bg-white/50">
+               <div className="border-b border-gray-100 px-8 py-5 ">
+                  <h3 className="flex items-center gap-2.5 text-lg font-bold text-gray-800 dark:text-white">
                      <MapPin className="h-5 w-5 text-secondary" /> 
                      Contact & Location
                   </h3>
@@ -468,17 +468,17 @@ export default function StudentProfile() {
                <div className="p-8 space-y-6">
                  <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                       <label className="text-xs font-bold text-slate-500 tracking-tight ml-1">Phone number</label>
+                       <label className="text-xs font-bold text-gray-500 tracking-tight ml-1">Phone number</label>
                        <div className="relative group">
-                          <Phone className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-primary transition-colors" />
-                          <input type="tel" name="phoneNumber" value={formData.phoneNumber} onChange={handleChange} placeholder="+1 (555) 000-0000" className="w-full rounded-xl border border-slate-200 bg-white pl-12 pr-4 py-3 text-sm font-medium text-slate-700 outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200" />
+                          <Phone className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 group-focus-within:text-primary transition-colors" />
+                          <input type="tel" name="phoneNumber" value={formData.phoneNumber} onChange={handleChange} placeholder="+1 (555) 000-0000" className="w-full rounded-xl border border-gray-100 bg-white pl-12 pr-4 py-3 text-sm font-medium text-gray-700 outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all  dark:bg-gray-800 dark:text-gray-200" />
                        </div>
                     </div>
                     <div className="space-y-1.5">
-                       <label className="text-xs font-bold text-slate-500 tracking-tight ml-1">Country</label>
+                       <label className="text-xs font-bold text-gray-500 tracking-tight ml-1">Country</label>
                        <div className="relative group">
-                          <Globe className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-primary transition-colors" />
-                          <input type="text" name="country" value={formData.country} onChange={handleChange} placeholder="e.g. Canada" className="w-full rounded-xl border border-slate-200 bg-white pl-12 pr-4 py-3 text-sm font-medium text-slate-700 outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200" />
+                          <Globe className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 group-focus-within:text-primary transition-colors" />
+                          <input type="text" name="country" value={formData.country} onChange={handleChange} placeholder="e.g. Canada" className="w-full rounded-xl border border-gray-100 bg-white pl-12 pr-4 py-3 text-sm font-medium text-gray-700 outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all  dark:bg-gray-800 dark:text-gray-200" />
                        </div>
                     </div>
                  </div>
@@ -488,21 +488,21 @@ export default function StudentProfile() {
 
          {/* Sidebar Area */}
          <div className="lg:col-span-4 space-y-8">
-            <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white p-8 shadow-sm dark:border-slate-800 dark:bg-slate-900/50">
-               <h4 className="text-xs font-bold text-slate-500 tracking-tight mb-6">Personal details</h4>
+            <div className="overflow-hidden rounded-3xl border border-gray-100 bg-white p-8 shadow-sm  dark:bg-white/50">
+               <h4 className="text-xs font-bold text-gray-500 tracking-tight mb-6">Personal details</h4>
                
                <div className="space-y-6">
                   <div className="space-y-2">
-                     <label className="text-xs font-bold text-slate-600 dark:text-slate-400">Age</label>
+                     <label className="text-xs font-bold text-gray-600 dark:text-gray-400">Age</label>
                      <div className="relative group">
-                        <Hash className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                        <input type="number" name="age" min="5" max="120" value={formData.age} onChange={handleChange} className="w-full rounded-xl border border-slate-200 bg-white pl-12 pr-4 py-3 text-sm font-bold text-slate-700 outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all dark:border-slate-700 dark:bg-slate-800" />
+                        <Hash className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                        <input type="number" name="age" min="5" max="120" value={formData.age} onChange={handleChange} className="w-full rounded-xl border border-gray-100 bg-white pl-12 pr-4 py-3 text-sm font-bold text-gray-700 outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all  dark:bg-gray-800" />
                      </div>
                   </div>
 
                   <div className="space-y-2">
-                     <label className="text-xs font-bold text-slate-600 dark:text-slate-400">Gender</label>
-                     <select name="gender" value={formData.gender} onChange={handleChange} className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-bold text-slate-700 outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all dark:border-slate-700 dark:bg-slate-800">
+                     <label className="text-xs font-bold text-gray-600 dark:text-gray-400">Gender</label>
+                     <select name="gender" value={formData.gender} onChange={handleChange} className="w-full rounded-xl border border-gray-100 bg-white px-4 py-3 text-sm font-bold text-gray-700 outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all  dark:bg-gray-800">
                         <option value="">Select Gender</option>
                         <option value="male">Male</option>
                         <option value="female">Female</option>

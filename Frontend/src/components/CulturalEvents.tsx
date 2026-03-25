@@ -51,16 +51,16 @@ const events = [
 
 export default function CulturalEvents() {
   return (
-    <section id="events" className="py-10 md:py-14 bg-slate-50 px-4 md:px-8 lg:px-12">
+    <section id="events" className="py-10 md:py-14 bg-soft/10 px-4 md:px-8 lg:px-12">
       <div className="max-w-7xl mx-auto">
         <div className="text-center max-w-4xl mx-auto mb-16 space-y-6">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-light text-xs font-bold text-primary tracking-tight">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent text-xs font-bold text-primary tracking-tight">
             Community & culture
           </div>
-          <h2 className="text-3xl md:text-4xl font-bold text-slate-900 tracking-tight leading-tight">
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-800 tracking-tight leading-tight">
             Live Cultural Events
           </h2>
-          <p className="text-base text-slate-700 font-medium max-w-xl mx-auto leading-relaxed">
+          <p className="text-base text-gray-700 font-medium max-w-xl mx-auto leading-relaxed">
             Language is best learned through the heart of its culture. Join our regular gatherings to experience Tamil heritage in action.
           </p>
         </div>
@@ -74,18 +74,18 @@ export default function CulturalEvents() {
                 className="p-8 rounded-3xl bg-white border border-gray-100 shadow-sm transition-all duration-300 group hover:border-primary/20 hover:shadow-xl cursor-pointer flex flex-col gap-4"
               >
                 <div className="flex items-center justify-between mb-2">
-                  <div className="w-12 h-12 rounded-2xl bg-slate-50 text-primary flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform">
+                  <div className="w-12 h-12 rounded-2xl bg-gray-50 text-primary flex items-center justify-center shadow-sm group-hover:bg-primary group-hover:text-white transition-all">
                     {event.icon}
                   </div>
                   <span className={`text-xs font-bold px-3 py-1 rounded-full ${
-                    event.type === 'Online' ? 'bg-light text-primary' : 'bg-success/10 text-success'
+                    event.type === 'Online' ? 'bg-accent text-primary' : 'bg-success/10 text-success'
                   }`}>
                     {event.type}
                   </span>
                 </div>
                 <div>
-                  <h4 className="font-bold text-slate-900 text-lg mb-1 tracking-tight">{event.title}</h4>
-                  <div className="text-xs font-semibold text-slate-400 flex items-center gap-2">
+                  <h4 className="font-bold text-gray-800 text-lg mb-1 tracking-tight">{event.title}</h4>
+                  <div className="text-xs font-semibold text-gray-400 flex items-center gap-2">
                     <Calendar className="w-4 h-4 text-primary/60" />
                     {event.date}
                   </div>
@@ -96,15 +96,15 @@ export default function CulturalEvents() {
 
           {/* Right Column (Text) */}
           <div className="flex-1 w-full text-center lg:text-left space-y-6">
-            <h3 className="text-3xl md:text-4xl font-bold text-slate-900 tracking-tight leading-tight">
+            <h3 className="text-3xl md:text-4xl font-bold text-gray-800 tracking-tight leading-tight">
               Celebrate Tamil Heritage Together
             </h3>
-            <p className="text-base text-slate-700 font-medium leading-relaxed max-w-xl">
+            <p className="text-base text-gray-700 font-medium leading-relaxed max-w-xl">
               Experience Tamil culture through poetry readings, festival celebrations, film screenings, and interactive workshops. Connect with fellow enthusiasts and deepen your understanding beyond the classroom.
             </p>
             <Link 
               href="/events" 
-              className="inline-flex items-center justify-center gap-2 px-8 py-3 rounded-xl bg-primary text-white text-sm font-semibold hover:scale-[1.02] active:scale-[0.98] transition-all shadow-md"
+              className="inline-flex items-center justify-center gap-2 px-8 py-3 rounded-xl bg-primary text-white text-sm font-semibold hover:bg-secondary active:scale-[0.98] transition-all shadow-md"
             >
               Browse All Events <span>&rarr;</span>
             </Link>

@@ -9,6 +9,8 @@ import { Pagination } from "@/components/Pagination";
 import { Loader2, Calendar, Clock, MapPin, User, ChevronRight, Lock, CheckCircle, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
 import RegistrationModal from "@/components/common/RegistrationModal";
+import { useAuth } from "@/context/AuthContext";
+import { useRouter } from "next/navigation";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -19,7 +21,7 @@ function EventTypeBadge({ type }: { type: string | boolean }) {
       className={cn(
         "text-xs font-semibold uppercase tracking-widest px-3 py-1 rounded-full border",
         isOnline
-          ? "bg-light text-primary border-primary/10"
+          ? "bg-accent/30 text-primary border-primary/10"
           : "bg-success/10 text-success border-success/10"
       )}
     >
@@ -39,6 +41,9 @@ function TagBadge({ tag }: { tag: string }) {
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function EventsPage() {
+  const { user } = useAuth();
+  const router = useRouter();
+  
   const [upcomingEvents, setUpcomingEvents] = useState<MozhiEvent[]>([]);
   const [pastEvents, setPastEvents] = useState<MozhiEvent[]>([]);
   const [loadingUpcoming, setLoadingUpcoming] = useState(true);
@@ -72,6 +77,10 @@ export default function EventsPage() {
   }, []);
 
   const handleOpenRegistration = (event: MozhiEvent) => {
+    if (!user) {
+      router.push(`/auth/signin?redirect=${encodeURIComponent('/events')}`);
+      return;
+    }
     setSelectedEvent(event);
     setIsModalOpen(true);
   };
@@ -108,12 +117,12 @@ export default function EventsPage() {
                   Live Community Experience
                 </div>
 
-                <h1 className="text-4xl md:text-5xl lg:text-7xl font-bold text-slate-900 tracking-tight leading-tight">
+                <h1 className="text-4xl md:text-5xl lg:text-7xl font-bold text-gray-800 tracking-tight leading-tight">
                   Connect, Learn & Grow with <br />
                   <span className="text-primary italic">Tamil Cultural Events</span>
                 </h1>
 
-                <p className="text-lg md:text-xl text-slate-600 max-w-2xl leading-relaxed font-medium">
+                <p className="text-lg md:text-xl text-gray-600 max-w-2xl leading-relaxed font-medium">
                   Experience the richness of Tamil heritage through curated workshops, poetry nights, and interactive meetups. Connect with native speakers and passionate learners worldwide in our vibrant space.
                 </p>
 
@@ -139,12 +148,12 @@ export default function EventsPage() {
                 <div className="flex items-center gap-8 pt-10 border-t border-slate-50">
                   <div className="flex -space-x-4">
                     {[1,2,3,4].map(i => (
-                      <div key={i} className="h-12 w-12 rounded-full border-4 border-white bg-slate-50 flex items-center justify-center overflow-hidden shadow-sm">
-                        <User className="h-7 w-7 text-slate-300" />
+                      <div key={i} className="h-12 w-12 rounded-full border-4 border-white bg-gray-50 flex items-center justify-center overflow-hidden shadow-sm">
+                        <User className="h-7 w-7 text-gray-300" />
                       </div>
                     ))}
                   </div>
-                  <p className="text-sm font-bold text-slate-500 tracking-tight">
+                  <p className="text-sm font-bold text-gray-500 tracking-tight">
                     Join 1,200+ members in our next gathering
                   </p>
                 </div>
@@ -153,16 +162,16 @@ export default function EventsPage() {
               {/* Right Column: Featured Event Card */}
               <div className="lg:col-span-5 animate-in fade-in slide-in-from-right-4 duration-700 delay-150">
                 {loadingUpcoming ? (
-                  <div className="bg-slate-50 rounded-[3rem] h-[480px] w-full animate-pulse border border-slate-100 flex items-center justify-center">
+                  <div className="bg-gray-50 rounded-[3rem] h-[480px] w-full animate-pulse border border-gray-100 flex items-center justify-center">
                     <Loader2 className="h-10 w-10 text-primary/20 animate-spin" />
                   </div>
                 ) : upcomingEvents.length > 0 ? (
                   <div className="relative group">
                     <div className="absolute -inset-6 bg-primary/5 rounded-[3.5rem] blur-2xl group-hover:bg-primary/10 transition-colors duration-700" />
-                    <div className="relative bg-white rounded-[3rem] border border-slate-100 shadow-2xl shadow-slate-200/40 overflow-hidden group-hover:shadow-3xl transition-all duration-700">
+                    <div className="relative bg-white rounded-[3rem] border border-gray-100 shadow-2xl shadow-slate-200/40 overflow-hidden group-hover:shadow-3xl transition-all duration-700">
                       {/* Card Header/Date Overlay */}
-                      <div className="bg-slate-50 aspect-[16/10] relative overflow-hidden group-hover:bg-primary/5 transition-colors">
-                        <div className="absolute top-6 left-6 flex flex-col items-center justify-center h-16 w-16 rounded-3xl bg-white shadow-xl text-primary border border-slate-100">
+                      <div className="bg-gray-50 aspect-[16/10] relative overflow-hidden group-hover:bg-primary/5 transition-colors">
+                        <div className="absolute top-6 left-6 flex flex-col items-center justify-center h-16 w-16 rounded-3xl bg-white shadow-xl text-primary border border-gray-100">
                           <span className="text-xs font-bold leading-none mb-1">
                             {new Date(upcomingEvents[0].date).toLocaleDateString('en-US', { month: 'short' }).toUpperCase()}
                           </span>
@@ -171,7 +180,7 @@ export default function EventsPage() {
                           </span>
                         </div>
                         <div className="absolute bottom-6 left-6 right-6 flex items-center justify-between">
-                           <div className="px-4 py-1.5 rounded-full bg-white/80 backdrop-blur-md text-[10px] font-bold text-slate-900 tracking-tight border border-slate-200">
+                           <div className="px-4 py-1.5 rounded-full bg-white/80 backdrop-blur-md text-[10px] font-bold text-gray-800 tracking-tight border border-gray-100">
                               Featured Event
                            </div>
                            <EventTypeBadge type={true} />
@@ -180,22 +189,22 @@ export default function EventsPage() {
                       </div>
 
                       <div className="p-10 space-y-6">
-                        <h3 className="text-3xl font-bold text-slate-900 tracking-tight leading-tight group-hover:text-primary transition-colors">
+                        <h3 className="text-3xl font-bold text-gray-800 tracking-tight leading-tight group-hover:text-primary transition-colors">
                           {upcomingEvents[0].title}
                         </h3>
                         
                         <div className="grid grid-cols-2 gap-6">
-                          <div className="flex items-center gap-3 text-slate-600 text-sm font-bold tracking-tight">
+                          <div className="flex items-center gap-3 text-gray-600 text-sm font-bold tracking-tight">
                             <Clock className="w-5 h-5 text-primary opacity-40" />
                             {upcomingEvents[0].time}
                           </div>
-                          <div className="flex items-center gap-3 text-slate-600 text-sm font-bold tracking-tight">
+                          <div className="flex items-center gap-3 text-gray-600 text-sm font-bold tracking-tight">
                              <MapPin className="w-5 h-5 text-primary opacity-40" />
                              {upcomingEvents[0].location}
                           </div>
                         </div>
 
-                        <p className="text-base text-slate-500 leading-relaxed line-clamp-2 italic font-medium">
+                        <p className="text-base text-gray-500 leading-relaxed line-clamp-2 italic font-medium">
                           "{upcomingEvents[0].description}"
                         </p>
 
@@ -210,10 +219,10 @@ export default function EventsPage() {
                     </div>
                   </div>
                 ) : (
-                  <div className="bg-slate-50 rounded-[3rem] p-12 border border-slate-100 flex flex-col items-center text-center space-y-6">
+                  <div className="bg-gray-50 rounded-[3rem] p-12 border border-gray-100 flex flex-col items-center text-center space-y-6">
                     <div className="h-20 w-20 rounded-full bg-white shadow-xl flex items-center justify-center text-4xl">🗓️</div>
-                    <h3 className="text-xl font-bold text-slate-900">Community Hub</h3>
-                    <p className="text-base text-slate-500 font-medium leading-relaxed">Join our global network of Tamil learners. New events are scheduled regularly to help you master the language.</p>
+                    <h3 className="text-xl font-bold text-gray-800">Community Hub</h3>
+                    <p className="text-base text-gray-500 font-medium leading-relaxed">Join our global network of Tamil learners. New events are scheduled regularly to help you master the language.</p>
                     <Button href="/about" variant="secondary" size="md" className="px-8 border-primary text-primary">View Our Story</Button>
                   </div>
                 )}
@@ -232,20 +241,20 @@ export default function EventsPage() {
                   <span className="h-1.5 w-8 rounded-full bg-secondary" />
                   <span className="text-xs font-bold text-secondary tracking-tight">Register now</span>
                 </div>
-                <h2 className="text-3xl md:text-4xl font-bold text-slate-900 tracking-tight leading-tight">Upcoming Events</h2>
-                <p className="text-base text-slate-600 font-medium leading-relaxed">Book your spot for our latest workshops and meetups.</p>
+                <h2 className="text-3xl md:text-4xl font-bold text-gray-800 tracking-tight leading-tight">Upcoming Events</h2>
+                <p className="text-base text-gray-600 font-medium leading-relaxed">Book your spot for our latest workshops and meetups.</p>
               </div>
             </div>
 
             {loadingUpcoming ? (
                <div className="flex flex-col items-center justify-center py-20 gap-4">
                   <Loader2 className="h-10 w-10 animate-spin text-primary" />
-                  <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest">Opening the scrolls...</p>
+                  <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest">Opening the scrolls...</p>
                </div>
             ) : upcomingEvents.length === 0 ? (
-                <div className="text-center py-20 bg-slate-50 rounded-3xl border border-dashed border-gray-200">
-                   <p className="text-lg font-semibold text-slate-900">No upcoming events found</p>
-                   <p className="text-sm text-slate-500 mt-2">Check back later for new workshops and meetups.</p>
+                <div className="text-center py-20 bg-gray-50 rounded-3xl border border-dashed border-gray-100">
+                   <p className="text-lg font-semibold text-gray-800">No upcoming events found</p>
+                   <p className="text-sm text-gray-500 mt-2">Check back later for new workshops and meetups.</p>
                 </div>
             ) : (
                 <>
@@ -253,7 +262,7 @@ export default function EventsPage() {
                   {upcomingEvents.map((event) => (
                     <div
                       key={event._id}
-                      className="bg-white rounded-3xl border border-slate-100 p-8 hover:shadow-xl transition-all duration-500 group flex flex-col relative overflow-hidden"
+                      className="bg-white rounded-3xl border border-gray-100 p-8 hover:shadow-xl transition-all duration-500 group flex flex-col relative overflow-hidden"
                     >
                       <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 rounded-bl-full transition-all group-hover:scale-110" />
                       
@@ -262,7 +271,7 @@ export default function EventsPage() {
                            <span className="text-2xl font-bold text-primary">
                              {new Date(event.date).getDate()}
                            </span>
-                           <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tight">
+                           <span className="text-[10px] font-bold text-gray-400 uppercase tracking-tight">
                              {new Date(event.date).toLocaleDateString('en-US', { month: 'short' })}
                            </span>
                         </div>
@@ -272,19 +281,19 @@ export default function EventsPage() {
                         </div>
                       </div>
 
-                      <h3 className="text-xl font-bold text-slate-900 mb-4 leading-tight group-hover:text-primary transition-colors">
+                      <h3 className="text-xl font-bold text-gray-800 mb-4 leading-tight group-hover:text-primary transition-colors">
                         {event.title}
                       </h3>
-                      <p className="text-slate-600 text-sm leading-relaxed mb-6 flex-1 font-medium line-clamp-3">
+                      <p className="text-gray-600 text-sm leading-relaxed mb-6 flex-1 font-medium line-clamp-3">
                         {event.description}
                       </p>
 
                       <div className="space-y-4 mb-8 pt-6 border-t border-slate-50">
-                        <div className="flex items-center gap-3 text-slate-600 text-xs font-bold tracking-tight">
+                        <div className="flex items-center gap-3 text-gray-600 text-xs font-bold tracking-tight">
                           <Clock className="w-4 h-4 text-primary/40" />
                           {event.time}
                         </div>
-                        <div className="flex items-center gap-3 text-slate-600 text-xs font-bold tracking-tight">
+                        <div className="flex items-center gap-3 text-gray-600 text-xs font-bold tracking-tight">
                           <MapPin className="w-4 h-4 text-primary/40" />
                           {event.location}
                         </div>
@@ -317,18 +326,18 @@ export default function EventsPage() {
         </section>
 
         {/* ── 3. Past Events ──────────────────────────────────────── */}
-        <section className="py-24 bg-slate-50 px-4 sm:px-6 lg:px-8">
+        <section className="py-24 bg-gray-50 px-4 sm:px-6 lg:px-8">
           <div className="max-w-7xl mx-auto">
             <div className="mb-14 flex flex-col md:flex-row md:items-end justify-between gap-6">
               <div className="max-w-4xl mx-auto relative z-10 text-center space-y-6">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-primary/20 bg-white/60 backdrop-blur-sm text-xs font-bold text-dark tracking-tight">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-primary/20 bg-white/60 backdrop-blur-sm text-xs font-bold text-gray-800 tracking-tight">
               Community & Culture
             </div>
 
-            <h1 className="text-3xl md:text-4xl font-bold text-slate-900 tracking-tight leading-tight">
+            <h1 className="text-3xl md:text-4xl font-bold text-gray-800 tracking-tight leading-tight">
               Tamil Cultural Events & <span className="text-primary italic">Gatherings</span>
             </h1>
-                <p className="text-slate-700 text-base font-medium max-w-xl leading-relaxed">
+                <p className="text-gray-700 text-base font-medium max-w-xl leading-relaxed">
                   Highlights from our previous gatherings and community milestones.
                 </p>
               </div>
@@ -336,24 +345,24 @@ export default function EventsPage() {
 
             {loadingPast ? (
               <div className="flex justify-center py-12">
-                <Loader2 className="w-8 h-8 animate-spin text-slate-300" />
+                <Loader2 className="w-8 h-8 animate-spin text-gray-300" />
               </div>
             ) : pastEvents.length === 0 ? (
-                <div className="py-12 text-center bg-white rounded-2xl border border-dashed border-gray-200">
-                   <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest">The archives are currently empty</p>
+                <div className="py-12 text-center bg-white rounded-2xl border border-dashed border-gray-100">
+                   <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest">The archives are currently empty</p>
                 </div>
             ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                   {pastEvents.map((event) => (
                     <div key={event._id} className="bg-white rounded-2xl border border-gray-100 p-6 opacity-80 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-300">
-                        <div className="bg-slate-50 rounded-xl p-4 mb-4 flex justify-between items-start">
+                        <div className="bg-gray-50 rounded-xl p-4 mb-4 flex justify-between items-start">
                            <span className="text-2xl">🗓️</span>
-                           <span className="text-[10px] font-semibold bg-gray-200 text-slate-600 px-2 py-1 rounded-md uppercase tracking-wider">Expired</span>
+                           <span className="text-[10px] font-semibold bg-gray-200 text-gray-600 px-2 py-1 rounded-md uppercase tracking-wider">Expired</span>
                         </div>
-                        <h4 className="font-bold text-slate-800 line-clamp-1 mb-2">{event.title}</h4>
-                        <p className="text-[11px] text-slate-500 font-medium mb-4">{new Date(event.date).toLocaleDateString()}</p>
+                        <h4 className="font-bold text-gray-800 line-clamp-1 mb-2">{event.title}</h4>
+                        <p className="text-[11px] text-gray-500 font-medium mb-4">{new Date(event.date).toLocaleDateString()}</p>
                         
-                        <div className="flex items-center gap-2 py-3 border-t border-slate-100 text-[10px] text-slate-400 font-bold uppercase tracking-wider">
+                        <div className="flex items-center gap-2 py-3 border-t border-gray-100 text-[10px] text-gray-400 font-bold uppercase tracking-wider">
                            <Lock className="w-3 h-3" /> Registration Closed
                         </div>
                     </div>
@@ -391,7 +400,7 @@ export default function EventsPage() {
                 href="/auth/signup"
                 variant="primary"
                 size="lg"
-                className="bg-white text-primary hover:bg-light border-none shadow-xl px-8"
+                className="bg-white text-primary hover:bg-accent/30 border-none shadow-xl px-8"
               >
                 Sign Up for Updates
               </Button>

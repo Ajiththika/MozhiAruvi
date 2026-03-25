@@ -20,7 +20,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
       </div>
 
       {/* Right Side: Branding visual */}
-      <div className="w-full md:w-1/2 bg-gradient-to-br from-[#E6F0FF] via-[#F0F7FF] to-[#D5E6FF] flex flex-col justify-center relative overflow-hidden order-2 hidden md:flex border-l border-border-color/30">
+      <div className="w-full md:w-1/2 bg-gradient-to-br from-soft/50 via-white to-accent/30 flex flex-col justify-center relative overflow-hidden order-2 hidden md:flex border-l border-gray-100">
         
         {/* Decorative elements */}
         <div className="absolute top-0 right-0 p-12 opacity-[0.03] font-black text-[12rem] text-primary transform rotate-12 select-none pointer-events-none">அ</div>
@@ -39,15 +39,15 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
             <div className="w-20 h-20 bg-secondary rounded-2xl flex items-center justify-center text-white text-4xl font-black -ml-6 shadow-md group-hover:-translate-y-2 transition-transform duration-300 delay-75">
               மி
             </div>
-            <div className="w-20 h-20 bg-primary-dark rounded-2xl flex items-center justify-center text-white text-4xl font-black -ml-6 shadow-sm group-hover:rotate-[5deg] transition-transform duration-300 delay-150">
+            <div className="w-20 h-20 bg-accent rounded-2xl flex items-center justify-center text-primary text-4xl font-black -ml-6 shadow-sm group-hover:rotate-[5deg] transition-transform duration-300 delay-150 border border-primary/10">
               ழ்
             </div>
           </div>
 
-          <h1 className="text-4xl lg:text-5xl xl:text-6xl font-extrabold text-slate-800 tracking-tight mb-6">
+          <h1 className="text-4xl lg:text-5xl xl:text-6xl font-extrabold text-gray-800 tracking-tight mb-6">
             தமிழ் கற்கும் பயணம்
           </h1>
-          <p className="text-xl lg:text-2xl text-slate-600 font-medium leading-relaxed max-w-lg mx-auto">
+          <p className="text-xl lg:text-2xl text-gray-600 font-medium leading-relaxed max-w-lg mx-auto">
             Discover the beauty of one of the world's oldest living languages.
           </p>
           
@@ -66,7 +66,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
                   </svg>
                 ))}
               </div>
-              <p className="text-sm font-bold text-slate-700 mt-1">Join 1,200+ learners</p>
+              <p className="text-sm font-bold text-gray-700 mt-1">Join 1,200+ learners</p>
             </div>
           </div>
 

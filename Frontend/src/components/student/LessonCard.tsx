@@ -36,14 +36,14 @@ export function LessonCard({
       className={cn(
         "group relative flex flex-col overflow-hidden rounded-2xl border transition-all duration-300",
         isLocked
-          ? "border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-900/50"
+          ? "border-gray-100 bg-gray-50  dark:bg-white/50"
           : isCompleted
           ? "border-success/20 bg-success/5 shadow-sm hover:shadow-md dark:border-success/10 dark:bg-success/5"
-          : "border-light bg-white shadow-sm hover:shadow-md dark:border-slate-800 dark:bg-slate-900"
+          : "border-accent bg-white shadow-sm hover:shadow-md  dark:bg-white"
       )}
     >
       {/* Thumbnail Area */}
-      <div className="relative h-40 w-full overflow-hidden bg-slate-100 dark:bg-slate-800">
+      <div className="relative h-40 w-full overflow-hidden bg-gray-100 dark:bg-gray-800">
         {thumbnailUrl ? (
            <img
              src={thumbnailUrl}
@@ -56,19 +56,19 @@ export function LessonCard({
         ) : (
            <div className={cn(
               "flex h-full w-full items-center justify-center transition-transform duration-500 group-hover:scale-105",
-              isLocked ? "bg-slate-100 dark:bg-slate-800" : "bg-light dark:bg-primary/20"
+              isLocked ? "bg-gray-100 dark:bg-gray-800" : "bg-accent/30 dark:bg-primary/20"
            )}>
                <PlayCircle className={cn(
                   "h-12 w-12",
-                  isLocked ? "text-slate-400 dark:text-slate-500" : "text-secondary dark:text-secondary"
+                  isLocked ? "text-gray-400 dark:text-gray-500" : "text-secondary dark:text-secondary"
                )} />
            </div>
         )}
 
         {/* Status Overlay icon */}
-        <div className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-white/90 shadow-sm backdrop-blur-sm dark:bg-slate-900/90">
+        <div className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-white/90 shadow-sm backdrop-blur-sm dark:bg-white/90">
           {isLocked ? (
-            <Lock className="h-4 w-4 text-slate-500 dark:text-slate-400" />
+            <Lock className="h-4 w-4 text-gray-500 dark:text-gray-400" />
           ) : isCompleted ? (
             <CheckCircle2 className="h-4 w-4 text-success" />
           ) : (
@@ -82,18 +82,18 @@ export function LessonCard({
         <h3
           className={cn(
             "text-lg font-bold leading-tight",
-            isLocked ? "text-slate-400 dark:text-slate-500" : "text-slate-900 dark:text-white"
+            isLocked ? "text-gray-400 dark:text-gray-500" : "text-gray-800 dark:text-white"
           )}
         >
           {title}
         </h3>
-        <p className="mt-2 line-clamp-2 flex-1 text-sm text-slate-600 dark:text-slate-400">
+        <p className="mt-2 line-clamp-2 flex-1 text-sm text-gray-600 dark:text-gray-400">
           {description}
         </p>
 
         {/* Meta */}
         <div className="mt-4 flex items-center justify-between text-[11px] font-bold uppercase tracking-wider">
-           <span className="text-slate-400 dark:text-slate-500">
+           <span className="text-gray-400 dark:text-gray-500">
               {duration}
            </span>
            <span className="rounded-md bg-amber-50 px-2 py-0.5 text-amber-600 border border-amber-200/50 dark:bg-amber-900/20 dark:text-amber-500 dark:border-amber-900/40">
@@ -104,7 +104,7 @@ export function LessonCard({
         {/* Action Button */}
         <div className="mt-5">
           {isLocked ? (
-             <button disabled className="w-full rounded-xl bg-slate-100 py-2 text-sm font-bold text-slate-400 dark:bg-slate-800 dark:text-slate-600">
+             <button disabled className="w-full rounded-xl bg-gray-100 py-2 text-sm font-bold text-gray-400 dark:bg-gray-800 dark:text-gray-600">
                 Locked
              </button>
           ) : (
@@ -119,9 +119,9 @@ export function LessonCard({
                }}
                className={cn(
                   "flex w-full items-center justify-center rounded-xl py-2.5 text-[13px] font-bold transition-all active:scale-95 focus:outline-none focus:ring-4 focus:ring-primary/10",
-                  isCompleted
-                    ? "border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700 hover:shadow-sm"
-                    : "bg-primary text-white hover:bg-primary/95 shadow-md shadow-primary/20 hover:shadow-lg hover:-translate-y-0.5"
+                   isCompleted
+                    ? "border border-gray-100 bg-white text-gray-600 hover:bg-gray-50  dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 hover:shadow-sm"
+                    : "bg-primary text-white hover:bg-secondary shadow-md shadow-primary/20 hover:shadow-lg hover:-translate-y-0.5"
                )}
              >
                 {isCompleted ? "Review Lesson" : "Start Learning"}

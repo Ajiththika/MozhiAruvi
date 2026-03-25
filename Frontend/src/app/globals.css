@@ -2,15 +2,15 @@
 
 @theme {
   /* Design System Fonts */
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-outfit);
+  --font-mono: var(--font-inter);
 
-  /* Primary Brand Palette */
-  --color-primary: #2A5794;
-  --color-secondary: #4F84B5;
-  --color-soft: #93B8C6;
-  --color-light: #C1DBE4;
-  --color-dark: #17325C;
+  /* New Primary Brand Palette */
+  --color-primary: #6367FF;
+  --color-secondary: #8494FF;
+  --color-accent: #C9BEFF;
+  --color-soft: #FFDBFD;
+  --color-dark: #0f172a;
 
   /* Semantic Colors */
   --color-success: #10b981; /* green-500 */
@@ -19,17 +19,20 @@
 
   /* Neutral Surface Colors (Derived) */
   --color-surface: #ffffff;
-  --color-surface-soft: #f8fafc; /* slate-50 */
+  --color-surface-soft: #fcfaff; /* A very slight tint towards the soft palette */
 }
 
 @layer base {
   body {
-    @apply bg-slate-50 text-slate-900 font-sans antialiased;
+    @apply bg-white text-gray-600 font-sans antialiased;
     scroll-behavior: smooth;
   }
   
   /* Reset some common styles to follow the design scale if needed */
-  h1 { @apply text-2xl md:text-3xl font-bold tracking-tight; }
+  h1, h2, h3, h4, h5, h6 { 
+    @apply text-gray-800 font-bold tracking-tight; 
+  }
+  h1 { @apply text-2xl md:text-3xl font-bold tracking-tight text-gray-800; }
   h2 { @apply text-xl font-semibold; }
   h3 { @apply text-base font-semibold; }
 }

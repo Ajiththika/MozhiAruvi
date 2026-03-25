@@ -10,8 +10,8 @@ import Button from "@/components/common/Button";
 
 const CATEGORIES = ["Grammar", "Culture", "Pronunciation", "Tutor Tips", "Updates", "General"];
 
-const labelCls = "text-xs font-bold text-slate-400 tracking-tight ml-2 mb-2 block";
-const inputCls = "w-full rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 px-6 py-4 text-sm font-medium text-slate-900 dark:text-white placeholder:text-slate-300 focus:ring-4 focus:ring-primary/5 focus:border-primary outline-none transition-all shadow-sm";
+const labelCls = "text-xs font-bold text-gray-400 tracking-tight ml-2 mb-2 block";
+const inputCls = "w-full rounded-2xl border border-gray-100  bg-gray-50 px-6 py-4 text-sm font-medium text-gray-800 dark:text-white placeholder:text-gray-300 focus:ring-4 focus:ring-primary/5 focus:border-primary outline-none transition-all shadow-sm";
 
 export default function CreateBlogPage() {
   const router = useRouter();
@@ -51,7 +51,7 @@ export default function CreateBlogPage() {
 
   return (
     <div className="animate-in fade-in duration-700 max-w-6xl mx-auto py-10">
-      <Link href="/student/blogs" className="group mb-12 inline-flex items-center gap-2 text-xs font-bold text-slate-400 hover:text-primary transition-colors tracking-tight">
+      <Link href="/student/blogs" className="group mb-12 inline-flex items-center gap-2 text-xs font-bold text-gray-400 hover:text-primary transition-colors tracking-tight">
         <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" /> Back to studio
       </Link>
 
@@ -63,10 +63,10 @@ export default function CreateBlogPage() {
                  <Sparkles className="w-5 h-5 text-primary" />
                  <span className="text-xs font-bold text-primary tracking-tight">Story Studio</span>
               </div>
-              <h1 className="text-4xl md:text-5xl font-bold text-slate-900 dark:text-white tracking-tight leading-none">
+              <h1 className="text-4xl md:text-5xl font-bold text-gray-800 dark:text-white tracking-tight leading-none">
                 Write a new <span className="text-primary italic">story</span>
               </h1>
-              <p className="text-slate-500 font-medium max-w-lg leading-relaxed">Capture your Tamil heritage and insights. Your words shape our vibrant community.</p>
+              <p className="text-gray-500 font-medium max-w-lg leading-relaxed">Capture your Tamil heritage and insights. Your words shape our vibrant community.</p>
            </div>
 
            {/* Banner Feedback */}
@@ -81,7 +81,7 @@ export default function CreateBlogPage() {
             </div>
            )}
 
-           <div className="bg-white dark:bg-slate-900 rounded-[3rem] border border-slate-100 dark:border-slate-800 p-8 md:p-14 shadow-2xl shadow-slate-200/20 dark:shadow-none space-y-10">
+           <div className="bg-white rounded-[3rem] border border-gray-100  p-8 md:p-14 shadow-2xl shadow-slate-200/20 dark:shadow-none space-y-10">
               {/* Title Section */}
               <div className="space-y-4">
                  <input 
@@ -90,10 +90,10 @@ export default function CreateBlogPage() {
                   required 
                   value={form.title} 
                   onChange={handleChange} 
-                  className="w-full bg-transparent border-none text-3xl md:text-5xl font-bold text-slate-900 dark:text-white placeholder:text-slate-100 focus:ring-0 px-0 outline-none tracking-tight leading-tight" 
+                  className="w-full bg-transparent border-none text-3xl md:text-5xl font-bold text-gray-800 dark:text-white placeholder:text-slate-100 focus:ring-0 px-0 outline-none tracking-tight leading-tight" 
                   placeholder="The title of your story..." 
                  />
-                 <div className="h-[1px] w-full bg-slate-50 dark:bg-slate-800" />
+                 <div className="h-[1px] w-full bg-gray-50 dark:bg-gray-800" />
               </div>
 
               {/* Sub-meta */}
@@ -128,7 +128,7 @@ export default function CreateBlogPage() {
                       <label className={labelCls}>Body Content</label>
                       <span className="text-[10px] font-bold text-primary border border-primary/20 bg-primary/5 px-2 py-0.5 rounded-md">{wordCount} Words</span>
                  </div>
-                 <textarea name="content" required rows={16} value={form.content} onChange={handleChange} className={cn(inputCls, "resize-none text-base md:text-lg leading-relaxed font-medium bg-white dark:bg-slate-950/50 border-slate-100 dark:border-slate-800 h-[30rem]")} placeholder="Start sharing your knowledge..." />
+                 <textarea name="content" required rows={16} value={form.content} onChange={handleChange} className={cn(inputCls, "resize-none text-base md:text-lg leading-relaxed font-medium bg-white border-gray-100  h-[30rem]")} placeholder="Start sharing your knowledge..." />
               </div>
            </div>
         </div>
@@ -136,8 +136,8 @@ export default function CreateBlogPage() {
         {/* Action Sidebar / Settings */}
         <div className="w-full lg:w-80 shrink-0">
            <div className="sticky top-10 space-y-8">
-              <div className="bg-slate-900 rounded-[3rem] p-10 text-white shadow-2xl shadow-slate-900/10">
-                 <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-8 px-2">Action Center</p>
+              <div className="bg-white rounded-[3rem] p-10 text-white shadow-2xl shadow-slate-900/10">
+                 <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-8 px-2">Action Center</p>
                  <div className="flex flex-col gap-5">
                     <Button
                       onClick={() => handleSubmit(false)}
@@ -162,7 +162,7 @@ export default function CreateBlogPage() {
                           <UserCircle className="w-6 h-6 text-primary" />
                        </div>
                        <div>
-                          <p className="text-[9px] font-bold uppercase tracking-widest text-slate-500 mb-0.5">Author</p>
+                          <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-0.5">Author</p>
                           <p className="text-xs font-bold text-white">Community Member</p>
                        </div>
                     </div>
@@ -171,7 +171,7 @@ export default function CreateBlogPage() {
                           <BookOpen className="w-6 h-6 text-primary" />
                        </div>
                        <div>
-                          <p className="text-[9px] font-bold uppercase tracking-widest text-slate-500 mb-0.5">Visibility</p>
+                          <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-0.5">Visibility</p>
                           <p className="text-xs font-bold text-white">Public Listing</p>
                        </div>
                     </div>
@@ -186,19 +186,19 @@ export default function CreateBlogPage() {
                  <ul className="space-y-6">
                     <li className="flex gap-4">
                        <div className="h-2 w-2 rounded-full bg-primary shrink-0 mt-1.5" />
-                       <p className="text-xs font-medium text-slate-600 dark:text-slate-400 leading-relaxed">
+                       <p className="text-xs font-medium text-gray-600 dark:text-gray-400 leading-relaxed">
                          Use clear, descriptive titles to grab attention in the feed.
                        </p>
                     </li>
                     <li className="flex gap-4">
                        <div className="h-2 w-2 rounded-full bg-primary shrink-0 mt-1.5" />
-                       <p className="text-xs font-medium text-slate-600 dark:text-slate-400 leading-relaxed">
+                       <p className="text-xs font-medium text-gray-600 dark:text-gray-400 leading-relaxed">
                          A featured image significantly increases engagement rates.
                        </p>
                     </li>
                     <li className="flex gap-4">
                        <div className="h-2 w-2 rounded-full bg-primary shrink-0 mt-1.5" />
-                       <p className="text-xs font-medium text-slate-600 dark:text-slate-400 leading-relaxed">
+                       <p className="text-xs font-medium text-gray-600 dark:text-gray-400 leading-relaxed">
                          The excerpt is the first thing people see. Make it count!
                        </p>
                     </li>

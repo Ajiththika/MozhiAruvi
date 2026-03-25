@@ -78,31 +78,31 @@ export default function TeacherRequestsPage() {
   if (loading) return (
     <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4">
       <Loader2 className="h-10 w-10 animate-spin text-mozhi-primary" />
-      <p className="text-sm font-bold text-slate-500 animate-pulse uppercase tracking-widest">Loading Incoming Requests...</p>
+      <p className="text-sm font-bold text-gray-500 animate-pulse uppercase tracking-widest">Loading Incoming Requests...</p>
     </div>
   );
 
   return (
     <div className="mx-auto max-w-5xl space-y-8 animate-in fade-in duration-500 pb-20 px-2">
       {/* Page Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-10 pb-12 border-b border-slate-100">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-10 pb-12 border-b border-gray-100">
         <div className="space-y-4">
            <div className="flex items-center gap-2">
               <span className="h-1.5 w-10 rounded-full bg-primary" />
               <span className="text-[10px] font-bold text-primary uppercase tracking-[0.2em]">Interaction Hub</span>
            </div>
-           <h1 className="text-4xl md:text-5xl font-bold text-slate-900 tracking-tight leading-tight">Incoming Sessions</h1>
-           <p className="text-lg text-slate-600 font-medium leading-relaxed max-w-xl">Efficiently manage your student questions, live bookings, and teaching packages from a single dashboard.</p>
+           <h1 className="text-4xl md:text-5xl font-bold text-gray-800 tracking-tight leading-tight">Incoming Sessions</h1>
+           <p className="text-lg text-gray-600 font-medium leading-relaxed max-w-xl">Efficiently manage your student questions, live bookings, and teaching packages from a single dashboard.</p>
         </div>
         <div className="flex items-center gap-2">
-           <div className="bg-slate-50 rounded-2xl p-1.5 flex gap-1 border border-slate-100 shadow-inner">
+           <div className="bg-gray-50 rounded-2xl p-1.5 flex gap-1 border border-gray-100 shadow-inner">
               {(["all", "pending", "replied", "resolved"] as const).map(t => (
                  <button 
                   key={t}
                   onClick={() => setFilter(t)}
                   className={cn(
                     "px-6 py-2.5 rounded-xl text-xs font-bold capitalize transition-all duration-300",
-                    filter === t ? "bg-white text-primary shadow-xl shadow-slate-200/40 border border-slate-100" : "text-slate-400 hover:text-slate-600"
+                    filter === t ? "bg-white text-primary shadow-xl shadow-slate-200/40 border border-gray-100" : "text-gray-400 hover:text-gray-600"
                   )}
                  >
                     {t}
@@ -120,11 +120,11 @@ export default function TeacherRequestsPage() {
 
       {filtered.length === 0 ? (
         <div className="py-32 flex flex-col items-center text-center">
-            <div className="h-20 w-20 rounded-full bg-slate-50 dark:bg-slate-800 flex items-center justify-center mb-6">
-               <CheckCircle2 className="h-10 w-10 text-slate-200 dark:text-slate-700" />
+            <div className="h-20 w-20 rounded-full bg-gray-50 dark:bg-gray-800 flex items-center justify-center mb-6">
+               <CheckCircle2 className="h-10 w-10 text-gray-200 dark:text-gray-700" />
             </div>
-            <h3 className="text-xl font-bold text-slate-400 uppercase tracking-widest">No matching requests</h3>
-            <p className="text-sm text-slate-400 mt-2">Try adjusting your filters or search terms.</p>
+            <h3 className="text-xl font-bold text-gray-400 uppercase tracking-widest">No matching requests</h3>
+            <p className="text-sm text-gray-400 mt-2">Try adjusting your filters or search terms.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-6">
@@ -138,8 +138,8 @@ export default function TeacherRequestsPage() {
               <div
                 key={r._id}
                 className={cn(
-                  "group relative overflow-hidden rounded-[2.5rem] bg-white dark:bg-slate-900 border transition-all duration-300",
-                  isPending ? "border-mozhi-primary/20 shadow-xl shadow-mozhi-primary/[0.03]" : "border-slate-200 dark:border-slate-800 opacity-90 hover:opacity-100"
+                  "group relative overflow-hidden rounded-[2.5rem] bg-white border transition-all duration-300",
+                  isPending ? "border-mozhi-primary/20 shadow-xl shadow-mozhi-primary/[0.03]" : "border-gray-100  opacity-90 hover:opacity-100"
                 )}
               >
                 <div className="flex flex-col lg:flex-row">
@@ -153,11 +153,11 @@ export default function TeacherRequestsPage() {
                         </div>
                        <div>
                            <div className="flex items-center gap-2 mb-1">
-                              <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Student: {typeof (r as any).studentId === 'object' ? (r as any).studentId?.name : "Verified Learner"}</span>
-                              <span className="h-1 w-1 rounded-full bg-slate-200" />
-                              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{new Date(r.createdAt).toLocaleDateString()}</span>
+                              <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">Student: {typeof (r as any).studentId === 'object' ? (r as any).studentId?.name : "Verified Learner"}</span>
+                              <span className="h-1 w-1 rounded-full bg-gray-200" />
+                              <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{new Date(r.createdAt).toLocaleDateString()}</span>
                            </div>
-                           <h3 className="text-xl font-bold text-slate-900">{config.label} Request</h3>
+                           <h3 className="text-xl font-bold text-gray-800">{config.label} Request</h3>
                            {typeof (r as any).lessonId === 'object' && (r as any).lessonId?.title && (
                              <div className="mt-2 inline-flex items-center gap-1.5 rounded-lg bg-primary/5 border border-primary/10 px-3 py-1 text-[11px] font-bold text-primary">
                                📖 {(r as any).lessonId.title}{(r as any).lessonId.moduleNumber ? ` · Module ${(r as any).lessonId.moduleNumber}` : ""}
@@ -174,9 +174,9 @@ export default function TeacherRequestsPage() {
                       </div>
                     </div>
 
-                    <div className="relative rounded-[2rem] bg-slate-50 p-8 border border-slate-100 mb-8">
+                    <div className="relative rounded-[2rem] bg-gray-50 p-8 border border-gray-100 mb-8">
                        <p className="text-sm font-black text-primary uppercase tracking-[0.2em] mb-4">Initial Question</p>
-                       <p className="text-lg font-bold text-slate-700 leading-relaxed italic">
+                       <p className="text-lg font-bold text-gray-700 leading-relaxed italic">
                          "{r.content}"
                        </p>
                     </div>
@@ -189,16 +189,16 @@ export default function TeacherRequestsPage() {
                                 "p-6 rounded-2xl border transition-all animate-in slide-in-from-bottom-2",
                                 msg.senderRole === "teacher" 
                                    ? "bg-primary/5 border-primary/10 ml-8" 
-                                   : "bg-white border-slate-100 mr-8 shadow-sm"
+                                   : "bg-white border-gray-100 mr-8 shadow-sm"
                              )}>
                                 <div className="flex items-center gap-2 mb-3">
-                                   <User className={cn("h-3 w-3", msg.senderRole === "teacher" ? "text-primary" : "text-slate-400")} />
-                                   <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                                   <User className={cn("h-3 w-3", msg.senderRole === "teacher" ? "text-primary" : "text-gray-400")} />
+                                   <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">
                                       {msg.senderRole === "teacher" ? "Your Response" : "Follow-up Question"}
                                    </span>
-                                   <span className="text-[9px] text-slate-300 ml-auto">{new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                                   <span className="text-[9px] text-gray-300 ml-auto">{new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                                 </div>
-                                <p className="text-sm font-bold text-slate-700 leading-relaxed whitespace-pre-line">{msg.content}</p>
+                                <p className="text-sm font-bold text-gray-700 leading-relaxed whitespace-pre-line">{msg.content}</p>
                              </div>
                           ))}
                        </div>
@@ -207,15 +207,15 @@ export default function TeacherRequestsPage() {
                     {r.metadata && (r.metadata.preferredTime || r.metadata.sessionsCount) && (
                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8 px-2">
                           {r.metadata.preferredTime && (
-                             <div className="flex items-center gap-4 text-xs font-bold text-slate-500">
+                             <div className="flex items-center gap-4 text-xs font-bold text-gray-500">
                                 <Clock className="h-4.5 w-4.5 text-primary" />
-                                <span>Requested Time: <span className="text-slate-900 bg-white px-3 py-1 rounded-lg border border-slate-100 ml-1">{r.metadata.preferredTime}</span></span>
+                                <span>Requested Time: <span className="text-gray-800 bg-white px-3 py-1 rounded-lg border border-gray-100 ml-1">{r.metadata.preferredTime}</span></span>
                              </div>
                           )}
                           {r.metadata.sessionsCount && (
-                             <div className="flex items-center gap-4 text-xs font-bold text-slate-500">
+                             <div className="flex items-center gap-4 text-xs font-bold text-gray-500">
                                 <Layers className="h-4.5 w-4.5 text-secondary" />
-                                <span>Package Details: <span className="text-slate-900 bg-white px-3 py-1 rounded-lg border border-slate-100 ml-1">{r.metadata.sessionsCount} classes</span></span>
+                                <span>Package Details: <span className="text-gray-800 bg-white px-3 py-1 rounded-lg border border-gray-100 ml-1">{r.metadata.sessionsCount} classes</span></span>
                              </div>
                           )}
                        </div>
@@ -223,18 +223,18 @@ export default function TeacherRequestsPage() {
                   </div>
 
                   {/* Right: Actions */}
-                  <div className="lg:w-96 bg-slate-50 border-t lg:border-t-0 lg:border-l border-slate-100 p-10 flex flex-col justify-center">
+                  <div className="lg:w-96 bg-gray-50 border-t lg:border-t-0 lg:border-l border-gray-100 p-10 flex flex-col justify-center">
                     {r.status === "declined" ? (
                        <div className="flex flex-col items-center justify-center text-center py-10 opacity-50">
-                          <Ban className="h-8 w-8 text-slate-400 mb-4" />
-                          <h4 className="text-sm font-bold text-slate-500 uppercase tracking-widest">Declined</h4>
+                          <Ban className="h-8 w-8 text-gray-400 mb-4" />
+                          <h4 className="text-sm font-bold text-gray-500 uppercase tracking-widest">Declined</h4>
                        </div>
                     ) : r.status === "pending" ? (
                       <div className="flex flex-col gap-4">
                          <button
                            onClick={() => handleStatusUpdate(r._id, "accept")}
                            disabled={submitting === r._id}
-                           className="flex w-full items-center justify-center gap-3 rounded-[1.5rem] bg-slate-900 py-5 text-xs font-bold text-white shadow-2xl transition-all hover:bg-emerald-600 active:scale-95 disabled:opacity-50"
+                           className="flex w-full items-center justify-center gap-3 rounded-[1.5rem] bg-white py-5 text-xs font-bold text-white shadow-2xl transition-all hover:bg-emerald-600 active:scale-95 disabled:opacity-50"
                          >
                             <CheckCircle className="h-5 w-5" />
                             Accept Request
@@ -242,12 +242,12 @@ export default function TeacherRequestsPage() {
                          <button
                            onClick={() => handleStatusUpdate(r._id, "decline")}
                            disabled={submitting === r._id}
-                           className="flex w-full items-center justify-center gap-3 rounded-[1.5rem] bg-white border border-slate-200 py-5 text-xs font-bold text-slate-400 transition-all hover:bg-red-50 hover:text-red-600 hover:border-red-200 active:scale-95 shadow-sm"
+                           className="flex w-full items-center justify-center gap-3 rounded-[1.5rem] bg-white border border-gray-100 py-5 text-xs font-bold text-gray-400 transition-all hover:bg-red-50 hover:text-red-600 hover:border-red-200 active:scale-95 shadow-sm"
                          >
                             <Ban className="h-5 w-5" />
                             Decline
                          </button>
-                         <p className="text-[11px] text-center text-slate-400 font-medium px-4 leading-relaxed">Accepting the session will notify the student and allow you to submit your response.</p>
+                         <p className="text-[11px] text-center text-gray-400 font-medium px-4 leading-relaxed">Accepting the session will notify the student and allow you to submit your response.</p>
                       </div>
                     ) : (
                       <div className="space-y-5 animate-in zoom-in-95 duration-300">
@@ -256,17 +256,17 @@ export default function TeacherRequestsPage() {
                           value={replies[r._id] ?? ""}
                           onChange={(e) => setReplies((prev) => ({ ...prev, [r._id]: e.target.value }))}
                           placeholder={r.status === "replied" ? "Send a follow-up response..." : "Craft your expert response..."}
-                          className="w-full resize-none rounded-[1.5rem] border border-slate-200 bg-white p-6 text-sm font-medium focus:ring-4 focus:ring-primary/5 focus:outline-none transition-all shadow-xl shadow-slate-200/20"
+                          className="w-full resize-none rounded-[1.5rem] border border-gray-100 bg-white p-6 text-sm font-medium focus:ring-4 focus:ring-primary/5 focus:outline-none transition-all shadow-xl shadow-slate-200/20"
                         />
                         <button
                           onClick={() => handleReply(r._id)}
                           disabled={submitting === r._id || !replies[r._id]?.trim()}
-                          className="flex w-full items-center justify-center gap-3 rounded-[1.5rem] bg-primary py-5 text-sm font-bold text-white shadow-xl shadow-primary/20 hover:bg-slate-900 disabled:opacity-50 transition-all active:scale-95"
+                          className="flex w-full items-center justify-center gap-3 rounded-[1.5rem] bg-primary py-5 text-sm font-bold text-white shadow-xl shadow-primary/20 hover:bg-white disabled:opacity-50 transition-all active:scale-95"
                         >
                            {submitting === r._id ? <Loader2 className="h-5 w-5 animate-spin" /> : <Send className="h-5 w-5" />}
                            {r.status === "replied" ? "Send Follow-up" : "Submit Interaction"}
                         </button>
-                         <p className="text-[11px] text-center text-slate-400 font-medium px-4 leading-relaxed">
+                         <p className="text-[11px] text-center text-gray-400 font-medium px-4 leading-relaxed">
                             {r.status === "replied" ? "Keep the communication going to solve the doubt." : `Completing this interaction will credit ${r.priceCredits} XP to your balance.`}
                          </p>
                       </div>

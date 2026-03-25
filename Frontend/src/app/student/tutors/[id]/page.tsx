@@ -55,7 +55,7 @@ export default function TutorProfilePage() {
   if (loading) return (
     <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4">
       <div className="h-10 w-10 animate-spin rounded-full border-4 border-mozhi-primary border-t-transparent shadow-xl ring-4 ring-mozhi-primary/5" />
-      <p className="text-sm font-bold text-slate-500 animate-pulse">Retreiving verified profile details...</p>
+      <p className="text-sm font-bold text-gray-500 animate-pulse">Retreiving verified profile details...</p>
     </div>
   );
 
@@ -66,8 +66,8 @@ export default function TutorProfilePage() {
            <AlertCircle className="h-10 w-10 text-red-500" />
         </div>
       </div>
-      <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Teacher Profile Unavailable</h2>
-      <p className="text-sm text-slate-500 dark:text-slate-400 mb-8">{error ?? "This teacher might have removed their profile or is no longer active."}</p>
+      <h2 className="text-xl font-bold text-gray-800 dark:text-white mb-2">Teacher Profile Unavailable</h2>
+      <p className="text-sm text-gray-500 dark:text-gray-400 mb-8">{error ?? "This teacher might have removed their profile or is no longer active."}</p>
       <Link 
         href="/student/tutors" 
         className="inline-flex items-center gap-2 rounded-2xl bg-mozhi-primary px-8 py-3.5 text-sm font-bold text-white transition-transform hover:scale-105 active:scale-95"
@@ -90,9 +90,9 @@ export default function TutorProfilePage() {
       <div className="mx-auto max-w-6xl space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-20">
         {/* Navigation Breadcrumb */}
         <nav className="flex items-center gap-2 px-2">
-           <Link href="/student/dashboard" className="text-xs font-bold text-slate-400 hover:text-mozhi-primary uppercase tracking-widest transition-colors">Dashboard</Link>
+           <Link href="/student/dashboard" className="text-xs font-bold text-gray-400 hover:text-mozhi-primary uppercase tracking-widest transition-colors">Dashboard</Link>
            <div className="h-1 w-1 rounded-full bg-slate-300" />
-           <Link href="/student/tutors" className="text-xs font-bold text-slate-400 hover:text-mozhi-primary uppercase tracking-widest transition-colors">Teachers</Link>
+           <Link href="/student/tutors" className="text-xs font-bold text-gray-400 hover:text-mozhi-primary uppercase tracking-widest transition-colors">Teachers</Link>
            <div className="h-1 w-1 rounded-full bg-slate-300" />
            <span className="text-xs font-bold text-mozhi-primary uppercase tracking-widest">{tutor.name}</span>
         </nav>
@@ -102,7 +102,7 @@ export default function TutorProfilePage() {
           <div className="lg:col-span-8 flex flex-col gap-10">
             
             {/* Main Identity Banner */}
-            <div className="relative overflow-hidden rounded-[3.5rem] bg-white border border-slate-100 p-10 md:p-14 shadow-2xl shadow-slate-200/40">
+            <div className="relative overflow-hidden rounded-[3.5rem] bg-white border border-gray-100 p-10 md:p-14 shadow-2xl shadow-slate-200/40">
               <div className="absolute top-0 right-0 h-[400px] w-[400px] rounded-full bg-primary/5 blur-3xl -mr-40 -mt-40" />
               <div className="absolute bottom-0 left-0 h-[300px] w-[300px] rounded-full bg-secondary/5 blur-3xl -ml-40 -mb-40" />
               
@@ -110,7 +110,7 @@ export default function TutorProfilePage() {
                 <div className="flex flex-col md:flex-row items-center md:items-start gap-10">
                   {/* Photo Container */}
                   <div className="relative">
-                    <div className="h-40 w-40 overflow-hidden rounded-[2.5rem] bg-slate-50 border-4 border-white shadow-2xl transition-all duration-700 hover:rotate-2">
+                    <div className="h-40 w-40 overflow-hidden rounded-[2.5rem] bg-gray-50 border-4 border-white shadow-2xl transition-all duration-700 hover:rotate-2">
                       {tutor.profilePhoto ? (
                         <img src={tutor.profilePhoto} alt={tutor.name} className="h-full w-full object-cover transition-transform hover:scale-110 duration-500" />
                       ) : (
@@ -130,7 +130,7 @@ export default function TutorProfilePage() {
                    <div className="flex-1 text-center md:text-left pt-2 space-y-4">
                     <div className="space-y-2">
                        <div className="flex flex-col md:flex-row items-center md:items-baseline gap-3">
-                        <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-slate-900">{tutor.name}</h1>
+                        <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-gray-800">{tutor.name}</h1>
                         <span className="flex items-center gap-1 px-3 py-1 rounded-full bg-primary/5 border border-primary/10 text-[10px] font-bold text-primary uppercase tracking-widest">
                            <Sparkles className="h-3 w-3" /> Expert Teacher
                         </span>
@@ -155,7 +155,7 @@ export default function TutorProfilePage() {
                     <div className="pt-4 flex items-center justify-center md:justify-start gap-4 border-t border-slate-50 mt-4">
                        <div className="flex items-center gap-2 group cursor-default">
                           <div className={cn("h-2.5 w-2.5 rounded-full", tutor.isTutorAvailable ? "bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.6)]" : "bg-slate-300")} />
-                          <span className={cn("text-xs font-bold uppercase tracking-widest", tutor.isTutorAvailable ? "text-emerald-600" : "text-slate-400")}>
+                          <span className={cn("text-xs font-bold uppercase tracking-widest", tutor.isTutorAvailable ? "text-emerald-600" : "text-gray-400")}>
                              {tutor.isTutorAvailable ? "Accepting Students" : "Away"}
                           </span>
                        </div>
@@ -169,32 +169,32 @@ export default function TutorProfilePage() {
             <div className="space-y-10">
               {/* About section */}
               {tutor.bio && (
-                <div className="rounded-[3rem] bg-white border border-slate-100 p-10 md:p-14 shadow-xl shadow-slate-200/20">
-                  <h2 className="text-xl font-bold text-slate-900 mb-8 flex items-center gap-3">
+                <div className="rounded-[3rem] bg-white border border-gray-100 p-10 md:p-14 shadow-xl shadow-slate-200/20">
+                  <h2 className="text-xl font-bold text-gray-800 mb-8 flex items-center gap-3">
                     <BookOpen className="h-6 w-6 text-primary" /> Professional Background
                   </h2>
-                  <p className="text-lg leading-relaxed font-medium text-slate-600 whitespace-pre-line">{tutor.bio}</p>
+                  <p className="text-lg leading-relaxed font-medium text-gray-600 whitespace-pre-line">{tutor.bio}</p>
                 </div>
               )}
 
               {/* Teaching Details */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
-                <div className="rounded-[2.5rem] bg-white border border-slate-100 p-8 flex flex-col gap-6 shadow-xl shadow-slate-200/20 transition-all hover:border-primary/20">
+                <div className="rounded-[2.5rem] bg-white border border-gray-100 p-8 flex flex-col gap-6 shadow-xl shadow-slate-200/20 transition-all hover:border-primary/20">
                    <div className="h-14 w-14 rounded-2xl bg-primary/5 flex items-center justify-center border border-primary/10">
                       <Sparkles className="h-7 w-7 text-primary" />
                    </div>
                    <div>
-                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-3">Teaching Philosophy</p>
-                     <p className="text-md font-bold text-slate-800 leading-relaxed">{tutor.experience || "Native Teacher with extensive experience in conversational and formal Tamil instruction."}</p>
+                     <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-3">Teaching Philosophy</p>
+                     <p className="text-md font-bold text-gray-800 leading-relaxed">{tutor.experience || "Native Teacher with extensive experience in conversational and formal Tamil instruction."}</p>
                    </div>
                 </div>
-                <div className="rounded-[2.5rem] bg-white border border-slate-100 p-8 flex flex-col gap-6 shadow-xl shadow-slate-200/20 transition-all hover:border-secondary/20">
+                <div className="rounded-[2.5rem] bg-white border border-gray-100 p-8 flex flex-col gap-6 shadow-xl shadow-slate-200/20 transition-all hover:border-secondary/20">
                    <div className="h-14 w-14 rounded-2xl bg-secondary/5 flex items-center justify-center border border-secondary/10">
                       <Globe className="h-7 w-7 text-secondary" />
                    </div>
                    <div>
-                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-3">Language Mastery</p>
-                     <p className="text-md font-bold text-slate-800 leading-relaxed">Expert communication in {tutor.languages?.join(", ") || "Tamil and English"}.</p>
+                     <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-3">Language Mastery</p>
+                     <p className="text-md font-bold text-gray-800 leading-relaxed">Expert communication in {tutor.languages?.join(", ") || "Tamil and English"}.</p>
                    </div>
                 </div>
               </div>
@@ -205,11 +205,11 @@ export default function TutorProfilePage() {
           <div className="lg:col-span-4 flex flex-col gap-8">
             
             <div className="sticky top-24 space-y-6">
-              <div className="rounded-[3rem] bg-slate-900 p-10 text-white shadow-2xl shadow-primary/20 border border-slate-800">
+              <div className="rounded-[3rem] bg-white p-10 text-white shadow-2xl shadow-primary/20 border border-slate-800">
                 <div className="flex items-center justify-between mb-10 border-b border-white/10 pb-8">
                    <div className="space-y-1">
-                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Base Session Fee</p>
-                      <p className="text-4xl font-bold">{tutor.hourlyRate || "10"} <span className="text-xs text-slate-500 font-bold uppercase ml-1">XP Points</span></p>
+                      <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Base Session Fee</p>
+                      <p className="text-4xl font-bold">{tutor.hourlyRate || "10"} <span className="text-xs text-gray-500 font-bold uppercase ml-1">XP Points</span></p>
                    </div>
                    <div className="h-14 w-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center">
                       <Sparkles className="h-7 w-7 text-secondary" />
@@ -220,15 +220,15 @@ export default function TutorProfilePage() {
                    <button 
                      onClick={() => handleProtectedBooking("question")}
                      disabled={!tutor.isTutorAvailable}
-                     className="group w-full flex items-center justify-between gap-4 rounded-2xl bg-white p-5 text-sm font-bold text-slate-900 transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
+                     className="group w-full flex items-center justify-between gap-4 rounded-2xl bg-white p-5 text-sm font-bold text-gray-800 transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
                    >
                       <div className="flex items-center gap-4">
-                         <div className="h-10 w-10 rounded-xl bg-slate-100 flex items-center justify-center group-hover:bg-primary/10 transition-colors">
+                         <div className="h-10 w-10 rounded-xl bg-gray-100 flex items-center justify-center group-hover:bg-primary/10 transition-colors">
                             <MessageSquare className="h-5 w-5 text-primary" />
                          </div>
                          <span>Ask a Question</span>
                       </div>
-                      <span className="text-[10px] bg-slate-100 px-3 py-1 rounded-full text-slate-500 font-black">10 XP</span>
+                      <span className="text-[10px] bg-gray-100 px-3 py-1 rounded-full text-gray-500 font-black">10 XP</span>
                    </button>
 
                    <button 
@@ -242,7 +242,7 @@ export default function TutorProfilePage() {
                          </div>
                          <span>Live 1:1 Class</span>
                       </div>
-                      <span className="text-[10px] bg-white/5 px-3 py-1 rounded-full text-slate-500 font-black">30 XP</span>
+                      <span className="text-[10px] bg-white/5 px-3 py-1 rounded-full text-gray-500 font-black">30 XP</span>
                    </button>
 
                    <button 
@@ -256,12 +256,12 @@ export default function TutorProfilePage() {
                          </div>
                          <span>5-Session Package</span>
                       </div>
-                      <span className="text-[10px] bg-white/5 px-3 py-1 rounded-full text-slate-500 font-black">100 XP</span>
+                      <span className="text-[10px] bg-white/5 px-3 py-1 rounded-full text-gray-500 font-black">100 XP</span>
                    </button>
                 </div>
 
                 <div className="mt-10 pt-8 border-t border-white/10 text-center">
-                   <p className="text-[11px] text-slate-500 font-medium leading-relaxed">
+                   <p className="text-[11px] text-gray-500 font-medium leading-relaxed">
                       Teachers usually respond within {tutor.responseTime || "24 hours"}. Credits are fully refunded if your request is declined.
                    </p>
                 </div>
@@ -269,7 +269,7 @@ export default function TutorProfilePage() {
 
               <Link 
                 href="/student/tutors/my-requests" 
-                className="flex items-center justify-center gap-3 w-full rounded-[2.5rem] border-2 border-slate-100 bg-white py-5 text-xs font-bold text-slate-600 transition-all hover:border-primary hover:text-primary shadow-xl shadow-slate-200/20"
+                className="flex items-center justify-center gap-3 w-full rounded-[2.5rem] border-2 border-gray-100 bg-white py-5 text-xs font-bold text-gray-600 transition-all hover:border-primary hover:text-primary shadow-xl shadow-slate-200/20"
               >
                  <ArrowLeft className="h-4 w-4" /> My Tutor Requests
               </Link>

@@ -10,7 +10,7 @@ import Button from "@/components/common/Button";
 
 const statusConfig: Record<string, { label: string; className: string }> = {
   published: { label: "Published",  className: "bg-emerald-50 text-emerald-600 border-emerald-100" },
-  draft:     { label: "Draft",      className: "bg-slate-50 text-slate-500 border-slate-100" },
+  draft:     { label: "Draft",      className: "bg-gray-50 text-gray-500 border-gray-100" },
   pending:   { label: "Pending",    className: "bg-amber-50 text-amber-600 border-amber-100" },
   rejected:  { label: "Rejected",   className: "bg-red-50 text-red-600 border-red-100" },
 };
@@ -73,14 +73,14 @@ export default function AdminBlogsPage() {
 
   return (
     <div className="animate-in fade-in duration-700 max-w-7xl mx-auto py-10">
-      <div className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-8 pb-10 border-b border-slate-100">
+      <div className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-8 pb-10 border-b border-gray-100">
         <div className="space-y-4">
            <div className="flex items-center gap-2">
               <span className="h-1.5 w-6 rounded-full bg-primary" />
               <span className="text-xs font-bold text-primary tracking-tight">Post moderation</span>
            </div>
-           <h1 className="text-4xl font-bold text-slate-900 tracking-tight leading-none">Content Control</h1>
-           <p className="text-slate-500 font-medium max-w-md">Oversee community contributions and maintain excellence.</p>
+           <h1 className="text-4xl font-bold text-gray-800 tracking-tight leading-none">Content Control</h1>
+           <p className="text-gray-500 font-medium max-w-md">Oversee community contributions and maintain excellence.</p>
         </div>
         
         <div className="flex items-center gap-4">
@@ -94,7 +94,7 @@ export default function AdminBlogsPage() {
           </Button>
           <button
             onClick={() => fetchBlogs(currentPage)}
-            className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-bold text-slate-600 hover:bg-slate-50 transition-all shadow-sm"
+            className="flex items-center gap-2 rounded-xl border border-gray-100 bg-white px-5 py-3 text-sm font-bold text-gray-600 hover:bg-gray-50 transition-all shadow-sm"
           >
             <RefreshCw className={cn("h-4 w-4", loading && "animate-spin")} /> Refresh
           </button>
@@ -103,7 +103,7 @@ export default function AdminBlogsPage() {
 
       {/* Filter Tabs */}
       <div className="flex items-center gap-2 mb-10 overflow-x-auto pb-4 no-scrollbar">
-        <Filter className="w-4 h-4 text-slate-400 mr-2 shrink-0" />
+        <Filter className="w-4 h-4 text-gray-400 mr-2 shrink-0" />
         {["all", "pending", "published", "rejected", "draft"].map((s) => (
           <button
             key={s}
@@ -111,8 +111,8 @@ export default function AdminBlogsPage() {
             className={cn(
               "whitespace-nowrap rounded-full px-5 py-2 text-sm font-bold capitalize transition-all",
               statusFilter === s
-                ? "bg-slate-900 text-white shadow-lg shadow-slate-900/10"
-                : "bg-white border border-slate-200 text-slate-500 hover:text-slate-900 hover:border-slate-400"
+                ? "bg-white text-white shadow-lg shadow-slate-900/10"
+                : "bg-white border border-gray-100 text-gray-500 hover:text-gray-800 hover:border-slate-400"
             )}
           >
             {s === "all" ? "All posts" : s}
@@ -135,29 +135,29 @@ export default function AdminBlogsPage() {
       {loading && filtered.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-32 gap-6">
           <Loader2 className="h-12 w-12 animate-spin text-primary" />
-          <p className="text-sm font-bold text-slate-400">Loading audit log...</p>
+          <p className="text-sm font-bold text-gray-400">Loading audit log...</p>
         </div>
       ) : null}
 
       {!loading && filtered.length === 0 && !error && (
-        <div className="bg-white rounded-3xl border border-slate-100 p-20 text-center">
-          <p className="text-slate-500 font-medium">No results match your selection.</p>
+        <div className="bg-white rounded-3xl border border-gray-100 p-20 text-center">
+          <p className="text-gray-500 font-medium">No results match your selection.</p>
         </div>
       )}
 
       {/* Audit Table */}
       {filtered.length > 0 && (
         <div className="space-y-12">
-          <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-2xl shadow-slate-200/20 overflow-hidden">
+          <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-2xl shadow-slate-200/20 overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-left">
                 <thead>
-                  <tr className="bg-slate-50/50 border-b border-slate-100">
-                    <th className="px-8 py-6 text-xs font-bold text-slate-400 uppercase tracking-widest">Article details</th>
-                    <th className="px-8 py-6 text-xs font-bold text-slate-400 uppercase tracking-widest hidden md:table-cell">Author</th>
-                    <th className="px-8 py-6 text-xs font-bold text-slate-400 uppercase tracking-widest">Current state</th>
-                    <th className="px-8 py-6 text-xs font-bold text-slate-400 uppercase tracking-widest hidden lg:table-cell">Timestamp</th>
-                    <th className="px-8 py-6 text-xs font-bold text-slate-400 uppercase tracking-widest text-right">Moderation</th>
+                  <tr className="bg-gray-50/50 border-b border-gray-100">
+                    <th className="px-8 py-6 text-xs font-bold text-gray-400 uppercase tracking-widest">Article details</th>
+                    <th className="px-8 py-6 text-xs font-bold text-gray-400 uppercase tracking-widest hidden md:table-cell">Author</th>
+                    <th className="px-8 py-6 text-xs font-bold text-gray-400 uppercase tracking-widest">Current state</th>
+                    <th className="px-8 py-6 text-xs font-bold text-gray-400 uppercase tracking-widest hidden lg:table-cell">Timestamp</th>
+                    <th className="px-8 py-6 text-xs font-bold text-gray-400 uppercase tracking-widest text-right">Moderation</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-50">
@@ -166,16 +166,16 @@ export default function AdminBlogsPage() {
                     const inAction = actionId === blog._id;
                     const inConfirmDelete = confirmDeleteId === blog._id;
                     return (
-                      <tr key={blog._id} className="hover:bg-slate-50/30 transition-colors">
+                      <tr key={blog._id} className="hover:bg-gray-50/30 transition-colors">
                         <td className="px-8 py-6 max-w-sm">
-                          <p className="font-bold text-slate-900 line-clamp-1 text-base tracking-tight">{blog.title}</p>
+                          <p className="font-bold text-gray-800 line-clamp-1 text-base tracking-tight">{blog.title}</p>
                           <div className="flex items-center gap-2 mt-2">
                             <span className="text-[10px] font-bold text-primary px-2 py-0.5 rounded-md bg-primary/5 border border-primary/10">{blog.category || "General"}</span>
                           </div>
                         </td>
                         <td className="px-8 py-6 hidden md:table-cell">
                           <div className="flex items-center gap-2">
-                             <span className="text-sm font-bold text-slate-700">{(blog.author as any)?.name || "Unknown"}</span>
+                             <span className="text-sm font-bold text-gray-700">{(blog.author as any)?.name || "Unknown"}</span>
                              { (blog.author as any)?.role === 'admin' && (
                                <span className="text-[9px] font-bold text-primary border border-primary/20 bg-primary/5 px-1.5 py-0.5 rounded-md">Admin</span>
                              )}
@@ -186,13 +186,13 @@ export default function AdminBlogsPage() {
                             {sc.label}
                           </span>
                         </td>
-                        <td className="px-8 py-6 text-slate-400 text-sm font-medium hidden lg:table-cell">
+                        <td className="px-8 py-6 text-gray-400 text-sm font-medium hidden lg:table-cell">
                           {new Date(blog.createdAt).toLocaleDateString()}
                         </td>
                         <td className="px-8 py-6">
                           <div className="flex items-center gap-4 justify-end">
                             {blog.status === "published" && (
-                              <Link href={`/blogs/${blog.slug || blog._id}`} target="_blank" className="text-slate-400 hover:text-primary transition-all p-2 bg-slate-50 rounded-lg border border-transparent shadow-sm">
+                              <Link href={`/blogs/${blog.slug || blog._id}`} target="_blank" className="text-gray-400 hover:text-primary transition-all p-2 bg-gray-50 rounded-lg border border-transparent shadow-sm">
                                 <ExternalLink className="w-4 h-4" />
                               </Link>
                             )}
@@ -213,18 +213,18 @@ export default function AdminBlogsPage() {
                                     </>
                                   )}
                                   {(blog.status === "published" || blog.status === "rejected") && (
-                                    <button onClick={() => handleStatus(blog._id, "pending")} className="text-[11px] font-bold text-slate-500 hover:text-primary p-2 transition-all">
+                                    <button onClick={() => handleStatus(blog._id, "pending")} className="text-[11px] font-bold text-gray-500 hover:text-primary p-2 transition-all">
                                       Flag pending
                                     </button>
                                   )}
                                   {!inConfirmDelete ? (
-                                    <button onClick={() => setConfirmDeleteId(blog._id)} className="p-2 text-slate-300 hover:text-red-500 transition-all">
+                                    <button onClick={() => setConfirmDeleteId(blog._id)} className="p-2 text-gray-300 hover:text-red-500 transition-all">
                                       <Trash2 className="w-4 h-4" />
                                     </button>
                                   ) : (
                                     <div className="flex items-center gap-2 animate-in slide-in-from-right-2">
                                       <button onClick={() => handleDelete(blog._id)} className="text-[11px] font-bold text-red-600 underline">Confirm</button>
-                                      <button onClick={() => setConfirmDeleteId(null)} className="text-xs font-bold text-slate-400">Esc</button>
+                                      <button onClick={() => setConfirmDeleteId(null)} className="text-xs font-bold text-gray-400">Esc</button>
                                     </div>
                                   )}
                                 </>

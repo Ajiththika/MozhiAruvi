@@ -22,7 +22,7 @@ const tamilDecorations = [
   {
     char: "ம்",
     className:
-      "top-[35%] left-[20px] text-[120px] text-slate-300 opacity-[0.5] rotate-3",
+      "top-[35%] left-[20px] text-[120px] text-gray-300 opacity-[0.5] rotate-3",
   },
 
   // ── Right column ─────────────────────────────
@@ -34,7 +34,7 @@ const tamilDecorations = [
   {
     char: "க",
     className:
-      "bottom-[20px] right-[10px] text-[150px] text-slate-300 opacity-[0.3] -rotate-6",
+      "bottom-[20px] right-[10px] text-[150px] text-gray-300 opacity-[0.3] -rotate-6",
   },
   {
     char: "வ",
@@ -46,29 +46,29 @@ const tamilDecorations = [
   {
     char: "ண",
     className:
-      "top-[15%] left-[8%] text-[90px] text-blue-200 opacity-[0.5] rotate-6",
+      "top-[15%] left-[8%] text-[90px] text-accent opacity-[0.5] rotate-6",
   },
   {
     char: "ற",
     className:
-      "bottom-[15%] right-[8%] text-[90px] text-blue-200 opacity-[0.5] -rotate-6",
+      "bottom-[15%] right-[8%] text-[90px] text-accent opacity-[0.5] -rotate-6",
   },
 
   // ── Additional decorative fillers ────────────
   {
     char: "ல",
     className:
-      "top-[60%] left-[8%] text-[130px] md:text-[150px] text-blue-300 opacity-[0.5] -rotate-12",
+      "top-[60%] left-[8%] text-[130px] md:text-[150px] text-secondary opacity-[0.5] -rotate-12",
   },
   {
     char: "ஃ",
     className:
-      "top-[25%] right-[15%] text-[110px] md:text-[130px] text-blue-200 opacity-[1] rotate-6",
+      "top-[25%] right-[15%] text-[110px] md:text-[130px] text-accent opacity-[1] rotate-6",
   },
   {
     char: "ய",
     className:
-      "bottom-[30%] right-[8%] text-[140px] md:text-[160px] text-slate-300 opacity-[0.5] rotate-12",
+      "bottom-[30%] right-[8%] text-[140px] md:text-[160px] text-gray-300 opacity-[0.5] rotate-12",
   },
 ] as const;
 
@@ -78,10 +78,10 @@ export default function Hero() {
 
       {/* ── Ambient gradient blobs (existing) ── */}
       <div className="absolute top-0 right-0 -translate-y-12 translate-x-1/3 pointer-events-none">
-        <div className="w-[600px] h-[600px] rounded-full bg-light/50 blur-3xl opacity-60" />
+        <div className="w-[600px] h-[600px] rounded-full bg-accent/30 blur-3xl opacity-60" />
       </div>
       <div className="absolute bottom-0 left-0 translate-y-1/3 -translate-x-1/3 pointer-events-none">
-        <div className="w-[400px] h-[400px] rounded-full bg-primary/10 blur-3xl opacity-50" />
+        <div className="w-[400px] h-[400px] rounded-full bg-soft/20 blur-3xl opacity-50" />
       </div>
 
       {/* ── Tamil decorative watermark letters ── */}
@@ -108,23 +108,23 @@ export default function Hero() {
       <div className="max-w-4xl mx-auto relative z-10 text-center">
 
         {/* Heritage pill badge */}
-        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-primary/20 bg-white/60 backdrop-blur-sm text-sm font-semibold text-dark mb-8">
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-primary/20 bg-white/60 backdrop-blur-sm text-sm font-semibold text-gray-800 mb-8">
           <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
           One of the oldest living languages - Over 2000 years of heritage
         </div>
 
         {/* Headline */}
         <div className="space-y-6">
-          <h1 className="text-4xl md:text-5xl font-bold text-slate-900 tracking-tight leading-tight">
+          <h1 className="text-4xl md:text-5xl font-bold text-gray-800 tracking-tight leading-tight">
             <span className="block text-primary">வாழ்க தமிழ் வளர்க கலை</span>
-            <span className="block text-2xl md:text-3xl mt-4 text-slate-800">
+            <span className="block text-2xl md:text-3xl mt-4 text-gray-800">
               Long Live Tamil Flourish the Arts
             </span>
           </h1>
         </div>
 
         {/* Description */}
-        <p className="mt-8 text-base text-slate-600 max-w-xl mx-auto leading-relaxed font-medium">
+        <p className="mt-8 text-base text-gray-600 max-w-xl mx-auto leading-relaxed font-medium">
           Join us in preserving and celebrating this beautiful
           language through interactive lessons, expert tutors, and a vibrant
           community.
@@ -135,17 +135,17 @@ export default function Hero() {
           <p className="text-lg font-bold text-primary mb-3">
             &ldquo;யாதும் ஊரே யாவரும் கேளிர்&rdquo;
           </p>
-          <p className="text-base text-slate-700 italic mb-3 leading-relaxed font-bold">
+          <p className="text-base text-gray-700 italic mb-3 leading-relaxed font-bold">
             &ldquo;To us all towns are one, all men our kin.&rdquo;
           </p>
-          <div className="flex items-center justify-center gap-2 mt-4 text-[10px] text-slate-500 font-bold border-t border-gray-50 pt-4 tracking-tight">
+          <div className="flex items-center justify-center gap-2 mt-4 text-[10px] text-gray-500 font-bold border-t border-gray-50 pt-4 tracking-tight">
             - Kaniyan Pungundranar, Purananuru
           </div>
         </div>
 
         {/* CTA buttons */}
         <div className="mt-12">
-          <p className="text-sm font-semibold text-slate-900 mb-6">
+          <p className="text-sm font-semibold text-gray-800 mb-6">
             Ready to Begin Your Tamil Journey?
           </p>
 
@@ -159,7 +159,7 @@ export default function Hero() {
               Create Free Account <span aria-hidden="true">&rarr;</span>
             </Button>
             <Button
-              href="/student/lessons"
+              href="/lessons"
               variant="secondary"
               size="lg"
               className="px-8 flex items-center justify-center"
@@ -168,7 +168,7 @@ export default function Hero() {
             </Button>
           </div>
 
-          <p className="mt-4 text-xs text-slate-500">
+          <p className="mt-4 text-xs text-gray-500">
             No credit card required. Start learning in under 60 seconds.
           </p>
         </div>

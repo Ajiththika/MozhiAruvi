@@ -70,13 +70,13 @@ export default function WhyChooseUs() {
     <section className="py-10 md:py-14 bg-white px-4 md:px-8 lg:px-12">
       <div className="max-w-7xl mx-auto">
         <div className="text-center max-w-4xl mx-auto mb-16 space-y-6">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-light text-xs font-bold text-primary tracking-tight">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent text-xs font-bold text-primary tracking-tight">
             Why choose us
           </div>
-          <h2 className="text-3xl md:text-4xl font-bold text-slate-900 tracking-tight leading-tight">
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-800 tracking-tight leading-tight">
             Why Learners Love Mozhi Aruvi
           </h2>
-          <p className="text-base text-slate-700 font-medium max-w-xl mx-auto leading-relaxed">
+          <p className="text-base text-gray-700 font-medium max-w-xl mx-auto leading-relaxed">
             We're not just another language app. We bring the soul of Tamil to your screen through authentic experiences.
           </p>
         </div>
@@ -85,15 +85,15 @@ export default function WhyChooseUs() {
           {features.map((feature) => (
             <div 
               key={feature.id} 
-              className="p-8 rounded-3xl bg-white border border-gray-100 shadow-sm transition-all duration-300 group hover:border-primary/20 hover:shadow-xl flex flex-col items-start gap-4"
+              className="p-8 rounded-3xl bg-white border border-gray-100 shadow-sm transition-all duration-300 group hover:border-secondary/30 hover:shadow-xl flex flex-col items-start gap-4"
             >
-              <div className="w-16 h-16 rounded-2xl bg-slate-50 flex items-center justify-center text-primary mb-4 group-hover:bg-primary group-hover:text-white transition-colors duration-300">
+              <div className="w-16 h-16 rounded-2xl bg-gray-50 flex items-center justify-center text-primary mb-4 group-hover:bg-primary group-hover:text-white transition-colors duration-300">
                 {feature.icon}
               </div>
-              <h3 className="text-lg font-bold text-slate-900 tracking-tight">
+              <h3 className="text-lg font-bold text-gray-800 tracking-tight">
                 {feature.title}
               </h3>
-              <p className="text-base text-slate-600 leading-relaxed font-medium">
+              <p className="text-base text-gray-600 leading-relaxed font-medium">
                 {feature.description}
               </p>
             </div>

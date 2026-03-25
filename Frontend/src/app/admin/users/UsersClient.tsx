@@ -105,12 +105,12 @@ export default function UsersClient() {
       accessorKey: "name",
       cell: (row) => (
         <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 font-bold text-slate-600">
+          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gray-100 font-bold text-gray-600">
             {row.name.charAt(0).toUpperCase()}
           </div>
           <div>
-            <p className="font-bold text-slate-800 text-sm">{row.name}</p>
-            <p className="text-xs text-slate-500">{row.email}</p>
+            <p className="font-bold text-gray-800 text-sm">{row.name}</p>
+            <p className="text-xs text-gray-500">{row.email}</p>
           </div>
         </div>
       ),
@@ -171,14 +171,14 @@ export default function UsersClient() {
 
   return (
     <div className="space-y-8 animate-in fade-in zoom-in-95 duration-500 pb-12">
-      <div className="mb-8 md:mb-10 flex flex-col md:flex-row md:items-end md:justify-between gap-6 border-b border-slate-100 pb-8">
+      <div className="mb-8 md:mb-10 flex flex-col md:flex-row md:items-end md:justify-between gap-6 border-b border-gray-100 pb-8">
         <div>
            <div className="flex items-center gap-2 mb-2">
               <span className="h-1.5 w-6 rounded-full bg-mozhi-secondary" />
               <span className="text-[10px] font-black text-mozhi-secondary uppercase tracking-[0.3em]">Administrator</span>
            </div>
-           <h1 className="text-3xl md:text-4xl font-black text-slate-900 uppercase tracking-tight">User Database</h1>
-           <p className="mt-2 text-slate-500 font-medium">View, edit, or suspend student and tutor accounts.</p>
+           <h1 className="text-3xl md:text-4xl font-black text-gray-800 uppercase tracking-tight">User Database</h1>
+           <p className="mt-2 text-gray-500 font-medium">View, edit, or suspend student and tutor accounts.</p>
         </div>
         <Button
           onClick={() => load(currentPage)}
@@ -214,13 +214,13 @@ export default function UsersClient() {
 
       {/* Edit Modal */}
       {editingUser && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-white/40 backdrop-blur-sm p-4">
           <div className="w-full max-w-2xl bg-white rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
-            <div className="flex items-center justify-between border-b border-slate-100 bg-slate-50/50 px-6 py-4">
-              <h3 className="text-lg font-bold text-slate-800">Edit Profile: {editingUser.name}</h3>
+            <div className="flex items-center justify-between border-b border-gray-100 bg-gray-50/50 px-6 py-4">
+              <h3 className="text-lg font-bold text-gray-800">Edit Profile: {editingUser.name}</h3>
               <button 
                 onClick={() => setEditingUser(null)}
-                className="rounded-full p-1 text-slate-400 hover:bg-slate-100 transition-colors"
+                className="rounded-full p-1 text-gray-400 hover:bg-gray-100 transition-colors"
               >
                 <X size={20} />
               </button>
@@ -229,21 +229,21 @@ export default function UsersClient() {
             <form onSubmit={handleEditSubmit} className="p-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-500 uppercase">Full Name</label>
+                  <label className="text-xs font-bold text-gray-500 uppercase">Full Name</label>
                   <input 
                     name="name" 
                     value={editFormData.name || ""} 
                     onChange={handleEditChange}
-                    className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-medium outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all transition-all" 
+                    className="w-full rounded-xl border border-gray-100 bg-white px-3 py-2.5 text-sm font-medium outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all transition-all" 
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-500 uppercase">Role</label>
+                  <label className="text-xs font-bold text-gray-500 uppercase">Role</label>
                   <select 
                     name="role" 
                     value={editFormData.role || "user"} 
                     onChange={handleEditChange}
-                    className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:ring-1 focus:ring-primary outline-none bg-white font-medium" 
+                    className="w-full rounded-lg border border-gray-100 px-3 py-2 text-sm focus:ring-1 focus:ring-primary outline-none bg-white font-medium" 
                   >
                     <option value="user">Student</option>
                     <option value="teacher">Tutor</option>
@@ -251,40 +251,40 @@ export default function UsersClient() {
                   </select>
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-500 uppercase">Phone Number</label>
+                  <label className="text-xs font-bold text-gray-500 uppercase">Phone Number</label>
                   <input 
                     name="phoneNumber" 
                     value={editFormData.phoneNumber || ""} 
                     onChange={handleEditChange}
-                    className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-medium outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all transition-all" 
+                    className="w-full rounded-xl border border-gray-100 bg-white px-3 py-2.5 text-sm font-medium outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all transition-all" 
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-500 uppercase">Country</label>
+                  <label className="text-xs font-bold text-gray-500 uppercase">Country</label>
                   <input 
                     name="country" 
                     value={editFormData.country || ""} 
                     onChange={handleEditChange}
-                    className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-medium outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all transition-all" 
+                    className="w-full rounded-xl border border-gray-100 bg-white px-3 py-2.5 text-sm font-medium outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all transition-all" 
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-500 uppercase">Age</label>
+                  <label className="text-xs font-bold text-gray-500 uppercase">Age</label>
                   <input 
                     type="number"
                     name="age" 
                     value={editFormData.age || ""} 
                     onChange={handleEditChange}
-                    className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-medium outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all transition-all" 
+                    className="w-full rounded-xl border border-gray-100 bg-white px-3 py-2.5 text-sm font-medium outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all transition-all" 
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-500 uppercase">Gender</label>
+                  <label className="text-xs font-bold text-gray-500 uppercase">Gender</label>
                   <select 
                     name="gender" 
                     value={editFormData.gender || ""} 
                     onChange={handleEditChange}
-                    className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:ring-1 focus:ring-primary outline-none bg-white" 
+                    className="w-full rounded-lg border border-gray-100 px-3 py-2 text-sm focus:ring-1 focus:ring-primary outline-none bg-white" 
                   >
                     <option value="">Select Gender</option>
                     <option value="male">Male</option>
@@ -296,40 +296,40 @@ export default function UsersClient() {
               </div>
 
               <div className="mt-4 space-y-1.5">
-                <label className="text-xs font-bold text-slate-500 uppercase">Bio / About</label>
+                <label className="text-xs font-bold text-gray-500 uppercase">Bio / About</label>
                 <textarea 
                   name="bio" 
                   rows={3}
                   value={editFormData.bio || ""} 
                   onChange={handleEditChange}
-                  className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:ring-1 focus:ring-primary outline-none" 
+                  className="w-full rounded-lg border border-gray-100 px-3 py-2 text-sm focus:ring-1 focus:ring-primary outline-none" 
                 ></textarea>
               </div>
 
               {editFormData.role === "teacher" && (
-                <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4 border-t border-slate-100 pt-4">
+                <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4 border-t border-gray-100 pt-4">
                   <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-slate-500 uppercase">Specialization</label>
+                    <label className="text-xs font-bold text-gray-500 uppercase">Specialization</label>
                     <input 
                       name="specialization" 
                       value={editFormData.specialization || ""} 
                       onChange={handleEditChange}
-                      className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-medium outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all transition-all" 
+                      className="w-full rounded-xl border border-gray-100 bg-white px-3 py-2.5 text-sm font-medium outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all transition-all" 
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-slate-500 uppercase">Experience</label>
+                    <label className="text-xs font-bold text-gray-500 uppercase">Experience</label>
                     <input 
                       name="experience" 
                       value={editFormData.experience || ""} 
                       onChange={handleEditChange}
-                      className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-medium outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all transition-all" 
+                      className="w-full rounded-xl border border-gray-100 bg-white px-3 py-2.5 text-sm font-medium outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all transition-all" 
                     />
                   </div>
                 </div>
               )}
               
-              <div className="mt-8 flex items-center justify-end gap-3 border-t border-slate-100 pt-6">
+              <div className="mt-8 flex items-center justify-end gap-3 border-t border-gray-100 pt-6">
                 <Button 
                   variant="ghost" 
                   onClick={() => setEditingUser(null)}

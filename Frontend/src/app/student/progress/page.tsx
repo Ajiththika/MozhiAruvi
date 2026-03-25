@@ -6,10 +6,10 @@ export default function StudentProgressPage() {
    return (
      <div className="space-y-10 animate-in fade-in zoom-in-95 duration-500 pb-12">
         <div>
-           <h1 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">
+           <h1 className="text-2xl md:text-3xl font-bold text-gray-800 tracking-tight">
               Learning Progress
            </h1>
-           <p className="mt-2 text-sm text-slate-500 font-medium">
+           <p className="mt-2 text-sm text-gray-500 font-medium">
               Visualize your Tamil learning journey and unlock achievements.
            </p>
         </div>
@@ -25,11 +25,11 @@ export default function StudentProgressPage() {
         {/* XP Chart Area (Visual structure only) */}
         <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
             <div className="flex items-center justify-between border-b border-gray-50 pb-4">
-               <h3 className="text-base font-semibold text-slate-900 flex items-center gap-2">
+               <h3 className="text-base font-semibold text-gray-800 flex items-center gap-2">
                   <TrendingUp className="h-5 w-5 text-secondary" />
                   Weekly Activity
                </h3>
-               <select className="rounded-xl border border-gray-100 bg-slate-50 px-4 py-1.5 text-xs font-semibold text-slate-600 outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all">
+               <select className="rounded-xl border border-gray-100 bg-gray-50 px-4 py-1.5 text-xs font-semibold text-gray-600 outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all">
                   <option>Last 7 Days</option>
                   <option>Last Month</option>
                </select>
@@ -44,8 +44,8 @@ export default function StudentProgressPage() {
                         <span className="opacity-0 group-hover:opacity-100 text-[10px] font-bold text-primary transition-opacity">
                            {Math.floor(Math.random() * 500) + 50}
                         </span>
-                        <div className={`w-full max-w-[48px] rounded-xl bg-light group-hover:bg-primary transition-all duration-300 ${heights[i]}`} />
-                        <span className="text-xs font-semibold text-slate-400">{day}</span>
+                        <div className={`w-full max-w-[48px] rounded-xl bg-accent/30 group-hover:bg-primary transition-all duration-300 ${heights[i]}`} />
+                        <span className="text-xs font-semibold text-gray-400">{day}</span>
                      </div>
                   );
                })}
@@ -54,7 +54,7 @@ export default function StudentProgressPage() {
 
        {/* Badges / Achievements */}
        <div>
-            <h3 className="text-base font-semibold text-slate-900 mb-6 uppercase tracking-widest">
+            <h3 className="text-base font-semibold text-gray-800 mb-6 uppercase tracking-widest">
                Achievements
             </h3>
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
@@ -62,32 +62,32 @@ export default function StudentProgressPage() {
                    <div className="flex h-20 w-20 items-center justify-center rounded-full bg-secondary/10 text-secondary border-4 border-secondary/5 transition-transform group-hover:scale-110">
                       <Flame className="h-10 w-10 fill-current" />
                    </div>
-                   <h4 className="mt-4 font-bold text-slate-900 text-sm">7-Day Streak</h4>
-                   <p className="mt-1 text-xs text-slate-500 font-medium">Completed</p>
+                   <h4 className="mt-4 font-bold text-gray-800 text-sm">7-Day Streak</h4>
+                   <p className="mt-1 text-xs text-gray-500 font-medium">Completed</p>
                 </div>
                 
                 <div className="flex flex-col items-center rounded-2xl border border-gray-100 bg-white p-6 text-center hover:border-primary/20 transition-all group">
                    <div className="flex h-20 w-20 items-center justify-center rounded-full bg-primary/10 text-primary border-4 border-primary/5 transition-transform group-hover:scale-110">
                       <Target className="h-10 w-10" />
                    </div>
-                   <h4 className="mt-4 font-bold text-slate-900 text-sm">Sharpshooter</h4>
-                   <p className="mt-1 text-xs text-slate-500 font-medium">Completed</p>
+                   <h4 className="mt-4 font-bold text-gray-800 text-sm">Sharpshooter</h4>
+                   <p className="mt-1 text-xs text-gray-500 font-medium">Completed</p>
                 </div>
  
                 <div className="flex flex-col items-center rounded-2xl border border-gray-100 bg-white p-6 text-center opacity-70 grayscale">
-                   <div className="flex h-20 w-20 items-center justify-center rounded-full bg-slate-50 text-slate-400 border-4 border-slate-100">
+                   <div className="flex h-20 w-20 items-center justify-center rounded-full bg-gray-50 text-gray-400 border-4 border-gray-100">
                       <Award className="h-10 w-10" />
                    </div>
-                   <h4 className="mt-4 font-bold text-slate-600 text-sm">Word Master</h4>
-                   <p className="mt-2 text-[10px] font-bold text-primary uppercase tracking-widest bg-light px-2 py-0.5 rounded-full">Locked</p>
+                   <h4 className="mt-4 font-bold text-gray-600 text-sm">Word Master</h4>
+                   <p className="mt-2 text-[10px] font-bold text-primary uppercase tracking-widest bg-accent/30 px-2 py-0.5 rounded-full">Locked</p>
                 </div>
  
                 <div className="flex flex-col items-center rounded-2xl border border-gray-100 bg-white p-6 text-center opacity-70 grayscale">
-                   <div className="flex h-20 w-20 items-center justify-center rounded-full bg-slate-50 text-slate-400 border-4 border-slate-100">
+                   <div className="flex h-20 w-20 items-center justify-center rounded-full bg-gray-50 text-gray-400 border-4 border-gray-100">
                       <Trophy className="h-10 w-10" />
                    </div>
-                   <h4 className="mt-4 font-bold text-slate-600 text-sm">Top 1 %</h4>
-                   <p className="mt-2 text-[10px] font-bold text-primary uppercase tracking-widest bg-light px-2 py-0.5 rounded-full">Locked</p>
+                   <h4 className="mt-4 font-bold text-gray-600 text-sm">Top 1 %</h4>
+                   <p className="mt-2 text-[10px] font-bold text-primary uppercase tracking-widest bg-accent/30 px-2 py-0.5 rounded-full">Locked</p>
                 </div>
             </div>
         </div>

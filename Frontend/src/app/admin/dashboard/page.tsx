@@ -63,8 +63,8 @@ export default function AdminDashboard() {
               <span className="h-1.5 w-8 rounded-full bg-secondary" />
               <span className="text-xs font-bold text-secondary tracking-tight">Administrator</span>
            </div>
-           <h1 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight leading-tight">Admin Overview</h1>
-           <p className="text-base text-slate-700 font-medium leading-relaxed max-w-xl">
+           <h1 className="text-2xl md:text-3xl font-bold text-gray-800 tracking-tight leading-tight">Admin Overview</h1>
+           <p className="text-base text-gray-700 font-medium leading-relaxed max-w-xl">
              Platform health at a glance. You are currently logged in as <strong className="text-primary">{admin?.name}</strong> with full administrative access.
            </p>
         </div>
@@ -111,9 +111,9 @@ export default function AdminDashboard() {
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* Pending Applications Table */}
-        <div className="lg:col-span-2 rounded-3xl border border-gray-100 bg-white shadow-sm overflow-hidden flex flex-col">
+        <div className="lg:col-span-2 rounded-3xl border border-gray-100 bg-white shadow-sm overflow-hidden flex flex-col shadow-gray-200/5">
           <div className="flex items-center justify-between border-b border-gray-50 px-8 py-6">
-            <h3 className="text-base font-bold text-slate-900 tracking-tight">
+            <h3 className="text-base font-bold text-gray-800 tracking-tight">
               Teacher Applications
             </h3>
             <Button href="/admin/teachers" variant="ghost" size="sm" className="text-primary hover:text-secondary font-bold">
@@ -122,14 +122,14 @@ export default function AdminDashboard() {
           </div>
 
           {applications.length === 0 ? (
-            <div className="flex items-center justify-center py-12 text-sm text-slate-600">No applications yet.</div>
+            <div className="flex items-center justify-center py-12 text-sm text-gray-600">No applications yet.</div>
           ) : (
             <div className="divide-y divide-zinc-100 dark:divide-zinc-800">
               {applications.slice(0, 5).map((app) => (
                 <div key={app._id} className="flex items-center justify-between px-6 py-4">
                   <div>
-                    <p className="text-sm font-semibold text-slate-900">{app.fullName}</p>
-                    <p className="text-xs text-slate-500">{app.userId?.email}</p>
+                    <p className="text-sm font-semibold text-gray-800">{app.fullName}</p>
+                    <p className="text-xs text-gray-500">{app.userId?.email}</p>
                   </div>
                   <div className="flex items-center gap-4">
                     <StatusBadge status={app.status} />
@@ -146,8 +146,8 @@ export default function AdminDashboard() {
         </div>
 
         {/* Quick Admin Actions */}
-        <div className="rounded-3xl border border-gray-100 bg-white p-8 shadow-sm flex flex-col h-fit transition-all hover:shadow-xl">
-          <h3 className="text-xs font-bold text-slate-500 uppercase tracking-[0.2em] mb-8">Quick Actions</h3>
+        <div className="rounded-3xl border border-gray-100 bg-white p-8 shadow-sm flex flex-col h-fit transition-all hover:shadow-xl hover:shadow-secondary/10 hover:border-secondary/30">
+          <h3 className="text-xs font-bold text-gray-500 uppercase tracking-[0.2em] mb-8">Quick Actions</h3>
           <div className="flex flex-col gap-3">
             {[
               { label: "Manage Users", href: "/admin/users", count: stats?.totalUsers || 0 },
@@ -160,14 +160,14 @@ export default function AdminDashboard() {
                 href={action.href}
                 variant="ghost"
                 size="md"
-                className="justify-between w-full hover:bg-slate-50 border border-gray-50 rounded-2xl group transition-all"
+                className="justify-between w-full hover:bg-gray-50 border border-gray-50 rounded-2xl group transition-all"
               >
-                <span className="text-sm font-bold text-slate-700 group-hover:text-primary">{action.label}</span>
+                <span className="text-sm font-bold text-gray-700 group-hover:text-primary">{action.label}</span>
                 <div className="flex items-center gap-3">
                   {action.count !== null && (
                     <span className="text-[10px] font-bold bg-primary/10 text-primary px-3 py-1 rounded-full">{action.count}</span>
                   )}
-                  <ArrowRight className="h-4 w-4 text-slate-300 group-hover:text-primary group-hover:translate-x-1 transition-all" />
+                  <ArrowRight className="h-4 w-4 text-gray-300 group-hover:text-primary group-hover:translate-x-1 transition-all" />
                 </div>
               </Button>
             ))}

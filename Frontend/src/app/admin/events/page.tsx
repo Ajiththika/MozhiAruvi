@@ -47,19 +47,19 @@ export default function AdminEventsPage() {
       accessorKey: "title",
       cell: (row) => (
          <div className="flex flex-col">
-            <span className="font-bold text-slate-900 dark:text-slate-100">{row.title}</span>
-            <span className="flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+            <span className="font-bold text-gray-800 dark:text-slate-100">{row.title}</span>
+            <span className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400 mt-0.5">
                <Globe2 className="h-3 w-3" /> {row.eventCode}
             </span>
          </div>
       ),
     },
-    { header: "Host Tutor", accessorKey: "createdBy", cell: (row) => <span className="text-sm font-medium text-slate-800 dark:text-slate-200">{(row as any).createdBy?.name || 'Unknown'}</span> },
+    { header: "Host Tutor", accessorKey: "createdBy", cell: (row) => <span className="text-sm font-medium text-gray-800 dark:text-gray-200">{(row as any).createdBy?.name || 'Unknown'}</span> },
     {
       header: "Schedule",
       accessorKey: "date",
       cell: (row) => (
-         <div className="flex items-center gap-1.5 text-sm text-slate-600 dark:text-slate-300">
+         <div className="flex items-center gap-1.5 text-sm text-gray-600 dark:text-gray-300">
             <CalendarIcon className="h-4 w-4" />
             {new Date(row.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })} {row.time}
          </div>
@@ -95,19 +95,19 @@ export default function AdminEventsPage() {
 
   return (
     <div className="space-y-8 animate-in fade-in zoom-in-95 duration-500 pb-12">
-      <div className="mb-0 flex flex-col md:flex-row md:items-end md:justify-between gap-6 border-b border-slate-100 pb-8">
+      <div className="mb-0 flex flex-col md:flex-row md:items-end md:justify-between gap-6 border-b border-gray-100 pb-8">
         <div>
            <div className="flex items-center gap-2 mb-2">
               <span className="h-1.5 w-6 rounded-full bg-mozhi-secondary" />
               <span className="text-[10px] font-black text-mozhi-secondary uppercase tracking-[0.3em]">Administrator</span>
            </div>
-           <h1 className="text-3xl md:text-4xl font-black text-slate-900 uppercase tracking-tight">Events Moderation</h1>
-           <p className="mt-2 text-slate-500 font-medium">Monitor public community events hosted by tutors to ensure guidelines are followed.</p>
+           <h1 className="text-3xl md:text-4xl font-black text-gray-800 uppercase tracking-tight">Events Moderation</h1>
+           <p className="mt-2 text-gray-500 font-medium">Monitor public community events hosted by tutors to ensure guidelines are followed.</p>
         </div>
       </div>
       
       {loading ? (
-        <div className="text-center py-12 text-slate-500">Loading events...</div>
+        <div className="text-center py-12 text-gray-500">Loading events...</div>
       ) : (
         <DataTable title="All Scheduled Events" columns={columns} data={events} onSearch={() => {}} />
       )}

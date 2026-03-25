@@ -10,8 +10,8 @@ import Button from "@/components/common/Button";
 
 const CATEGORIES = ["Grammar", "Culture", "Pronunciation", "Tutor Tips", "Updates", "General"];
 
-const labelCls = "text-xs font-bold text-slate-400 tracking-tight ml-2 mb-2 block";
-const inputCls = "w-full rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 px-6 py-4 text-sm font-medium text-slate-900 dark:text-white placeholder:text-slate-300 focus:ring-4 focus:ring-primary/5 focus:border-primary outline-none transition-all shadow-sm";
+const labelCls = "text-xs font-bold text-gray-400 tracking-tight ml-2 mb-2 block";
+const inputCls = "w-full rounded-2xl border border-gray-100  bg-gray-50 px-6 py-4 text-sm font-medium text-gray-800 dark:text-white placeholder:text-gray-300 focus:ring-4 focus:ring-primary/5 focus:border-primary outline-none transition-all shadow-sm";
 
 export default function EditBlogPage() {
   const params = useParams();
@@ -68,14 +68,14 @@ export default function EditBlogPage() {
   const wordCount = form.content.trim() ? form.content.trim().split(/\s+/).length : 0;
 
   if (loading) return (
-    <div className="min-h-screen flex items-center justify-center bg-white dark:bg-slate-950">
+    <div className="min-h-screen flex items-center justify-center bg-white dark:bg-white">
       <Loader2 className="h-10 w-10 animate-spin text-primary" />
     </div>
   );
 
   return (
     <div className="animate-in fade-in duration-700 max-w-6xl mx-auto py-10">
-      <Link href="/student/blogs" className="group mb-12 inline-flex items-center gap-2 text-xs font-bold text-slate-400 hover:text-primary transition-colors tracking-tight">
+      <Link href="/student/blogs" className="group mb-12 inline-flex items-center gap-2 text-xs font-bold text-gray-400 hover:text-primary transition-colors tracking-tight">
         <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" /> Back to studio
       </Link>
 
@@ -87,10 +87,10 @@ export default function EditBlogPage() {
                  <Sparkles className="w-5 h-5 text-primary" />
                  <span className="text-xs font-bold text-primary tracking-tight">Refining Mode</span>
               </div>
-              <h1 className="text-4xl md:text-5xl font-bold text-slate-900 dark:text-white tracking-tight leading-none">
+              <h1 className="text-4xl md:text-5xl font-bold text-gray-800 dark:text-white tracking-tight leading-none">
                 Refine your <span className="text-primary italic">story</span>
               </h1>
-              <p className="text-slate-500 font-medium max-w-lg leading-relaxed">Fine-tune your cultural insights. Quality content drives deeper community engagement.</p>
+              <p className="text-gray-500 font-medium max-w-lg leading-relaxed">Fine-tune your cultural insights. Quality content drives deeper community engagement.</p>
            </div>
 
            {/* Banner Feedback */}
@@ -105,7 +105,7 @@ export default function EditBlogPage() {
             </div>
            )}
 
-           <div className="bg-white dark:bg-slate-900 rounded-[3rem] border border-slate-100 dark:border-slate-800 p-8 md:p-14 shadow-2xl shadow-slate-200/20 dark:shadow-none space-y-10">
+           <div className="bg-white rounded-[3rem] border border-gray-100  p-8 md:p-14 shadow-2xl shadow-slate-200/20 dark:shadow-none space-y-10">
               {/* Title Section */}
               <div className="space-y-4">
                  <input 
@@ -114,10 +114,10 @@ export default function EditBlogPage() {
                   required 
                   value={form.title} 
                   onChange={handleChange} 
-                  className="w-full bg-transparent border-none text-3xl md:text-5xl font-bold text-slate-900 dark:text-white placeholder:text-slate-100 focus:ring-0 px-0 outline-none tracking-tight leading-tight" 
+                  className="w-full bg-transparent border-none text-3xl md:text-5xl font-bold text-gray-800 dark:text-white placeholder:text-slate-100 focus:ring-0 px-0 outline-none tracking-tight leading-tight" 
                   placeholder="The title of your story..." 
                  />
-                 <div className="h-[1px] w-full bg-slate-50 dark:bg-slate-800" />
+                 <div className="h-[1px] w-full bg-gray-50 dark:bg-gray-800" />
               </div>
 
               {/* Sub-meta */}
@@ -152,7 +152,7 @@ export default function EditBlogPage() {
                       <label className={labelCls}>Body Content</label>
                       <span className="text-[10px] font-bold text-primary border border-primary/20 bg-primary/5 px-2 py-0.5 rounded-md">{wordCount} Words</span>
                  </div>
-                 <textarea name="content" required rows={16} value={form.content} onChange={handleChange} className={cn(inputCls, "resize-none text-base md:text-lg leading-relaxed font-medium bg-white dark:bg-slate-950/50 border-slate-100 dark:border-slate-800 h-[30rem]")} placeholder="Start sharing your knowledge..." />
+                 <textarea name="content" required rows={16} value={form.content} onChange={handleChange} className={cn(inputCls, "resize-none text-base md:text-lg leading-relaxed font-medium bg-white border-gray-100  h-[30rem]")} placeholder="Start sharing your knowledge..." />
               </div>
            </div>
         </div>
@@ -160,8 +160,8 @@ export default function EditBlogPage() {
         {/* Action Sidebar / Settings */}
         <div className="w-full lg:w-80 shrink-0">
            <div className="sticky top-10 space-y-8">
-              <div className="bg-slate-900 rounded-[3rem] p-10 text-white shadow-2xl shadow-slate-900/10">
-                 <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-8 px-2">Update story</p>
+              <div className="bg-white rounded-[3rem] p-10 text-white shadow-2xl shadow-slate-900/10">
+                 <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-8 px-2">Update story</p>
                  <div className="flex flex-col gap-5">
                     <Button
                       onClick={() => handleSubmit(false)}
@@ -186,7 +186,7 @@ export default function EditBlogPage() {
                           <UserCircle className="w-6 h-6 text-primary" />
                        </div>
                        <div>
-                          <p className="text-[9px] font-bold uppercase tracking-widest text-slate-500 mb-0.5">Author</p>
+                          <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-0.5">Author</p>
                           <p className="text-xs font-bold text-white">Community Member</p>
                        </div>
                     </div>
@@ -195,7 +195,7 @@ export default function EditBlogPage() {
                           <BookOpen className="w-6 h-6 text-primary" />
                        </div>
                        <div>
-                          <p className="text-[9px] font-bold uppercase tracking-widest text-slate-500 mb-0.5">Visibility</p>
+                          <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-0.5">Visibility</p>
                           <p className="text-xs font-bold text-white">Public Revision</p>
                        </div>
                     </div>
@@ -207,11 +207,11 @@ export default function EditBlogPage() {
                  <h4 className="flex items-center gap-2 text-xs font-bold text-primary mb-6 tracking-tight">
                     <FileText className="w-4 h-4" /> Editing Policy
                  </h4>
-                 <p className="text-[11px] font-medium text-slate-600 dark:text-slate-400 leading-relaxed mb-6">
+                 <p className="text-[11px] font-medium text-gray-600 dark:text-gray-400 leading-relaxed mb-6">
                     Changes made to published stories will go live immediately after submission. Please ensure accuracy before pushing.
                  </p>
-                 <div className="flex items-center gap-2 text-slate-400">
-                    <div className="h-1 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                 <div className="flex items-center gap-2 text-gray-400">
+                    <div className="h-1 w-full bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
                        <div className="h-full w-full bg-primary animate-pulse" />
                     </div>
                  </div>

@@ -29,10 +29,10 @@ export default function Button({
   const baseClasses = "inline-flex items-center justify-center font-bold tracking-tight transition-all duration-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-primary/10 disabled:opacity-50 disabled:cursor-not-allowed";
 
   const variants = {
-    primary: "bg-primary text-white shadow-sm hover:bg-primary/95 hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98] active:translate-y-0",
-    secondary: "bg-white text-primary border-2 border-primary/20 hover:border-primary/50 hover:bg-slate-50 transition-colors active:scale-[0.98]",
-    outline: "bg-transparent text-slate-700 border border-slate-200 hover:border-slate-300 hover:bg-slate-50 active:scale-[0.98]",
-    ghost: "text-slate-500 hover:text-primary hover:bg-primary/5 active:scale-[0.98] px-3",
+    primary: "bg-primary text-white shadow-sm hover:bg-secondary hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98] active:translate-y-0",
+    secondary: "bg-white text-primary border-2 border-primary hover:bg-primary/5 transition-colors active:scale-[0.98]",
+    outline: "bg-transparent text-gray-700 border border-gray-100 hover:border-primary/30 hover:bg-primary/5 active:scale-[0.98]",
+    ghost: "text-gray-500 hover:text-primary hover:bg-primary/5 active:scale-[0.98] px-3",
     danger: "bg-red-500 text-white shadow-sm hover:bg-red-600 hover:-translate-y-0.5 active:scale-[0.98]",
   };
 

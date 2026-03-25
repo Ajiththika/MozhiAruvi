@@ -29,29 +29,29 @@ export function DataTable<T>({
   isLoading,
 }: DataTableProps<T>) {
   return (
-    <div className="flex flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+    <div className="flex flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
       {(title || description || onSearch) && (
         <div className="flex flex-col gap-4 border-b border-gray-100 px-6 py-5 md:flex-row md:items-center md:justify-between">
           <div>
             {title && (
-              <h3 className="text-base font-semibold text-slate-900">
+              <h3 className="text-base font-semibold text-gray-800">
                 {title}
               </h3>
             )}
             {description && (
-              <p className="mt-1 text-sm font-medium text-slate-500">
+              <p className="mt-1 text-sm font-medium text-gray-500">
                 {description}
               </p>
             )}
           </div>
           {onSearch && (
              <div className="relative w-full max-w-sm">
-                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                  <input
                      type="text"
                      onChange={(e) => onSearch(e.target.value)}
                      placeholder="Search..."
-                     className="w-full rounded-md border border-gray-200 bg-slate-50 py-2 pl-9 pr-3 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                     className="w-full rounded-md border border-gray-100 bg-gray-50 py-2 pl-9 pr-3 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                  />
              </div>
           )}
@@ -60,7 +60,7 @@ export function DataTable<T>({
 
       <div className="overflow-x-auto">
         <table className="w-full text-left text-sm">
-          <thead className="bg-slate-50 text-xs text-slate-500">
+          <thead className="bg-gray-50 text-xs text-gray-500">
             <tr>
               {columns.map((col, i) => (
                 <th
@@ -76,13 +76,13 @@ export function DataTable<T>({
           <tbody className="divide-y divide-gray-100 bg-white">
             {isLoading ? (
                <tr>
-                 <td colSpan={columns.length} className="px-6 py-8 text-center text-slate-600">
+                 <td colSpan={columns.length} className="px-6 py-8 text-center text-gray-600">
                     Loading data...
                  </td>
                </tr>
             ) : data.length === 0 ? (
                <tr>
-                 <td colSpan={columns.length} className="px-6 py-8 text-center text-slate-600">
+                 <td colSpan={columns.length} className="px-6 py-8 text-center text-gray-600">
                     No results found.
                  </td>
                </tr>
@@ -90,13 +90,13 @@ export function DataTable<T>({
                 data.map((row, rowIndex) => (
                 <tr
                   key={rowIndex}
-                  className="transition-colors hover:bg-slate-50"
+                  className="transition-colors hover:bg-gray-50"
                 >
                   {columns.map((col, colIndex) => (
                     <td
                       key={colIndex}
                       className={cn(
-                        "whitespace-nowrap px-6 py-4 text-sm font-medium text-slate-800",
+                        "whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-800",
                         col.className
                       )}
                     >
@@ -115,8 +115,8 @@ export function DataTable<T>({
       </div>
 
       <div className="flex items-center justify-between border-t border-gray-100 px-6 py-4">
-         <span className="text-sm font-semibold text-slate-500">
-             Total records: <span className="text-slate-900">{data.length}</span>
+         <span className="text-sm font-semibold text-gray-500">
+             Total records: <span className="text-gray-800">{data.length}</span>
          </span>
       </div>
     </div>

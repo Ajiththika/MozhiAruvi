@@ -50,25 +50,25 @@ interface ActionModalProps {
 function ActionModal({ title, label, placeholder, onConfirm, onCancel, isLoading, confirmVariant = "danger" }: ActionModalProps) {
   const [reason, setReason] = useState("");
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-white/40 backdrop-blur-sm p-4">
       <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
-        <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4">
-          <h3 className="text-base font-bold text-slate-800">{title}</h3>
-          <button onClick={onCancel} className="rounded-full p-1 text-slate-400 hover:bg-slate-100 transition-colors">
+        <div className="flex items-center justify-between border-b border-gray-100 px-6 py-4">
+          <h3 className="text-base font-bold text-gray-800">{title}</h3>
+          <button onClick={onCancel} className="rounded-full p-1 text-gray-400 hover:bg-gray-100 transition-colors">
             <X size={18} />
           </button>
         </div>
         <div className="p-6 space-y-4">
-          <label className="text-xs font-bold text-slate-500 uppercase">{label}</label>
+          <label className="text-xs font-bold text-gray-500 uppercase">{label}</label>
           <textarea
             rows={3}
             value={reason}
             onChange={(e) => setReason(e.target.value)}
             placeholder={placeholder}
-            className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all resize-none"
+            className="w-full rounded-xl border border-gray-100 bg-white px-4 py-3 text-sm font-medium outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all resize-none"
           />
         </div>
-        <div className="flex items-center justify-end gap-3 border-t border-slate-100 px-6 py-4">
+        <div className="flex items-center justify-end gap-3 border-t border-gray-100 px-6 py-4">
           <Button variant="ghost" onClick={onCancel}>Cancel</Button>
           <Button
             variant={confirmVariant}
@@ -164,8 +164,8 @@ export default function AdminTeachersPage() {
       accessorKey: "fullName",
       cell: (row) => (
         <div className="flex flex-col gap-0.5">
-          <span className="font-bold text-slate-800 text-sm">{row.fullName}</span>
-          <span className="text-xs text-slate-500">{row.userId?.email}</span>
+          <span className="font-bold text-gray-800 text-sm">{row.fullName}</span>
+          <span className="text-xs text-gray-500">{row.userId?.email}</span>
         </div>
       ),
     },
@@ -173,7 +173,7 @@ export default function AdminTeachersPage() {
       header: "Specialization",
       accessorKey: "specialization",
       cell: (row) => (
-        <span className="text-xs font-semibold text-slate-600 truncate max-w-[140px] block">
+        <span className="text-xs font-semibold text-gray-600 truncate max-w-[140px] block">
           {row.specialization || "—"}
         </span>
       ),
@@ -187,7 +187,7 @@ export default function AdminTeachersPage() {
       header: "Reviewed",
       accessorKey: "reviewedAt",
       cell: (row) => (
-        <span className="text-xs text-slate-500">
+        <span className="text-xs text-gray-500">
           {row.reviewedAt ? new Date(row.reviewedAt).toLocaleDateString("en-GB") : "Awaiting"}
         </span>
       ),
@@ -263,14 +263,14 @@ export default function AdminTeachersPage() {
 
       <div className="space-y-8 animate-in fade-in zoom-in-95 duration-500 pb-12">
         {/* Page Header */}
-        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 border-b border-slate-100 pb-8">
+        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 border-b border-gray-100 pb-8">
           <div>
             <div className="flex items-center gap-2 mb-2">
               <span className="h-1.5 w-6 rounded-full bg-secondary" />
               <span className="text-[10px] font-black text-secondary uppercase tracking-[0.3em]">Management</span>
             </div>
-            <h1 className="text-3xl md:text-4xl font-black text-slate-900 uppercase tracking-tight">Teacher Applications</h1>
-            <p className="mt-2 text-slate-500 font-medium">Review, approve, or reject teacher applications from users.</p>
+            <h1 className="text-3xl md:text-4xl font-black text-gray-800 uppercase tracking-tight">Teacher Applications</h1>
+            <p className="mt-2 text-gray-500 font-medium">Review, approve, or reject teacher applications from users.</p>
           </div>
           <Button
             onClick={() => load(currentPage)}
@@ -292,7 +292,7 @@ export default function AdminTeachersPage() {
               className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all ${
                 statusFilter === tab.value
                   ? "bg-primary text-white shadow-md shadow-primary/20"
-                  : "bg-white border border-slate-200 text-slate-600 hover:border-primary hover:text-primary"
+                  : "bg-white border border-gray-100 text-gray-600 hover:border-primary hover:text-primary"
               }`}
             >
               {tab.label}

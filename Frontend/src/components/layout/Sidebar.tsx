@@ -70,9 +70,9 @@ export function Sidebar({ items, basePath }: SidebarProps) {
   };
 
   return (
-    <aside className="hidden w-64 flex-col border-r border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 md:flex">
+    <aside className="hidden w-64 flex-col border-r border-gray-100 bg-white  md:flex">
       {/* Brand */}
-      <div className="flex h-16 items-center border-b border-slate-200 px-6 dark:border-slate-800">
+      <div className="flex h-16 items-center border-b border-gray-100 px-6 ">
         <Link
           href={basePath}
           className="flex items-center gap-2 font-bold tracking-tight text-primary transition-opacity hover:opacity-90"
@@ -100,7 +100,7 @@ export function Sidebar({ items, basePath }: SidebarProps) {
                 "group flex items-center gap-3 rounded-xl px-4 py-2 text-sm font-semibold transition-all duration-200",
                 isActive
                   ? "bg-primary text-white shadow-md shadow-primary/20"
-                  : "text-slate-500 hover:bg-slate-50 hover:text-primary dark:text-slate-400 dark:hover:bg-slate-800/50 dark:hover:text-primary"
+                  : "text-gray-500 hover:bg-gray-50 hover:text-primary dark:text-gray-400 dark:hover:bg-gray-800/50 dark:hover:text-primary"
               )}
             >
               <Icon
@@ -108,7 +108,7 @@ export function Sidebar({ items, basePath }: SidebarProps) {
                   "h-5 w-5 shrink-0 transition-colors",
                   isActive
                     ? "text-white"
-                    : "text-slate-400 group-hover:text-primary"
+                    : "text-gray-400 group-hover:text-primary"
                 )}
               />
               {item.name}
@@ -118,7 +118,7 @@ export function Sidebar({ items, basePath }: SidebarProps) {
       </nav>
 
       {/* Logout */}
-      <div className="border-t border-slate-200 p-4 dark:border-slate-800">
+      <div className="border-t border-gray-100 p-4 ">
         <button
           onClick={handleLogout}
           className="flex w-full items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-bold text-red-500 transition-colors duration-200 hover:bg-red-50 dark:hover:bg-red-900/10"

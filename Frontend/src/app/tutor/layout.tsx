@@ -14,7 +14,7 @@ const tutorLinks: SidebarItem[] = [
 export default function TutorLayout({ children }: { children: React.ReactNode }) {
   return (
     <RoleProtectedRoute allowedRoles={["teacher"]}>
-      <div className="flex min-h-screen w-full bg-slate-50 dark:bg-slate-50">
+      <div className="flex min-h-screen w-full bg-soft/5 dark:bg-white">
         <Sidebar items={tutorLinks} basePath="/tutor/dashboard" />
         <div className="flex flex-1 flex-col overflow-hidden">
           <Topbar title="Tutor Portal" />

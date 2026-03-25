@@ -60,16 +60,16 @@ export default function StudentEventsPage() {
   return (
     <div className="space-y-8 animate-in fade-in zoom-in-95 duration-500 pb-12">
       <div>
-        <h2 className="text-2xl font-bold tracking-tight text-slate-800 flex items-center gap-2">
+        <h2 className="text-2xl font-bold tracking-tight text-gray-800 flex items-center gap-2">
           Community Events <CalendarDays className="h-6 w-6 text-secondary" />
         </h2>
-        <p className="mt-1 text-slate-500 text-sm font-medium">
+        <p className="mt-1 text-gray-500 text-sm font-medium">
           Join free workshops, webinars, and meetups hosted by our top tutors.
         </p>
       </div>
 
       {/* Tabs */}
-      <div className="border-b border-slate-200">
+      <div className="border-b border-gray-100">
         <nav className="-mb-px flex gap-6">
           {([
             { key: "upcoming", label: `Upcoming (${upcomingEvents.length})` },
@@ -82,7 +82,7 @@ export default function StudentEventsPage() {
                 "whitespace-nowrap border-b-2 px-1 py-4 text-sm font-bold transition-colors",
                 tab === key
                   ? "border-primary text-primary"
-                  : "border-transparent text-slate-500 hover:border-slate-200 hover:text-slate-700"
+                  : "border-transparent text-gray-500 hover:border-gray-100 hover:text-gray-700"
               )}
             >
               {label}
@@ -94,7 +94,7 @@ export default function StudentEventsPage() {
       {loading && (
         <div className="flex flex-col items-center justify-center py-24 gap-3">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          <p className="text-sm font-medium text-slate-500">Loading events...</p>
+          <p className="text-sm font-medium text-gray-500">Loading events...</p>
         </div>
       )}
 
@@ -107,10 +107,10 @@ export default function StudentEventsPage() {
 
       {!loading && !error && shownEvents.length === 0 && (
         <div className="flex flex-col items-center justify-center py-20 text-center gap-3">
-          <div className="h-16 w-16 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center">
-            <Users className="h-8 w-8 text-slate-300" />
+          <div className="h-16 w-16 rounded-full bg-gray-50 border border-gray-100 flex items-center justify-center">
+            <Users className="h-8 w-8 text-gray-300" />
           </div>
-          <p className="font-bold text-slate-500">
+          <p className="font-bold text-gray-500">
             {tab === "myRsvps" ? "You haven't RSVP'd to any events yet." : "No upcoming events right now."}
           </p>
           {tab === "myRsvps" && (
@@ -150,12 +150,12 @@ export default function StudentEventsPage() {
       {/* My RSVPs detailed view */}
       {!loading && tab === "myRsvps" && myRequests.length > 0 && (
         <div className="mt-4 space-y-3">
-          <h3 className="text-sm font-bold text-slate-500 uppercase tracking-widest px-1">RSVP Status</h3>
+          <h3 className="text-sm font-bold text-gray-500 uppercase tracking-widest px-1">RSVP Status</h3>
           {myRequests.map((req) => {
             const ev = req.eventId ?? req.event;
             const evObj = typeof ev === "object" ? ev : null;
             return (
-              <div key={req._id} className="flex items-center gap-4 rounded-2xl border border-slate-100 bg-white p-4 shadow-sm">
+              <div key={req._id} className="flex items-center gap-4 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
                 <div className={cn(
                   "h-9 w-9 rounded-xl flex items-center justify-center shrink-0",
                   req.status === "approved" ? "bg-emerald-50 text-emerald-600"
@@ -165,8 +165,8 @@ export default function StudentEventsPage() {
                   {req.status === "approved" ? <CheckCircle2 className="h-5 w-5" /> : <Clock className="h-5 w-5" />}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-bold text-slate-800 truncate">{evObj?.title ?? "Event"}</p>
-                  {evObj && <p className="text-xs text-slate-400 font-medium">{evObj.date} · {evObj.time}</p>}
+                  <p className="text-sm font-bold text-gray-800 truncate">{evObj?.title ?? "Event"}</p>
+                  {evObj && <p className="text-xs text-gray-400 font-medium">{evObj.date} · {evObj.time}</p>}
                 </div>
                 <span className={cn(
                   "text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full border",

@@ -88,18 +88,18 @@ export default function BlogDetailsPage() {
   };
 
   if (loading) return (
-    <div className="min-h-screen flex items-center justify-center bg-white dark:bg-slate-950">
+    <div className="min-h-screen flex items-center justify-center bg-white dark:bg-white">
       <Loader2 className="h-10 w-10 animate-spin text-primary" />
     </div>
   );
 
   if (!blog) return (
-    <div className="min-h-screen flex flex-col bg-white dark:bg-slate-950">
+    <div className="min-h-screen flex flex-col bg-white dark:bg-white">
       <Navbar />
       <div className="flex-1 flex flex-col items-center justify-center text-center gap-6 px-4">
         <BookOpen className="h-20 w-20 text-slate-100" />
-        <h1 className="text-3xl font-bold text-slate-800 dark:text-white tracking-tight">Post not found</h1>
-        <p className="text-slate-500 max-w-md">This article may have been removed or moved to drafts.</p>
+        <h1 className="text-3xl font-bold text-gray-800 dark:text-white tracking-tight">Post not found</h1>
+        <p className="text-gray-500 max-w-md">This article may have been removed or moved to drafts.</p>
         <Button href="/blogs" variant="primary">Explore others</Button>
       </div>
       <Footer />
@@ -114,14 +114,14 @@ export default function BlogDetailsPage() {
         
         {/* Navigation & Actions Top */}
         <div className="flex items-center justify-between mb-12 gap-4 flex-wrap">
-          <Link href="/blogs" className="group flex items-center gap-2 text-xs font-bold text-slate-400 hover:text-primary transition-colors tracking-tight">
+          <Link href="/blogs" className="group flex items-center gap-2 text-xs font-bold text-gray-400 hover:text-primary transition-colors tracking-tight">
             <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" /> Back to feed
           </Link>
           
           <div className="flex items-center gap-3">
             <button
                onClick={handleShare}
-               className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 hover:text-primary transition-all shadow-sm"
+               className="flex h-10 w-10 items-center justify-center rounded-full border border-gray-100 bg-white text-gray-600 hover:text-primary transition-all shadow-sm"
                title="Share post"
             >
                {copied ? <Clock className="w-4 h-4 text-emerald-500 animate-pulse" /> : <Share2 className="w-4 h-4" />}
@@ -132,18 +132,18 @@ export default function BlogDetailsPage() {
                className={cn(
                  "flex h-10 w-10 items-center justify-center rounded-full border transition-all shadow-sm",
                  isSaved 
-                   ? "bg-slate-900 text-white border-slate-900" 
-                   : "bg-white border-slate-200 text-slate-600 hover:text-primary"
+                   ? "bg-white text-white border-slate-900" 
+                   : "bg-white border-gray-100 text-gray-600 hover:text-primary"
                )}
             >
                {isSaved ? <BookmarkCheck className="w-4 h-4" /> : <Bookmark className="w-4 h-4" />}
             </button>
 
             {canManage && (
-              <div className="flex items-center gap-3 ml-2 pl-4 border-l border-slate-200">
+              <div className="flex items-center gap-3 ml-2 pl-4 border-l border-gray-100">
                 <Link
                   href={`/student/blogs/${blog._id}/edit`}
-                  className="flex items-center gap-2 rounded-full border border-slate-200 px-5 py-2.5 text-xs font-bold text-slate-700 hover:border-primary hover:text-primary transition-all shadow-sm"
+                  className="flex items-center gap-2 rounded-full border border-gray-100 px-5 py-2.5 text-xs font-bold text-gray-700 hover:border-primary hover:text-primary transition-all shadow-sm"
                 >
                   <Edit2 className="w-3.5 h-3.5" /> Edit
                 </Link>
@@ -157,7 +157,7 @@ export default function BlogDetailsPage() {
                 ) : (
                   <div className="flex items-center gap-3 rounded-full border border-red-200 bg-red-50 px-5 py-2.5 text-xs font-bold text-red-700">
                     <button onClick={handleDelete} disabled={deleting} className="font-bold underline">Confirm</button>
-                    <button onClick={() => setShowConfirm(false)} className="text-slate-400">Cancel</button>
+                    <button onClick={() => setShowConfirm(false)} className="text-gray-400">Cancel</button>
                   </div>
                 )}
               </div>
@@ -171,32 +171,32 @@ export default function BlogDetailsPage() {
               <span className="rounded-full bg-primary/10 px-4 py-1.5 text-[11px] font-bold text-primary tracking-tight">
                 {blog.category || "Community Hub"}
               </span>
-              <span className="text-[11px] font-bold text-slate-400 tracking-tight flex items-center gap-1.5">
+              <span className="text-[11px] font-bold text-gray-400 tracking-tight flex items-center gap-1.5">
                 <Clock className="w-3.5 h-3.5" /> {readingTime(blog.content)} min read
               </span>
             </div>
 
-            <h1 className="text-4xl md:text-6xl font-bold text-slate-900 leading-[1.1] tracking-tight">
+            <h1 className="text-4xl md:text-6xl font-bold text-gray-800 leading-[1.1] tracking-tight">
               {blog.title}
             </h1>
 
-            <div className="flex items-center gap-4 py-6 border-y border-slate-100">
-              <div className="h-12 w-12 rounded-full bg-slate-50 flex items-center justify-center border border-slate-200 shadow-sm">
-                <UserCircle className="w-7 h-7 text-slate-300" />
+            <div className="flex items-center gap-4 py-6 border-y border-gray-100">
+              <div className="h-12 w-12 rounded-full bg-gray-50 flex items-center justify-center border border-gray-100 shadow-sm">
+                <UserCircle className="w-7 h-7 text-gray-300" />
               </div>
               <div>
                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-bold text-slate-900">{blog.author?.name || "Member"}</span>
+                    <span className="text-sm font-bold text-gray-800">{blog.author?.name || "Member"}</span>
                     {blog.author?.role === 'admin' && (
                       <span className="text-[10px] font-bold text-primary border border-primary/20 bg-primary/5 px-2 py-0.5 rounded-md">Admin</span>
                     )}
                  </div>
-                 <span className="text-xs text-slate-500 font-medium">Published on {new Date(blog.createdAt).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}</span>
+                 <span className="text-xs text-gray-500 font-medium">Published on {new Date(blog.createdAt).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}</span>
               </div>
             </div>
           </header>
 
-          <div className="relative mb-14 rounded-[3rem] overflow-hidden bg-slate-50 border border-slate-100 aspect-[21/9] shadow-2xl shadow-slate-200/20">
+          <div className="relative mb-14 rounded-[3rem] overflow-hidden bg-gray-50 border border-gray-100 aspect-[21/9] shadow-2xl shadow-slate-200/20">
             {blog.featuredImage ? (
               <img src={blog.featuredImage} alt={blog.title} className="w-full h-full object-cover" />
             ) : (
@@ -206,15 +206,15 @@ export default function BlogDetailsPage() {
             )}
           </div>
 
-          <div className="prose prose-slate lg:prose-xl max-w-none text-slate-700 leading-relaxed font-medium whitespace-pre-wrap selection:bg-primary/20">
+          <div className="prose prose-slate lg:prose-xl max-w-none text-gray-700 leading-relaxed font-medium whitespace-pre-wrap selection:bg-primary/20">
             {blog.content}
           </div>
           
-          <div className="mt-20 border-t border-slate-100 pt-16">
-             <div className="bg-slate-50 rounded-[2.5rem] p-8 md:p-12 flex flex-col md:flex-row items-center justify-between gap-8 border border-slate-100">
+          <div className="mt-20 border-t border-gray-100 pt-16">
+             <div className="bg-gray-50 rounded-[2.5rem] p-8 md:p-12 flex flex-col md:flex-row items-center justify-between gap-8 border border-gray-100">
                 <div className="space-y-2 text-center md:text-left">
-                  <h3 className="text-2xl font-bold text-slate-900 tracking-tight">Liked this story?</h3>
-                  <p className="text-slate-500 text-sm font-medium">Share it with your fellow Tamil learners and help our community grow.</p>
+                  <h3 className="text-2xl font-bold text-gray-800 tracking-tight">Liked this story?</h3>
+                  <p className="text-gray-500 text-sm font-medium">Share it with your fellow Tamil learners and help our community grow.</p>
                 </div>
                 <div className="flex items-center gap-4 shrink-0">
                   <Button onClick={handleShare} variant="primary" size="lg" className="rounded-2xl px-8 shadow-xl shadow-primary/20">
@@ -227,9 +227,9 @@ export default function BlogDetailsPage() {
 
         {/* Recommended Stories */}
         {relatedPosts.length > 0 && (
-          <div className="mt-24 pt-20 border-t border-slate-100">
+          <div className="mt-24 pt-20 border-t border-gray-100">
             <div className="flex items-center justify-between mb-12">
-               <h2 className="text-3xl font-bold text-slate-900 tracking-tight">Recommended Stories</h2>
+               <h2 className="text-3xl font-bold text-gray-800 tracking-tight">Recommended Stories</h2>
                <Link href="/blogs" className="text-sm font-bold text-primary hover:text-primary/80 transition-all flex items-center gap-1 group">
                   View all <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                </Link>
@@ -238,7 +238,7 @@ export default function BlogDetailsPage() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                {relatedPosts.map(post => (
                  <Link key={post._id} href={`/blogs/${post.slug || post._id}`} className="group space-y-4">
-                    <div className="aspect-[1.6/1] rounded-3xl overflow-hidden bg-slate-50 border border-slate-100">
+                    <div className="aspect-[1.6/1] rounded-3xl overflow-hidden bg-gray-50 border border-gray-100">
                        {post.featuredImage ? (
                          <img src={post.featuredImage} alt={post.title} className="w-full h-full object-cover transition-transform group-hover:scale-110 duration-500" />
                        ) : (
@@ -248,10 +248,10 @@ export default function BlogDetailsPage() {
                        )}
                     </div>
                     <div className="space-y-2">
-                       <h4 className="text-lg font-bold text-slate-900 line-clamp-2 leading-tight group-hover:text-primary transition-colors tracking-tight">
+                       <h4 className="text-lg font-bold text-gray-800 line-clamp-2 leading-tight group-hover:text-primary transition-colors tracking-tight">
                         {post.title}
                        </h4>
-                       <span className="text-xs text-slate-500 font-medium">By {post.author?.name || "Member"}</span>
+                       <span className="text-xs text-gray-500 font-medium">By {post.author?.name || "Member"}</span>
                     </div>
                  </Link>
                ))}

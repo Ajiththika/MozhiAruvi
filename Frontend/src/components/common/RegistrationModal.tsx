@@ -75,22 +75,22 @@ export default function RegistrationModal({
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-white/60 backdrop-blur-sm animate-in fade-in duration-200">
       <div className="bg-white rounded-3xl w-full max-w-lg overflow-hidden shadow-2xl relative animate-in zoom-in-95 duration-200">
         
         {/* Header */}
-        <div className="bg-primary p-8 text-white relative">
+        <div className="bg-soft/20 p-8 text-gray-800 relative border-b border-gray-100">
           <button 
             onClick={onClose}
-            className="absolute top-6 right-6 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
+            className="absolute top-6 right-6 p-2 rounded-full bg-primary/10 hover:bg-primary/20 text-primary transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
-          <div className="inline-flex items-center justify-center px-4 py-1.5 rounded-full bg-white/20 text-xs font-bold tracking-tight mb-4">
+          <div className="inline-flex items-center justify-center px-4 py-1.5 rounded-full bg-primary/10 text-primary text-[10px] uppercase font-black tracking-widest mb-4">
             Event registration
           </div>
-          <h2 className="text-2xl md:text-3xl font-bold tracking-tight leading-tight">{eventTitle}</h2>
-          <p className="text-blue-50 text-base mt-2 font-medium leading-relaxed">Please fill in your details to secure your spot at this event.</p>
+          <h2 className="text-2xl md:text-3xl font-bold tracking-tight leading-tight text-gray-800">{eventTitle}</h2>
+          <p className="text-gray-600 text-base mt-2 font-medium leading-relaxed">Please fill in your details to secure your spot at this event.</p>
         </div>
 
         {/* Form Body */}
@@ -100,8 +100,8 @@ export default function RegistrationModal({
               <div className="w-20 h-20 bg-success/10 text-success rounded-full flex items-center justify-center mb-6">
                 <CheckCircle2 className="w-10 h-10" />
               </div>
-              <h3 className="text-xl md:text-2xl font-bold text-slate-900 mb-2">Registration Successful!</h3>
-              <p className="text-slate-500">We've received your request. See you at the event!</p>
+              <h3 className="text-xl md:text-2xl font-bold text-gray-800 mb-2">Registration Successful!</h3>
+              <p className="text-gray-500">We've received your request. See you at the event!</p>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-5">
@@ -116,7 +116,7 @@ export default function RegistrationModal({
               <div className="grid grid-cols-1 gap-5">
                 {/* Full Name */}
                 <div className="space-y-1.5">
-                  <label htmlFor="fullName" className="text-xs font-bold text-slate-600 tracking-tight flex items-center gap-2">
+                  <label htmlFor="fullName" className="text-xs font-bold text-gray-600 tracking-tight flex items-center gap-2">
                     <User className="w-3.5 h-3.5 text-primary" /> Full name
                   </label>
                   <input
@@ -127,14 +127,14 @@ export default function RegistrationModal({
                     value={formData.fullName}
                     onChange={handleChange}
                     placeholder="Enter your full name"
-                    className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all outline-none font-medium placeholder:text-slate-400"
+                    className="w-full px-4 py-3 rounded-xl border border-gray-100 focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all outline-none font-medium placeholder:text-gray-400"
                   />
                 </div>
 
                 {/* Country & Phone */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                   <div className="space-y-1.5">
-                    <label htmlFor="country" className="text-xs font-bold text-slate-600 tracking-tight flex items-center gap-2">
+                    <label htmlFor="country" className="text-xs font-bold text-gray-600 tracking-tight flex items-center gap-2">
                       <Globe className="w-3.5 h-3.5 text-primary" /> Country
                     </label>
                     <input
@@ -145,11 +145,11 @@ export default function RegistrationModal({
                       value={formData.country}
                       onChange={handleChange}
                       placeholder="e.g. India, USA"
-                      className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all outline-none font-medium placeholder:text-slate-400"
+                      className="w-full px-4 py-3 rounded-xl border border-gray-100 focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all outline-none font-medium placeholder:text-gray-400"
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <label htmlFor="phoneNumber" className="text-xs font-bold text-slate-600 tracking-tight flex items-center gap-2">
+                    <label htmlFor="phoneNumber" className="text-xs font-bold text-gray-600 tracking-tight flex items-center gap-2">
                       <Phone className="w-3.5 h-3.5 text-primary" /> Phone number
                     </label>
                     <input
@@ -160,7 +160,7 @@ export default function RegistrationModal({
                       value={formData.phoneNumber}
                       onChange={handleChange}
                       placeholder="e.g. +91 9876543210"
-                      className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all outline-none font-medium placeholder:text-slate-400"
+                      className="w-full px-4 py-3 rounded-xl border border-gray-100 focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all outline-none font-medium placeholder:text-gray-400"
                     />
                   </div>
                 </div>
@@ -168,7 +168,7 @@ export default function RegistrationModal({
                 {/* Age & Gender */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                   <div className="space-y-1.5">
-                    <label htmlFor="age" className="text-xs font-bold text-slate-600 tracking-tight flex items-center gap-2">
+                    <label htmlFor="age" className="text-xs font-bold text-gray-600 tracking-tight flex items-center gap-2">
                       <Hash className="w-3.5 h-3.5 text-primary" /> Age
                     </label>
                     <input
@@ -180,11 +180,11 @@ export default function RegistrationModal({
                       max="120"
                       value={formData.age}
                       onChange={handleChange}
-                      className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all outline-none font-medium"
+                      className="w-full px-4 py-3 rounded-xl border border-gray-100 focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all outline-none font-medium"
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <label htmlFor="gender" className="text-xs font-bold text-slate-600 tracking-tight flex items-center gap-2">
+                    <label htmlFor="gender" className="text-xs font-bold text-gray-600 tracking-tight flex items-center gap-2">
                       <User className="w-3.5 h-3.5 text-primary" /> Gender
                     </label>
                     <select
@@ -193,7 +193,7 @@ export default function RegistrationModal({
                       name="gender"
                       value={formData.gender}
                       onChange={handleChange}
-                      className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all outline-none font-medium appearance-none bg-white"
+                      className="w-full px-4 py-3 rounded-xl border border-gray-100 focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all outline-none font-medium appearance-none bg-white"
                     >
                       <option value="male">Male</option>
                       <option value="female">Female</option>
@@ -205,7 +205,7 @@ export default function RegistrationModal({
 
                 {/* Message */}
                 <div className="space-y-1.5">
-                  <label htmlFor="message" className="text-xs font-bold text-slate-600 tracking-tight flex items-center gap-2">
+                  <label htmlFor="message" className="text-xs font-bold text-gray-600 tracking-tight flex items-center gap-2">
                     <MessageSquare className="w-3.5 h-3.5 text-primary" /> Message (optional)
                   </label>
                   <textarea
@@ -215,7 +215,7 @@ export default function RegistrationModal({
                     value={formData.message}
                     onChange={handleChange}
                     placeholder="Any special requests or questions?"
-                    className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all outline-none font-medium placeholder:text-slate-400 resize-none"
+                    className="w-full px-4 py-3 rounded-xl border border-gray-100 focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all outline-none font-medium placeholder:text-gray-400 resize-none"
                   />
                 </div>
               </div>
