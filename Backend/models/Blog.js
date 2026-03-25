@@ -16,4 +16,7 @@ const blogSchema = new mongoose.Schema({
     savedBy: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
 }, { timestamps: true });
 
+blogSchema.index({ author: 1 });
+blogSchema.index({ status: 1 });
+
 export default mongoose.model('Blog', blogSchema);

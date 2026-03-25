@@ -15,7 +15,7 @@ export async function registerUser(req) {
     }
     const user = await User.create({ name, email, password });
     const { raw, sessionId } = await tokenService.createRefreshToken(user._id, meta(req));
-    return { user, accessToken: tokenService.signAccessToken(user, sessionId), raw };
+    return { user, accessToken: tokenService.signAccessToken(user, sessionId), raw, sessionId };
 }
 
 export async function loginUser(req) {
@@ -26,7 +26,7 @@ export async function loginUser(req) {
         const err = new Error('Invalid email or password.'); err.status = 401; err.code = 'INVALID_CREDENTIALS'; throw err;
     }
     const { raw, sessionId } = await tokenService.createRefreshToken(user._id, meta(req));
-    return { user, accessToken: tokenService.signAccessToken(user, sessionId), raw };
+    return { user, accessToken: tokenService.signAccessToken(user, sessionId), raw, sessionId };
 }
 
 export async function refreshTokens(req) {
@@ -53,7 +53,7 @@ export async function refreshTokens(req) {
         const err = new Error('User not found.'); err.status = 401; err.code = 'USER_NOT_FOUND'; throw err;
     }
 
-    return { accessToken: tokenService.signAccessToken(user, result.sessionId), raw: result.raw };
+    return { accessToken: tokenService.signAccessToken(user, result.sessionId), raw: result.raw, sessionId: result.sessionId };
 }
 
 export async function getMe(userId) {

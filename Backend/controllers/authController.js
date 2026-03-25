@@ -4,8 +4,8 @@ import * as tokenService from '../services/tokenService.js';
 // ── Register ──────────────────────────────────────────────────────────────────
 export async function register(req, res, next) {
     try {
-        const { user, accessToken, raw } = await authService.registerUser(req);
-        tokenService.setRefreshCookie(res, raw);
+        const { user, accessToken, raw, sessionId } = await authService.registerUser(req);
+        tokenService.setRefreshCookie(res, { raw, sessionId });
         res.status(201).json({ accessToken, user: user.toSafeObject() });
     } catch (e) { next(e); }
 }
@@ -13,8 +13,8 @@ export async function register(req, res, next) {
 // ── Login ─────────────────────────────────────────────────────────────────────
 export async function login(req, res, next) {
     try {
-        const { user, accessToken, raw } = await authService.loginUser(req);
-        tokenService.setRefreshCookie(res, raw);
+        const { user, accessToken, raw, sessionId } = await authService.loginUser(req);
+        tokenService.setRefreshCookie(res, { raw, sessionId });
         res.json({ accessToken, user: user.toSafeObject() });
     } catch (e) { next(e); }
 }
@@ -25,8 +25,8 @@ export async function refresh(req, res, next) {
         if (!req.cookies?.rt) {
             return res.status(401).json({ message: 'Session expired or refresh token missing.' });
         }
-        const { accessToken, raw } = await authService.refreshTokens(req);
-        tokenService.setRefreshCookie(res, raw);
+        const { accessToken, raw, sessionId } = await authService.refreshTokens(req);
+        tokenService.setRefreshCookie(res, { raw, sessionId });
         res.json({ accessToken });
     } catch (e) {
         tokenService.clearRefreshCookie(res);

@@ -7,6 +7,10 @@
 
 import api from "@/lib/api";
 import { authStore } from "@/lib/authStore";
+import { Lesson } from "./lessonService";
+import { JoinRequest } from "./eventService";
+import { Blog } from "./blogService";
+import { TutorRequest } from "./tutorService";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -77,7 +81,18 @@ export async function refresh(): Promise<string> {
   return res.data.accessToken;
 }
 
-// ── Get current user ──────────────────────────────────────────────────────────
+export interface DashboardData {
+  user: SafeUser;
+  lessons: Lesson[];
+  joinRequests: JoinRequest[];
+  blogs: Blog[];
+  questions: TutorRequest[];
+}
+
+export async function getDashboardData(): Promise<DashboardData> {
+  const res = await api.get<DashboardData>("/users/dashboard");
+  return res.data;
+}
 
 export async function getMe(): Promise<SafeUser> {
   const res = await api.get<{ user: SafeUser }>("/auth/me");

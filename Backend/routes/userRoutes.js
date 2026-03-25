@@ -30,6 +30,7 @@ const setLevelSchema = z.object({
 }).strict();
 
 router.get('/me', authenticate, userController.getProfile);
+router.get('/dashboard', authenticate, userController.getStudentDashboardData);
 router.patch('/me', authenticate, upload.single('profilePhoto'), validate(updateProfileSchema), userController.updateProfile);
 router.patch('/me/password', authenticate, validate(updatePasswordSchema), userController.updatePassword);
 router.patch('/me/deactivate', authenticate, userController.deactivateAccount);

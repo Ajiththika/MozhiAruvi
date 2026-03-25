@@ -35,46 +35,53 @@ export async function createRefreshToken(userId, meta = {}) {
     return { raw, sessionId: session._id };
 }
 
-export async function rotateRefreshToken(oldRaw, meta = {}) {
-    // Only consider active, unexpired sessions
-    const sessions = await Session.find({ revoked: false, expiresAt: { $gt: new Date() } });
+export async function rotateRefreshToken(oldCombined, meta = {}) {
+    if (!oldCombined || !oldCombined.includes('.')) return null;
+    const [sid, oldRaw] = oldCombined.split('.');
 
-    let matched = null;
-    for (const s of sessions) {
-        if (await bcrypt.compare(oldRaw, s.tokenHash)) { matched = s; break; }
-    }
-
-    if (!matched) {
-        console.warn('[rotateRefreshToken] No matching active session found for provided refresh token.');
+    // Find session by ID first (very fast)
+    const session = await Session.findById(sid);
+    if (!session || session.revoked || session.expiresAt < new Date()) {
+        console.warn('[rotateRefreshToken] Session not found, revoked, or expired.');
         return null;
     }
 
-    // Rotate: revoke the old session and create a new one
-    matched.revoked = true;
-    await matched.save();
+    // Verify token hash
+    if (!(await bcrypt.compare(oldRaw, session.tokenHash))) {
+        console.error('[rotateRefreshToken] Token reuse or invalid token detected for session:', sid);
+        // Security logic: if token reuse is detected, you might want to revoke all of user's sessions
+        return null;
+    }
 
-    return createRefreshToken(matched.userId, meta);
+    // Rotate: revoke old session and create a new one
+    session.revoked = true;
+    await session.save();
+
+    return createRefreshToken(session.userId, meta);
 }
 
-export async function revokeSession(raw) {
-    const sessions = await Session.find({ revoked: false });
-    for (const s of sessions) {
-        if (await bcrypt.compare(raw, s.tokenHash)) {
-            s.revoked = true;
-            await s.save();
-            return true;
-        }
+export async function revokeSession(combined) {
+    if (!combined || !combined.includes('.')) return false;
+    const [sid, raw] = combined.split('.');
+    
+    const session = await Session.findById(sid);
+    if (session && (await bcrypt.compare(raw, session.tokenHash))) {
+        session.revoked = true;
+        await session.save();
+        return true;
     }
     return false;
 }
 
-export function setRefreshCookie(res, token) {
-    res.cookie('rt', token, {
+export function setRefreshCookie(res, { raw, sessionId }) {
+    // Combine sessionId and raw token using a period separator
+    const combined = `${sessionId}.${raw}`;
+    res.cookie('rt', combined, {
         httpOnly: true,
         secure: process.env.COOKIE_SECURE === 'true',
         sameSite: process.env.COOKIE_SAMESITE || 'lax',
-        path: '/',                  // ← CRITICAL: without this, cookie is scoped to the
-        maxAge: DAYS * 86_400_000,  //   login route path and is never sent to /api/auth/refresh
+        path: '/',
+        maxAge: DAYS * 86_400_000,
     });
 }
 

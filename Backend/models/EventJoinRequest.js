@@ -77,4 +77,6 @@ eventJoinRequestSchema.index(
     }
 );
 
+eventJoinRequestSchema.index({ userId: 1 });
+
 export default mongoose.model('EventJoinRequest', eventJoinRequestSchema);

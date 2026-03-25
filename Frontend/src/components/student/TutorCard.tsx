@@ -1,5 +1,6 @@
 import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Globe, Video, Wifi, WifiOff, Clock, Layers, ArrowRight, ShieldCheck, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Tutor } from "@/services/tutorService";
@@ -29,7 +30,15 @@ export function TutorCard({ tutor }: { tutor: Tutor }) {
           <div className="relative h-20 w-20 p-1 rounded-3xl bg-gray-50 dark:bg-gray-800 ring-1 ring-slate-200 dark:ring-slate-700 shadow-inner group-hover:ring-primary/30 transition-all">
             <div className="h-full w-full rounded-2xl overflow-hidden bg-white dark:bg-white">
                {profilePhoto ? (
-                 <img src={profilePhoto} alt={name} className="h-full w-full object-cover transition-transform group-hover:scale-110 duration-500" />
+                 <div className="relative h-full w-full">
+                    <Image 
+                      src={profilePhoto} 
+                      alt={name} 
+                      fill
+                      className="object-cover transition-transform group-hover:scale-110 duration-500" 
+                      sizes="80px"
+                    />
+                 </div>
                ) : (
                  <div className="h-full w-full flex items-center justify-center bg-primary/5">
                    <span className="text-3xl font-bold text-primary">

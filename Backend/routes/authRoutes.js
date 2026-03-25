@@ -8,11 +8,12 @@ import { validate, registerSchema, loginSchema, forgotSchema, resetSchema } from
 const router = Router();
 
 const loginLimiter = rateLimit({ windowMs: 15 * 60_000, max: 10, message: { error: { code: 'RATE_LIMITED', message: 'Too many attempts.' } } });
+const refreshLimiter = rateLimit({ windowMs: 15 * 60_000, max: 50, message: { error: { code: 'RATE_LIMITED', message: 'Too many refresh attempts.' } } });
 const forgotLimiter = rateLimit({ windowMs: 60 * 60_000, max: 5, message: { error: { code: 'RATE_LIMITED', message: 'Too many attempts.' } } });
 
 router.post('/register', validate(registerSchema), auth.register);
 router.post('/login', loginLimiter, validate(loginSchema), auth.login);
-router.post('/refresh', loginLimiter, auth.refresh);
+router.post('/refresh', refreshLimiter, auth.refresh);
 router.post('/logout', auth.logout);
 router.get('/me', authenticate, auth.me);
 router.post('/forgot-password', forgotLimiter, validate(forgotSchema), auth.forgotPassword);

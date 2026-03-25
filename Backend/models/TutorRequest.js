@@ -40,4 +40,8 @@ const tutorRequestSchema = new mongoose.Schema({
     priceCredits: { type: Number, default: 10 }, 
 }, { timestamps: true });
 
+tutorRequestSchema.index({ studentId: 1 });
+tutorRequestSchema.index({ teacherId: 1 });
+tutorRequestSchema.index({ status: 1 });
+
 export default mongoose.model('TutorRequest', tutorRequestSchema);

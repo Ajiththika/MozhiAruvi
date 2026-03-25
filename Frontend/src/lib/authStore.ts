@@ -11,15 +11,14 @@
  */
 
 let accessToken: string | null = null;
-const SESSION_HINT_KEY = "mozhi_session_exists";
+const SESSION_HINT_KEY = "mozhi_session_hint";
+const USER_CACHE_KEY = "mozhi_cached_user";
 
 export const authStore = {
-  /** Read the current access token (null if not authenticated). */
   get(): string | null {
     return accessToken;
   },
 
-  /** Set after a successful login / register / refresh. */
   set(token: string): void {
     accessToken = token;
     if (typeof window !== "undefined") {
@@ -27,15 +26,31 @@ export const authStore = {
     }
   },
 
-  /** Clear on logout or unrecoverable 401. */
+  saveUser(user: any): void {
+    if (typeof window !== "undefined") {
+      localStorage.setItem(USER_CACHE_KEY, JSON.stringify(user));
+    }
+  },
+
+  getCachedUser(): any | null {
+    if (typeof window === "undefined") return null;
+    const raw = localStorage.getItem(USER_CACHE_KEY);
+    if (!raw) return null;
+    try {
+      return JSON.parse(raw);
+    } catch {
+      return null;
+    }
+  },
+
   clear(): void {
     accessToken = null;
     if (typeof window !== "undefined") {
       localStorage.removeItem(SESSION_HINT_KEY);
+      localStorage.removeItem(USER_CACHE_KEY);
     }
   },
 
-  /** Check if a session likely exists (hint in localStorage). */
   hasSessionHint(): boolean {
     if (typeof window === "undefined") return false;
     return localStorage.getItem(SESSION_HINT_KEY) === "true";

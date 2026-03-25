@@ -9,12 +9,14 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import Button from "@/components/common/Button";
-import { getMe, SafeUser } from "@/services/authService";
-import { getLessons, Lesson } from "@/services/lessonService";
-import { getMyJoinRequests, JoinRequest } from "@/services/eventService";
-import { getMyBlogs, Blog } from "@/services/blogService";
-import { getMyTutorRequests, TutorRequest } from "@/services/tutorService";
+import { getDashboardData, SafeUser } from "@/services/authService";
+import { Lesson } from "@/services/lessonService";
+import { JoinRequest } from "@/services/eventService";
+import { Blog } from "@/services/blogService";
+import { TutorRequest } from "@/services/tutorService";
 import { cn } from "@/lib/utils";
+
+import { DashboardSkeleton } from "./DashboardSkeleton";
 
 export default function StudentDashboard() {
   const [user, setUser] = useState<SafeUser | null>(null);
@@ -26,13 +28,13 @@ export default function StudentDashboard() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    Promise.all([getMe(), getLessons(), getMyJoinRequests(), getMyBlogs(), getMyTutorRequests()])
-      .then(([u, { lessons }, jrs, b, qs]) => {
-        setUser(u);
-        setLessons(lessons);
-        setJoinRequests(jrs);
-        setBlogs(b);
-        setQuestions(qs.slice(0, 5));
+    getDashboardData()
+      .then((data) => {
+        setUser(data.user);
+        setLessons(data.lessons);
+        setJoinRequests(data.joinRequests);
+        setBlogs(data.blogs);
+        setQuestions(data.questions);
       })
       .catch((err) => {
         console.error(err);
@@ -49,11 +51,7 @@ export default function StudentDashboard() {
   const recentBlogs = blogs.slice(0, 3);
 
   if (loading) {
-    return (
-      <div className="flex min-h-[60vh] items-center justify-center">
-        <Loader2 className="h-10 w-10 animate-spin text-primary" />
-      </div>
-    );
+    return <DashboardSkeleton />;
   }
 
   return (

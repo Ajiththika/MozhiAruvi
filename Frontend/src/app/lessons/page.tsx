@@ -21,6 +21,8 @@ function groupByModule(lessons: Lesson[]) {
   return map;
 }
 
+import { LessonsSkeleton } from "./LessonsSkeleton";
+
 export default function PublicLessonsPage() {
   const router = useRouter();
   const { user: authUser } = useAuth();
@@ -45,8 +47,6 @@ export default function PublicLessonsPage() {
           }
         }
       } catch (err) {
-        // If 401, they are just not logged in, which is fine for public view
-        // But if lessons fail, that's a real error
         if (lessons.length === 0) {
            setError("Could not load path. Please refresh.");
         }
@@ -59,12 +59,9 @@ export default function PublicLessonsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex flex-col bg-white font-sans">
+      <div className="min-h-screen flex flex-col bg-white">
         <Navbar />
-        <div className="flex-1 flex flex-col items-center justify-center gap-3">
-          <Loader2 className="h-10 w-10 animate-spin text-primary" />
-          <p className="text-lg font-bold text-gray-500">Building your path...</p>
-        </div>
+        <LessonsSkeleton />
         <Footer />
       </div>
     );

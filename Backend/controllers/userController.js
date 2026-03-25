@@ -1,4 +1,8 @@
 import * as userService from '../services/userService.js';
+import * as lessonService from '../services/lessonService.js';
+import * as eventService from '../services/eventService.js';
+import * as blogService from '../services/blogService.js';
+import * as tutorService from '../services/tutorService.js';
 
 export async function getProfile(req, res, next) {
     try {
@@ -43,5 +47,31 @@ export async function consumeCredit(req, res, next) {
     try {
         const user = await userService.consumeCredit(req.user.sub);
         res.json({ message: 'Credit consumed', learningCredits: user.learningCredits });
+    } catch (e) { next(e); }
+}
+
+export async function getStudentDashboardData(req, res, next) {
+    try {
+        const userId = req.user.sub;
+        const [user, lessonsData, joinRequests, blogs, questions] = await Promise.all([
+            userService.getUserInfo(userId),
+            lessonService.getAllLessons(),
+            eventService.getMyJoinRequests(userId),
+            blogService.getUserBlogs(userId),
+            tutorService.getStudentRequests(userId)
+        ]);
+        
+        // lessonService.getAllLessons returns an array OR { lessons } object?
+        // Let's check lessonService.js - it returns Lesson.find(). 
+        // Wait, the frontend expect { lessons: [...] } from getLessons() service.
+        // Actually, let's normalize it here.
+        
+        res.json({
+            user: user.toSafeObject(),
+            lessons: Array.isArray(lessonsData) ? lessonsData : (lessonsData.lessons || []),
+            joinRequests,
+            blogs,
+            questions: questions.slice(0, 5)
+        });
     } catch (e) { next(e); }
 }

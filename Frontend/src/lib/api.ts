@@ -39,12 +39,14 @@ const refreshClient = axios.create({
 
 // ── 3. Response interceptor ──────────────────────────────────────────────
 
+let refreshingPromise: Promise<string> | null = null;
+
 api.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
     const originalRequest = error.config as any;
 
-    // Only attempt refresh if it's a 401, not already retrying, and not a login/logout/refresh request
+    // 1. If it's a 401 (token expired) and not already retrying
     if (
       error.response?.status === 401 &&
       !originalRequest._retry &&
@@ -53,22 +55,44 @@ api.interceptors.response.use(
       !originalRequest.url?.includes("/auth/logout")
     ) {
       originalRequest._retry = true;
+
       try {
-        const res = await refreshClient.post<{ accessToken: string }>(
-          "/auth/refresh",
-          {}
-        );
-        const newToken = res.data.accessToken;
-        authStore.set(newToken);
+        // Singleton pattern: if a refresh is already in progress, wait for it
+        if (!refreshingPromise) {
+          refreshingPromise = refreshClient
+            .post<{ accessToken: string }>("/auth/refresh", {})
+            .then((res) => {
+              const newToken = res.data.accessToken;
+              authStore.set(newToken);
+              refreshingPromise = null;
+              return newToken;
+            })
+            .catch((refreshError) => {
+              refreshingPromise = null;
+              authStore.clear();
+              // Prevent infinite loops on refresh/login failure
+              if (typeof window !== "undefined") {
+                 // Option: window.location.href = "/auth/signin" if absolutely stuck
+              }
+              throw refreshError;
+            });
+        }
+
+        const newToken = await refreshingPromise;
         if (originalRequest.headers) {
           originalRequest.headers.Authorization = `Bearer ${newToken}`;
         }
         return api(originalRequest);
-      } catch (refreshError) {
-        // Refresh failed — session truly expired or invalid; clear local state
-        authStore.clear();
-        return Promise.reject(refreshError);
+      } catch (err) {
+        return Promise.reject(err);
       }
+    }
+
+    // 2. If it's a 429 (Too many attempts) — wait and let the user know, or fail
+    if (error.response?.status === 429) {
+       console.error("[API] Too many requests (429). Delaying retry.");
+       // Optional: Add artificial sleep here if you really want to wait
+       // await new Promise(resolve => setTimeout(resolve, 1000));
     }
 
     return Promise.reject(error);

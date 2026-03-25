@@ -9,6 +9,7 @@ const sessionSchema = new mongoose.Schema({
     revoked: { type: Boolean, default: false },
 }, { timestamps: true });
 
+sessionSchema.index({ userId: 1 });
 sessionSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 }); // auto-cleanup
 
 export default mongoose.model('Session', sessionSchema);

@@ -18,21 +18,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    // 1. Instant-on: Load user from cache if hint exists
+    if (authStore.hasSessionHint()) {
+      const cached = authStore.getCachedUser();
+      if (cached) {
+        setUser(cached);
+        // We still set isLoading to false if we have a cache to show the UI immediately
+        setIsLoading(false); 
+      }
+    }
+
     async function initAuth() {
       try {
-        // Only attempt refresh if we have a hint that a session exists
         if (!authStore.get() && authStore.hasSessionHint()) {
           await refresh();
         }
-        
-        // If we have a token (either from refresh or already in store), get user data
         if (authStore.get()) {
           const userData = await getMe();
           setUser(userData);
+          authStore.saveUser(userData);
         }
       } catch (error) {
-        // No valid session, or refresh failed
         authStore.clear();
+        setUser(null);
       } finally {
         setIsLoading(false);
       }
