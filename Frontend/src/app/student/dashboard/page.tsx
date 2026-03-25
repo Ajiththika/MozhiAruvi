@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { StatCard } from "@/components/common/StatCard";
 import { 
-  BookOpen, Flame, Trophy, Loader2, AlertCircle, ArrowRight, 
+  BookOpen, Flame, Trophy, AlertCircle, ArrowRight, 
   PenTool, BookMarked, UserCircle, MessageSquare, CheckCircle, 
   Clock, XCircle, User 
 } from "lucide-react";

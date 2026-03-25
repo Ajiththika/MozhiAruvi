@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import {
-  ArrowLeft, Loader2, AlertCircle, Globe, Clock, Wifi, Layers,
+  ArrowLeft, AlertCircle, Globe, Wifi, Layers,
   BookOpen, MessageSquare, GraduationCap, Video, Sparkles, UserCheck2,
 } from "lucide-react";
 import { useRouter } from "next/navigation";

@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { Search, Loader2, AlertCircle, GraduationCap, Wifi, Layers } from "lucide-react";
+import { Search, AlertCircle, GraduationCap, Wifi, Layers } from "lucide-react";
 import { TutorCard } from "@/components/student/TutorCard";
 import { getAvailableTutors, Tutor } from "@/services/tutorService";
 import { cn } from "@/lib/utils";

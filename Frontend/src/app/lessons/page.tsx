@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { BookOpen, Loader2, AlertCircle, Lock, Circle, Star, Zap, CheckCircle2 } from "lucide-react";
+import { BookOpen, AlertCircle, Lock, Circle, Star, Zap, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { getLessons, Lesson, Progress } from "@/services/lessonService";

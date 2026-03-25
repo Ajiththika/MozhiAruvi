@@ -78,7 +78,7 @@ export async function googleCallback(req, res, next) {
             userAgent: req.headers['user-agent'], ip: req.ip,
         });
         const accessToken = tokenService.signAccessToken(user, sessionId);
-        tokenService.setRefreshCookie(res, raw);
+        tokenService.setRefreshCookie(res, { raw, sessionId });
         res.redirect(`${process.env.FRONTEND_ORIGIN}/oauth-callback?accessToken=${accessToken}`);
     } catch (e) { next(e); }
 }

@@ -1,7 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Globe, Video, Wifi, WifiOff, Clock, Layers, ArrowRight, ShieldCheck, Star } from "lucide-react";
+import { Globe, Video, Clock, Layers, ArrowRight, ShieldCheck, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Tutor } from "@/services/tutorService";
 

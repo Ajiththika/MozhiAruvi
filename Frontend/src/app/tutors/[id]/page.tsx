@@ -6,7 +6,7 @@ import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import {
-  ArrowLeft, Loader2, AlertCircle, Globe, Clock, Wifi, Layers,
+  ArrowLeft, AlertCircle, Globe, Wifi, Layers,
   BookOpen, MessageSquare, GraduationCap, Video, Sparkles, UserCheck2,
 } from "lucide-react";
 import { useRouter } from "next/navigation";

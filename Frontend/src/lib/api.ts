@@ -70,10 +70,6 @@ api.interceptors.response.use(
             .catch((refreshError) => {
               refreshingPromise = null;
               authStore.clear();
-              // Prevent infinite loops on refresh/login failure
-              if (typeof window !== "undefined") {
-                 // Option: window.location.href = "/auth/signin" if absolutely stuck
-              }
               throw refreshError;
             });
         }
@@ -88,11 +84,9 @@ api.interceptors.response.use(
       }
     }
 
-    // 2. If it's a 429 (Too many attempts) — wait and let the user know, or fail
+    // 2. If it's a 429 (Too many attempts) — let it propagate
     if (error.response?.status === 429) {
-       console.error("[API] Too many requests (429). Delaying retry.");
-       // Optional: Add artificial sleep here if you really want to wait
-       // await new Promise(resolve => setTimeout(resolve, 1000));
+      console.error("[API] Too many requests (429).");
     }
 
     return Promise.reject(error);

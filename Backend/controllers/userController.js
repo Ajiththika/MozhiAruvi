@@ -60,12 +60,6 @@ export async function getStudentDashboardData(req, res, next) {
             blogService.getUserBlogs(userId),
             tutorService.getStudentRequests(userId)
         ]);
-        
-        // lessonService.getAllLessons returns an array OR { lessons } object?
-        // Let's check lessonService.js - it returns Lesson.find(). 
-        // Wait, the frontend expect { lessons: [...] } from getLessons() service.
-        // Actually, let's normalize it here.
-        
         res.json({
             user: user.toSafeObject(),
             lessons: Array.isArray(lessonsData) ? lessonsData : (lessonsData.lessons || []),
