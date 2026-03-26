@@ -27,7 +27,7 @@ export default function TutorSchedulePage() {
                Set your working hours so students can book sessions with you.
             </p>
          </div>
-         <button className="flex items-center gap-2 rounded-xl bg-mozhi-primary px-5 py-2.5 text-sm font-bold text-white shadow-sm transition-colors hover:bg-mozhi-primary">
+         <button className="flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-bold text-white shadow-sm transition-colors hover:bg-primary">
              Save Changes
          </button>
       </div>
@@ -51,7 +51,7 @@ export default function TutorSchedulePage() {
                          <input
                            type="checkbox"
                            defaultChecked={index !== 5 && index !== 6} // Uncheck weekends by default
-                           className="h-4 w-4 rounded border-gray-100 text-mozhi-primary focus:ring-mozhi-primary dark:border-gray-100 dark:bg-gray-50"
+                           className="h-4 w-4 rounded border-gray-100 text-primary focus:ring-primary dark:border-gray-100 dark:bg-gray-50"
                          />
                          <span className="font-semibold text-gray-600 dark:text-gray-600">{day}</span>
                       </div>
@@ -62,14 +62,14 @@ export default function TutorSchedulePage() {
                          </div>
                       ) : (
                          <div className="flex flex-1 items-center gap-2">
-                             <select aria-label="Start time" className="rounded-lg border border-gray-100 bg-white px-3 py-1.5 text-sm text-gray-600 shadow-sm focus:border-mozhi-primary focus:outline-none focus:ring-1 focus:ring-mozhi-primary dark:border-gray-100 dark:bg-gray-50 dark:text-gray-600">
+                             <select aria-label="Start time" className="rounded-lg border border-gray-100 bg-white px-3 py-1.5 text-sm text-gray-600 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-gray-100 dark:bg-gray-50 dark:text-gray-600">
                                 {TIME_SLOTS.map(t => <option key={t}>{t}</option>)}
                              </select>
                              <span className="text-gray-600">-</span>
-                             <select aria-label="End time" defaultValue="05:00 PM" className="rounded-lg border border-gray-100 bg-white px-3 py-1.5 text-sm text-gray-600 shadow-sm focus:border-mozhi-primary focus:outline-none focus:ring-1 focus:ring-mozhi-primary dark:border-gray-100 dark:bg-gray-50 dark:text-gray-600">
+                             <select aria-label="End time" defaultValue="05:00 PM" className="rounded-lg border border-gray-100 bg-white px-3 py-1.5 text-sm text-gray-600 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-gray-100 dark:bg-gray-50 dark:text-gray-600">
                                 {TIME_SLOTS.map(t => <option key={t}>{t}</option>)}
                              </select>
-                             <button className="ml-2 text-gray-600 hover:text-mozhi-primary dark:text-gray-600 dark:hover:text-mozhi-secondary transition-colors">
+                             <button className="ml-2 text-gray-600 hover:text-primary dark:text-gray-600 dark:hover:text-secondary transition-colors">
                                 <Plus className="h-5 w-5" />
                              </button>
                          </div>
@@ -95,7 +95,7 @@ export default function TutorSchedulePage() {
                   <p className="text-sm font-medium text-gray-600 dark:text-gray-600">Interactive Calendar View</p>
                   <p className="text-xs mt-1">Select date ranges to add overrides for holidays and vacations.</p>
 
-                  <button className="mt-4 w-full rounded-lg border border-mozhi-light bg-mozhi-light/50 py-2 text-sm font-medium text-mozhi-primary dark:border-blue-900/50 dark:bg-mozhi-primary/20 dark:text-mozhi-secondary transition-colors hover:bg-mozhi-light dark:hover:bg-mozhi-primary/20">
+                  <button className="mt-4 w-full rounded-lg border border-mozhi-light bg-mozhi-light/50 py-2 text-sm font-medium text-primary dark:border-blue-900/50 dark:bg-primary/20 dark:text-secondary transition-colors hover:bg-mozhi-light dark:hover:bg-primary/20">
                      Add Holiday Override
                   </button>
                </div>

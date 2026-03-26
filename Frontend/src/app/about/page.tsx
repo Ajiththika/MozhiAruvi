@@ -1,377 +1,255 @@
 import { Metadata } from "next";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import Button from "@/components/common/Button";
+import { Button } from "@/components/ui/Button";
+import { Card, CardBody } from "@/components/ui/Card";
+import { cn } from "@/lib/utils";
+import { BookOpen, Monitor, Globe, Star, Sparkles, Trophy, ArrowRight, Info, Heart } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "About - Mozhi Aruvi",
-  description: "Learn about Mozhi Aruvi — the modern platform for learning Tamil language and culture through interactive lessons and expert tutors.",
+  description: "Learn about Mozhi Aruvi — the modern platform for learning Tamil language and culture.",
 };
-
-// ─── Data ─────────────────────────────────────────────────────────────────────
 
 const missionCards = [
   {
-    icon: (
-      <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-      </svg>
-    ),
+    icon: <BookOpen className="w-8 h-8" />,
     title: "Preserve Tamil Heritage",
     description: "Tamil is one of the world's oldest living classical languages. We build tools that help learners connect with 2,000+ years of literary and cultural tradition.",
   },
   {
-    icon: (
-      <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-      </svg>
-    ),
+    icon: <Monitor className="w-8 h-8" />,
     title: "Modern Learning Tools",
     description: "Voice pronunciation practice, gamified quizzes, AI-powered feedback, and one-on-one tutor sessions — learning Tamil has never been this engaging.",
   },
   {
-    icon: (
-      <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-      </svg>
-    ),
+    icon: <Globe className="w-8 h-8" />,
     title: "Global Tamil Community",
-    description: "From Tamil Nadu to Toronto, our learners and tutors span the globe. Join a vibrant community built on shared love for Tamil language and culture.",
+    description: "From Tamil Nadu to Toronto, our learners span the globe. Join a vibrant community built on shared love for Tamil language and culture.",
   },
 ];
 
 const featureCards = [
-  {
-    emoji: "📚",
-    title: "Interactive Lessons",
-    description: "Structured lessons covering scripts, grammar, vocabulary, and reading comprehension.",
-  },
-  {
-    emoji: "🎙️",
-    title: "Voice Pronunciation",
-    description: "Listen to native speakers and practice your pronunciation with real-time feedback.",
-  },
-  {
-    emoji: "👩‍🏫",
-    title: "Expert Tamil Tutors",
-    description: "Get direct access to 38+ verified Tamil tutors for guidance and private sessions.",
-  },
-  {
-    emoji: "🎮",
-    title: "Gamified Learning",
-    description: "Earn XP, build streaks, complete challenges, and unlock lessons like a game.",
-  },
-  {
-    emoji: "🎉",
-    title: "Cultural Events",
-    description: "Participate in online and offline events celebrating Tamil arts, poetry, and festivals.",
-  },
-  {
-    emoji: "🌍",
-    title: "Global Community",
-    description: "Connect with Tamil learners and enthusiasts from across the world.",
-  },
-];
-
-const events = [
-  { title: "Tamil Poetry Night", date: "March 15, 2026", type: "Online", emoji: "📜" },
-  { title: "Pongal Celebration", date: "Jan 14, 2026", type: "Offline", emoji: "🌾" },
-  { title: "Film Discussion", date: "April 5, 2026", type: "Online", emoji: "🎬" },
-  { title: "Conversation Meetup", date: "April 10, 2026", type: "Offline", emoji: "💬" },
+  { emoji: "📚", title: "Interactive Lessons", description: "Structured lessons covering scripts, grammar, and vocabulary." },
+  { emoji: "🎙️", title: "Voice Pronunciation", description: "Practice your pronunciation with real-time phonetics feedback." },
+  { emoji: "👩‍🏫", title: "Expert Tamil Tutors", description: "Access 38+ verified Tamil tutors for private sessions." },
+  { emoji: "🎮", title: "Gamified Learning", description: "Earn XP, build streaks, and unlock lessons like a game." },
+  { emoji: "🎉", title: "Cultural Events", description: "Participate in events celebrating Tamil arts and poetry." },
+  { emoji: "🌍", title: "Global Network", description: "Connect with enthusiasts from across the world." },
 ];
 
 const stats = [
   { value: "1,200+", label: "Active Learners" },
-  { value: "50+", label: "Interactive Lessons" },
+  { value: "50+", label: "Modules" },
   { value: "38", label: "Expert Tutors" },
-  { value: "95%", label: "Satisfaction Rate" },
+  { value: "95%", label: "Linguistic Sync" },
 ];
-
-
-
-// ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function AboutPage() {
   return (
-    <div className="min-h-screen flex flex-col bg-soft/10 font-sans">
+    <div className="min-h-screen flex flex-col bg-background font-sans scroll-smooth">
       <Navbar />
 
       <main className="flex-1">
-
         {/* ── 1. Hero ─────────────────────────────────────────────── */}
-        <section className="relative overflow-hidden bg-white pt-20 pb-28 px-4 sm:px-6 lg:px-8">
+        <section className="relative overflow-hidden bg-white pt-24 pb-32 px-4 sm:px-6 lg:px-8 border-b border-border/40">
           <div className="absolute inset-0 pointer-events-none">
-            <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-accent/20 rounded-full blur-3xl -translate-y-1/3 translate-x-1/3" />
-            <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-soft/20 rounded-full blur-3xl translate-y-1/3 -translate-x-1/3" />
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-[0.05] text-[18rem] text-primary select-none leading-none">
+            <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-primary/5 rounded-full blur-3xl -translate-y-1/3 translate-x-1/3" />
+            <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-secondary/5 rounded-full blur-3xl translate-y-1/3 -translate-x-1/3" />
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-[0.03] text-[25rem] font-black text-primary select-none leading-none">
               த
             </div>
           </div>
 
-          <div className="relative z-10 max-w-4xl mx-auto text-center">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/30-blue border border-primary/20 text-primary text-sm font-semibold mb-8">
+          <div className="relative z-10 max-w-5xl mx-auto text-center space-y-10 animate-in fade-in slide-in-from-bottom-6 duration-1000">
+            <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-primary/5 border border-primary/20 text-primary text-[10px] font-black uppercase tracking-widest shadow-sm">
               <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-              Our Story
+              Our Collective Story
             </div>
 
-            <div className="space-y-4">
-              <h1 className="text-4xl md:text-5xl font-bold text-gray-800 tracking-tight leading-tight">
-                About{" "}
-                <span className="text-primary">Mozhi Aruvi</span>
+            <div className="space-y-6">
+              <h1 className="text-5xl md:text-7xl lg:text-8xl font-black text-text-primary tracking-tighter leading-none">
+                About <br /><span className="text-primary italic">Mozhi Aruvi</span>
               </h1>
-            </div>
- 
-            <p className="text-base text-gray-700 max-w-xl mx-auto leading-relaxed mt-6 font-medium">
-              Preserving Tamil language and culture through modern, interactive learning — making one of the world's oldest living languages accessible to everyone, everywhere.
-            </p>
- 
-            <div className="inline-block px-8 py-5 rounded-3xl bg-primary/5 border border-primary/10 backdrop-blur-sm mt-10 mb-10">
-              <p className="text-2xl md:text-3xl font-bold text-primary tracking-tight">தமிழ் மொழி வாழ்க</p>
-              <p className="text-xs text-gray-500 mt-1 italic font-semibold">Long live the Tamil language</p>
+              <p className="text-xl md:text-2xl text-text-secondary max-w-2xl mx-auto leading-relaxed font-medium italic">
+                Bridging the ancient geometry of Tamil with the power of modern neural learning.
+              </p>
             </div>
 
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Button href="/student/lessons" size="lg">Explore Lessons</Button>
-              <Button href="/student/dashboard" variant="secondary" size="lg">Join the Community</Button>
+            <div className="inline-block px-10 py-6 rounded-[2.5rem] bg-surface-soft border border-border shadow-inner mt-12 mb-12 transform hover:scale-105 transition-transform">
+              <p className="text-3xl md:text-5xl font-black text-primary tracking-tight">தமிழ் மொழி வாழ்க</p>
+              <p className="text-[10px] text-text-tertiary mt-2 uppercase font-black tracking-[0.3em]">Resonance of the Eternal Language</p>
+            </div>
+
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-6 pt-4">
+              <Button href="/student/lessons" size="xl" className="px-12 shadow-2xl shadow-primary/20">Explore Lessons</Button>
+              <Button href="/student/dashboard" variant="outline" size="xl" className="px-12">Join Movement</Button>
             </div>
           </div>
         </section>
 
         {/* ── 2. Mission ──────────────────────────────────────────── */}
-        <section className="py-24 bg-soft/10 px-4 sm:px-6 lg:px-8">
-          <div className="max-w-7xl mx-auto">
-            <div className="text-center mb-20 space-y-4">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent/30 text-xs font-bold text-primary tracking-tight">
-                Mission
+        <section className="py-32 bg-surface-soft/40 px-4 sm:px-6 lg:px-8 relative">
+          <div className="max-w-7xl mx-auto space-y-20">
+            <div className="text-center space-y-4">
+              <div className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-primary bg-primary/5 px-4 py-1.5 rounded-full border border-primary/10">
+                Mission Directive
               </div>
-              <h2 className="text-3xl md:text-4xl font-bold text-gray-800 tracking-tight leading-tight">Our Mission</h2>
+              <h2 className="text-4xl md:text-5xl font-black text-text-primary tracking-tight">The Core Mandate</h2>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
               {missionCards.map((card) => (
-                <div
+                <Card
                   key={card.title}
-                  className="bg-white rounded-3xl p-10 border border-gray-100 hover:border-primary/20 hover:shadow-xl transition-all duration-300 group"
+                  variant="elevated"
+                  padding="lg"
+                  className="group hover:border-primary/20"
                 >
-                  <div className="w-16 h-16 rounded-2xl bg-gray-50 flex items-center justify-center text-primary mb-8 group-hover:bg-primary group-hover:text-white transition-colors duration-300">
+                  <div className="w-20 h-20 rounded-2xl bg-primary/5 border border-primary/10 flex items-center justify-center text-primary mb-10 group-hover:bg-primary group-hover:text-white transition-all duration-500 shadow-inner">
                     {card.icon}
                   </div>
-                  <h3 className="text-lg font-bold text-gray-800 mb-4">{card.title}</h3>
-                  <p className="text-base text-gray-600 leading-relaxed font-medium">{card.description}</p>
-                </div>
+                  <h3 className="text-2xl font-black text-text-primary mb-4 tracking-tight uppercase">{card.title}</h3>
+                  <p className="text-lg text-text-secondary leading-relaxed font-medium italic">{card.description}</p>
+                </Card>
               ))}
             </div>
           </div>
         </section>
 
         {/* ── 3. Story ────────────────────────────────────────────── */}
-        <section className="py-24 bg-white px-4 sm:px-6 lg:px-8">
+        <section className="py-32 bg-white px-4 sm:px-6 lg:px-8 border-y border-border/40">
           <div className="max-w-7xl mx-auto">
-            <div className="flex flex-col lg:flex-row gap-16 items-center">
-              {/* Text */}
-              <div className="flex-1 space-y-6">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent/30 text-xs font-bold text-primary tracking-tight">
-                  Our Story
+            <div className="flex flex-col lg:flex-row gap-24 items-center">
+              <div className="flex-1 space-y-10">
+                <div className="space-y-4">
+                  <div className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-secondary">
+                    Conceptual Genesis
+                  </div>
+                  <h2 className="text-4xl md:text-6xl font-black text-text-primary tracking-tight leading-tight">
+                    Born from a <br /> <span className="text-primary">Linguistic Hunger</span>
+                  </h2>
                 </div>
-                <h2 className="text-3xl md:text-4xl font-bold text-gray-800 tracking-tight leading-tight">
-                  Born from a Love of Tamil
-                </h2>
-                <div className="space-y-6 text-gray-700 text-base leading-relaxed font-medium">
-                  <p>
-                    Mozhi Aruvi was founded by Tamil diaspora members who grew up speaking Tamil at home but had no structured, modern platform to deepen their understanding of the language and its rich cultural roots.
+                
+                <div className="space-y-8 text-text-secondary text-lg leading-relaxed font-medium italic">
+                  <p className="border-l-4 border-primary/20 pl-8">
+                    Mozhi Aruvi was born from the realization that while Tamil is immortal, our methods of transmitting its soul were becoming fragmented in the digital age.
                   </p>
-                  <p>
-                    What began as a small study group became a full-featured learning platform, built together by language scholars, software engineers, and passionate Tamil educators — all united by a single vision.
+                  <p className="pl-8">
+                    Founded by educators and engineers in the diaspora, we sought to build a bridge between the 2,000-year-old Sangam literary tradition and the neuro-educational tools of the 21st century.
                   </p>
-                  <p>
-                    Today, Mozhi Aruvi serves learners across India, Sri Lanka, Singapore, the UK, Canada, and beyond — bridging the ancient soul of Tamil with the tools of the modern world.
+                  <p className="pl-8">
+                    Today, we serve a global frequency of learners from Chennai to Chicago, all united by the same vibrations of the "oldest living classical language."
                   </p>
+                </div>
+                
+                <div className="pt-6">
+                   <Button href="/auth/signup" variant="primary" size="lg" className="rounded-2xl">Start Your History <ArrowRight className="ml-2 w-4 h-4" /></Button>
                 </div>
               </div>
 
-              {/* Visual Card */}
-              <div className="flex-1 w-full max-w-md">
-                <div className="relative">
-                  <div className="absolute -top-4 -right-4 w-full h-full bg-accent/30-blue rounded-3xl -z-10 rotate-2" />
-                  <div className="bg-white rounded-3xl border border-gray-100 shadow-2xl p-8 relative z-10">
-                    <div className="text-center mb-8">
-                      <div className="text-5xl font-bold text-primary mb-2">வா</div>
-                      <p className="text-xs text-gray-500 font-medium">Vaa — Come (invitation)</p>
-                    </div>
-                    <div className="space-y-4">
-                      <div className="flex items-center gap-4 p-4 bg-soft/10 rounded-xl border border-gray-100">
-                        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary text-xl">📖</div>
-                        <div>
-                          <p className="font-bold text-gray-700 text-sm">Lesson 1 — Tamil Alphabet</p>
-                          <div className="h-1.5 bg-border-color rounded-full mt-2 w-full overflow-hidden">
-                            <div className="w-4/5 h-full bg-primary rounded-full" />
-                          </div>
-                        </div>
+              <div className="flex-1 w-full max-w-xl animate-in fade-in slide-in-from-right-10 duration-1000">
+                <Card variant="elevated" padding="none" className="h-[520px] relative border-none bg-primary shadow-primary/20 group">
+                   <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+                   <div className="p-10 flex flex-col items-center justify-center h-full text-center space-y-10">
+                      <div className="h-40 w-40 rounded-[3rem] bg-white flex items-center justify-center shadow-2xl rotate-3 group-hover:rotate-0 transition-transform duration-700">
+                         <span className="text-8xl font-black text-primary">வா</span>
                       </div>
-                      <div className="flex items-center gap-4 p-4 bg-soft/10 rounded-xl border border-gray-100">
-                        <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-green-600 text-xl">🎙️</div>
-                        <div>
-                          <p className="font-bold text-gray-700 text-sm">Pronunciation Practice</p>
-                          <div className="h-1.5 bg-border-color rounded-full mt-2 w-full overflow-hidden">
-                            <div className="w-3/5 h-full bg-green-500 rounded-full" />
-                          </div>
-                        </div>
+                      <div className="space-y-4">
+                        <p className="text-[10px] font-black uppercase tracking-[0.4em] text-white/50">VAA — EVOKE / COME</p>
+                        <h4 className="text-3xl font-black text-white tracking-widest uppercase">The Invitation</h4>
                       </div>
-                      <div className="flex items-center gap-4 p-4 bg-soft/10 rounded-xl border border-gray-100">
-                        <div className="w-10 h-10 rounded-full bg-[#FEF3C7] flex items-center justify-center text-accent-gold text-xl">⭐</div>
-                        <div>
-                          <p className="font-bold text-gray-700 text-sm">Quiz — Basic Greetings</p>
-                          <div className="h-1.5 bg-border-color rounded-full mt-2 w-full overflow-hidden">
-                            <div className="w-2/5 h-full bg-accent-gold rounded-full" />
-                          </div>
-                        </div>
+                      <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/10 w-full max-w-sm">
+                         <div className="flex items-center justify-between mb-4">
+                            <span className="text-[10px] font-black uppercase text-white/70">Sync Rate</span>
+                            <span className="text-xl font-black text-white">88%</span>
+                         </div>
+                         <div className="h-3 w-full bg-white/10 rounded-full overflow-hidden border border-white/5">
+                            <div className="w-[88%] h-full bg-white animate-pulse" />
+                         </div>
                       </div>
-                    </div>
-                    <div className="mt-6 flex items-center justify-between px-2">
-                      <p className="text-gray-400 text-sm font-medium">Your Progress</p>
-                      <p className="text-primary font-bold">62%</p>
-                    </div>
-                  </div>
-                </div>
+                   </div>
+                </Card>
               </div>
             </div>
           </div>
         </section>
 
         {/* ── 4. Features ─────────────────────────────────────────── */}
-        <section className="py-24 bg-soft/10 px-4 sm:px-6 lg:px-8">
-          <div className="max-w-7xl mx-auto">
-            <div className="text-center mb-16">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent/30-blue text-sm font-semibold text-primary mb-4">
-                FEATURES
+        <section className="py-32 bg-surface-soft/40 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-7xl mx-auto space-y-20">
+            <div className="text-center space-y-6">
+              <div className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-primary underline underline-offset-8">
+                System Capabilities
               </div>
-              <h2 className="text-3xl md:text-5xl font-bold text-gray-700 mb-4">
-                What Makes Mozhi Aruvi Special
+              <h2 className="text-4xl md:text-6xl font-black text-text-primary tracking-tight">
+                Linguistic Infrastructure
               </h2>
-              <p className="text-lg text-gray-400 max-w-2xl mx-auto">
-                We have built every feature around one goal — making Tamil learnable, lovable, and alive.
-              </p>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
               {featureCards.map((card) => (
-                <div
+                <Card
                   key={card.title}
-                  className="bg-white rounded-2xl p-8 border border-gray-100 hover:border-primary/30 hover:shadow-lg transition-all duration-300 group"
+                  variant="shadow"
+                  padding="lg"
+                  className="group hover:bg-primary/5 transition-all duration-500 border-border/40"
                 >
-                  <div className="text-4xl mb-5 group-hover:scale-110 transition-transform inline-block">
+                  <div className="text-5xl mb-8 group-hover:scale-125 transition-transform duration-500 inline-block drop-shadow-sm">
                     {card.emoji}
                   </div>
-                  <h3 className="text-xl font-bold text-gray-700 mb-3">{card.title}</h3>
-                  <p className="text-gray-400 leading-relaxed">{card.description}</p>
-                </div>
+                  <h3 className="text-xl font-black text-text-primary mb-4 uppercase tracking-tight">{card.title}</h3>
+                  <p className="text-text-secondary font-medium leading-relaxed italic">{card.description}</p>
+                </Card>
               ))}
             </div>
           </div>
         </section>
 
-        {/* ── 5. Community & Culture ───────────────────────────────── */}
-        <section id="community" className="py-24 bg-white px-4 sm:px-6 lg:px-8">
-          <div className="max-w-7xl mx-auto">
-            <div className="text-center mb-16">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent/30-blue text-sm font-semibold text-primary mb-4">
-                COMMUNITY &amp; CULTURE
-              </div>
-              <h2 className="text-3xl md:text-5xl font-bold text-gray-700 mb-4">
-                Learning Beyond Language
-              </h2>
-              <p className="text-lg text-gray-400 max-w-2xl mx-auto">
-                At Mozhi Aruvi, we believe learning Tamil means experiencing Tamil culture too.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {events.map((event) => (
-                <div
-                  key={event.title}
-                  className="bg-soft/10 rounded-2xl p-6 border border-gray-100 hover:border-primary/40 hover:shadow-lg transition-all duration-300 group cursor-pointer"
-                >
-                  <div className="text-3xl mb-4 group-hover:scale-110 transition-transform inline-block">
-                    {event.emoji}
-                  </div>
-                  <div className="flex items-center justify-between mb-3">
-                    <h4 className="font-bold text-gray-700 text-lg leading-tight">{event.title}</h4>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-full ${event.type === "Online" ? "bg-mozhi-light text-primary-dark" : "bg-green-100 text-green-700"}`}>
-                      {event.type}
-                    </span>
-                    <span className="text-sm text-gray-400 font-medium">{event.date}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* ── 6. Stats ────────────────────────────────────────────── */}
-        <section className="py-24 bg-soft/10 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-          <div className="absolute inset-0 pointer-events-none">
-            <div className="absolute top-0 left-1/4 w-72 h-72 bg-primary/5 rounded-full blur-3xl" />
-            <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
-            <div className="absolute top-1/2 right-0 -translate-y-1/2 opacity-[0.03] text-primary select-none">ழ</div>
-          </div>
-
-          <div className="max-w-7xl mx-auto relative z-10">
-            <div className="text-center mb-16">
-              <h2 className="text-3xl md:text-5xl font-bold text-gray-800 mb-4">
-                Our Growing Community
-              </h2>
-              <p className="text-lg text-gray-600 max-w-xl mx-auto">
-                These numbers represent real learners who are keeping Tamil alive.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
+        {/* ── 5. Stats ────────────────────────────────────────────── */}
+        <section className="py-32 bg-white px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+          <div className="max-w-7xl mx-auto relative z-10 space-y-20">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-12">
               {stats.map((stat) => (
-                <div
-                  key={stat.label}
-                  className="text-center p-8 bg-white rounded-2xl border border-gray-100 shadow-sm hover:border-primary/20 transition-all"
-                >
-                  <div className="text-4xl md:text-5xl font-bold text-primary mb-2">{stat.value}</div>
-                  <div className="text-gray-500 font-semibold text-base md:text-lg">{stat.label}</div>
+                <div key={stat.label} className="text-center group">
+                  <div className="text-6xl md:text-7xl font-black text-primary mb-4 tracking-tighter group-hover:scale-110 transition-transform duration-500">{stat.value}</div>
+                  <div className="text-[10px] font-black uppercase tracking-[0.3em] text-text-secondary">{stat.label}</div>
+                  <div className="h-1 w-12 bg-primary/20 mx-auto mt-6 rounded-full group-hover:w-24 transition-all duration-700" />
                 </div>
               ))}
             </div>
           </div>
         </section>
 
+        {/* ── 6. Final CTA ────────────────────────────────────────── */}
+        <section className="py-40 bg-primary/5 px-4 sm:px-6 lg:px-8 relative overflow-hidden border-t border-border/40">
+           <div className="absolute inset-0 pointer-events-none opacity-30">
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary rounded-full blur-[200px]" />
+           </div>
 
-
-        {/* ── 8. Final CTA ────────────────────────────────────────── */}
-        <section className="py-28 bg-soft/10 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-          <div className="absolute inset-0 pointer-events-none">
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-primary/5 rounded-full blur-3xl" />
-          </div>
-
-          <div className="max-w-4xl mx-auto relative z-10 space-y-6 text-center">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-xs font-bold text-primary tracking-tight">
-              Join us today
+          <div className="max-w-4xl mx-auto relative z-10 space-y-12 text-center animate-in zoom-in-95 duration-1000">
+            <div className="flex justify-center">
+               <div className="h-20 w-20 rounded-[2rem] bg-primary text-white flex items-center justify-center shadow-2xl shadow-primary/40 group hover:rotate-12 transition-transform duration-500 focus-within:ring-4 focus-within:ring-primary/40">
+                  <Heart className="w-10 h-10 fill-current" />
+               </div>
             </div>
 
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-800 tracking-tight leading-tight">
-              Start Your Tamil Learning Journey
-            </h2>
-            <p className="text-lg md:text-xl text-gray-600 max-w-xl mx-auto leading-relaxed">
-              Experience the depth of one of humankind's greatest heritages through fun, interactive paths.
-            </p>
-
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-6">
-              <Button href="/auth/signup" size="lg">
-                Create Free Account
-              </Button>
-              <Button href="/student/lessons" variant="secondary" size="lg">
-                Explore Lessons
-              </Button>
+            <div className="space-y-6">
+              <h2 className="text-4xl md:text-7xl font-black text-text-primary tracking-tighter leading-tight uppercase">
+                 Join the <span className="text-primary italic">Ancestral Resonance</span>
+              </h2>
+              <p className="text-xl md:text-2xl text-text-secondary max-w-2xl mx-auto leading-relaxed font-medium italic">
+                Secure your place in the continuum of the world's oldest living language. Start your free sync today.
+              </p>
             </div>
 
-            <p className="mt-6 text-sm text-gray-500 font-medium">
-              No credit card required. Start learning in under 60 seconds.
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-8 pt-8 px-4">
+              <Button href="/auth/signup" size="xl" className="w-full sm:w-auto h-20 px-16 shadow-3xl shadow-primary/30 text-lg">Initialize Account</Button>
+              <Button href="/student/lessons" variant="outline" size="xl" className="w-full sm:w-auto h-20 px-16 text-lg">View Archives</Button>
+            </div>
+
+            <p className="pt-10 text-[10px] font-black text-text-tertiary uppercase tracking-[0.5em] animate-pulse">
+               Synchronized Protocol Established • End-to-End Encryption Enabled
             </p>
           </div>
         </section>

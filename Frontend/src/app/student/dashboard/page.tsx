@@ -4,11 +4,12 @@ import React, { useEffect, useState } from "react";
 import { StatCard } from "@/components/common/StatCard";
 import { 
   BookOpen, Flame, Trophy, AlertCircle, ArrowRight, 
-  PenTool, BookMarked, UserCircle, MessageSquare, CheckCircle, 
-  Clock, XCircle, User 
+  PenTool, BookMarked, MessageSquare, 
+  Clock, User, CheckCircle2
 } from "lucide-react";
 import Link from "next/link";
-import Button from "@/components/common/Button";
+import { Button } from "@/components/ui/Button";
+import { Card, CardBody, CardHeader } from "@/components/ui/Card";
 import { getDashboardData, SafeUser } from "@/services/authService";
 import { Lesson } from "@/services/lessonService";
 import { JoinRequest } from "@/services/eventService";
@@ -55,267 +56,282 @@ export default function StudentDashboard() {
   }
 
   return (
-    <div className="space-y-12 animate-in fade-in duration-700">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 pb-1">
-        <div className="space-y-4">
-           <div className="flex items-center gap-2">
-              <span className="h-1.5 w-8 rounded-full bg-primary" />
-              <span className="text-xs font-bold text-primary tracking-tight">Student Dashboard</span>
-           </div>
-           <h1 className="text-3xl md:text-4xl font-bold text-gray-800 tracking-tight leading-tight">
-             Welcome back, {user?.name?.split(" ")[0]}!
-           </h1>
-           <p className="text-base text-gray-600 font-medium leading-relaxed max-w-xl">
-            Track your progress, manage your community events, and contribute to the Tamil heritage feed.
-           </p>
+    <div className="space-y-12 animate-in fade-in duration-700 max-w-7xl mx-auto py-8 lg:py-12 px-2 sm:px-6 lg:px-8">
+      {/* Header Section */}
+      <div className="space-y-4">
+        <div className="flex items-center gap-3">
+          <div className="h-10 w-10 rounded-xl bg-primary/5 flex items-center justify-center p-2 border border-primary/10">
+             <Trophy className="text-primary w-5 h-5" />
+          </div>
+          <span className="text-[10px] font-black text-primary tracking-widest uppercase">Student Hub</span>
+        </div>
+        <div className="max-w-3xl">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-gray-800 tracking-tight leading-tight">
+            Vanakkam, {user?.name?.split(" ")[0]}!
+          </h1>
+          <p className="text-lg text-gray-500 font-medium leading-relaxed mt-4">
+            Continuing your journey into the world's oldest living classical language. Here's your current progress and community highlights.
+          </p>
         </div>
       </div>
 
       {error && (
-        <div className="flex items-center gap-3 rounded-2xl border border-red-100 bg-red-50 px-6 py-4 text-sm font-bold text-red-700">
-          <AlertCircle className="h-5 w-5 shrink-0" /> {error}
-        </div>
+        <Card variant="outline" className="border-red-100 bg-red-50/30 flex items-center gap-4 text-red-600">
+           <AlertCircle className="shrink-0 w-6 h-6" />
+           <p className="font-bold tracking-tight">{error}</p>
+        </Card>
       )}
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
           title="Curriculum"
-          value={String(lessons.length)}
+          value={lessons.length}
           description="Available modules"
           icon={BookOpen}
-          className="border-primary/10 bg-primary/5 shadow-none"
         />
         <StatCard
           title="Event RSVPs"
-          value={String(upcomingEvents.length)}
-          description="Confirmed activities"
+          value={upcomingEvents.length}
+          description="Pending & Active"
           icon={Flame}
           trend={upcomingEvents.length > 0 ? "up" : "neutral"}
-          className="border-amber-100 bg-amber-50/30 shadow-none text-amber-700"
+          trendValue="Live"
         />
         <StatCard
           title="Account Status"
-          value={user?.role === "user" ? "Free" : "Premium"}
-          description={user?.role === "user" ? "Standard member" : "Verified premium"}
+          value={user?.role === "user" ? "Standard" : "Verified"}
+          description={user?.role === "user" ? "Free Member" : "Tutor / Premium"}
           icon={Trophy}
-          className="border-gray-100 bg-gray-50 shadow-none"
         />
         <StatCard
           title="Contributions"
-          value={String(blogs.length)}
-          description="Stories written"
+          value={blogs.length}
+          description="Stories Shared"
           icon={PenTool}
-          className="border-secondary/10 bg-secondary/5 shadow-none text-secondary"
         />
       </div>
 
-      <div className="grid grid-cols-1 gap-12 lg:grid-cols-3">
-        {/* Main Content: Lessons & Blogs */}
+      <div className="grid grid-cols-1 gap-12 lg:grid-cols-3 items-start">
+        {/* Main Learning Path & Feed */}
         <div className="lg:col-span-2 space-y-12">
-           {/* Section: Next Lesson */}
-           <div className="space-y-6">
-              <div className="flex items-center justify-between px-2">
-                 <h3 className="text-lg font-bold text-gray-800 tracking-tight">Continue Learning</h3>
-                 <Link href="/student/lessons" className="text-sm font-bold text-primary hover:underline">View curriculum</Link>
-              </div>
+          
+          {/* Section: Learning Roadmap */}
+          <div className="space-y-8">
+            <div className="flex items-center justify-between border-b border-gray-100 pb-6">
+              <h3 className="text-2xl font-black text-gray-800 tracking-tight">Active Learning Path</h3>
+              <Button href="/student/lessons" variant="ghost" size="sm" className="text-primary uppercase tracking-widest text-[10px] font-black">
+                Full Curriculum <ArrowRight className="ml-2 w-3 h-3" />
+              </Button>
+            </div>
 
-              {nextLesson ? (
-                <div className="flex flex-col md:flex-row gap-8 rounded-[2.5rem] border border-gray-100 bg-white p-8 md:p-10 shadow-2xl shadow-gray-200/5 transition-all group overflow-hidden relative">
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-soft/10 rounded-full -mr-16 -mt-16 group-hover:scale-110 transition-transform duration-700" />
-                  
-                  <div className="flex-1 space-y-4 relative z-10">
-                    <span className="inline-flex rounded-full bg-primary/10 px-4 py-1.5 text-[11px] font-bold text-primary uppercase tracking-widest border border-primary/5">
-                      Module {nextLesson.moduleNumber}
-                    </span>
-                    <h4 className="text-2xl md:text-3xl font-bold text-gray-800 tracking-tight">
-                      {nextLesson.title}
-                    </h4>
-                    <p className="text-base text-gray-600 font-medium leading-relaxed max-w-lg">
-                      {nextLesson.description || "Master the foundation of Tamil language through our structured curriculum."}
-                    </p>
-                    
-                    <div className="pt-4">
+            {nextLesson ? (
+              <Card variant="elevated" padding="lg" className="group relative overflow-hidden bg-primary shadow-2xl shadow-primary/20">
+                {/* Decorative Background */}
+                <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-white opacity-[0.03] rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
+                <div className="absolute top-1/2 left-0 opacity-[0.02] font-black text-[15rem] text-white select-none pointer-events-none -translate-x-1/4 -translate-y-1/2">
+                   க
+                </div>
+
+                <div className="relative z-10 flex flex-col md:flex-row gap-10 items-center">
+                  <div className="flex-1 space-y-6 text-white text-center md:text-left">
+                    <div className="space-y-4">
+                      <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5 text-[10px] font-black uppercase tracking-[0.2em] border border-white/20">
+                        <Clock className="w-3.5 h-3.5" /> Resume Activity
+                      </span>
+                      <h4 className="text-3xl lg:text-4xl font-black tracking-tight drop-shadow-sm leading-tight">
+                        {nextLesson.title}
+                      </h4>
+                      <p className="text-lg text-white/70 font-medium leading-relaxed line-clamp-2 italic">
+                        "{nextLesson.description || "Continue where you left off in the foundational modules."}"
+                      </p>
+                    </div>
+
+                    <div className="flex flex-col sm:flex-row items-center gap-4 pt-4">
                       <Button
                         href={`/student/lessons/${nextLesson._id}`}
-                        variant="primary"
-                        className="h-14 px-8 rounded-2xl group shadow-lg shadow-primary/20"
+                        className="bg-white text-primary hover:bg-white/90 border-none h-14 px-10 rounded-2xl shadow-xl shadow-black/10 w-full sm:w-auto"
                       >
-                        Resume Lesson <ArrowRight className="ml-3 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                         Start Lesson <ArrowRight className="ml-3 h-5 w-5 group-hover:translate-x-1 transition-transform" />
                       </Button>
+                      <div className="flex items-center gap-2 text-white/50 text-[10px] font-bold uppercase tracking-widest border border-white/10 rounded-full px-4 py-3">
+                         <div className="flex -space-x-2">
+                           {[1,2,3].map(i => <div key={i} className="w-6 h-6 rounded-full border-2 border-primary bg-white/20" />)}
+                         </div>
+                         <span className="ml-2">500+ active in this module</span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ) : (
-                <div className="flex flex-col items-center justify-center rounded-[2.5rem] border border-dashed border-gray-100 p-12 text-center bg-soft/5">
-                    <BookMarked className="h-12 w-12 text-gray-300 mb-4" />
-                    <p className="text-base font-bold text-gray-800">No lessons started</p>
-                    <p className="text-sm text-gray-500 mt-1">Explore our lessons to begin your journey!</p>
-                </div>
-              )}
-           </div>
 
-           {/* Section: Stories */}
-           <div className="space-y-6">
-              <div className="flex items-center justify-between px-2">
-                 <h3 className="text-lg font-bold text-gray-800 tracking-tight">My Recent Stories</h3>
-                 <Link href="/student/blogs" className="text-sm font-bold text-primary hover:underline">All contributions</Link>
+                  <div className="hidden lg:flex shrink-0 w-48 h-48 rounded-[3rem] bg-white/5 items-center justify-center border border-white/10 shadow-inner group-hover:rotate-6 transition-transform duration-700">
+                     <BookMarked className="w-20 h-20 text-white/50" />
+                  </div>
+                </div>
+              </Card>
+            ) : (
+              <Card variant="outline" padding="xl" className="flex flex-col items-center justify-center text-center border-dashed bg-gray-50/50">
+                <BookOpen className="h-14 w-14 text-gray-200 mb-6" />
+                <p className="text-lg font-black text-gray-400 uppercase tracking-widest">No Active Lessons</p>
+                <Button href="/student/lessons" variant="primary" className="mt-6">Explore the Curriculum</Button>
+              </Card>
+            )}
+          </div>
+
+          {/* Section: Community Stories */}
+          <div className="space-y-8">
+            <div className="flex items-center justify-between border-b border-gray-100 pb-6">
+              <h3 className="text-2xl font-black text-gray-800 tracking-tight">Recent Stories</h3>
+              <Button href="/blogs" variant="ghost" size="sm" className="text-primary uppercase tracking-widest text-[10px] font-black">
+                Writer's Hub <ArrowRight className="ml-2 w-3 h-3" />
+              </Button>
+            </div>
+            
+            {recentBlogs.length === 0 ? (
+              <Card variant="outline" padding="xl" className="text-center group hover:bg-primary/5 transition-colors border-dashed">
+                <PenTool className="h-12 w-12 text-gray-200 mx-auto mb-6" />
+                <p className="text-sm font-black text-gray-400 uppercase tracking-widest">No Stories Written Yet</p>
+                <Link href="/blogs/create" className="text-primary font-black text-xs mt-4 block hover:underline tracking-widest uppercase">Draft Your First Piece →</Link>
+              </Card>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {recentBlogs.map((post) => (
+                  <Card key={post._id} variant="elevated" padding="md" className="group flex flex-col h-full hover:border-primary/20">
+                    <CardHeader className="mb-4 flex items-center justify-between">
+                       <span className={cn(
+                         "px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border",
+                         post.status === "published" ? "bg-emerald-50 text-emerald-600 border-emerald-100" : "bg-gray-50 text-gray-400 border-gray-100"
+                       )}>
+                         {post.status}
+                       </span>
+                       <span className="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">{new Date(post.createdAt).toLocaleDateString()}</span>
+                    </CardHeader>
+                    <h4 className="text-xl font-black text-gray-800 group-hover:text-primary transition-colors tracking-tight line-clamp-1 mb-3">
+                      {post.title}
+                    </h4>
+                    <p className="text-sm text-gray-500 font-medium leading-relaxed italic flex-1 line-clamp-2">
+                       "{post.excerpt || post.content.substring(0, 80) + "..."}"
+                    </p>
+                    <Link href={`/blogs/${post.slug || post._id}`} className="mt-8 pt-4 border-t border-gray-50 flex items-center justify-between group/link">
+                       <span className="text-[10px] font-black uppercase tracking-tighter text-gray-400 group-hover/link:text-primary transition-colors">Continue Reading</span>
+                       <ArrowRight className="w-4 h-4 text-gray-300 group-hover/link:text-primary group-hover/link:translate-x-1 transition-all" />
+                    </Link>
+                  </Card>
+                ))}
               </div>
-              
-              {recentBlogs.length === 0 ? (
-                 <div className="rounded-[2.5rem] border border-gray-100 bg-white p-12 text-center shadow-sm">
-                    <PenTool className="h-10 w-10 text-gray-200 mx-auto mb-4" />
-                    <p className="text-sm font-bold text-gray-500">No stories shared yet.</p>
-                    <Link href="/student/blogs/create" className="text-primary font-bold text-sm mt-2 block hover:underline">Write your first story →</Link>
-                 </div>
-              ) : (
-                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {recentBlogs.map((post) => (
-                       <Link 
-                         key={post._id} 
-                         href={`/blogs/${post.slug || post._id}`} 
-                         className="group flex flex-col p-6 rounded-3xl border border-gray-100 bg-white shadow-sm hover:shadow-xl hover:shadow-secondary/10 hover:border-secondary/30 transition-all"
-                       >
-                          <div className="flex items-center justify-between mb-4">
-                             <span className={cn(
-                               "text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-widest",
-                               post.status === 'published' ? "bg-emerald-50 text-emerald-600" : "bg-gray-100 text-gray-600"
-                             )}>
-                                {post.status}
-                             </span>
-                             <span className="text-[10px] font-bold text-gray-400">{new Date(post.createdAt).toLocaleDateString()}</span>
-                          </div>
-                          <h4 className="text-base font-bold text-gray-800 group-hover:text-primary transition-colors line-clamp-1 mb-2 tracking-tight">{post.title}</h4>
-                          <p className="text-xs text-gray-500 font-medium line-clamp-2 leading-relaxed flex-1 italic">
-                            "{post.excerpt || post.content.substring(0, 80) + "..."}"
-                          </p>
-                          <div className="mt-4 flex items-center justify-end">
-                             <ArrowRight className="w-4 h-4 text-gray-300 group-hover:text-primary transition-colors" />
-                          </div>
-                       </Link>
-                    ))}
-                 </div>
-              )}
-           </div>
+            )}
+          </div>
         </div>
 
-        {/* Sidebar: Events & Questions */}
-        <div className="space-y-12">
-          {/* Engaged Events */}
-          <div className="space-y-6">
-            <div className="flex items-center justify-between px-2">
-              <h3 className="text-lg font-bold text-gray-800 tracking-tight">Engaged Events</h3>
-              <Link href="/student/events" className="text-sm font-bold text-primary hover:underline">Manage</Link>
-            </div>
-            <div className="flex flex-col gap-4">
+        {/* Actionable Sidebar */}
+        <div className="space-y-12 h-full">
+          {/* Engaged Events Widget */}
+          <div className="space-y-8">
+            <h3 className="text-2xl font-black text-gray-800 tracking-tight flex items-center gap-3">
+               My Events <span className="text-gray-200 text-sm">/ {upcomingEvents.length}</span>
+            </h3>
+            <div className="space-y-4">
               {upcomingEvents.length === 0 ? (
-                <div className="flex flex-col items-center justify-center rounded-[2.5rem] border border-dashed border-gray-100 p-10 text-center bg-gray-50/50">
-                   <Flame className="h-8 w-8 text-gray-300 mb-3" />
-                  <p className="text-sm font-bold text-gray-500 mb-4">No RSVPs yet</p>
-                  <Button href="/student/events" variant="secondary" size="sm" className="w-[80%] rounded-xl">
-                    Find Events
-                  </Button>
-                </div>
+                <Card variant="flat" padding="lg" className="text-center border border-dashed border-gray-200">
+                   <Flame className="h-10 w-10 text-gray-200 mx-auto mb-4" />
+                   <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-6">No Event Records</p>
+                   <Button href="/events" variant="primary" size="sm" className="w-full h-12 shadow-lg shadow-primary/10">Browse Activities</Button>
+                </Card>
               ) : (
-                  upcomingEvents.slice(0, 3).map((req) => {
+                upcomingEvents.slice(0, 3).map((req) => {
                   const event = typeof req.eventId === "object" ? req.eventId : (typeof req.event === "object" ? req.event : null);
                   return (
-                    <Link key={req._id} href="/student/events" 
-                      className="group flex items-center gap-4 rounded-3xl border border-gray-100 bg-white p-5 shadow-sm hover:shadow-lg hover:border-secondary/30 transition-all"
-                    >
-                      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-secondary/10 text-secondary group-hover:bg-secondary group-hover:text-white transition-all">
-                        <Flame className="w-6 h-6" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-bold text-gray-800 truncate tracking-tight">
-                          {event?.title ?? "Meetup"}
-                        </p>
-                        <div className="flex items-center gap-2 mt-0.5">
-                           <span className={cn(
-                             "text-[9px] font-bold uppercase px-1.5 py-0.5 rounded-md",
-                             req.status === 'approved' ? "bg-emerald-50 text-emerald-600" : "bg-amber-50 text-amber-600"
-                           )}>
-                              {req.status}
-                           </span>
-                           <span className="text-[9px] text-gray-400 font-bold">{new Date().toLocaleDateString()}</span>
+                    <Card key={req._id} variant="elevated" padding="md" className="group cursor-pointer hover:bg-primary/5 transition-all">
+                      <Link href="/events" className="flex items-center gap-5">
+                        <div className="h-12 w-12 rounded-xl bg-orange-50 text-orange-400 flex items-center justify-center border border-orange-100 group-hover:scale-110 transition-transform shadow-inner">
+                           <Flame className="w-6 h-6" />
                         </div>
-                      </div>
-                    </Link>
+                        <div className="flex-1 min-w-0">
+                           <p className="text-sm font-black text-gray-800 tracking-tight truncate mb-1">
+                             {event?.title ?? "Cultural Meetup"}
+                           </p>
+                           <div className="flex items-center gap-2">
+                             <div className={cn(
+                               "w-2 h-2 rounded-full",
+                               req.status === "approved" ? "bg-emerald-400 animate-pulse" : "bg-orange-400"
+                             )} />
+                             <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">
+                               {req.status}
+                             </span>
+                           </div>
+                        </div>
+                      </Link>
+                    </Card>
                   );
                 })
               )}
             </div>
           </div>
-          
-          {/* My Tutor Questions */}
-          <div className="space-y-6">
-            <div className="flex items-center justify-between px-2">
-              <h3 className="text-lg font-bold text-gray-800 tracking-tight">My Doubts</h3>
-              <Link href="/student/tutors/my-requests" className="text-sm font-bold text-primary hover:underline">View all</Link>
-            </div>
 
-            {questions.length === 0 ? (
-              <div className="flex flex-col items-center justify-center rounded-[2.5rem] border border-dashed border-gray-100 p-10 text-center bg-gray-50/50 gap-3">
-                <MessageSquare className="h-8 w-8 text-gray-300" />
-                <p className="text-sm font-bold text-gray-500">No questions yet</p>
-                <Link href="/student/tutors" className="text-xs font-bold text-primary hover:underline">Find a Teacher</Link>
-              </div>
-            ) : (
-              <div className="flex flex-col gap-4">
-                {questions.map(q => {
-                  const statusMap = {
-                    pending: { label: "Pending", cls: "bg-amber-50 text-amber-600 border-amber-100" },
-                    accepted: { label: "Accepted", cls: "bg-blue-50 text-blue-600 border-blue-100" },
-                    replied: { label: "Replied", cls: "bg-emerald-50 text-emerald-600 border-emerald-100" },
-                    resolved: { label: "Resolved", cls: "bg-emerald-50 text-emerald-600 border-emerald-100" },
-                    declined: { label: "Declined", cls: "bg-red-50 text-red-600 border-red-100" },
+          {/* Academic Doubt History Widget */}
+          <div className="space-y-8">
+             <h3 className="text-2xl font-black text-gray-800 tracking-tight flex items-center gap-3">
+               My Doubts <span className="text-gray-200 text-sm">/ {questions.length}</span>
+            </h3>
+            <div className="space-y-4">
+              {questions.length === 0 ? (
+                <Card variant="flat" padding="lg" className="text-center border border-dashed border-gray-200">
+                   <MessageSquare className="h-10 w-10 text-gray-200 mx-auto mb-4" />
+                   <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-6">No Academic Support</p>
+                   <Button href="/student/tutors" variant="outline" size="sm" className="w-full h-12 font-black uppercase tracking-widest">Connect with Tutor</Button>
+                </Card>
+              ) : (
+                questions.slice(0, 3).map((q) => {
+                  const statusColors = {
+                    pending: "bg-amber-400",
+                    accepted: "bg-blue-400",
+                    replied: "bg-emerald-400 animate-pulse",
+                    resolved: "bg-emerald-500",
+                    declined: "bg-red-400"
                   };
-                  const st = statusMap[q.status] ?? statusMap.pending;
-                  const teacherInfo = typeof q.teacherId === "object" ? q.teacherId : null;
+                  const color = statusColors[q.status] ?? "bg-gray-400";
                   
                   return (
-                    <Link key={q._id} href="/student/tutors/my-requests" 
-                      className="rounded-3xl border border-gray-100 bg-white p-5 shadow-sm flex flex-col gap-3 hover:shadow-lg hover:border-secondary/30 transition-all"
-                    >
-                      <div className="flex items-start justify-between gap-2">
-                        <p className="text-sm font-bold text-gray-800 line-clamp-2 flex-1 italic leading-relaxed">"{q.content}"</p>
-                        <span className={cn("shrink-0 inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[9px] font-black uppercase tracking-tight", st.cls)}>
-                          {st.label}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-3 pt-3 border-t border-slate-50">
-                         <div className="h-6 w-6 rounded-lg bg-primary/5 flex items-center justify-center">
-                            <User className="h-3 w-3 text-primary" />
-                         </div>
-                         <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">{teacherInfo?.name || "Tutor"}</p>
-                      </div>
-                    </Link>
+                    <Card key={q._id} variant="shadow" padding="md" className="group cursor-pointer hover:border-primary/20 transition-all border-none bg-white shadow-xl shadow-slate-200/20">
+                      <Link href="/student/tutors/my-requests" className="space-y-4">
+                        <div className="flex items-start justify-between">
+                          <p className="text-sm font-bold text-gray-700 leading-relaxed italic line-clamp-2 lg:line-clamp-none">
+                            "{q.content}"
+                          </p>
+                        </div>
+                        <div className="pt-3 border-t border-gray-50 flex items-center justify-between">
+                           <div className="flex items-center gap-2">
+                              <div className={cn("w-2 h-2 rounded-full", color)} />
+                              <span className="text-[9px] font-black uppercase text-gray-400 tracking-widest">{q.status}</span>
+                           </div>
+                           <ArrowRight className="w-3 h-3 text-gray-200 group-hover:text-primary transition-colors" />
+                        </div>
+                      </Link>
+                    </Card>
                   );
-                })}
-              </div>
-            )}
+                })
+              )}
+            </div>
           </div>
 
-          {/* Prompt Section */}
-          {user?.role !== 'user' && (
-            <div className="bg-white rounded-[2.5rem] p-10 text-white shadow-2xl relative overflow-hidden group">
-               <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-primary/20 to-transparent pointer-events-none" />
-               <div className="relative z-10 space-y-6">
-                  <div className="h-12 w-12 rounded-2xl bg-white/10 flex items-center justify-center border border-white/10 group-hover:scale-110 transition-transform">
-                     <PenTool className="w-6 h-6 text-primary" />
+          {/* Engagement Card */}
+          {user?.role !== "user" && (
+            <Card variant="elevated" padding="lg" className="bg-emerald-500 text-white shadow-2xl shadow-emerald-200 relative overflow-hidden group border-none">
+               <div className="absolute top-0 right-0 w-[300px] h-[300px] bg-white opacity-[0.05] rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
+               <div className="relative z-10 space-y-8">
+                  <div className="h-14 w-14 rounded-2xl bg-white/20 flex items-center justify-center border border-white/20 group-hover:rotate-12 transition-transform duration-500 shadow-xl">
+                     <PenTool className="w-7 h-7 text-white" />
                   </div>
-                  <div className="space-y-2">
-                     <h4 className="text-lg font-bold tracking-tight">Share your journey</h4>
-                     <p className="text-sm text-gray-400 font-medium leading-relaxed">
-                        Write cultural stories, language tips, or personal experiences for the community.
+                  <div className="space-y-3">
+                     <h4 className="text-2xl font-black tracking-tight leading-tight">Contribution Power</h4>
+                     <p className="text-white/80 font-medium leading-relaxed">
+                        As a verified member, you can share cultural heritage stories directly to the public feed.
                      </p>
                   </div>
-                  <Button href="/student/blogs/create" variant="primary" className="w-full h-14 rounded-2xl bg-primary text-white border-none hover:bg-white hover:text-gray-800 transition-colors">
-                     Start a Story
+                  <Button href="/blogs/create" className="bg-white text-emerald-600 hover:bg-emerald-50 border-none w-full h-14 rounded-2xl text-[10px] uppercase font-black tracking-widest shadow-xl shadow-black/10">
+                     Start Drafting
                   </Button>
                </div>
-            </div>
+            </Card>
           )}
         </div>
       </div>

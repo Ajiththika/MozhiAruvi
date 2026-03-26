@@ -82,3 +82,4 @@ export function RoleProtectedRoute({ children, allowedRoles }: RoleProtectedRout
 
   return <>{children}</>;
 }
+

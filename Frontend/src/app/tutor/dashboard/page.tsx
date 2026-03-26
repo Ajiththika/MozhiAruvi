@@ -133,7 +133,7 @@ export default function TutorDashboard() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
               {[
                 { label: "Manage Requests", desc: `${activeRequests} pending now`, href: "/tutor/questions", icon: MessageSquare, color: "primary" },
-                { label: "Write a Story", desc: "Share your Tamil expertise", href: "/student/blogs/create", icon: PenTool, color: "primary" },
+                { label: "Write a Story", desc: "Share your Tamil expertise", href: "/blogs/create", icon: PenTool, color: "primary" },
                 { label: "Schedule Slots", desc: "Set weekly availability", href: "/tutor/schedule", icon: Video, color: "secondary" },
                 { label: "Public Profile", desc: "Update your teaching bio", href: "/tutor/profile", icon: Users, color: "secondary" },
               ].map((action) => {

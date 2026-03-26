@@ -1,19 +1,17 @@
 import React from "react";
 import { Calendar, Clock, MapPin, Users } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { Card, CardBody, CardFooter } from "@/components/ui/Card";
+import { Button } from "@/components/ui/Button";
 
 export interface EventCardProps {
   id: string;
   title: string;
-  type: "Workshop" | "Webinar" | "Meetup";
+  type: "Workshop" | "Webinar" | "Meetup" | string;
   date: string;
   time: string;
-  /** Number of participants registered */
   participantsCount?: number;
-  /** Alias for backward compat */
   attendees?: number;
   capacity: number;
-  /** Alias for backward compat */
   maxAttendees?: number;
   hostName: string;
   location?: string;
@@ -45,62 +43,82 @@ export function EventCard({
   const isFull = joined >= max;
 
   return (
-    <div className="flex flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-all hover:border-secondary/40">
-      <div className="relative h-48 w-full bg-accent/30">
+    <Card variant="elevated" padding="none" className="flex flex-col group h-full">
+      {/* Media / Top Section */}
+      <div className="relative h-48 w-full bg-soft/20 overflow-hidden">
         {image ? (
-           <img src={image} alt={title} className="h-full w-full object-cover" />
+          <img 
+            src={image} 
+            alt={title} 
+            className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110" 
+          />
         ) : (
-           <div className="flex h-full w-full items-center justify-center bg-gray-50 text-6xl font-bold text-gray-200">
-              TAMIL
-           </div>
+          <div className="flex h-full w-full items-center justify-center bg-gray-50 text-4xl font-black text-gray-200 tracking-tighter opacity-50">
+            MOZHI
+          </div>
         )}
         <div className="absolute left-4 top-4">
-           <span className="rounded-full bg-white/90 px-3 py-1 text-xs font-semibold text-gray-700 shadow-sm backdrop-blur-sm">
-              {type}
-           </span>
+          <span className="rounded-full bg-white/90 px-4 py-1.5 text-[10px] uppercase font-black tracking-widest text-gray-700 shadow-xl backdrop-blur-md border border-white/20">
+            {type}
+          </span>
         </div>
       </div>
 
-      <div className="flex flex-1 flex-col p-5">
-         <h3 className="line-clamp-2 text-base font-semibold text-gray-800 mb-2">
-            {title}
-         </h3>
-         
-         <div className="mt-2 space-y-2 text-sm text-gray-500">
-            <div className="flex items-center gap-2">
-               <Calendar className="h-4 w-4 text-secondary" /> <span>{date}</span>
+      {/* Content Section */}
+      <CardBody className="p-6 sm:p-7 flex flex-col flex-1">
+        <h3 className="line-clamp-2 text-xl font-bold text-gray-800 mb-4 group-hover:text-primary transition-colors tracking-tight">
+          {title}
+        </h3>
+        
+        <div className="space-y-3 mt-auto">
+          <div className="flex items-center gap-3 text-xs font-bold text-gray-500 tracking-tight">
+            <div className="w-8 h-8 rounded-lg bg-secondary/10 flex items-center justify-center text-secondary">
+              <Calendar className="h-4 w-4" />
             </div>
-            <div className="flex items-center gap-2">
-               <Clock className="h-4 w-4 text-success" /> <span>{time}</span>
+            <span>{date}</span>
+          </div>
+          <div className="flex items-center gap-3 text-xs font-bold text-gray-500 tracking-tight">
+            <div className="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-500">
+              <Clock className="h-4 w-4" />
             </div>
-            <div className="flex items-center gap-2">
-               <Users className="h-4 w-4 text-warning" /> <span>{joined} / {max} joined</span>
+            <span>{time}</span>
+          </div>
+          <div className="flex items-center gap-3 text-xs font-bold text-gray-500 tracking-tight">
+            <div className="w-8 h-8 rounded-lg bg-orange-50 flex items-center justify-center text-orange-400">
+              <Users className="h-4 w-4" />
             </div>
-            <div className="flex items-center gap-2">
-               <MapPin className="h-4 w-4 text-gray-400" /> <span>{location ? location : `Hosted by ${hostName}`}</span>
+            <span className={isFull ? "text-red-500" : ""}>{joined} / {max} joined</span>
+          </div>
+          <div className="flex items-center gap-3 text-xs font-bold text-gray-400 tracking-tight">
+            <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center text-gray-400">
+              <MapPin className="h-4 w-4" />
             </div>
-         </div>
+            <span className="truncate">{location ? location : `Hosted by ${hostName}`}</span>
+          </div>
+        </div>
+      </CardBody>
 
-         <div className="mt-8">
-            {isJoined ? (
-               <button disabled className="w-full rounded-xl border border-success bg-success/10 py-2.5 text-sm font-semibold text-success">
-                  Joined ✓
-               </button>
-            ) : isFull ? (
-               <button disabled className="w-full rounded-xl bg-gray-100 py-2.5 text-sm font-semibold text-gray-400">
-                  Event Full
-               </button>
-            ) : (
-               <button
-                 onClick={onRsvp}
-                 disabled={isLoading || !onRsvp}
-                 className="flex w-full items-center justify-center rounded-xl bg-primary py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-secondary active:scale-[0.98] disabled:opacity-60"
-               >
-                  {isLoading ? "Joining..." : "RSVP Now"}
-               </button>
-            )}
-         </div>
+      {/* Footer / Action Section */}
+      <div className="px-6 sm:px-7 pb-8 pt-2">
+        {isJoined ? (
+          <div className="w-full rounded-responsive border border-emerald-100 bg-emerald-50/50 py-3 text-center text-xs font-black uppercase tracking-widest text-emerald-600">
+            Already Registered ✓
+          </div>
+        ) : isFull ? (
+          <div className="w-full rounded-responsive bg-gray-50 py-3 text-center text-xs font-black uppercase tracking-widest text-gray-400 border border-gray-100">
+            Capacity Reached
+          </div>
+        ) : (
+          <Button
+            onClick={onRsvp}
+            isLoading={isLoading}
+            disabled={!onRsvp}
+            className="w-full py-4 text-[10px] uppercase tracking-widest shadow-lg shadow-primary/20"
+          >
+            {isLoading ? "Signing up..." : "Reserve Your Spot"}
+          </Button>
+        )}
       </div>
-    </div>
+    </Card>
   );
 }

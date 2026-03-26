@@ -23,7 +23,7 @@ export default function StudentVocabularyPage() {
                Words and phrases you've unlocked from lessons.
             </p>
          </div>
-         <button className="flex items-center gap-2 rounded-xl bg-mozhi-primary px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-mozhi-primary">
+         <button className="flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-primary">
              <PlayCircle className="h-4 w-4" />
              Practice Flashcards
          </button>
@@ -36,7 +36,7 @@ export default function StudentVocabularyPage() {
           <input
             type="text"
             placeholder="Search Tamil or English meaning..."
-            className="w-full rounded-xl border border-gray-100 bg-white py-2.5 pl-10 pr-4 text-sm outline-none transition-all placeholder:text-gray-600 focus:border-mozhi-primary focus:ring-2 focus:ring-mozhi-primary/20 dark:border-gray-100 dark:bg-gray-50 dark:text-gray-600 dark:focus:border-mozhi-primary"
+            className="w-full rounded-xl border border-gray-100 bg-white py-2.5 pl-10 pr-4 text-sm outline-none transition-all placeholder:text-gray-600 focus:border-primary focus:ring-2 focus:ring-primary/20 dark:border-gray-100 dark:bg-gray-50 dark:text-gray-600 dark:focus:border-primary"
           />
         </div>
 
@@ -71,13 +71,13 @@ export default function StudentVocabularyPage() {
                 <h3 className="text-2xl font-bold text-gray-600 dark:text-gray-600 font-tamil">
                   {word.tamil}
                 </h3>
-                <p className="mt-1 text-sm text-mozhi-primary dark:text-mozhi-secondary font-medium">
+                <p className="mt-1 text-sm text-primary dark:text-secondary font-medium">
                   {word.transliteration}
                 </p>
               </div>
-              <button className="text-gray-600 transition-colors hover:text-mozhi-primary dark:text-gray-600 dark:hover:text-mozhi-secondary">
+              <button className="text-gray-600 transition-colors hover:text-primary dark:text-gray-600 dark:hover:text-secondary">
                  {word.saved ? (
-                    <BookmarkCheck className="h-5 w-5 fill-blue-600 text-mozhi-primary dark:fill-blue-500 dark:text-mozhi-secondary" />
+                    <BookmarkCheck className="h-5 w-5 fill-blue-600 text-primary dark:fill-blue-500 dark:text-secondary" />
                  ) : (
                     <Bookmark className="h-5 w-5" />
                  )}
@@ -88,7 +88,7 @@ export default function StudentVocabularyPage() {
               <p className="text-base text-gray-600 dark:text-gray-600">
                 {word.english}
               </p>
-              <button className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-50 text-gray-600 transition-colors hover:bg-mozhi-light/50 hover:text-mozhi-primary dark:bg-gray-50 dark:text-gray-600 dark:hover:bg-mozhi-primary/20 dark:hover:text-mozhi-secondary">
+              <button className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-50 text-gray-600 transition-colors hover:bg-mozhi-light/50 hover:text-primary dark:bg-gray-50 dark:text-gray-600 dark:hover:bg-primary/20 dark:hover:text-secondary">
                 <Volume2 className="h-4 w-4" />
               </button>
             </div>
@@ -97,14 +97,14 @@ export default function StudentVocabularyPage() {
 
         {/* Practice CTA Card */}
         <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-mozhi-light bg-mozhi-light/50/50 p-6 text-center dark:border-blue-900/30 dark:bg-mozhi-dark/50">
-           <div className="flex h-12 w-12 items-center justify-center rounded-full bg-mozhi-light dark:bg-mozhi-primary/20">
-              <Book className="h-6 w-6 text-mozhi-primary dark:text-mozhi-secondary" />
+           <div className="flex h-12 w-12 items-center justify-center rounded-full bg-mozhi-light dark:bg-primary/20">
+              <Book className="h-6 w-6 text-primary dark:text-secondary" />
            </div>
            <h3 className="mt-4 text-lg font-semibold text-gray-600 dark:text-gray-600">Master 7 Words</h3>
            <p className="mt-1 text-sm text-gray-600 dark:text-gray-600">
               You are ready for a quick flashcard review session.
            </p>
-           <button className="mt-4 rounded-lg bg-mozhi-primary px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-mozhi-primary">
+           <button className="mt-4 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-primary">
               Start Quiz
            </button>
         </div>

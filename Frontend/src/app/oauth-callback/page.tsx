@@ -35,7 +35,7 @@ function CallbackHandler() {
 
   return (
     <div className="flex h-screen w-full flex-col items-center justify-center bg-white dark:bg-white">
-      <Loader2 className="h-10 w-10 animate-spin text-mozhi-primary" />
+      <Loader2 className="h-10 w-10 animate-spin text-primary" />
       <p className="mt-4 font-bold text-gray-500 uppercase tracking-widest text-sm">
         Completing your sign in...
       </p>
@@ -47,10 +47,11 @@ export default function OAuthCallbackPage() {
   return (
     <Suspense fallback={
       <div className="flex h-screen w-full flex-col items-center justify-center bg-white dark:bg-white">
-        <Loader2 className="h-10 w-10 animate-spin text-mozhi-primary" />
+        <Loader2 className="h-10 w-10 animate-spin text-primary" />
       </div>
     }>
       <CallbackHandler />
     </Suspense>
   );
 }
+

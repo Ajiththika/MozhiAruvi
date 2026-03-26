@@ -1,8 +1,10 @@
 "use client";
 
 import React, { useState } from "react";
-import { X, Loader2, Globe, User, Phone, Hash, MessageSquare, CheckCircle2, AlertCircle } from "lucide-react";
-import Button from "@/components/common/Button";
+import { User, Phone, Globe, Hash, CheckCircle2 } from "lucide-react";
+import { Modal } from "@/components/ui/Modal";
+import { Input } from "@/components/ui/Input";
+import { Button } from "@/components/ui/Button";
 import { JoinRequestPayload } from "@/services/eventService";
 
 interface RegistrationModalProps {
@@ -25,7 +27,7 @@ export default function RegistrationModal({
     phoneNumber: "",
     country: "",
     age: 18,
-    gender: "male",
+    gender: "male" as any,
     message: "",
   });
 
@@ -33,11 +35,7 @@ export default function RegistrationModal({
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
-  if (!isOpen) return null;
-
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
-  ) => {
+  const handleChange = (e: any) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
@@ -53,197 +51,132 @@ export default function RegistrationModal({
     try {
       await onSubmit(formData);
       setSuccess(true);
-      // Wait a bit then close
       setTimeout(() => {
         setSuccess(false);
         onClose();
-        // Reset form
         setFormData({
-            fullName: "",
-            phoneNumber: "",
-            country: "",
-            age: 18,
-            gender: "male",
-            message: "",
+          fullName: "",
+          phoneNumber: "",
+          country: "",
+          age: 18,
+          gender: "male" as any,
+          message: "",
         });
       }, 2000);
     } catch (err: any) {
-      setError(err?.response?.data?.error?.message || "Failed to submit registration. Please try again.");
+      setError(err?.response?.data?.error?.message || "Failed to submit registration.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-white/60 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="bg-white rounded-3xl w-full max-w-lg overflow-hidden shadow-2xl relative animate-in zoom-in-95 duration-200">
-        
-        {/* Header */}
-        <div className="bg-soft/20 p-8 text-gray-800 relative border-b border-gray-100">
-          <button 
-            onClick={onClose}
-            className="absolute top-6 right-6 p-2 rounded-full bg-primary/10 hover:bg-primary/20 text-primary transition-colors"
-          >
-            <X className="w-5 h-5" />
-          </button>
-          <div className="inline-flex items-center justify-center px-4 py-1.5 rounded-full bg-primary/10 text-primary text-[10px] uppercase font-black tracking-widest mb-4">
-            Event registration
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      title={eventTitle}
+      description="Administrative Verification Required"
+      size="md"
+    >
+      {success ? (
+        <div className="flex flex-col items-center justify-center py-20 text-center animate-in zoom-in duration-500">
+          <div className="w-24 h-24 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center mb-8 border border-emerald-100 shadow-xl shadow-emerald-500/5">
+            <CheckCircle2 className="w-12 h-12" />
           </div>
-          <h2 className="text-2xl md:text-3xl font-bold tracking-tight leading-tight text-gray-800">{eventTitle}</h2>
-          <p className="text-gray-600 text-base mt-2 font-medium leading-relaxed">Please fill in your details to secure your spot at this event.</p>
+          <h3 className="text-3xl font-black text-text-primary mb-4 tracking-tight uppercase">RSVP Secured!</h3>
+          <p className="text-text-secondary font-medium text-lg italic">The elders have received your request. Prepare for the gathering.</p>
         </div>
+      ) : (
+        <form onSubmit={handleSubmit} className="space-y-8 py-4">
+          <div className="space-y-6">
+            <Input
+              required
+              label="Full Name"
+              name="fullName"
+              value={formData.fullName}
+              onChange={handleChange}
+              placeholder="e.g. John Doe"
+              icon={<User size={14} />}
+              error={error && formData.fullName === "" ? error : undefined}
+            />
 
-        {/* Form Body */}
-        <div className="p-8">
-          {success ? (
-            <div className="flex flex-col items-center justify-center py-10 text-center scale-up-center">
-              <div className="w-20 h-20 bg-success/10 text-success rounded-full flex items-center justify-center mb-6">
-                <CheckCircle2 className="w-10 h-10" />
-              </div>
-              <h3 className="text-xl md:text-2xl font-bold text-gray-800 mb-2">Registration Successful!</h3>
-              <p className="text-gray-500">We've received your request. See you at the event!</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+              <Input
+                required
+                label="Country"
+                name="country"
+                value={formData.country}
+                onChange={handleChange}
+                placeholder="e.g. India"
+                icon={<Globe size={14} />}
+              />
+              <Input
+                required
+                label="Phone Number"
+                name="phoneNumber"
+                value={formData.phoneNumber}
+                onChange={handleChange}
+                placeholder="e.g. +91 98765 43210"
+                icon={<Phone size={14} />}
+              />
             </div>
-          ) : (
-            <form onSubmit={handleSubmit} className="space-y-5">
-              
-              {error && (
-                <div className="p-4 bg-red-50 border border-red-100 rounded-xl flex items-center gap-3 text-red-600 text-sm font-medium animate-in slide-in-from-top-2">
-                  <AlertCircle className="w-5 h-5 shrink-0" />
-                  {error}
-                </div>
-              )}
 
-              <div className="grid grid-cols-1 gap-5">
-                {/* Full Name */}
-                <div className="space-y-1.5">
-                  <label htmlFor="fullName" className="text-xs font-bold text-gray-600 tracking-tight flex items-center gap-2">
-                    <User className="w-3.5 h-3.5 text-primary" /> Full name
-                  </label>
-                  <input
-                    required
-                    type="text"
-                    id="fullName"
-                    name="fullName"
-                    value={formData.fullName}
-                    onChange={handleChange}
-                    placeholder="Enter your full name"
-                    className="w-full px-4 py-3 rounded-xl border border-gray-100 focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all outline-none font-medium placeholder:text-gray-400"
-                  />
-                </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+              <Input
+                required
+                label="Age"
+                type="number"
+                name="age"
+                value={formData.age}
+                onChange={handleChange}
+                icon={<Hash size={14} />}
+              />
+              <Input
+                required
+                label="Gender Identity"
+                name="gender"
+                value={formData.gender}
+                onChange={handleChange}
+                icon={<User size={14} />}
+                options={[
+                  { label: "Male", value: "male" },
+                  { label: "Female", value: "female" },
+                  { label: "Other", value: "other" },
+                  { label: "Prefer not to say", value: "prefer_not_to_say" },
+                ]}
+              />
+            </div>
 
-                {/* Country & Phone */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                  <div className="space-y-1.5">
-                    <label htmlFor="country" className="text-xs font-bold text-gray-600 tracking-tight flex items-center gap-2">
-                      <Globe className="w-3.5 h-3.5 text-primary" /> Country
-                    </label>
-                    <input
-                      required
-                      type="text"
-                      id="country"
-                      name="country"
-                      value={formData.country}
-                      onChange={handleChange}
-                      placeholder="e.g. India, USA"
-                      className="w-full px-4 py-3 rounded-xl border border-gray-100 focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all outline-none font-medium placeholder:text-gray-400"
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <label htmlFor="phoneNumber" className="text-xs font-bold text-gray-600 tracking-tight flex items-center gap-2">
-                      <Phone className="w-3.5 h-3.5 text-primary" /> Phone number
-                    </label>
-                    <input
-                      required
-                      type="tel"
-                      id="phoneNumber"
-                      name="phoneNumber"
-                      value={formData.phoneNumber}
-                      onChange={handleChange}
-                      placeholder="e.g. +91 9876543210"
-                      className="w-full px-4 py-3 rounded-xl border border-gray-100 focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all outline-none font-medium placeholder:text-gray-400"
-                    />
-                  </div>
-                </div>
+            <Input
+              label="Additional Insights"
+              name="message"
+              multiline
+              rows={3}
+              value={formData.message}
+              onChange={handleChange}
+              placeholder="Any specific requests or context for the host?"
+            />
+          </div>
 
-                {/* Age & Gender */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                  <div className="space-y-1.5">
-                    <label htmlFor="age" className="text-xs font-bold text-gray-600 tracking-tight flex items-center gap-2">
-                      <Hash className="w-3.5 h-3.5 text-primary" /> Age
-                    </label>
-                    <input
-                      required
-                      type="number"
-                      id="age"
-                      name="age"
-                      min="1"
-                      max="120"
-                      value={formData.age}
-                      onChange={handleChange}
-                      className="w-full px-4 py-3 rounded-xl border border-gray-100 focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all outline-none font-medium"
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <label htmlFor="gender" className="text-xs font-bold text-gray-600 tracking-tight flex items-center gap-2">
-                      <User className="w-3.5 h-3.5 text-primary" /> Gender
-                    </label>
-                    <select
-                      required
-                      id="gender"
-                      name="gender"
-                      value={formData.gender}
-                      onChange={handleChange}
-                      className="w-full px-4 py-3 rounded-xl border border-gray-100 focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all outline-none font-medium appearance-none bg-white"
-                    >
-                      <option value="male">Male</option>
-                      <option value="female">Female</option>
-                      <option value="other">Other</option>
-                      <option value="prefer_not_to_say">Prefer not to say</option>
-                    </select>
-                  </div>
-                </div>
-
-                {/* Message */}
-                <div className="space-y-1.5">
-                  <label htmlFor="message" className="text-xs font-bold text-gray-600 tracking-tight flex items-center gap-2">
-                    <MessageSquare className="w-3.5 h-3.5 text-primary" /> Message (optional)
-                  </label>
-                  <textarea
-                    id="message"
-                    name="message"
-                    rows={2}
-                    value={formData.message}
-                    onChange={handleChange}
-                    placeholder="Any special requests or questions?"
-                    className="w-full px-4 py-3 rounded-xl border border-gray-100 focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all outline-none font-medium placeholder:text-gray-400 resize-none"
-                  />
-                </div>
-              </div>
-
-              <div className="pt-4 flex gap-3">
-                <Button
-                  type="button"
-                  onClick={onClose}
-                  variant="ghost"
-                  size="md"
-                  className="flex-1"
-                >
-                  Cancel
-                </Button>
-                <Button
-                  type="submit"
-                  isLoading={loading}
-                  variant="primary"
-                  size="md"
-                  className="flex-[2]"
-                >
-                  Confirm Registration
-                </Button>
-              </div>
-            </form>
-          )}
-        </div>
-      </div>
-    </div>
+          <div className="pt-8 border-t border-border/40 flex flex-col-reverse sm:flex-row items-center justify-end gap-5">
+            <Button
+              variant="ghost"
+              onClick={onClose}
+              className="w-full sm:w-auto text-[10px] font-black tracking-widest uppercase hover:bg-error/5 hover:text-error"
+            >
+              Abort RSVP
+            </Button>
+            <Button
+              type="submit"
+              isLoading={loading}
+              size="lg"
+              className="w-full sm:w-auto px-12 shadow-2xl shadow-primary/20"
+            >
+              Confirm Registration
+            </Button>
+          </div>
+        </form>
+      )}
+    </Modal>
   );
 }

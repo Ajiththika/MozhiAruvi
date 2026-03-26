@@ -55,7 +55,7 @@ export default function EditBlogPage() {
       const blog = await updateMyBlog(params.id as string, { ...form, status: isDraft ? "draft" : "published" });
       setBanner({ type: "success", message: isDraft ? "Story preserved as draft." : "Updates published to the feed!" });
       setTimeout(() => {
-        if (isDraft) router.push("/student/blogs");
+        if (isDraft) router.push("/blogs");
         else router.push(`/blogs/${blog.slug || blog._id}`);
       }, 1500);
     } catch (err: any) {
@@ -75,7 +75,7 @@ export default function EditBlogPage() {
 
   return (
     <div className="animate-in fade-in duration-700 max-w-6xl mx-auto py-10">
-      <Link href="/student/blogs" className="group mb-12 inline-flex items-center gap-2 text-xs font-bold text-gray-400 hover:text-primary transition-colors tracking-tight">
+      <Link href="/blogs" className="group mb-12 inline-flex items-center gap-2 text-xs font-bold text-gray-400 hover:text-primary transition-colors tracking-tight">
         <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" /> Back to studio
       </Link>
 

@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { DataTable, ColumnDef } from "@/components/admin/DataTable";
-import { Loader2, AlertCircle, ShieldCheck, ShieldAlert, CheckCircle2, XCircle, Edit2, X, Save } from "lucide-react";
+import { Loader2, AlertCircle, ShieldCheck, ShieldAlert, CheckCircle2, XCircle, Edit2, User, Globe, Phone, Hash } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   getAllUsers,
@@ -12,17 +12,21 @@ import {
   BaseUser,
 } from "@/services/adminService";
 import { Pagination } from "@/components/Pagination";
-import Button from "@/components/common/Button";
+import { Button } from "@/components/ui/Button";
+import { Modal } from "@/components/ui/Modal";
+import { Input } from "@/components/ui/Input";
+import { Card } from "@/components/ui/Card";
 
 function RoleBadge({ role }: { role: BaseUser["role"] }) {
   const map: Record<string, string> = {
-    user: "bg-mozhi-light text-blue-800 dark:bg-mozhi-primary/20 dark:text-mozhi-secondary",
-    teacher: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-500",
-    admin: "bg-mozhi-light text-purple-800 dark:bg-purple-900/40 dark:text-mozhi-secondary",
+    user: "bg-primary/5 text-primary border-primary/10",
+    teacher: "bg-emerald-50 text-emerald-600 border-emerald-100",
+    admin: "bg-purple-50 text-purple-600 border-purple-100",
   };
   const labelMap: Record<string, string> = { user: "Student", teacher: "Tutor", admin: "Admin" };
+  
   return (
-    <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-semibold ${map[role] ?? ""}`}>
+    <span className={cn("inline-flex rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-widest border", map[role] ?? "")}>
       {labelMap[role] ?? role}
     </span>
   );
@@ -37,7 +41,6 @@ export default function UsersClient() {
   const [editFormData, setEditFormData] = useState<Partial<BaseUser>>({});
   const [isSaving, setIsSaving] = useState(false);
 
-  // Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
@@ -65,7 +68,7 @@ export default function UsersClient() {
         : await activateUser(user._id);
       setUsers((prev) => prev.map((u) => (u._id === updated._id ? updated : u)));
     } catch (err: any) {
-      alert(err.response?.data?.message || err.message || "Failed to update user status");
+      alert(err.response?.data?.message || "Failed to update user status");
     } finally {
       setActioning(null);
     }
@@ -76,7 +79,7 @@ export default function UsersClient() {
     setEditFormData({ ...user });
   };
 
-  const handleEditChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleEditChange = (e: any) => {
     const { name, value } = e.target;
     setEditFormData(prev => ({ 
       ...prev, 
@@ -101,52 +104,52 @@ export default function UsersClient() {
 
   const columns: ColumnDef<BaseUser>[] = [
     {
-      header: "User",
+      header: "User Identity",
       accessorKey: "name",
       cell: (row) => (
-        <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gray-100 font-bold text-gray-600">
-            {row.name.charAt(0).toUpperCase()}
+        <div className="flex items-center gap-4 py-2">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/5 border border-primary/10 font-black text-primary text-lg shadow-inner uppercase tracking-tighter">
+            {row.name.charAt(0)}
           </div>
           <div>
-            <p className="font-bold text-gray-800 text-sm">{row.name}</p>
-            <p className="text-xs text-gray-500">{row.email}</p>
+            <p className="font-black text-gray-800 text-sm tracking-tight">{row.name}</p>
+            <p className="text-xs font-medium text-gray-400">{row.email}</p>
           </div>
         </div>
       ),
     },
     {
-      header: "Role",
+      header: "Privilege",
       accessorKey: "role",
       cell: (row) => <RoleBadge role={row.role} />,
     },
     {
-      header: "Status",
+      header: "System Status",
       accessorKey: "isActive",
       cell: (row) =>
         row.isActive ? (
-          <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-600">
+          <span className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-emerald-500 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-100">
             <ShieldCheck className="h-4 w-4" /> Active
           </span>
         ) : (
-          <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-red-600">
+          <span className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-red-400 bg-red-50 px-3 py-1 rounded-full border border-red-100">
             <ShieldAlert className="h-4 w-4" /> Suspended
           </span>
         ),
     },
     {
-      header: "Actions",
+      header: "Operations",
       accessorKey: "_id",
       className: "text-right",
       cell: (row) => (
-        <div className="flex items-center justify-end gap-2">
+        <div className="flex items-center justify-end gap-3">
           <Button
             onClick={() => handleEditOpen(row)}
             variant="outline"
             size="sm"
-            className="flex items-center gap-1.5"
+            className="text-[10px] uppercase font-black"
           >
-            <Edit2 size={12} /> Edit
+            <Edit2 size={12} className="mr-2" /> Modify
           </Button>
           
           {row.role !== "admin" && (
@@ -155,13 +158,10 @@ export default function UsersClient() {
               isLoading={actioning === row._id}
               variant={row.isActive ? "danger" : "secondary"}
               size="sm"
-              className={cn(
-                "flex items-center gap-1.5",
-                !row.isActive && "border-emerald-200 text-emerald-600 hover:bg-emerald-50 hover:border-emerald-300"
-              )}
+              className="text-[10px] uppercase font-black shadow-lg shadow-primary/5"
             >
-              {!actioning && (row.isActive ? <XCircle size={12} /> : <CheckCircle2 size={12} />)}
-              {row.isActive ? "Suspend" : "Activate"}
+              {!actioning && (row.isActive ? <XCircle size={12} className="mr-2" /> : <CheckCircle2 size={12} className="mr-2" />)}
+              {row.isActive ? "Deactivate" : "Reconnect"}
             </Button>
           )}
         </div>
@@ -170,40 +170,41 @@ export default function UsersClient() {
   ];
 
   return (
-    <div className="space-y-8 animate-in fade-in zoom-in-95 duration-500 pb-12">
-      <div className="mb-8 md:mb-10 flex flex-col md:flex-row md:items-end md:justify-between gap-6 border-b border-gray-100 pb-8">
-        <div>
-           <div className="flex items-center gap-2 mb-2">
-              <span className="h-1.5 w-6 rounded-full bg-mozhi-secondary" />
-              <span className="text-[10px] font-black text-mozhi-secondary uppercase tracking-[0.3em]">Administrator</span>
+    <div className="space-y-12 animate-in fade-in duration-700 max-w-7xl mx-auto py-8 lg:py-12">
+      <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-8 border-b border-gray-100 pb-10">
+        <div className="space-y-4">
+           <div className="flex items-center gap-3">
+              <span className="h-2 w-10 rounded-full bg-secondary" />
+              <span className="text-[10px] font-black text-secondary uppercase tracking-[0.3em]">Administrator</span>
            </div>
-           <h1 className="text-3xl md:text-4xl font-black text-gray-800 uppercase tracking-tight">User Database</h1>
-           <p className="mt-2 text-gray-500 font-medium">View, edit, or suspend student and tutor accounts.</p>
+           <h1 className="text-4xl md:text-5xl font-black text-gray-800 tracking-tight">Access Control</h1>
+           <p className="text-lg text-gray-500 font-medium max-w-xl">Unified management system for student and mentor accounts across the Mozhi Aruvi network.</p>
         </div>
         <Button
           onClick={() => load(currentPage)}
           isLoading={loading}
           variant="outline"
-          size="md"
-          className="text-xs font-black uppercase tracking-widest"
+          size="lg"
+          className="uppercase tracking-widest text-[10px] font-black px-8"
         >
-          Refresh Data
+          Synchronize Data
         </Button>
       </div>
 
       {error && (
-        <div className="flex items-center gap-3 rounded-xl border border-red-200 bg-red-100 px-4 py-3 text-sm text-red-700 font-bold">
-          <AlertCircle className="h-5 w-5 shrink-0" /> {error}
-        </div>
+        <Card variant="outline" className="border-red-100 bg-red-50/30 flex items-center gap-4 text-red-600">
+          <AlertCircle className="h-6 w-6 shrink-0" /> <span className="font-bold">{error}</span>
+        </Card>
       )}
 
       {loading ? (
-        <div className="flex items-center justify-center py-24">
-          <Loader2 className="h-8 w-8 animate-spin text-mozhi-primary" />
+        <div className="flex flex-col items-center justify-center py-40 gap-6">
+          <Loader2 className="h-12 w-12 animate-spin text-primary/30" />
+           <p className="text-[10px] font-black text-gray-300 uppercase tracking-widest">Querying database...</p>
         </div>
       ) : (
-        <div className="space-y-6">
-           <DataTable title={`All Registered Users (${totalItems})`} columns={columns} data={users} />
+        <div className="space-y-8">
+           <DataTable title={`Directory Intelligence (${totalItems} entities)`} columns={columns} data={users} />
            <Pagination 
              currentPage={currentPage}
              totalPages={totalPages}
@@ -212,143 +213,111 @@ export default function UsersClient() {
         </div>
       )}
 
-      {/* Edit Modal */}
-      {editingUser && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-white/40 backdrop-blur-sm p-4">
-          <div className="w-full max-w-2xl bg-white rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
-            <div className="flex items-center justify-between border-b border-gray-100 bg-gray-50/50 px-6 py-4">
-              <h3 className="text-lg font-bold text-gray-800">Edit Profile: {editingUser.name}</h3>
-              <button 
-                onClick={() => setEditingUser(null)}
-                className="rounded-full p-1 text-gray-400 hover:bg-gray-100 transition-colors"
-              >
-                <X size={20} />
-              </button>
-            </div>
-            
-            <form onSubmit={handleEditSubmit} className="p-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-gray-500 uppercase">Full Name</label>
-                  <input 
-                    name="name" 
-                    value={editFormData.name || ""} 
-                    onChange={handleEditChange}
-                    className="w-full rounded-xl border border-gray-100 bg-white px-3 py-2.5 text-sm font-medium outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all transition-all" 
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-gray-500 uppercase">Role</label>
-                  <select 
-                    name="role" 
-                    value={editFormData.role || "user"} 
-                    onChange={handleEditChange}
-                    className="w-full rounded-lg border border-gray-100 px-3 py-2 text-sm focus:ring-1 focus:ring-primary outline-none bg-white font-medium" 
-                  >
-                    <option value="user">Student</option>
-                    <option value="teacher">Tutor</option>
-                    <option value="admin">Admin</option>
-                  </select>
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-gray-500 uppercase">Phone Number</label>
-                  <input 
-                    name="phoneNumber" 
-                    value={editFormData.phoneNumber || ""} 
-                    onChange={handleEditChange}
-                    className="w-full rounded-xl border border-gray-100 bg-white px-3 py-2.5 text-sm font-medium outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all transition-all" 
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-gray-500 uppercase">Country</label>
-                  <input 
-                    name="country" 
-                    value={editFormData.country || ""} 
-                    onChange={handleEditChange}
-                    className="w-full rounded-xl border border-gray-100 bg-white px-3 py-2.5 text-sm font-medium outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all transition-all" 
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-gray-500 uppercase">Age</label>
-                  <input 
-                    type="number"
-                    name="age" 
-                    value={editFormData.age || ""} 
-                    onChange={handleEditChange}
-                    className="w-full rounded-xl border border-gray-100 bg-white px-3 py-2.5 text-sm font-medium outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all transition-all" 
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-gray-500 uppercase">Gender</label>
-                  <select 
-                    name="gender" 
-                    value={editFormData.gender || ""} 
-                    onChange={handleEditChange}
-                    className="w-full rounded-lg border border-gray-100 px-3 py-2 text-sm focus:ring-1 focus:ring-primary outline-none bg-white" 
-                  >
-                    <option value="">Select Gender</option>
-                    <option value="male">Male</option>
-                    <option value="female">Female</option>
-                    <option value="other">Other</option>
-                    <option value="prefer_not_to_say">Prefer not to say</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className="mt-4 space-y-1.5">
-                <label className="text-xs font-bold text-gray-500 uppercase">Bio / About</label>
-                <textarea 
-                  name="bio" 
-                  rows={3}
-                  value={editFormData.bio || ""} 
-                  onChange={handleEditChange}
-                  className="w-full rounded-lg border border-gray-100 px-3 py-2 text-sm focus:ring-1 focus:ring-primary outline-none" 
-                ></textarea>
-              </div>
-
-              {editFormData.role === "teacher" && (
-                <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4 border-t border-gray-100 pt-4">
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-gray-500 uppercase">Specialization</label>
-                    <input 
-                      name="specialization" 
-                      value={editFormData.specialization || ""} 
-                      onChange={handleEditChange}
-                      className="w-full rounded-xl border border-gray-100 bg-white px-3 py-2.5 text-sm font-medium outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all transition-all" 
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-gray-500 uppercase">Experience</label>
-                    <input 
-                      name="experience" 
-                      value={editFormData.experience || ""} 
-                      onChange={handleEditChange}
-                      className="w-full rounded-xl border border-gray-100 bg-white px-3 py-2.5 text-sm font-medium outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all transition-all" 
-                    />
-                  </div>
-                </div>
-              )}
-              
-              <div className="mt-8 flex items-center justify-end gap-3 border-t border-gray-100 pt-6">
-                <Button 
-                  variant="ghost" 
-                  onClick={() => setEditingUser(null)}
-                >
-                  Cancel
-                </Button>
-                <Button 
-                  type="submit" 
-                  isLoading={isSaving}
-                  variant="primary"
-                  size="md"
-                >
-                  Save Changes
-                </Button>
-              </div>
-            </form>
+      {/* Edit Modal Refactored */}
+      <Modal
+        isOpen={!!editingUser}
+        onClose={() => setEditingUser(null)}
+        title={editingUser?.name ? `Identity Profile: ${editingUser.name}` : "User Profile"}
+        description="Administrative override for account credentials and privileges."
+        size="lg"
+      >
+        <form onSubmit={handleEditSubmit} className="space-y-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Input 
+              label="Legal Name" 
+              name="name" 
+              value={editFormData.name || ""} 
+              onChange={handleEditChange}
+              icon={<User size={14} className="text-primary" />}
+            />
+            <Input 
+              label="System Authority" 
+              name="role" 
+              value={editFormData.role || "user"} 
+              onChange={handleEditChange}
+              options={[
+                { label: "Student", value: "user" },
+                { label: "Tutor", value: "teacher" },
+                { label: "Administrator", value: "admin" },
+              ]}
+              icon={<ShieldCheck size={14} className="text-primary" />}
+            />
+            <Input 
+              label="Phone Credentials" 
+              name="phoneNumber" 
+              value={editFormData.phoneNumber || ""} 
+              onChange={handleEditChange}
+              icon={<Phone size={14} className="text-primary" />}
+            />
+            <Input 
+              label="Primary Region" 
+              name="country" 
+              value={editFormData.country || ""} 
+              onChange={handleEditChange}
+              icon={<Globe size={14} className="text-primary" />}
+            />
+            <Input 
+              label="Age" 
+              name="age" 
+              type="number"
+              value={editFormData.age || ""} 
+              onChange={handleEditChange}
+              icon={<Hash size={14} className="text-primary" />}
+            />
+            <Input 
+              label="Identity Gender" 
+              name="gender" 
+              value={editFormData.gender || ""} 
+              onChange={handleEditChange}
+              options={[
+                { label: "Male", value: "male" },
+                { label: "Female", value: "female" },
+                { label: "Other", value: "other" },
+                { label: "Prefer not to say", value: "prefer_not_to_say" },
+              ]}
+              icon={<User size={14} className="text-primary" />}
+            />
           </div>
-        </div>
-      )}
+
+          <Input 
+            label="Biography & Experiences" 
+            name="bio" 
+            multiline 
+            value={editFormData.bio || ""} 
+            onChange={handleEditChange}
+            placeholder="Document any relevant historical or academic context..."
+          />
+
+          {editFormData.role === "teacher" && (
+            <div className="pt-6 border-t border-gray-100 flex flex-col gap-6 animate-in slide-in-from-top-4 duration-500">
+               <h4 className="text-xs font-black uppercase tracking-widest text-primary">Mentor Credentials</h4>
+               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <Input 
+                    label="Linguistic Specialization" 
+                    name="specialization" 
+                    value={editFormData.specialization || ""} 
+                    onChange={handleEditChange}
+                  />
+                  <Input 
+                    label="Academic Tenure" 
+                    name="experience" 
+                    value={editFormData.experience || ""} 
+                    onChange={handleEditChange}
+                  />
+               </div>
+            </div>
+          )}
+          
+          <div className="pt-8 flex items-center justify-end gap-4">
+            <Button variant="ghost" onClick={() => setEditingUser(null)} className="font-black uppercase tracking-widest text-xs">
+              Dismiss
+            </Button>
+            <Button type="submit" isLoading={isSaving} size="lg" className="px-10 shadow-xl shadow-primary/20">
+              Update Profile Record
+            </Button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 }

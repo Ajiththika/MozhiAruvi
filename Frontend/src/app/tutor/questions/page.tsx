@@ -77,7 +77,7 @@ export default function TeacherRequestsPage() {
 
   if (loading) return (
     <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4">
-      <Loader2 className="h-10 w-10 animate-spin text-mozhi-primary" />
+      <Loader2 className="h-10 w-10 animate-spin text-primary" />
       <p className="text-sm font-bold text-gray-500 animate-pulse uppercase tracking-widest">Loading Incoming Requests...</p>
     </div>
   );
@@ -139,7 +139,7 @@ export default function TeacherRequestsPage() {
                 key={r._id}
                 className={cn(
                   "group relative overflow-hidden rounded-[2.5rem] bg-white border transition-all duration-300",
-                  isPending ? "border-mozhi-primary/20 shadow-xl shadow-mozhi-primary/[0.03]" : "border-gray-100  opacity-90 hover:opacity-100"
+                  isPending ? "border-primary/20 shadow-xl shadow-primary/[0.03]" : "border-gray-100  opacity-90 hover:opacity-100"
                 )}
               >
                 <div className="flex flex-col lg:flex-row">

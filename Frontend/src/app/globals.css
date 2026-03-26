@@ -5,34 +5,49 @@
   --font-sans: var(--font-outfit);
   --font-mono: var(--font-inter);
 
-  /* New Primary Brand Palette */
-  --color-primary: #6367FF;
-  --color-secondary: #8494FF;
-  --color-accent: #C9BEFF;
-  --color-soft: #FFDBFD;
-  --color-dark: #0f172a;
+  /* New Accessibility-First Palette (WCAG AA Compliant) */
+  --color-primary: #4f46e5;      /* Indigo 600 - High Contrast for Actions */
+  --color-primary-soft: #eef2ff; /* Indigo 50 - Surface Tints */
+  
+  --color-background: #ffffff;   /* Pure white page background */
+  --color-surface: #ffffff;      /* Card and Modal backgrounds */
+  --color-surface-soft: #f8fafc; /* Slate 50 - Subtle surface contrast */
+  
+  --color-text-primary: #0f172a;   /* Slate 900 - Ultra High Contrast (AAA) */
+  --color-text-secondary: #475569; /* Slate 600 - Accessible Muted Text (AA) */
+  --color-text-tertiary: #94a3b8;  /* Slate 400 - For disabled/decorative only */
 
-  /* Semantic Colors */
-  --color-success: #10b981; /* green-500 */
-  --color-error: #ef4444;   /* red-500 */
-  --color-warning: #f59e0b; /* amber-500 */
+  --color-border: #e2e8f0;         /* Slate 200 - Clearly visible borders */
+  --color-accent: #6366f1;         /* Indigo 500 - Vibrant CTA usage */
 
-  /* Neutral Surface Colors (Derived) */
-  --color-surface: #ffffff;
-  --color-surface-soft: #fcfaff; /* A very slight tint towards the soft palette */
+  /* Utility Colors */
+  --color-secondary: #6366f1;
+  --color-success: #059669; /* Emerald 600 - Better contrast than 500 */
+  --color-error: #dc2626;   /* Red 600 - Critical contrast */
+  --color-warning: #d97706; /* Amber 600 - Reliable accessibility */
 }
 
 @layer base {
   body {
-    @apply bg-white text-gray-600 font-sans antialiased;
+    @apply bg-background text-text-primary font-sans antialiased;
     scroll-behavior: smooth;
   }
   
-  /* Reset some common styles to follow the design scale if needed */
   h1, h2, h3, h4, h5, h6 { 
-    @apply text-gray-800 font-bold tracking-tight; 
+    @apply text-text-primary font-bold tracking-tight; 
   }
-  h1 { @apply text-2xl md:text-3xl font-bold tracking-tight text-gray-800; }
-  h2 { @apply text-xl font-semibold; }
-  h3 { @apply text-base font-semibold; }
+  
+  h1 { @apply text-3xl md:text-4xl lg:text-5xl font-black tracking-tight leading-tight; }
+  h2 { @apply text-2xl font-bold; }
+  h3 { @apply text-xl font-bold; }
+
+  /* Responsive Corner Radius Utility */
+  .rounded-responsive {
+    @apply rounded-xl md:rounded-2xl;
+  }
+
+  /* Accessibility focus ring */
+  :focus-visible {
+    @apply outline-none ring-4 ring-primary/20 transition-shadow;
+  }
 }

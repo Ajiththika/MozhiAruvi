@@ -2,6 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import {
@@ -24,8 +25,6 @@ import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 
 // ── Centralised icon map ──────────────────────────────────────────────────────
-// ALL icon resolutions happen here — never pass icon components as props.
-
 export const iconMap = {
   home: Home,
   "book-open": BookOpen,
@@ -44,20 +43,16 @@ export const iconMap = {
 
 export type IconName = keyof typeof iconMap;
 
-// ── Types (serializable only) ─────────────────────────────────────────────────
-
 export interface SidebarItem {
   name: string;
   href: string;
-  icon: IconName; // string key — safe to pass from Server → Client
+  icon: IconName;
 }
 
 interface SidebarProps {
   items: SidebarItem[];
   basePath: string;
 }
-
-// ── Component ─────────────────────────────────────────────────────────────────
 
 export function Sidebar({ items, basePath }: SidebarProps) {
   const pathname = usePathname();
@@ -70,20 +65,29 @@ export function Sidebar({ items, basePath }: SidebarProps) {
   };
 
   return (
-    <aside className="hidden w-64 flex-col border-r border-gray-100 bg-white  md:flex">
-      {/* Brand */}
-      <div className="flex h-16 items-center border-b border-gray-100 px-6 ">
+    <aside className="hidden w-72 flex-col border-r border-border bg-background md:flex h-screen sticky top-0">
+      {/* Brand Section */}
+      <div className="flex h-24 items-center border-b border-border/60 px-8">
         <Link
           href={basePath}
-          className="flex items-center gap-2 font-bold tracking-tight text-primary transition-opacity hover:opacity-90"
+          className="flex items-center gap-4 transition-all duration-300 hover:scale-[1.02]"
         >
-          <BookOpen className="h-6 w-6 stroke-[2.5]" />
-          <span className="text-xl">Mozhi Aruvi</span>
+          <div className="relative h-11 w-11 overflow-hidden rounded-2xl bg-primary/5 flex items-center justify-center p-2 border border-primary/10 shadow-inner">
+            <Image 
+              src="/logo.png" 
+              alt="Mozhi Aruvi Logo" 
+              fill 
+              className="object-contain p-1.5" 
+            />
+          </div>
+          <span className="text-2xl font-black tracking-tight text-text-primary">
+            Mozhi <span className="text-primary">Aruvi</span>
+          </span>
         </Link>
       </div>
 
-      {/* Nav links */}
-      <nav className="flex-1 space-y-1 overflow-y-auto p-4 flex flex-col gap-1">
+      {/* Navigation Space */}
+      <nav className="flex-1 space-y-2.5 overflow-y-auto p-6 scrollbar-hide py-10">
         {items.map((item) => {
           const Icon = iconMap[item.icon];
           if (!Icon) return null;
@@ -97,34 +101,42 @@ export function Sidebar({ items, basePath }: SidebarProps) {
               key={item.name}
               href={item.href}
               className={cn(
-                "group flex items-center gap-3 rounded-xl px-4 py-2 text-sm font-semibold transition-all duration-200",
+                "group flex items-center gap-4 px-5 py-4 text-sm font-bold transition-all duration-300 rounded-responsive",
                 isActive
-                  ? "bg-primary text-white shadow-md shadow-primary/20"
-                  : "text-gray-500 hover:bg-gray-50 hover:text-primary dark:text-gray-400 dark:hover:bg-gray-800/50 dark:hover:text-primary"
+                  ? "bg-primary text-white shadow-xl shadow-primary/30 translate-x-1"
+                  : "text-text-secondary hover:bg-primary/5 hover:text-primary active:scale-[0.98]"
               )}
             >
-              <Icon
-                className={cn(
-                  "h-5 w-5 shrink-0 transition-colors",
-                  isActive
-                    ? "text-white"
-                    : "text-gray-400 group-hover:text-primary"
-                )}
-              />
-              {item.name}
+              <div className={cn(
+                "p-2 rounded-xl transition-colors",
+                isActive ? "bg-white/10" : "bg-surface-soft group-hover:bg-primary/10 border border-border/40"
+              )}>
+                <Icon
+                  className={cn(
+                    "h-4.5 w-4.5 shrink-0 transition-transform duration-300 group-hover:scale-110",
+                    isActive ? "text-white" : "text-text-secondary group-hover:text-primary"
+                  )}
+                />
+              </div>
+              <span className="tracking-tight font-black uppercase text-[10px] tracking-widest">{item.name}</span>
+              {isActive && (
+                <div className="ml-auto w-2 h-2 rounded-full bg-white animate-pulse" />
+              )}
             </Link>
           );
         })}
       </nav>
 
-      {/* Logout */}
-      <div className="border-t border-gray-100 p-4 ">
+      {/* Accessibility Anchor: Footer Actions */}
+      <div className="border-t border-border p-6 bg-surface-soft/60">
         <button
           onClick={handleLogout}
-          className="flex w-full items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-bold text-red-500 transition-colors duration-200 hover:bg-red-50 dark:hover:bg-red-900/10"
+          className="group flex w-full items-center gap-4 rounded-responsive px-5 py-4 text-[10px] font-black uppercase tracking-[0.2em] text-error transition-all duration-300 hover:bg-error/5 border border-transparent hover:border-error/20"
         >
-          <LogOut className="h-5 w-5" />
-          Log out
+          <div className="p-2 rounded-xl bg-error/10 text-error group-hover:bg-error group-hover:text-white transition-all shadow-sm">
+            <LogOut className="h-4.5 w-4.5" />
+          </div>
+          Session Logout
         </button>
       </div>
     </aside>

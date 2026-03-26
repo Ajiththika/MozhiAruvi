@@ -21,7 +21,7 @@ export default function CreateBlogPage() {
   React.useEffect(() => {
     if (!isLoading) {
       if (!user) {
-        router.push(`/auth/signin?redirect=${encodeURIComponent("/student/blogs/create")}`);
+        router.push(`/auth/signin?redirect=${encodeURIComponent("/blogs/create")}`);
       } else if (!hasPermission(user.role, [ROLES.ADMIN, ROLES.TEACHER])) {
         // Redirect to a dashboard or access denied
         router.push("/auth/signin"); 
@@ -50,7 +50,7 @@ export default function CreateBlogPage() {
       const blog = await createBlog({ ...form, status: isDraft ? "draft" : "published" });
       setBanner({ type: "success", message: isDraft ? "Story saved as draft." : "Story published to the world!" });
       setTimeout(() => {
-        if (isDraft) router.push("/student/blogs");
+        if (isDraft) router.push("/blogs");
         else router.push(`/blogs/${blog.slug || blog._id}`);
       }, 1500);
     } catch (err: any) {
@@ -66,7 +66,7 @@ export default function CreateBlogPage() {
       <nav className="fixed top-0 z-50 w-full bg-white/80 backdrop-blur-md border-b border-gray-50 h-16">
         <div className="max-w-[1000px] mx-auto px-4 h-full flex items-center justify-between">
           <div className="flex items-center gap-4">
-             <Link href="/student/blogs" className="text-gray-400 hover:text-gray-800 transition-colors">
+             <Link href="/blogs" className="text-gray-400 hover:text-gray-800 transition-colors">
                 <ArrowLeft size={20} />
              </Link>
              <Link href="/" className="text-xl font-bold text-gray-800">
@@ -207,3 +207,4 @@ export default function CreateBlogPage() {
     </div>
   );
 }
+

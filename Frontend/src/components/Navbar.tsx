@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import React, { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { User as UserIcon, LogOut, LayoutDashboard, Settings, Award } from "lucide-react";
@@ -32,8 +33,19 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-4 md:px-8 lg:px-12">
         <div className="flex justify-between items-center h-16">
           <div className="flex-shrink-0 flex items-center">
-            <Link href="/" className="text-2xl font-bold text-primary flex items-center gap-2">
-              <span className="text-secondary">Mozhi</span>Aruvi
+            <Link href="/" className="flex items-center gap-2 group hover:opacity-90 transition-opacity">
+              <div className="relative w-8 h-8 md:w-10 md:h-10">
+                <Image 
+                  src="/logo.png" 
+                  alt="Mozhi Aruvi Logo" 
+                  fill
+                  className="object-contain"
+                  priority 
+                />
+              </div>
+              <span className="text-xl md:text-2xl font-bold text-primary">
+                <span className="text-secondary">Mozhi</span>Aruvi
+              </span>
             </Link>
           </div>
           
@@ -150,3 +162,4 @@ export default function Navbar() {
     </nav>
   );
 }
+

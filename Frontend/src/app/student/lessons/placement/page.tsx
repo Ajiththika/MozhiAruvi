@@ -66,15 +66,15 @@ export default function PlacementPage() {
             onClick={() => setSelectedLevel(l.id)}
             className={`w-full flex items-center p-6 border-2 rounded-2xl transition-all duration-300 text-left ${
               selectedLevel === l.id
-                ? "border-mozhi-primary bg-blue-50 shadow-md scale-[1.02]"
-                : "border-gray-100 bg-white hover:border-mozhi-primary/50 hover:bg-gray-50"
+                ? "border-primary bg-blue-50 shadow-md scale-[1.02]"
+                : "border-gray-100 bg-white hover:border-primary/50 hover:bg-gray-50"
             }`}
           >
             <div className="shrink-0 mr-4 bg-white p-2 rounded-full shadow-sm">
               {l.icon}
             </div>
             <div className="flex-1">
-              <h3 className={`text-xl font-bold ${selectedLevel === l.id ? "text-mozhi-primary" : "text-gray-800"}`}>
+              <h3 className={`text-xl font-bold ${selectedLevel === l.id ? "text-primary" : "text-gray-800"}`}>
                 {l.title}
               </h3>
               <p className="text-gray-500">{l.description}</p>
@@ -83,7 +83,7 @@ export default function PlacementPage() {
               <div
                 className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors ${
                   selectedLevel === l.id
-                    ? "border-mozhi-primary bg-mozhi-primary"
+                    ? "border-primary bg-primary"
                     : "border-slate-300"
                 }`}
               >
@@ -99,7 +99,7 @@ export default function PlacementPage() {
       <button
         disabled={!selectedLevel || saving}
         onClick={handleComplete}
-        className="w-full flex items-center justify-center gap-2 bg-mozhi-primary text-white py-4 px-8 rounded-2xl font-bold text-lg hover:bg-opacity-90 transition-all disabled:opacity-50 disabled:hover:scale-100 disabled:cursor-not-allowed hover:shadow-lg active:scale-95"
+        className="w-full flex items-center justify-center gap-2 bg-primary text-white py-4 px-8 rounded-2xl font-bold text-lg hover:bg-opacity-90 transition-all disabled:opacity-50 disabled:hover:scale-100 disabled:cursor-not-allowed hover:shadow-lg active:scale-95"
       >
         {saving ? <Loader2 className="w-6 h-6 animate-spin" /> : "Continue"}
         {!saving && <ChevronRight className="w-6 h-6" />}
@@ -107,3 +107,4 @@ export default function PlacementPage() {
     </div>
   );
 }
+

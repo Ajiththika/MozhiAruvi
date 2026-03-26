@@ -1,6 +1,8 @@
 import React from "react";
 import { CheckCircle2, Sparkles, X, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/Button";
+import { Card } from "@/components/ui/Card";
 
 const FEATURES = [
   { name: "Full Curriculum Access", free: true, premium: true },
@@ -14,85 +16,106 @@ const FEATURES = [
 
 export default function StudentPremiumPage() {
   return (
-    <div className="mx-auto max-w-5xl space-y-12 animate-in fade-in zoom-in-95 duration-500 py-12">
-      <div className="text-center">
-         <div className="inline-flex items-center gap-2 rounded-full border border-mozhi-light bg-mozhi-light/50 px-4 py-1.5 text-sm font-bold text-mozhi-primary dark:border-blue-900/50 dark:bg-mozhi-primary/20 dark:text-mozhi-secondary">
-            <Sparkles className="h-4 w-4" /> Go Premium
+    <div className="mx-auto max-w-5xl space-y-16 animate-in fade-in slide-in-from-bottom-6 duration-700 py-16 px-6">
+      <div className="text-center space-y-6">
+         <div className="inline-flex items-center gap-3 rounded-full border border-primary/20 bg-primary/5 px-6 py-2 text-[10px] font-black uppercase tracking-widest text-primary shadow-sm shadow-primary/5">
+            <Sparkles className="h-4 w-4" /> Global Accessibility
          </div>
-         <h1 className="mt-6 text-4xl font-extrabold tracking-tight text-gray-600 dark:text-gray-600 sm:text-5xl">
-            Unlock your full Tamil potential.
+         <h1 className="text-4xl md:text-6xl font-black text-text-primary tracking-tight leading-tight max-w-3xl mx-auto">
+            Unlock your full <span className="text-primary italic">Tamil Potential</span>.
          </h1>
-         <p className="mx-auto mt-4 max-w-2xl text-lg text-gray-600 dark:text-gray-600">
+         <p className="mx-auto mt-4 max-w-2xl text-lg text-text-secondary font-medium leading-relaxed italic">
             Upgrade to Mozhi Aruvi Premium to access expert tutors, advanced practice tools, and uninterrupted offline learning.
          </p>
       </div>
 
-      <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:gap-12 px-4 md:px-0">
+      <div className="grid grid-cols-1 gap-10 md:grid-cols-2 lg:gap-14">
          {/* Free Tier */}
-         <div className="flex flex-col rounded-3xl border border-gray-100 bg-white p-8 shadow-sm  dark:bg-gray-800">
-            <h3 className="text-2xl font-bold text-gray-800 dark:text-slate-100">Basic Learner</h3>
-            <p className="mt-2 text-gray-600 dark:text-gray-400">Everything you need to start your journey.</p>
-            <div className="mt-6 flex items-baseline gap-2">
-               <span className="text-4xl font-extrabold text-gray-800 dark:text-white">Free</span>
-               <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Forever</span>
+         <Card variant="outline" padding="xl" className="flex flex-col border-border/80 bg-surface-soft/30 opacity-90">
+            <h3 className="text-2xl font-black text-text-primary uppercase tracking-tight">Basic Learner</h3>
+            <p className="mt-2 text-text-secondary font-medium italic">Everything you need to start your journey.</p>
+            
+            <div className="mt-10 flex items-baseline gap-3">
+               <span className="text-5xl font-black text-text-primary tracking-tight">Free</span>
+               <span className="text-sm font-black text-text-tertiary uppercase tracking-widest">Forever</span>
             </div>
-            <ul className="mt-8 flex flex-col gap-4">
+
+            <div className="h-px w-full bg-border/60 my-10" />
+
+            <ul className="flex flex-col gap-5 flex-1">
                {FEATURES.map((feat) => (
-                  <li key={feat.name} className="flex items-center gap-3">
+                  <li key={feat.name} className="flex items-center gap-4">
                      {feat.free ? (
-                        <CheckCircle2 className="h-5 w-5 text-emerald-500 fill-emerald-100 dark:fill-emerald-900/30 dark:text-emerald-400" />
+                        <CheckCircle2 className="h-5 w-5 text-emerald-600 shrink-0" />
                      ) : (
-                        <X className="h-5 w-5 text-gray-400 dark:text-gray-500" />
+                        <X className="h-5 w-5 text-text-tertiary shrink-0" />
                      )}
-                     <span className={cn("text-sm transition-colors", feat.free ? "text-gray-700 dark:text-gray-300" : "text-gray-400 dark:text-gray-500")}>
+                     <span className={cn(
+                        "text-sm font-bold tracking-tight", 
+                        feat.free ? "text-text-primary" : "text-text-tertiary line-through opacity-50"
+                      )}>
                         {feat.name}
                      </span>
                   </li>
                ))}
             </ul>
-            <div className="mt-auto pt-8">
-               <button disabled className="w-full rounded-xl bg-gray-100 border border-gray-100 py-3.5 text-sm font-bold text-gray-700 dark:bg-gray-800  dark:text-gray-400 cursor-not-allowed">
-                  Current Plan
-               </button>
+
+            <div className="pt-12 mt-auto">
+               <Button variant="ghost" disabled className="w-full bg-border/20 text-text-tertiary border border-border/40 py-5">
+                  Current Deployment
+               </Button>
             </div>
-         </div>
+         </Card>
 
          {/* Premium Tier */}
-         <div className="relative flex flex-col rounded-3xl border-2 border-mozhi-primary bg-white p-8 shadow-xl dark:border-mozhi-primary opacity-90 transition-opacity hover:opacity-100">
-            <div className="absolute -top-4 left-1/2 -translate-x-1/2 rounded-full bg-mozhi-primary px-4 py-1 text-sm font-bold text-white shadow-sm dark:bg-mozhi-primary">
-               Most Popular
+         <Card variant="elevated" padding="xl" className="relative flex flex-col border-2 border-primary bg-surface shadow-primary/10 overflow-visible group">
+            <div className="absolute -top-5 left-1/2 -translate-x-1/2 rounded-full bg-primary px-6 py-2 text-[10px] font-black uppercase tracking-widest text-white shadow-xl shadow-primary/30 z-10 border border-white/20">
+               Most Dedicated
             </div>
-            <h3 className="text-2xl font-bold text-mozhi-primary dark:text-mozhi-secondary flex items-center gap-2">
-               Mozhi Premium <Star className="h-5 w-5 fill-current" />
-            </h3>
-            <p className="mt-2 text-gray-600 dark:text-gray-400">For serious learners seeking fluency.</p>
-            <div className="mt-6 flex items-baseline gap-2">
-               <span className="text-4xl font-extrabold text-gray-800 dark:text-white">$9.99</span>
-               <span className="text-sm font-medium text-gray-500 dark:text-gray-400">/ month</span>
+            
+            <div className="space-y-2">
+               <div className="flex items-center gap-3">
+                  <Star className="h-6 w-6 text-primary fill-current" />
+                  <h3 className="text-2xl font-black text-primary uppercase tracking-tight">
+                    Mozhi Premium
+                  </h3>
+               </div>
+               <p className="text-text-secondary font-medium italic">For serious learners seeking fluency.</p>
             </div>
-            <ul className="mt-8 flex flex-col gap-4">
+
+            <div className="mt-10 flex items-baseline gap-3">
+               <span className="text-5xl font-black text-text-primary tracking-tight">$9.99</span>
+               <span className="text-sm font-black text-text-tertiary uppercase tracking-widest">/ monthly energy</span>
+            </div>
+
+            <div className="h-px w-full bg-border/60 my-10" />
+
+            <ul className="flex flex-col gap-5 flex-1">
                {FEATURES.map((feat) => (
-                  <li key={feat.name} className="flex items-center gap-3">
-                     <CheckCircle2 className="h-5 w-5 text-blue-500 fill-blue-100 dark:fill-blue-900/40 dark:text-blue-400" />
-                     <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <li key={feat.name} className="flex items-center gap-4 group/item">
+                     <CheckCircle2 className="h-5 w-5 text-primary shrink-0 transition-transform group-hover/item:scale-110" />
+                     <span className="text-sm font-bold text-text-primary tracking-tight">
                         {feat.name}
                      </span>
                   </li>
                ))}
             </ul>
-            <div className="mt-auto pt-8">
-               <button 
+
+            <div className="pt-12 mt-auto space-y-4">
+               <Button 
                   disabled
+                  variant="primary"
+                  size="xl"
                   title="Payments integration coming soon"
-                  className="w-full rounded-xl bg-gray-200 text-gray-500 py-3.5 text-sm font-bold shadow-sm transition-all cursor-not-allowed dark:bg-gray-800 dark:text-gray-500"
+                  className="w-full py-6 shadow-2xl shadow-primary/30 hover:shadow-primary/40"
                >
-                  Upgrade (Coming Soon)
-               </button>
-               <p className="mt-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400">
-                  Payments are temporarily disabled.
+                  Upgrade (Inactive Node)
+               </Button>
+               <p className="text-center text-[10px] font-black uppercase tracking-[0.2em] text-text-tertiary animate-pulse">
+                  Financial gateway offline for sync
                </p>
             </div>
-         </div>
+         </Card>
       </div>
     </div>
   );

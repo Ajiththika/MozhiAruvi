@@ -108,13 +108,13 @@ export default function AdminLessonsPage() {
       <div className="mb-8 md:mb-10 flex flex-col md:flex-row md:items-end md:justify-between gap-6 border-b border-gray-100 pb-8">
         <div>
            <div className="flex items-center gap-2">
-            <span className="h-1.5 w-8 rounded-full bg-mozhi-secondary" />
-            <span className="text-xs font-bold text-mozhi-secondary tracking-tight">Management</span>
+            <span className="h-1.5 w-8 rounded-full bg-secondary" />
+            <span className="text-xs font-bold text-secondary tracking-tight">Management</span>
           </div>
           <h1 className="text-3xl font-bold text-gray-800 tracking-tight leading-tight">Lessons & Curriculum</h1>
            <p className="mt-2 text-gray-500 font-medium">Manage modules, sections, and paths for the learning tree.</p>
         </div>
-        <button onClick={() => setShowCreate(true)} className="flex items-center gap-2 rounded-xl bg-mozhi-primary px-5 py-3 text-xs font-bold uppercase tracking-tight text-white shadow-lg shadow-mozhi-primary/20 hover:scale-105 transition">
+        <button onClick={() => setShowCreate(true)} className="flex items-center gap-2 rounded-xl bg-primary px-5 py-3 text-xs font-bold uppercase tracking-tight text-white shadow-lg shadow-primary/20 hover:scale-105 transition">
              <Plus className="h-4 w-4" /> Create Lesson Node
         </button>
       </div>
@@ -147,7 +147,7 @@ export default function AdminLessonsPage() {
             
             <div className="flex justify-end gap-3 mt-4">
               <button type="button" onClick={() => setShowCreate(false)} className="px-4 py-2 font-bold text-gray-500 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-xl">Cancel</button>
-              <button type="submit" disabled={creating} className="px-4 py-2 bg-mozhi-primary text-white font-bold rounded-xl flex items-center gap-2">
+              <button type="submit" disabled={creating} className="px-4 py-2 bg-primary text-white font-bold rounded-xl flex items-center gap-2">
                 {creating ? <Loader2 className="w-4 h-4 animate-spin" /> : "Save Lesson"}
               </button>
             </div>
@@ -156,7 +156,7 @@ export default function AdminLessonsPage() {
       )}
 
       {loading ? (
-        <div className="flex justify-center p-12"><Loader2 className="w-8 h-8 animate-spin text-mozhi-primary" /></div>
+        <div className="flex justify-center p-12"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>
       ) : (
         <div className="bg-white dark:bg-gray-800 border border-gray-100  rounded-2xl shadow-sm overflow-hidden auto-x-scroll">
           <table className="w-full text-left border-collapse">
@@ -173,13 +173,13 @@ export default function AdminLessonsPage() {
               {lessons.map(lesson => (
                 <tr key={lesson._id} className="border-b border-gray-100  hover:bg-gray-50 dark:hover:bg-gray-800/50">
                   <td className="p-4">
-                    <div className="font-bold text-mozhi-primary">{lesson.moduleName}</div>
+                    <div className="font-bold text-primary">{lesson.moduleName}</div>
                     <div className="text-sm font-semibold text-gray-500 mt-0.5">{lesson.sectionName}</div>
                   </td>
                   <td className="p-4 font-bold text-gray-800 dark:text-slate-100">{lesson.title}</td>
                   <td className="p-4 font-bold text-gray-800 dark:text-slate-100">{lesson.isPremiumOnly ? "Premium" : "Free"}</td>
                   <td className="p-4 text-right flex items-center justify-end gap-2">
-                    <button onClick={() => openActivities(lesson._id)} className="p-2 text-gray-400 hover:text-mozhi-primary bg-white dark:bg-slate-700 shadow-sm border dark:border-slate-600 rounded-lg transition" title="Manage Activities">
+                    <button onClick={() => openActivities(lesson._id)} className="p-2 text-gray-400 hover:text-primary bg-white dark:bg-slate-700 shadow-sm border dark:border-slate-600 rounded-lg transition" title="Manage Activities">
                        <ExternalLink className="w-4 h-4" />
                     </button>
                     <button onClick={() => handleDelete(lesson._id)} className="p-2 text-gray-400 hover:text-red-500 bg-white dark:bg-slate-700 shadow-sm border dark:border-slate-600 rounded-lg transition" title="Delete Lesson">
@@ -206,9 +206,9 @@ export default function AdminLessonsPage() {
                    <div className="space-y-3">
                      {questions.length === 0 && <p className="text-gray-500">No activities.</p>}
                      {questions.map(q => (
-                       <div key={q._id} className="p-4 border border-gray-100  rounded-xl hover:border-mozhi-primary">
+                       <div key={q._id} className="p-4 border border-gray-100  rounded-xl hover:border-primary">
                          <div className="flex justify-between items-start">
-                           <span className="bg-blue-100 dark:bg-blue-900/40 text-mozhi-primary dark:text-blue-300 text-xs px-2 py-1 rounded font-bold uppercase">{q.type}</span>
+                           <span className="bg-blue-100 dark:bg-blue-900/40 text-primary dark:text-blue-300 text-xs px-2 py-1 rounded font-bold uppercase">{q.type}</span>
                            <button onClick={() => handleDeleteActivity(q._id)} className="text-red-400 hover:text-red-600"><Trash2 className="w-4 h-4" /></button>
                          </div>
                          <p className="font-bold text-gray-800 dark:text-gray-200 mt-2">{q.text}</p>
