@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
-import Button from "@/components/common/Button";
+import Navbar from "@/components/layout/Navbar";
+import Footer from "@/components/layout/Footer";
+import Button from "@/components/ui/Button";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { getPublicBlogByIdOrSlug, deleteMyBlog, toggleSaveBlog, getPublicBlogs, Blog } from "@/services/blogService";
@@ -15,7 +15,7 @@ function readingTime(content: string) {
   return Math.max(1, Math.ceil(content.trim().split(/\s+/).length / 200));
 }
 
-import { hasPermission, ROLES } from "@/utils/roles";
+import { hasPermission, ROLES } from "@/lib/roles";
 
 export default function BlogDetailsPage() {
   const params  = useParams();

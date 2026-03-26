@@ -5,8 +5,8 @@ import { getAllBlogsForAdmin, updateBlogStatusAdmin, adminDeleteBlog, Blog } fro
 import { Trash2, CheckCircle, XCircle, Loader2, RefreshCw, AlertCircle, ExternalLink, Filter, Plus } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
-import { Pagination } from "@/components/Pagination";
-import Button from "@/components/common/Button";
+import { Pagination } from "@/components/ui/Pagination";
+import Button from "@/components/ui/Button";
 
 const statusConfig: Record<string, { label: string; className: string }> = {
   published: { label: "Published",  className: "bg-emerald-50 text-emerald-600 border-emerald-100" },

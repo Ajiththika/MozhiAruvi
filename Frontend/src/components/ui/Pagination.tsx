@@ -1,7 +1,7 @@
 import React from "react";
 import { ChevronLeft, ChevronRight, MoreHorizontal } from "lucide-react";
 import { cn } from "@/lib/utils";
-import Button from "@/components/common/Button";
+import Button from "@/components/ui/Button";
 
 interface PaginationProps {
   currentPage: number;
@@ -108,6 +108,8 @@ export function Pagination({
     </nav>
   );
 }
+
+export default Pagination;
 
 function PageButton({
   page,

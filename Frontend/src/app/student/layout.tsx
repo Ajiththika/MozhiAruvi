@@ -1,7 +1,7 @@
 import React from "react";
 import { Sidebar, SidebarItem } from "@/components/layout/Sidebar";
 import { Topbar } from "@/components/layout/Topbar";
-import { RoleProtectedRoute } from "@/components/auth/RoleProtectedRoute";
+import { RoleProtectedRoute } from "@/components/features/auth/RoleProtectedRoute";
 
 // Only plain serializable objects — no React components as values
 const studentLinks: SidebarItem[] = [

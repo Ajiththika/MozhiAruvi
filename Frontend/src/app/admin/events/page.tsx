@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { DataTable, ColumnDef } from "@/components/admin/DataTable";
+import { DataTable, ColumnDef } from "@/components/ui/DataTable";
 import { Calendar as CalendarIcon, MapPin, Users, Globe2, Trash2, PlusCircle, AlertCircle, Loader2 } from "lucide-react";
 import { getEvents, deleteEvent, createEvent, MozhiEvent, CreateEventPayload } from "@/services/eventService";
 

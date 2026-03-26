@@ -4,7 +4,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Play, HelpCircle, Loader2, AlertCircle, CheckCircle2, XCircle, Info, BookOpen, Mic, MicOff, SettingsIcon, Zap, MessageCircle, X, Send, User } from "lucide-react";
-import { getLessonById, getLessonQuestions, submitAnswers, evaluateSpeaking, Lesson, Question } from "@/services/lessonService";
+import { getLessonById, getLessonQuestions, submitAnswers, evaluateSpeaking, Lesson, Question, SubmitAnswerItem } from "@/services/lessonService";
 import { getMe, SafeUser } from "@/services/authService";
 import { consumeCredit } from "@/services/userService";
 import { getAvailableTutors, requestTutor, Tutor } from "@/services/tutorService";
@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/Button";
 import { Card, CardBody } from "@/components/ui/Card";
 import { Modal } from "@/components/ui/Modal";
 import { Input } from "@/components/ui/Input";
+import { Trophy } from "lucide-react";
 
 type Phase = "loading" | "ready" | "out_of_credits" | "completed" | "error";
 
@@ -160,7 +161,11 @@ export default function LessonInteractiveSession() {
   const handleSubmit = async () => {
     setSubmitting(true);
     try {
-      const res = await submitAnswers(id, selected);
+      const answers: SubmitAnswerItem[] = Object.entries(selected).map(([qId, idx]) => ({
+        questionId: qId,
+        selectedOptionIndex: idx,
+      }));
+      const res = await submitAnswers(id as string, answers);
       setScore(res);
       setPhase("completed");
     } catch (e) {
@@ -210,16 +215,16 @@ export default function LessonInteractiveSession() {
 
     setIsProcessingAudio(true);
     try {
-      const res = await evaluateSpeaking(id, q._id, audioBlob);
-      if (res.isCorrect) {
+      const res = await evaluateSpeaking(id as string, q._id, audioBlob as any);
+      if (res.passed) {
         setFeedback(prev => ({ ...prev, [q._id]: "correct" }));
-        setBackendMessage(prev => ({ ...prev, [q._id]: res.feedback }));
+        setBackendMessage(prev => ({ ...prev, [q._id]: res.message }));
         setTimeout(() => {
           if (currentQ < questions.length - 1) setCurrentQ(c => c + 1);
         }, 3000);
       } else {
         setFeedback(prev => ({ ...prev, [q._id]: "incorrect" }));
-        setBackendMessage(prev => ({ ...prev, [q._id]: res.feedback }));
+        setBackendMessage(prev => ({ ...prev, [q._id]: res.message }));
       }
     } catch (e) {
       console.error(e);
@@ -385,30 +390,28 @@ export default function LessonInteractiveSession() {
                   Question {currentQ + 1} of {questions.length}
                </div>
                <h2 className="text-3xl md:text-4xl lg:text-5xl font-black text-text-primary tracking-tight leading-tight">
-                 {q?.prompt || "Select the correct translation"}
+                 {q?.text || "Knowledge Assessment"}
                </h2>
-               {q?.metadata?.phonetic && (
+               {q?.expectedAudioText && (
                  <p className="text-xl font-medium text-text-secondary italic bg-surface-soft inline-block px-6 py-1 rounded-full border border-border">
-                   / {q.metadata.phonetic} /
+                   / {q.expectedAudioText} /
                  </p>
                )}
             </div>
 
-            {/* Visual Aid */}
-            {q?.attachmentUrl && (
-              <div className="h-64 sm:h-80 w-full max-w-2xl bg-surface rounded-[3rem] p-1 border-4 border-surface shadow-3xl overflow-hidden group">
-                 <img 
-                    src={q.attachmentUrl} 
-                    alt="Linguistic Context" 
-                    className="w-full h-full object-cover rounded-[2.8rem] transition-transform duration-700 group-hover:scale-105" 
-                 />
-              </div>
-            )}
+            {/* Interaction State Visualizer */}
+            <div className="h-1 bg-surface-soft w-full max-w-2xl rounded-full overflow-hidden">
+               <div className={cn(
+                 "h-full bg-primary transition-all duration-700",
+                 feedback[q._id] === "correct" ? "w-full bg-emerald-500" :
+                 feedback[q._id] === "incorrect" ? "w-1/2 bg-error" : "w-1/4"
+               )} />
+            </div>
 
             {/* Input System: Multiple Choice */}
             {q?.type === "choice" && (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 w-full max-w-4xl pt-8">
-                {q.options.map((opt, idx) => {
+                {q.options?.map((opt, idx) => {
                   const isCorrect = feedback[q._id] === "correct" && selected[q._id] === idx;
                   const isIncorrect = feedback[q._id] === "incorrect" && selected[q._id] === idx;
                   const isSelected = selected[q._id] === idx;
@@ -591,8 +594,8 @@ export default function LessonInteractiveSession() {
                     )}
                   >
                     <div className="h-16 w-16 rounded-2xl bg-surface-soft border border-border flex items-center justify-center p-1 group-hover:scale-110 transition-transform">
-                      {t.profileImage ? (
-                        <img src={t.profileImage} alt={t.name} className="w-full h-full object-cover rounded-xl" />
+                      {t.profilePhoto ? (
+                        <img src={t.profilePhoto} alt={t.name} className="w-full h-full object-cover rounded-xl" />
                       ) : (
                         <User className="h-8 w-8 text-text-tertiary" />
                       )}

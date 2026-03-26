@@ -1,20 +1,20 @@
 "use client";
 
 import React, { useEffect, useState, useMemo } from "react";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
+import Navbar from "@/components/layout/Navbar";
+import Footer from "@/components/layout/Footer";
 import { Search, ArrowRight, UserCircle, Loader2, BookOpen, Plus, FileText, Trash2, Edit2, Share2, Check } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { getPublicBlogs, getSavedBlogs, getMyBlogs, deleteMyBlog, Blog } from "@/services/blogService";
 import { useAuth } from "@/context/AuthContext";
 import { cn } from "@/lib/utils";
-import { hasPermission, ROLES } from "@/utils/roles";
+import { hasPermission, ROLES } from "@/lib/roles";
 
 type ViewTab = "all" | "saved" | "drafts";
 
-import Button from "@/components/common/Button";
-import { Pagination } from "@/components/Pagination";
+import Button from "@/components/ui/Button";
+import { Pagination } from "@/components/ui/Pagination";
 
 export default function BlogsPage() {
   const router = useRouter();

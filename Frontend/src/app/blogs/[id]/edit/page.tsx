@@ -6,7 +6,7 @@ import { useRouter, useParams } from "next/navigation";
 import { ArrowLeft, Loader2, CheckCircle2, AlertCircle, Save, Send, BookOpen, UserCircle, LayoutGrid, Image as ImageIcon, FileText, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
-import Button from "@/components/common/Button";
+import Button from "@/components/ui/Button";
 
 const CATEGORIES = ["Grammar", "Culture", "Pronunciation", "Tutor Tips", "Updates", "General"];
 

@@ -6,9 +6,9 @@ import React, { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { User as UserIcon, LogOut, LayoutDashboard, Settings, Award } from "lucide-react";
 import { useRouter } from "next/navigation";
-import Button from "@/components/common/Button";
+import Button from "@/components/ui/Button";
 import { getRoleDashboardRoute } from "@/lib/roleUtils";
-import { hasPermission, ROLES } from "@/utils/roles";
+import { hasPermission, ROLES } from "@/lib/roles";
 
 export default function Navbar() {
   const { user, isLoading, logoutUser } = useAuth();

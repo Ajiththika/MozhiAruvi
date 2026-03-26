@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { UserCircle, Mail, MapPin, Phone, Hash, Save, AlertCircle, CheckCircle, Globe, Sparkles, Camera, Trash2, GraduationCap, Clock, ChevronDown, ChevronUp } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import api from "@/lib/api";
-import Button from "@/components/common/Button";
+import Button from "@/components/ui/Button";
 import { getMyApplication, submitApplication, TeacherApplication, ApplicationPayload } from "@/services/teacherApplicationService";
 
 function TutorApplicationSection() {

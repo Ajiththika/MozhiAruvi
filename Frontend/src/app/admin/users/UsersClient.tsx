@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { DataTable, ColumnDef } from "@/components/admin/DataTable";
+import { DataTable, ColumnDef } from "@/components/ui/DataTable";
 import { Loader2, AlertCircle, ShieldCheck, ShieldAlert, CheckCircle2, XCircle, Edit2, User, Globe, Phone, Hash } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -11,7 +11,7 @@ import {
   updateUserAdmin,
   BaseUser,
 } from "@/services/adminService";
-import { Pagination } from "@/components/Pagination";
+import { Pagination } from "@/components/ui/Pagination";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
 import { Input } from "@/components/ui/Input";

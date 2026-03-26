@@ -6,25 +6,26 @@ import { Button } from "@/components/ui/Button";
 export interface EventCardProps {
   id: string;
   title: string;
-  type: "Workshop" | "Webinar" | "Meetup" | string;
+  type?: "Workshop" | "Webinar" | "Meetup" | string;
   date: string;
   time: string;
   participantsCount?: number;
   attendees?: number;
   capacity: number;
   maxAttendees?: number;
-  hostName: string;
+  hostName?: string;
   location?: string;
   image?: string;
   isJoined?: boolean;
   isLoading?: boolean;
   onRsvp?: () => void;
+  createdBy?: { name?: string };
 }
 
 export function EventCard({
   id,
   title,
-  type,
+  type = "Community Event",
   date,
   time,
   participantsCount,
@@ -32,6 +33,7 @@ export function EventCard({
   capacity,
   maxAttendees,
   hostName,
+  createdBy,
   location,
   image,
   isJoined = false,
@@ -41,6 +43,7 @@ export function EventCard({
   const joined = participantsCount ?? attendees ?? 0;
   const max = capacity ?? maxAttendees ?? 0;
   const isFull = joined >= max;
+  const hName = hostName ?? createdBy?.name ?? "MozhiAruvi";
 
   return (
     <Card variant="elevated" padding="none" className="flex flex-col group h-full">
@@ -93,7 +96,7 @@ export function EventCard({
             <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center text-gray-400">
               <MapPin className="h-4 w-4" />
             </div>
-            <span className="truncate">{location ? location : `Hosted by ${hostName}`}</span>
+            <span className="truncate">{location ? location : `Hosted by ${hName}`}</span>
           </div>
         </div>
       </CardBody>

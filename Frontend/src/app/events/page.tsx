@@ -1,15 +1,15 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
+import Navbar from "@/components/layout/Navbar";
+import Footer from "@/components/layout/Footer";
 import { Button } from "@/components/ui/Button";
 import { Card, CardBody } from "@/components/ui/Card";
 import { getEvents, MozhiEvent, submitJoinRequest, JoinRequestPayload } from "@/services/eventService";
-import { Pagination } from "@/components/Pagination";
+import { Pagination } from "@/components/ui/Pagination";
 import { Loader2, Clock, MapPin, User, ChevronRight, Lock, Info, Calendar } from "lucide-react";
-import { EventCard } from "@/components/common/EventCard";
-import RegistrationModal from "@/components/common/RegistrationModal";
+import { EventCard } from "@/components/features/events/EventCard";
+import RegistrationModal from "@/components/features/events/RegistrationModal";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 

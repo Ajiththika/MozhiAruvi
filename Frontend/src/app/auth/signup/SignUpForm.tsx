@@ -8,7 +8,7 @@ import { register } from '@/services/authService';
 import { getRoleDashboardRoute } from '@/lib/roleUtils';
 import { isAxiosError } from 'axios';
 import { useAuth } from '@/context/AuthContext';
-import Button from '@/components/common/Button';
+import Button from '@/components/ui/Button';
 
 export default function SignUpForm() {
   const router = useRouter();

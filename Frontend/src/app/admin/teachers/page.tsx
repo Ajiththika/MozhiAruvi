@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { DataTable, ColumnDef } from "@/components/admin/DataTable";
+import { DataTable, ColumnDef } from "@/components/ui/DataTable";
 import { Loader2, AlertCircle, CheckCircle2, XCircle, MessageSquare, X, RefreshCw } from "lucide-react";
 import {
   getTeacherApplications,
@@ -10,8 +10,8 @@ import {
   requestRevisionTeacherApplication,
   TeacherApplication,
 } from "@/services/adminService";
-import { Pagination } from "@/components/Pagination";
-import Button from "@/components/common/Button";
+import { Pagination } from "@/components/ui/Pagination";
+import Button from "@/components/ui/Button";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 

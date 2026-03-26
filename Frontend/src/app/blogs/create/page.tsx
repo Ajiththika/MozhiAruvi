@@ -6,11 +6,11 @@ import { useRouter } from "next/navigation";
 import { ArrowLeft, Loader2, CheckCircle2, AlertCircle, Save, Send, UserCircle, Image as ImageIcon, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
-import Button from "@/components/common/Button";
+import Button from "@/components/ui/Button";
 
 const CATEGORIES = ["Grammar", "Culture", "Pronunciation", "Tutor Tips", "Updates", "General"];
 
-import { hasPermission, ROLES } from "@/utils/roles";
+import { hasPermission, ROLES } from "@/lib/roles";
 
 export default function CreateBlogPage() {
   const router = useRouter();

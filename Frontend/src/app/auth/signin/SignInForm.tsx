@@ -9,7 +9,7 @@ import { getRoleDashboardRoute } from '@/lib/roleUtils';
 import { isAxiosError } from 'axios';
 import { useAuth } from '@/context/AuthContext';
 import { useEffect } from 'react';
-import Button from '@/components/common/Button';
+import Button from '@/components/ui/Button';
 
 export default function SignInForm() {
   const router = useRouter();

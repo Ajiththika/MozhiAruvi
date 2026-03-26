@@ -1,13 +1,13 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { StatCard } from "@/components/common/StatCard";
+import { StatCard } from "@/components/features/dashboard/StatCard";
 import { Users, GraduationCap, BookOpen, Calendar, Loader2, AlertCircle, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { getAllUsers, getAllTutors, getTeacherApplications, getAdminStats, AdminStats, BaseUser, TeacherApplication } from "@/services/adminService";
 import { getEvents, MozhiEvent } from "@/services/eventService";
 import { getMe, SafeUser } from "@/services/authService";
-import Button from "@/components/common/Button";
+import Button from "@/components/ui/Button";
 
 function StatusBadge({ status }: { status: TeacherApplication["status"] }) {
   const map: Record<string, string> = {

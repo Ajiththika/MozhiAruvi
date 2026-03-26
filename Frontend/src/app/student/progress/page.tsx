@@ -1,6 +1,6 @@
 import React from "react";
 import { Award, Flame, Target, Trophy, TrendingUp } from "lucide-react";
-import { StatCard } from "@/components/common/StatCard";
+import { StatCard } from "@/components/features/dashboard/StatCard";
 
 export default function StudentProgressPage() {
    return (

@@ -92,3 +92,5 @@ export function Modal({
     </div>
   );
 }
+
+export default Modal;

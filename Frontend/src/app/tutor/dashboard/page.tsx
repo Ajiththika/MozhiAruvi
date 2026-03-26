@@ -1,14 +1,14 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { StatCard } from "@/components/common/StatCard";
+import { StatCard } from "@/components/features/dashboard/StatCard";
 import { Users, MessageSquare, Star, ToggleRight, ToggleLeft, Loader2, AlertCircle, ArrowRight, Video, Layers, Sparkles, CheckCircle2, PenTool } from "lucide-react";
 import Link from "next/link";
 import { getMe, SafeUser } from "@/services/authService";
 import { getPendingRequests, TutorRequest, updateTutorAvailability } from "@/services/tutorService";
 import { getMyEvents, MozhiEvent } from "@/services/eventService";
 import { cn } from "@/lib/utils";
-import Button from "@/components/common/Button";
+import Button from "@/components/ui/Button";
 
 export default function TutorDashboard() {
   const [user, setUser] = useState<SafeUser | null>(null);

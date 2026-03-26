@@ -3,8 +3,8 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
+import Navbar from "@/components/layout/Navbar";
+import Footer from "@/components/layout/Footer";
 import {
   ArrowLeft, AlertCircle, Globe, Wifi, Layers,
   BookOpen, MessageSquare, GraduationCap, Video, Sparkles, UserCheck2,
@@ -13,7 +13,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { getTutorById, Tutor } from "@/services/tutorService";
 import { cn } from "@/lib/utils";
-import { TutorRequestModal } from "@/components/student/TutorRequestModal";
+import { TutorRequestModal } from "@/components/features/tutors/TutorRequestModal";
 
 const levelColors: Record<string, string> = {
   beginner:     "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400",

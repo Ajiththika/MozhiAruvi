@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { StatCard } from "@/components/common/StatCard";
+import { StatCard } from "@/components/features/dashboard/StatCard";
 import { 
   BookOpen, Flame, Trophy, AlertCircle, ArrowRight, 
   PenTool, BookMarked, MessageSquare, 
