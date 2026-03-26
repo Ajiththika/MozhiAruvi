@@ -7,6 +7,7 @@ import { User as UserIcon, LogOut, LayoutDashboard, Settings, Award } from "luci
 import { useRouter } from "next/navigation";
 import Button from "@/components/common/Button";
 import { getRoleDashboardRoute } from "@/lib/roleUtils";
+import { hasPermission, ROLES } from "@/utils/roles";
 
 export default function Navbar() {
   const { user, isLoading, logoutUser } = useAuth();
@@ -97,6 +98,17 @@ export default function Navbar() {
                       <LayoutDashboard size={16} />
                       My Dashboard
                     </Link>
+
+                    {hasPermission(user.role, [ROLES.ADMIN, ROLES.TEACHER]) && (
+                      <Link
+                        href="/student/blogs/create"
+                        onClick={() => setIsMenuOpen(false)}
+                        className="flex items-center gap-2 px-4 py-2 text-sm text-primary font-bold hover:bg-primary/5 transition-colors"
+                      >
+                        <Award size={16} className="text-primary" />
+                        Write a Story
+                      </Link>
+                    )}
                     
                     {user.role === 'user' && (
                       <div className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 bg-gray-50/30 font-semibold">

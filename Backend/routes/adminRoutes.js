@@ -3,37 +3,38 @@ import * as adminController from '../controllers/adminController.js';
 import * as teacherApplicationController from '../controllers/teacherApplicationController.js';
 import * as eventController from '../controllers/eventController.js';
 import { authenticate } from '../middleware/auth.js';
-import { requireRole } from '../middleware/rbac.js';
+import { authorizeRoles } from '../middleware/authorizeRoles.js';
+import { ROLES } from '../utils/roles.js';
 
 const router = Router();
 
 // Retrieve all users (admins can view)
-router.get('/stats', authenticate, requireRole('admin'), adminController.getStats);
-router.get('/users', authenticate, requireRole('admin'), adminController.getUsers);
+router.get('/stats', authenticate, authorizeRoles(ROLES.ADMIN), adminController.getStats);
+router.get('/users', authenticate, authorizeRoles(ROLES.ADMIN), adminController.getUsers);
 
 // Retrieve all tutors (admins can view)
-router.get('/tutors', authenticate, requireRole('admin'), adminController.getTutors);
+router.get('/tutors', authenticate, authorizeRoles(ROLES.ADMIN), adminController.getTutors);
 
 // Admin functions
-router.patch('/users/:id/deactivate', authenticate, requireRole('admin'), adminController.deactivateUser);
-router.patch('/users/:id/activate', authenticate, requireRole('admin'), adminController.activateUser);
-router.patch('/users/:id/edit', authenticate, requireRole('admin'), adminController.editUser);
+router.patch('/users/:id/deactivate', authenticate, authorizeRoles(ROLES.ADMIN), adminController.deactivateUser);
+router.patch('/users/:id/activate', authenticate, authorizeRoles(ROLES.ADMIN), adminController.activateUser);
+router.patch('/users/:id/edit', authenticate, authorizeRoles(ROLES.ADMIN), adminController.editUser);
 
 // Admin functions
-router.patch('/users/:id/tutor-status', authenticate, requireRole('admin'), adminController.changeTutorStatus);
+router.patch('/users/:id/tutor-status', authenticate, authorizeRoles(ROLES.ADMIN), adminController.changeTutorStatus);
 
 // ── Teacher Application Management ──────────────────────────────────────────
-router.get('/teacher-applications', authenticate, requireRole('admin'), teacherApplicationController.getTeacherApplications);
-router.patch('/teacher-applications/:id/approve', authenticate, requireRole('admin'), teacherApplicationController.approveTeacherApplication);
-router.patch('/teacher-applications/:id/reject', authenticate, requireRole('admin'), teacherApplicationController.rejectTeacherApplication);
-router.patch('/teacher-applications/:id/request-revision', authenticate, requireRole('admin'), teacherApplicationController.requestRevisionTeacherApplication);
+router.get('/teacher-applications', authenticate, authorizeRoles(ROLES.ADMIN), teacherApplicationController.getTeacherApplications);
+router.patch('/teacher-applications/:id/approve', authenticate, authorizeRoles(ROLES.ADMIN), teacherApplicationController.approveTeacherApplication);
+router.patch('/teacher-applications/:id/reject', authenticate, authorizeRoles(ROLES.ADMIN), teacherApplicationController.rejectTeacherApplication);
+router.patch('/teacher-applications/:id/request-revision', authenticate, authorizeRoles(ROLES.ADMIN), teacherApplicationController.requestRevisionTeacherApplication);
 
 // ── Event Join Request Management ────────────────────────────────────────────
 // GET  /api/admin/events/join-requests?eventId=&status=
-router.get('/events/join-requests', authenticate, requireRole('admin'), eventController.listJoinRequests);
+router.get('/events/join-requests', authenticate, authorizeRoles(ROLES.ADMIN), eventController.listJoinRequests);
 // PATCH /api/admin/events/join-requests/:id/approve
-router.patch('/events/join-requests/:id/approve', authenticate, requireRole('admin'), eventController.approveJoinRequest);
+router.patch('/events/join-requests/:id/approve', authenticate, authorizeRoles(ROLES.ADMIN), eventController.approveJoinRequest);
 // PATCH /api/admin/events/join-requests/:id/reject
-router.patch('/events/join-requests/:id/reject', authenticate, requireRole('admin'), eventController.rejectJoinRequest);
+router.patch('/events/join-requests/:id/reject', authenticate, authorizeRoles(ROLES.ADMIN), eventController.rejectJoinRequest);
 
 export default router;

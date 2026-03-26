@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { getAllBlogsForAdmin, updateBlogStatusAdmin, adminDeleteBlog, Blog } from "@/services/blogService";
-import { Trash2, CheckCircle, XCircle, Loader2, RefreshCw, AlertCircle, ExternalLink, Filter } from "lucide-react";
+import { Trash2, CheckCircle, XCircle, Loader2, RefreshCw, AlertCircle, ExternalLink, Filter, Plus } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { Pagination } from "@/components/Pagination";
@@ -90,7 +90,7 @@ export default function AdminBlogsPage() {
             size="md"
             className="rounded-xl shadow-xl shadow-primary/20"
           >
-            Create admin post
+            <Plus className="w-4 h-4 mr-2" /> Write Story
           </Button>
           <button
             onClick={() => fetchBlogs(currentPage)}
@@ -101,29 +101,7 @@ export default function AdminBlogsPage() {
         </div>
       </div>
 
-      {/* Filter Tabs */}
-      <div className="flex items-center gap-2 mb-10 overflow-x-auto pb-4 no-scrollbar">
-        <Filter className="w-4 h-4 text-gray-400 mr-2 shrink-0" />
-        {["all", "pending", "published", "rejected", "draft"].map((s) => (
-          <button
-            key={s}
-            onClick={() => { setStatusFilter(s); setCurrentPage(1); }}
-            className={cn(
-              "whitespace-nowrap rounded-full px-5 py-2 text-sm font-bold capitalize transition-all",
-              statusFilter === s
-                ? "bg-white text-white shadow-lg shadow-slate-900/10"
-                : "bg-white border border-gray-100 text-gray-500 hover:text-gray-800 hover:border-slate-400"
-            )}
-          >
-            {s === "all" ? "All posts" : s}
-            {s !== "all" && (
-              <span className="ml-2 text-xs opacity-50">
-                {blogs.filter((b) => b.status === s).length}
-              </span>
-            )}
-          </button>
-        ))}
-      </div>
+
 
       {/* Error / Loading */}
       {error && (

@@ -56,15 +56,9 @@ export default function TutorEventsPage() {
             Hosted Events <CalendarDays className="h-6 w-6 text-primary" />
           </h2>
           <p className="mt-1 text-sm font-medium text-gray-500">
-            Manage workshops or meetups you are hosting for your students.
+            View workshops or meetups you are hosting for your students.
           </p>
         </div>
-        <button
-          onClick={() => setShowCreate(!showCreate)}
-          className="flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-primary/90 active:scale-95"
-        >
-          <PlusCircle className="h-4 w-4" /> {showCreate ? "Cancel" : "Create New Event"}
-        </button>
       </div>
 
       {error && (
@@ -72,62 +66,6 @@ export default function TutorEventsPage() {
           <AlertCircle className="h-5 w-5 shrink-0" /> {error}
           <button onClick={() => setError(null)} className="ml-auto text-xs font-bold underline">Dismiss</button>
         </div>
-      )}
-
-      {/* Create Event Form */}
-      {showCreate && (
-        <form onSubmit={handleCreate} className="rounded-[2rem] border border-primary/10 bg-primary/5 p-8 space-y-5 animate-in slide-in-from-top-2 duration-300">
-          <h3 className="text-lg font-bold text-gray-800">New Event Details</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Event Code *</label>
-              <input required value={form.eventCode} onChange={e => setForm(f => ({ ...f, eventCode: e.target.value.toUpperCase() }))}
-                placeholder="e.g. TAMIL-WS-01"
-                className="w-full rounded-xl border border-gray-100 bg-white px-4 py-2.5 text-sm font-medium outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all" />
-            </div>
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Title *</label>
-              <input required value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
-                placeholder="e.g. Tamil Cinema Slang Workshop"
-                className="w-full rounded-xl border border-gray-100 bg-white px-4 py-2.5 text-sm font-medium outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all" />
-            </div>
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Date *</label>
-              <input required type="date" min={today} value={form.date} onChange={e => setForm(f => ({ ...f, date: e.target.value }))}
-                className="w-full rounded-xl border border-gray-100 bg-white px-4 py-2.5 text-sm font-medium outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all" />
-            </div>
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Time *</label>
-              <input required type="time" value={form.time} onChange={e => setForm(f => ({ ...f, time: e.target.value }))}
-                className="w-full rounded-xl border border-gray-100 bg-white px-4 py-2.5 text-sm font-medium outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all" />
-            </div>
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Capacity *</label>
-              <input required type="number" min={1} max={500} value={form.capacity} onChange={e => setForm(f => ({ ...f, capacity: Number(e.target.value) }))}
-                className="w-full rounded-xl border border-gray-100 bg-white px-4 py-2.5 text-sm font-medium outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all" />
-            </div>
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Location / Link *</label>
-              <input required value={form.location} onChange={e => setForm(f => ({ ...f, location: e.target.value }))}
-                placeholder="Online (Google Meet) or venue"
-                className="w-full rounded-xl border border-gray-100 bg-white px-4 py-2.5 text-sm font-medium outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all" />
-            </div>
-          </div>
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Description *</label>
-            <textarea required rows={3} value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
-              placeholder="What will students learn or experience?"
-              className="w-full resize-none rounded-xl border border-gray-100 bg-white px-4 py-2.5 text-sm font-medium outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all" />
-          </div>
-          <div className="flex justify-end gap-3">
-            <button type="button" onClick={() => setShowCreate(false)} className="rounded-xl border border-gray-100 px-6 py-2.5 text-sm font-bold text-gray-500 hover:bg-gray-50 transition-colors">
-              Cancel
-            </button>
-            <button type="submit" disabled={creating} className="rounded-xl bg-primary px-8 py-2.5 text-sm font-bold text-white hover:bg-primary/90 disabled:opacity-60 transition-all active:scale-95">
-              {creating ? "Creating..." : "Create Event"}
-            </button>
-          </div>
-        </form>
       )}
 
       {loading ? (

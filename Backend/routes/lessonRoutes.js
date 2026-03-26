@@ -1,7 +1,8 @@
 import { Router } from 'express';
 import * as lessonController from '../controllers/lessonController.js';
 import { authenticate } from '../middleware/auth.js';
-import { requireRole } from '../middleware/rbac.js';
+import { authorizeRoles } from '../middleware/authorizeRoles.js';
+import { ROLES } from '../utils/roles.js';
 import { validate } from '../middleware/validate.js';
 import { z } from 'zod';
 
@@ -57,10 +58,10 @@ router.post('/:id/submit', authenticate, validate(submitAnswersSchema), lessonCo
 router.post('/:id/evaluate-speaking', authenticate, validate(evaluateSpeakingSchema), lessonController.evaluateSpeaking);
 
 // ── Admin Endpoints ───────────────────────────────────────────────────────────
-router.post('/', authenticate, requireRole('admin'), validate(createLessonSchema), lessonController.createLesson);
-router.patch('/:id', authenticate, requireRole('admin'), validate(updateLessonSchema), lessonController.updateLesson);
-router.delete('/:id', authenticate, requireRole('admin'), lessonController.deleteLesson);
+router.post('/', authenticate, authorizeRoles(ROLES.ADMIN), validate(createLessonSchema), lessonController.createLesson);
+router.patch('/:id', authenticate, authorizeRoles(ROLES.ADMIN), validate(updateLessonSchema), lessonController.updateLesson);
+router.delete('/:id', authenticate, authorizeRoles(ROLES.ADMIN), lessonController.deleteLesson);
 
-router.post('/:id/questions', authenticate, requireRole('admin'), validate(createQuestionSchema), lessonController.createQuestion);
+router.post('/:id/questions', authenticate, authorizeRoles(ROLES.ADMIN), validate(createQuestionSchema), lessonController.createQuestion);
 
 export default router;

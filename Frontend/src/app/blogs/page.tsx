@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 import { getPublicBlogs, getSavedBlogs, getMyBlogs, deleteMyBlog, Blog } from "@/services/blogService";
 import { useAuth } from "@/context/AuthContext";
 import { cn } from "@/lib/utils";
+import { hasPermission, ROLES } from "@/utils/roles";
 
 type ViewTab = "all" | "saved" | "drafts";
 
@@ -119,24 +120,26 @@ export default function BlogsPage() {
             </p>
           </div>
 
-          <div className="flex flex-col sm:flex-row items-center gap-5 pt-6">
-            <button
-              onClick={() => {
-                const target = "/student/blogs/create";
-                if (!user) {
-                  router.push(`/auth/signin?redirect=${encodeURIComponent(target)}`);
-                } else {
-                  router.push(target);
-                }
-              }}
-              className="w-full sm:w-auto px-10 rounded-2xl bg-primary py-4 text-sm font-bold text-white shadow-xl shadow-primary/10 transition-all hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center"
-            >
-              <Plus className="w-5 h-5 mr-2" /> Start Writing
-            </button>
-            <Button href="#feed" variant="secondary" size="lg" className="w-full sm:w-auto px-10 border-primary text-primary hover:bg-primary/5">
-              Explore Feed
-            </Button>
-          </div>
+          {(hasPermission(user?.role, [ROLES.ADMIN, ROLES.TEACHER]) || !user) && (
+            <div className="flex flex-col sm:flex-row items-center gap-5 pt-6">
+              <button
+                onClick={() => {
+                  const target = "/student/blogs/create";
+                  if (!user) {
+                    router.push(`/auth/signin?redirect=${encodeURIComponent(target)}`);
+                  } else {
+                    router.push(target);
+                  }
+                }}
+                className="w-full sm:w-auto px-10 rounded-2xl bg-primary py-4 text-sm font-bold text-white shadow-xl shadow-primary/10 transition-all hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center"
+              >
+                <Plus className="w-5 h-5 mr-2" /> Start Writing
+              </button>
+              <Button href="#feed" variant="secondary" size="lg" className="w-full sm:w-auto px-10 border-primary text-primary hover:bg-primary/5">
+                Explore Feed
+              </Button>
+            </div>
+          )}
         </div>
 
         {/* Management & Discovery Bar */}

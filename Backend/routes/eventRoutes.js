@@ -2,7 +2,8 @@ import { Router } from 'express';
 import { z } from 'zod';
 import * as eventController from '../controllers/eventController.js';
 import { authenticate, authenticateOptional } from '../middleware/auth.js';
-import { requireRole } from '../middleware/rbac.js';
+import { authorizeRoles } from '../middleware/authorizeRoles.js';
+import { ROLES } from '../utils/roles.js';
 import { validate } from '../middleware/validate.js';
 
 const router = Router();
@@ -82,7 +83,7 @@ router.get('/', authenticateOptional, eventController.listEvents);
 router.get('/my-requests', authenticate, eventController.getMyJoinRequests);
 
 // GET /api/events/my-events — tutor sees their own created events
-router.get('/my-events', authenticate, requireRole('teacher'), eventController.getMyEvents);
+router.get('/my-events', authenticate, authorizeRoles(ROLES.TEACHER), eventController.getMyEvents);
 
 // GET /api/events/:id — single event detail
 router.get('/:id', authenticateOptional, eventController.getEvent);
@@ -95,13 +96,11 @@ router.post(
     eventController.submitJoinRequest
 );
 
-// ── Admin Routes ──────────────────────────────────────────────────────────────
-
 // POST /api/events — create event
 router.post(
     '/',
     authenticate,
-    requireRole('admin', 'teacher'),
+    authorizeRoles(ROLES.ADMIN),
     validate(createEventSchema),
     eventController.createEvent
 );
@@ -110,7 +109,7 @@ router.post(
 router.patch(
     '/:id',
     authenticate,
-    requireRole('admin', 'teacher'),
+    authorizeRoles(ROLES.ADMIN),
     validate(updateEventSchema),
     eventController.updateEvent
 );
@@ -119,7 +118,7 @@ router.patch(
 router.delete(
     '/:id',
     authenticate,
-    requireRole('admin'),
+    authorizeRoles(ROLES.ADMIN),
     eventController.deleteEvent
 );
 

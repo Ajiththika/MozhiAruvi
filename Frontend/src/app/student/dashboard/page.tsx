@@ -298,23 +298,25 @@ export default function StudentDashboard() {
           </div>
 
           {/* Prompt Section */}
-          <div className="bg-white rounded-[2.5rem] p-10 text-white shadow-2xl relative overflow-hidden group">
-             <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-primary/20 to-transparent pointer-events-none" />
-             <div className="relative z-10 space-y-6">
-                <div className="h-12 w-12 rounded-2xl bg-white/10 flex items-center justify-center border border-white/10 group-hover:scale-110 transition-transform">
-                   <PenTool className="w-6 h-6 text-primary" />
-                </div>
-                <div className="space-y-2">
-                   <h4 className="text-lg font-bold tracking-tight">Share your journey</h4>
-                   <p className="text-sm text-gray-400 font-medium leading-relaxed">
-                      Write cultural stories, language tips, or personal experiences for the community.
-                   </p>
-                </div>
-                <Button href="/student/blogs/create" variant="primary" className="w-full h-14 rounded-2xl bg-primary text-white border-none hover:bg-white hover:text-gray-800 transition-colors">
-                   Start a Story
-                </Button>
-             </div>
-          </div>
+          {user?.role !== 'user' && (
+            <div className="bg-white rounded-[2.5rem] p-10 text-white shadow-2xl relative overflow-hidden group">
+               <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-primary/20 to-transparent pointer-events-none" />
+               <div className="relative z-10 space-y-6">
+                  <div className="h-12 w-12 rounded-2xl bg-white/10 flex items-center justify-center border border-white/10 group-hover:scale-110 transition-transform">
+                     <PenTool className="w-6 h-6 text-primary" />
+                  </div>
+                  <div className="space-y-2">
+                     <h4 className="text-lg font-bold tracking-tight">Share your journey</h4>
+                     <p className="text-sm text-gray-400 font-medium leading-relaxed">
+                        Write cultural stories, language tips, or personal experiences for the community.
+                     </p>
+                  </div>
+                  <Button href="/student/blogs/create" variant="primary" className="w-full h-14 rounded-2xl bg-primary text-white border-none hover:bg-white hover:text-gray-800 transition-colors">
+                     Start a Story
+                  </Button>
+               </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

@@ -3,19 +3,32 @@
 import React, { useState } from "react";
 import { createBlog } from "@/services/blogService";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Loader2, CheckCircle2, AlertCircle, Save, Send, BookOpen, UserCircle, LayoutGrid, Image as ImageIcon, FileText, Sparkles } from "lucide-react";
+import { ArrowLeft, Loader2, CheckCircle2, AlertCircle, Save, Send, UserCircle, Image as ImageIcon, Sparkles } from "lucide-react";
 import Link from "next/link";
-import { cn } from "@/lib/utils";
+import { useAuth } from "@/context/AuthContext";
 import Button from "@/components/common/Button";
 
 const CATEGORIES = ["Grammar", "Culture", "Pronunciation", "Tutor Tips", "Updates", "General"];
 
-const labelCls = "text-xs font-bold text-gray-400 tracking-tight ml-2 mb-2 block";
-const inputCls = "w-full rounded-2xl border border-gray-100  bg-gray-50 px-6 py-4 text-sm font-medium text-gray-800 dark:text-white placeholder:text-gray-300 focus:ring-4 focus:ring-primary/5 focus:border-primary outline-none transition-all shadow-sm";
+import { hasPermission, ROLES } from "@/utils/roles";
 
 export default function CreateBlogPage() {
   const router = useRouter();
+  const { user, isLoading } = useAuth();
   const [submitting, setSubmitting] = useState(false);
+  
+  // Protect page
+  React.useEffect(() => {
+    if (!isLoading) {
+      if (!user) {
+        router.push(`/auth/signin?redirect=${encodeURIComponent("/student/blogs/create")}`);
+      } else if (!hasPermission(user.role, [ROLES.ADMIN, ROLES.TEACHER])) {
+        // Redirect to a dashboard or access denied
+        router.push("/auth/signin"); 
+      }
+    }
+  }, [user, isLoading, router]);
+
   const [banner, setBanner] = useState<{ type: "success" | "error"; message: string } | null>(null);
   const [form, setForm] = useState({
     title: "", content: "", excerpt: "", category: "General", featuredImage: "",
@@ -47,166 +60,150 @@ export default function CreateBlogPage() {
     }
   };
 
-  const wordCount = form.content.trim() ? form.content.trim().split(/\s+/).length : 0;
-
   return (
-    <div className="animate-in fade-in duration-700 max-w-6xl mx-auto py-10">
-      <Link href="/student/blogs" className="group mb-12 inline-flex items-center gap-2 text-xs font-bold text-gray-400 hover:text-primary transition-colors tracking-tight">
-        <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" /> Back to studio
-      </Link>
+    <div className="min-h-screen bg-white">
+      {/* Top Bar - Medium Style */}
+      <nav className="fixed top-0 z-50 w-full bg-white/80 backdrop-blur-md border-b border-gray-50 h-16">
+        <div className="max-w-[1000px] mx-auto px-4 h-full flex items-center justify-between">
+          <div className="flex items-center gap-4">
+             <Link href="/student/blogs" className="text-gray-400 hover:text-gray-800 transition-colors">
+                <ArrowLeft size={20} />
+             </Link>
+             <Link href="/" className="text-xl font-bold text-gray-800">
+                Mozhi<span className="text-primary italic">Aruvi</span>
+             </Link>
+          </div>
 
-      <div className="flex flex-col lg:flex-row gap-16">
-        {/* Editor Form */}
-        <div className="flex-1 space-y-10">
-           <div className="space-y-4">
-              <div className="flex items-center gap-2">
-                 <Sparkles className="w-5 h-5 text-primary" />
-                 <span className="text-xs font-bold text-primary tracking-tight">Story Studio</span>
-              </div>
-              <h1 className="text-4xl md:text-5xl font-bold text-gray-800 dark:text-white tracking-tight leading-none">
-                Write a new <span className="text-primary italic">story</span>
-              </h1>
-              <p className="text-gray-500 font-medium max-w-lg leading-relaxed">Capture your Tamil heritage and insights. Your words shape our vibrant community.</p>
-           </div>
-
-           {/* Banner Feedback */}
-           {banner && (
-            <div className={`flex items-start gap-4 rounded-3xl border px-6 py-5 text-sm font-bold shadow-xl animate-in slide-in-from-top-4 ${
-              banner.type === "success"
-                ? "border-emerald-100 bg-emerald-50 text-emerald-700 shadow-emerald-500/5"
-                : "border-red-100 bg-red-50 text-red-700 shadow-red-500/5"
-            }`}>
-              {banner.type === "success" ? <CheckCircle2 className="h-6 w-6 shrink-0 mt-0.5" /> : <AlertCircle className="h-6 w-6 shrink-0 mt-0.5" />}
-              {banner.message}
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => handleSubmit(true)}
+              disabled={submitting}
+              className="text-gray-400 hover:text-gray-800 text-sm font-semibold transition-colors disabled:opacity-50"
+            >
+              Draft
+            </button>
+            <button
+              onClick={() => handleSubmit(false)}
+              disabled={submitting}
+              className="px-5 py-1.5 rounded-full bg-primary text-white text-sm font-bold shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 flex items-center gap-2"
+            >
+              {submitting && <Loader2 size={14} className="animate-spin" />}
+              Publish
+            </button>
+            
+            <div className="h-8 w-8 rounded-full bg-gray-100 flex items-center justify-center border border-gray-100 overflow-hidden ml-2">
+              {user?.profilePhoto ? (
+                <img src={user.profilePhoto} alt="User" className="h-full w-full object-cover" />
+              ) : (
+                <UserCircle className="h-5 w-5 text-gray-300" />
+              )}
             </div>
-           )}
+          </div>
+        </div>
+      </nav>
 
-           <div className="bg-white rounded-[3rem] border border-gray-100  p-8 md:p-14 shadow-2xl shadow-slate-200/20 dark:shadow-none space-y-10">
-              {/* Title Section */}
-              <div className="space-y-4">
-                 <input 
-                  type="text" 
-                  name="title" 
-                  required 
-                  value={form.title} 
-                  onChange={handleChange} 
-                  className="w-full bg-transparent border-none text-3xl md:text-5xl font-bold text-gray-800 dark:text-white placeholder:text-slate-100 focus:ring-0 px-0 outline-none tracking-tight leading-tight" 
-                  placeholder="The title of your story..." 
-                 />
-                 <div className="h-[1px] w-full bg-gray-50 dark:bg-gray-800" />
-              </div>
+      <main className="pt-32 pb-20 max-w-[700px] mx-auto px-6 animate-in fade-in duration-1000">
+        
+        {banner && (
+          <div className={`mb-12 flex items-start gap-4 rounded-2xl border px-6 py-4 text-sm font-bold animate-in slide-in-from-top-4 ${
+            banner.type === "success"
+              ? "border-emerald-100 bg-emerald-50 text-emerald-700 shadow-sm"
+              : "border-red-100 bg-red-50 text-red-700 shadow-sm"
+          }`}>
+            {banner.type === "success" ? <CheckCircle2 className="h-5 w-5 shrink-0 mt-0.5" /> : <AlertCircle className="h-5 w-5 shrink-0 mt-0.5" />}
+            {banner.message}
+          </div>
+        )}
 
-              {/* Sub-meta */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div>
-                   <label className={labelCls}>Topic Category</label>
-                   <div className="relative">
-                      <LayoutGrid className="absolute left-6 top-1/2 -translate-y-1/2 h-4 w-4 text-primary opacity-40" />
-                      <select name="category" value={form.category} onChange={handleChange} className={cn(inputCls, "pl-14 appearance-none")}>
-                        {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
-                      </select>
-                   </div>
-                </div>
-                <div>
-                   <label className={labelCls}>Featured Cover Image</label>
-                   <div className="relative">
-                      <ImageIcon className="absolute left-6 top-1/2 -translate-y-1/2 h-4 w-4 text-primary opacity-40" />
-                      <input type="url" name="featuredImage" value={form.featuredImage} onChange={handleChange} className={cn(inputCls, "pl-14")} placeholder="https://unsplash.com/..." />
-                   </div>
-                </div>
-              </div>
+        <div className="space-y-8">
+          {/* Featured Image Link */}
+          <div className="flex items-center gap-2 px-1">
+             <ImageIcon size={16} className="text-gray-300" />
+             <input
+               type="url"
+               name="featuredImage"
+               value={form.featuredImage}
+               onChange={handleChange}
+               placeholder="Link to featured image..."
+               className="w-full text-xs font-semibold text-gray-400 focus:text-gray-600 outline-none placeholder:text-gray-200 bg-transparent"
+             />
+          </div>
 
-              {/* Summary / Excerpt */}
-              <div>
-                 <label className={labelCls}>Article Preview (Excerpt)</label>
-                 <textarea name="excerpt" rows={2} value={form.excerpt} onChange={handleChange} className={cn(inputCls, "resize-none h-24")} placeholder="Briefly describe what your readers can expect..." />
-              </div>
+          {/* Category Selector - Subtle */}
+          <div className="flex items-center gap-2 px-1">
+             <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Category</span>
+             <select 
+               name="category" 
+               value={form.category} 
+               onChange={handleChange} 
+               className="text-[10px] font-black uppercase tracking-widest text-primary bg-primary/5 px-2 py-0.5 rounded cursor-pointer outline-none hover:bg-primary/10 transition-colors appearance-none"
+             >
+               {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+             </select>
+          </div>
 
-              {/* Main Content Body */}
-              <div className="pt-6 space-y-4">
-                 <div className="flex items-center justify-between px-2">
-                      <label className={labelCls}>Body Content</label>
-                      <span className="text-[10px] font-bold text-primary border border-primary/20 bg-primary/5 px-2 py-0.5 rounded-md">{wordCount} Words</span>
-                 </div>
-                 <textarea name="content" required rows={16} value={form.content} onChange={handleChange} className={cn(inputCls, "resize-none text-base md:text-lg leading-relaxed font-medium bg-white border-gray-100  h-[30rem]")} placeholder="Start sharing your knowledge..." />
-              </div>
-           </div>
+          {/* Title - Large font, no borders */}
+          <textarea
+            name="title"
+            value={form.title}
+            onChange={handleChange}
+            rows={1}
+            placeholder="Title"
+            className="w-full text-4xl md:text-5xl font-bold text-gray-800 placeholder:text-gray-100 border-none outline-none resize-none px-1 overflow-hidden h-auto"
+            onInput={(e) => {
+              const target = e.target as HTMLTextAreaElement;
+              target.style.height = "auto";
+              target.style.height = target.scrollHeight + "px";
+            }}
+          />
+
+          {/* Excerpt - Secondary typography */}
+          <textarea
+            name="excerpt"
+            value={form.excerpt}
+            onChange={handleChange}
+            rows={1}
+            placeholder="Article preview..."
+            className="w-full text-xl font-medium text-gray-400 placeholder:text-gray-100 border-none outline-none resize-none px-1 h-auto"
+            onInput={(e) => {
+              const target = e.target as HTMLTextAreaElement;
+              target.style.height = "auto";
+              target.style.height = target.scrollHeight + "px";
+            }}
+          />
+
+          {/* Divider */}
+          <div className="h-[1px] w-12 bg-gray-50 my-6" />
+
+          {/* Content Body - Clean typing experience */}
+          <textarea
+            name="content"
+            value={form.content}
+            onChange={handleChange}
+            rows={15}
+            placeholder="Tell your story..."
+            className="w-full text-lg md:text-xl leading-[1.8] text-gray-700 placeholder:text-gray-100 border-none outline-none resize-none px-1 font-serif min-h-[500px]"
+            onInput={(e) => {
+              const target = e.target as HTMLTextAreaElement;
+              target.style.height = "auto";
+              target.style.height = target.scrollHeight + "px";
+            }}
+          />
         </div>
 
-        {/* Action Sidebar / Settings */}
-        <div className="w-full lg:w-80 shrink-0">
-           <div className="sticky top-10 space-y-8">
-              <div className="bg-white rounded-[3rem] p-10 text-white shadow-2xl shadow-slate-900/10">
-                 <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-8 px-2">Action Center</p>
-                 <div className="flex flex-col gap-5">
-                    <Button
-                      onClick={() => handleSubmit(false)}
-                      disabled={submitting}
-                      className="w-full h-16 rounded-2xl bg-primary text-white hover:scale-[1.02] shadow-xl shadow-primary/20 disabled:opacity-50"
-                    >
-                      {submitting ? <Loader2 className="w-5 h-5 animate-spin mr-3" /> : <Send className="w-5 h-5 mr-3" />}
-                      Publish Feed
-                    </Button>
-                    <button
-                      onClick={() => handleSubmit(true)}
-                      disabled={submitting}
-                      className="w-full h-16 flex items-center justify-center gap-3 rounded-2xl border border-white/10 bg-white/5 text-sm font-bold text-white hover:bg-white/10 transition-all disabled:opacity-50"
-                    >
-                      <Save className="w-5 h-5 mr-1" /> Save as Draft
-                    </button>
-                 </div>
-                 
-                 <div className="mt-12 pt-10 border-t border-white/5 space-y-8">
-                    <div className="flex items-center gap-4 group">
-                       <div className="h-12 w-12 rounded-2xl bg-white/5 flex items-center justify-center border border-white/10 transition-colors group-hover:bg-primary/20">
-                          <UserCircle className="w-6 h-6 text-primary" />
-                       </div>
-                       <div>
-                          <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-0.5">Author</p>
-                          <p className="text-xs font-bold text-white">Community Member</p>
-                       </div>
-                    </div>
-                    <div className="flex items-center gap-4 group">
-                       <div className="h-12 w-12 rounded-2xl bg-white/5 flex items-center justify-center border border-white/10 transition-colors group-hover:bg-primary/20">
-                          <BookOpen className="w-6 h-6 text-primary" />
-                       </div>
-                       <div>
-                          <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-0.5">Visibility</p>
-                          <p className="text-xs font-bold text-white">Public Listing</p>
-                       </div>
-                    </div>
-                 </div>
-              </div>
-
-              {/* Writing Tips */}
-              <div className="bg-primary/5 dark:bg-primary/10 border border-primary/10 rounded-[3rem] p-10">
-                 <h4 className="flex items-center gap-2 text-xs font-bold text-primary mb-6 tracking-tight">
-                    <Sparkles className="w-4 h-4" /> Writing Assistant
-                 </h4>
-                 <ul className="space-y-6">
-                    <li className="flex gap-4">
-                       <div className="h-2 w-2 rounded-full bg-primary shrink-0 mt-1.5" />
-                       <p className="text-xs font-medium text-gray-600 dark:text-gray-400 leading-relaxed">
-                         Use clear, descriptive titles to grab attention in the feed.
-                       </p>
-                    </li>
-                    <li className="flex gap-4">
-                       <div className="h-2 w-2 rounded-full bg-primary shrink-0 mt-1.5" />
-                       <p className="text-xs font-medium text-gray-600 dark:text-gray-400 leading-relaxed">
-                         A featured image significantly increases engagement rates.
-                       </p>
-                    </li>
-                    <li className="flex gap-4">
-                       <div className="h-2 w-2 rounded-full bg-primary shrink-0 mt-1.5" />
-                       <p className="text-xs font-medium text-gray-600 dark:text-gray-400 leading-relaxed">
-                         The excerpt is the first thing people see. Make it count!
-                       </p>
-                    </li>
-                 </ul>
-              </div>
+        {/* Floating Sidebar Help - Only for large screens */}
+        <div className="hidden xl:block fixed right-10 top-32 w-56 text-[11px] font-bold text-gray-300 space-y-6">
+           <div className="p-6 border-l border-gray-50 space-y-4">
+              <Sparkles size={14} className="text-secondary" />
+              <p className="leading-relaxed">Sharing your journey helps others learn Tamil in context. Focus on clarity and cultural debt.</p>
+           </div>
+           <div className="p-6 border-l border-gray-50 space-y-2">
+              <p className="uppercase tracking-widest text-[9px] text-gray-200">Stats</p>
+              <p>{form.content.trim() ? form.content.trim().split(/\s+/).length : 0} Words</p>
+              <p>{Math.ceil((form.content.trim() ? form.content.trim().split(/\s+/).length : 0) / 200)} min read</p>
            </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 }

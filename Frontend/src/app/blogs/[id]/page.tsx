@@ -8,12 +8,14 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { getPublicBlogByIdOrSlug, deleteMyBlog, toggleSaveBlog, getPublicBlogs, Blog } from "@/services/blogService";
 import { useAuth } from "@/context/AuthContext";
-import { ArrowLeft, Calendar, UserCircle, Clock, Edit2, Trash2, Loader2, BookOpen, Share2, Bookmark, BookmarkCheck, ChevronRight, FileText } from "lucide-react";
+import { ArrowLeft, Calendar, UserCircle, Clock, Edit2, Trash2, Loader2, BookOpen, Share2, Bookmark, BookmarkCheck, ChevronRight, FileText, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 function readingTime(content: string) {
   return Math.max(1, Math.ceil(content.trim().split(/\s+/).length / 200));
 }
+
+import { hasPermission, ROLES } from "@/utils/roles";
 
 export default function BlogDetailsPage() {
   const params  = useParams();
@@ -47,7 +49,7 @@ export default function BlogDetailsPage() {
       .finally(() => setLoading(false));
   }, [params.id, user]);
 
-  const canManage = user && blog && (user.role === "admin" || (blog.author as any)?._id === user._id || (blog.author as any) === user._id);
+  const canManage = user && blog && hasPermission(user.role, [ROLES.ADMIN]) || (user && blog && ((blog.author as any)?._id === user._id || (blog.author as any) === user._id));
 
   const handleDelete = async () => {
     if (!blog) return;
@@ -212,15 +214,20 @@ export default function BlogDetailsPage() {
           
           <div className="mt-20 border-t border-gray-100 pt-16">
              <div className="bg-gray-50 rounded-[2.5rem] p-8 md:p-12 flex flex-col md:flex-row items-center justify-between gap-8 border border-gray-100">
-                <div className="space-y-2 text-center md:text-left">
-                  <h3 className="text-2xl font-bold text-gray-800 tracking-tight">Liked this story?</h3>
-                  <p className="text-gray-500 text-sm font-medium">Share it with your fellow Tamil learners and help our community grow.</p>
-                </div>
-                <div className="flex items-center gap-4 shrink-0">
-                  <Button onClick={handleShare} variant="primary" size="lg" className="rounded-2xl px-8 shadow-xl shadow-primary/20">
-                    <Share2 className="w-4 h-4 mr-2" /> Share Link
-                  </Button>
-                </div>
+                 <div className="space-y-4 text-center md:text-left">
+                   <h3 className="text-2xl font-bold text-gray-800 tracking-tight">Enjoyed the story?</h3>
+                   <p className="text-gray-500 text-sm font-medium">Capture your own Tamil expertise and share it with our growing community.</p>
+                 </div>
+                 <div className="flex items-center gap-4 shrink-0 flex-col sm:flex-row">
+                   <Button onClick={handleShare} variant="secondary" size="lg" className="rounded-2xl px-8 border-gray-100 dark:border-gray-800">
+                     <Share2 className="w-4 h-4 mr-2" /> Share Link
+                   </Button>
+                   {(hasPermission(user?.role, [ROLES.ADMIN, ROLES.TEACHER]) || !user) && (
+                     <Button href="/student/blogs/create" variant="primary" size="lg" className="rounded-2xl px-12 shadow-xl shadow-primary/20">
+                        <Plus className="w-4 h-4 mr-2" /> Start Writing
+                     </Button>
+                   )}
+                 </div>
              </div>
           </div>
         </article>

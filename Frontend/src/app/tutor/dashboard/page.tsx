@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { StatCard } from "@/components/common/StatCard";
-import { Users, MessageSquare, Star, ToggleRight, ToggleLeft, Loader2, AlertCircle, ArrowRight, Video, Layers, Sparkles, CheckCircle2 } from "lucide-react";
+import { Users, MessageSquare, Star, ToggleRight, ToggleLeft, Loader2, AlertCircle, ArrowRight, Video, Layers, Sparkles, CheckCircle2, PenTool } from "lucide-react";
 import Link from "next/link";
 import { getMe, SafeUser } from "@/services/authService";
 import { getPendingRequests, TutorRequest, updateTutorAvailability } from "@/services/tutorService";
@@ -133,8 +133,8 @@ export default function TutorDashboard() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
               {[
                 { label: "Manage Requests", desc: `${activeRequests} pending now`, href: "/tutor/questions", icon: MessageSquare, color: "primary" },
+                { label: "Write a Story", desc: "Share your Tamil expertise", href: "/student/blogs/create", icon: PenTool, color: "primary" },
                 { label: "Schedule Slots", desc: "Set weekly availability", href: "/tutor/schedule", icon: Video, color: "secondary" },
-                { label: "Community Events", desc: "Manage your live calls", href: "/tutor/events", icon: Video, color: "primary" },
                 { label: "Public Profile", desc: "Update your teaching bio", href: "/tutor/profile", icon: Users, color: "secondary" },
               ].map((action) => {
                 const Icon = action.icon;
