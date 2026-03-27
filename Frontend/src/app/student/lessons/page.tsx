@@ -8,12 +8,12 @@ import { getLessons, Lesson, Progress } from "@/services/lessonService";
 import { getMe, SafeUser } from "@/services/authService";
 import { cn } from "@/lib/utils";
 
-function groupByModule(lessons: Lesson[]) {
+function groupByCategory(lessons: Lesson[]) {
   const map: Record<string, Lesson[]> = {};
   lessons.forEach((l) => {
-    const mNum = l.moduleNumber?.toString() || "1";
-    if (!map[mNum]) map[mNum] = [];
-    map[mNum].push(l);
+    const category = l.moduleName || "General Curriculum";
+    if (!map[category]) map[category] = [];
+    map[category].push(l);
   });
   return map;
 }
@@ -29,10 +29,6 @@ export default function StudentLessonsPage() {
   useEffect(() => {
     Promise.all([getMe(), getLessons()])
       .then(([userData, data]) => {
-        if (!userData.level || userData.level === "Not Set") {
-          router.push("/student/lessons/placement");
-          return;
-        }
         setUser(userData);
         setLessons(data.lessons || []);
         setProgresses(data.progress || []);
@@ -91,7 +87,7 @@ export default function StudentLessonsPage() {
     }
   }
 
-  const grouped = groupByModule(sortedLessons);
+  const grouped = groupByCategory(sortedLessons);
 
   return (
     <div className="max-w-3xl mx-auto space-y-8 animate-in fade-in zoom-in-95 duration-500 pb-20 pt-6 px-4">
@@ -140,24 +136,24 @@ export default function StudentLessonsPage() {
         </div>
       )}
 
-      {!isOutOfEnergy && Object.entries(grouped).map(([module, moduleLessons]) => (
-        <section key={module} className="relative">
+      {!isOutOfEnergy && Object.entries(grouped).map(([category, categoryLessons]) => (
+        <section key={category} className="relative">
           <div className="mb-8 flex items-center gap-4">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary shadow-lg shadow-primary/20 text-base font-black text-white ring-4 ring-primary/5 transition-transform hover:scale-105">
-              {module}
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-secondary shadow-lg shadow-secondary/20 text-base font-black text-white ring-4 ring-secondary/5 transition-transform hover:scale-105">
+              <Zap className="h-6 w-6 text-white" />
             </div>
             <div>
                <h3 className="text-xl font-black text-gray-800 dark:text-white uppercase tracking-tight">
-                  Level {module}
+                  {category}
                </h3>
                <span className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">
-                  {moduleLessons.length} lessons available
+                  {categoryLessons.length} lessons available
                </span>
             </div>
           </div>
 
           <div className="relative flex flex-col gap-5 pl-14 before:absolute before:inset-y-2 before:left-[1.45rem] before:ml-[1px] before:w-[2.5px] before:bg-gray-200 dark:before:bg-gray-800">
-            {moduleLessons.map((lesson) => {
+            {categoryLessons.map((lesson) => {
               const status = lessonStatus.get(lesson._id) || "locked";
               const isLocked = status === "locked" || lesson.isPremiumOnly;
 

@@ -48,6 +48,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     initAuth();
   }, []);
 
+  const handleSetUser = (u: SafeUser | ( (prev: SafeUser | null) => SafeUser | null )) => {
+    setUser((prev) => {
+      const newUser = typeof u === "function" ? u(prev) : u;
+      if (newUser) {
+        authStore.saveUser(newUser);
+      } else {
+        authStore.clear();
+      }
+      return newUser;
+    });
+  };
+
   const logoutUser = async () => {
     try {
       await logout();
@@ -60,7 +72,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, setUser, logoutUser }}>
+    <AuthContext.Provider value={{ user, isLoading, setUser: handleSetUser as any, logoutUser }}>
       {children}
     </AuthContext.Provider>
   );

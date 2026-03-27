@@ -14,9 +14,12 @@ import { authStore } from "./authStore";
 
 // ── 1. Create instance ────────────────────────────────────────────────────────
 
+const rawBaseUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5000/api";
+const apiBaseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl.slice(0, -1) : rawBaseUrl;
+
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5000/api",
-  withCredentials: true,           // sends the HTTP-only refresh-token cookie
+  baseURL: apiBaseUrl,
+  withCredentials: true,
   headers: { "Content-Type": "application/json" },
 });
 
@@ -84,9 +87,11 @@ api.interceptors.response.use(
       }
     }
 
-    // 2. If it's a 429 (Too many attempts) — let it propagate
-    if (error.response?.status === 429) {
-      console.error("[API] Too many requests (429).");
+    // 2. Logging and Final reject
+    if (error.response) {
+      console.error(`[API] ${error.response.status} Error: ${originalRequest.url}`, error.response.data);
+    } else {
+      console.error(`[API] Network Error at: ${apiBaseUrl}${originalRequest.url || ''}`);
     }
 
     return Promise.reject(error);

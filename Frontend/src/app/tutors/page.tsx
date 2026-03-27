@@ -69,32 +69,20 @@ export default function PublicTutorsPage() {
     <div className="min-h-screen flex flex-col bg-white font-sans">
       <Navbar />
 
-      <main className="flex-1 w-full max-w-7xl mx-auto px-4 md:px-8 lg:px-12 py-12 md:py-20 animate-in fade-in duration-700">
-        <div className="space-y-12 pb-16">
+      <main className="flex-1 w-full max-w-7xl mx-auto px-4 md:px-8 lg:px-12 py-10 animate-in fade-in duration-700">
+        <div className="space-y-10 pb-16">
           
-          {/* --- 1. Premium Page Header --- */}
-          <div className="relative overflow-hidden rounded-[3rem] bg-white border border-gray-100 p-8 md:p-14 shadow-2xl shadow-gray-200/10">
-            <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-primary/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
-            <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-soft/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
-            
-            <div className="relative z-10 max-w-3xl space-y-6">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/5 border border-primary/10 text-[10px] font-black text-primary uppercase tracking-[0.2em]">
-                <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-                Verified Native Tutors
-              </div>
-              <h2 className="text-4xl md:text-5xl font-black text-gray-800 tracking-tight leading-tight">
-                Learn Tamil with <br/> 
-                <span className="text-primary italic">Expert Guidance.</span>
-              </h2>
-              <p className="text-lg text-gray-600 font-medium leading-relaxed max-w-xl">
-                Connect with native speakers and certified professionals. Filter by specialization, level, or teaching mode to find your perfect learning partner.
-              </p>
+          {/* --- Header Section (Clean) --- */}
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-l-4 border-primary pl-6 py-2">
+            <div>
+              <h2 className="text-3xl font-black text-gray-800 tracking-tight uppercase">Professional Tutors</h2>
+              <p className="text-sm text-gray-400 font-bold uppercase tracking-widest mt-1">Found {totalTutors} experts ready to help</p>
             </div>
           </div>
 
-          {/* --- 2. Enhanced Filter & Search Bar --- */}
-          <div className="space-y-8">
-            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-6 border-b border-gray-100">
+          {/* --- Search & Filter Bar --- */}
+          <div className="space-y-8 bg-gray-50/50 rounded-[2.5rem] p-8 md:p-10 border border-gray-100">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-6 border-b border-gray-200/50">
                <div className="relative w-full lg:max-w-md">
                  <Search className="absolute left-5 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
                  <input
@@ -102,12 +90,12 @@ export default function PublicTutorsPage() {
                    value={search}
                    onChange={(e) => setSearch(e.target.value)}
                    placeholder="Search by name, skill, or language…"
-                   className="w-full rounded-[2rem] border border-gray-100 bg-white py-4 pl-14 pr-6 text-sm font-semibold text-gray-700 outline-none transition-all placeholder:text-gray-400 focus:border-primary focus:ring-4 focus:ring-primary/5 shadow-xl shadow-gray-200/10"
+                   className="w-full rounded-[2rem] border border-gray-100 bg-white py-4 pl-14 pr-6 text-sm font-semibold text-gray-700 outline-none transition-all placeholder:text-gray-400 focus:border-primary focus:ring-4 focus:ring-primary/5 shadow-xl shadow-gray-200/5"
                  />
                </div>
 
                <div className="flex flex-wrap items-center gap-4">
-                  <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest hidden sm:inline">Filter by:</span>
+                  <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest hidden sm:inline">Proficiency Focus:</span>
                   <div className="flex flex-wrap gap-2">
                     {levelOpts.map(opt => (
                       <button key={opt.value} onClick={() => setLevel(opt.value)}
@@ -125,7 +113,7 @@ export default function PublicTutorsPage() {
             </div>
 
             <div className="flex flex-wrap items-center gap-3">
-              <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Teaching Mode:</span>
+              <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Environment:</span>
               {modeOpts.map(opt => (
                 <button key={opt.value} onClick={() => setMode(opt.value)}
                   className={cn(

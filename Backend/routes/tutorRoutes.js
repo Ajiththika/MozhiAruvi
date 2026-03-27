@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { authorizeRoles } from '../middleware/authorizeRoles.js';
 import { ROLES } from '../utils/roles.js';
 import * as tutorController from '../controllers/tutorController.js';
-import { authenticate } from '../middleware/auth.js';
+import { authenticate, authenticateOptional } from '../middleware/auth.js';
 import { validate } from '../middleware/validate.js';
 import upload from '../middleware/upload.js';
 import { z } from 'zod';
@@ -53,8 +53,8 @@ const updateAvailabilitySchema = z.object({
 // ── Public (Learner) ─────────────────────────────────────────────────────────
 // IMPORTANT: static paths (/my-requests, /pending) MUST come before /:id
 
-// Browse available tutors
-router.get('/', authenticate, tutorController.listAvailableTutors);
+// Browse available tutors (Public Discovery)
+router.get('/', authenticateOptional, tutorController.listAvailableTutors);
 
 // Learner: view own request history ← before /:id to avoid collision
 router.get('/my-requests', authenticate, tutorController.getLearnerRequests);

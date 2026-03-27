@@ -11,12 +11,12 @@ import { getMe, SafeUser } from "@/services/authService";
 import { useAuth } from "@/context/AuthContext";
 import { cn } from "@/lib/utils";
 
-function groupByModule(lessons: Lesson[]) {
+function groupByCategory(lessons: Lesson[]) {
   const map: Record<string, Lesson[]> = {};
   lessons.forEach((l) => {
-    const mNum = l.moduleNumber?.toString() || "1";
-    if (!map[mNum]) map[mNum] = [];
-    map[mNum].push(l);
+    const category = l.moduleName || "General Curriculum";
+    if (!map[category]) map[category] = [];
+    map[category].push(l);
   });
   return map;
 }
@@ -25,7 +25,7 @@ import { LessonsSkeleton } from "./LessonsSkeleton";
 
 export default function PublicLessonsPage() {
   const router = useRouter();
-  const { user: authUser } = useAuth();
+  const { user: authUser, isLoading: authLoading } = useAuth();
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [progresses, setProgresses] = useState<Progress[]>([]);
   const [user, setUser] = useState<SafeUser | null>(null);
@@ -42,9 +42,6 @@ export default function PublicLessonsPage() {
         if (authUser) {
           const userData = await getMe();
           setUser(userData);
-          if (!userData.level || userData.level === "Not Set") {
-            router.push("/student/lessons/placement");
-          }
         }
       } catch (err) {
         if (lessons.length === 0) {
@@ -94,9 +91,17 @@ export default function PublicLessonsPage() {
     }
   }
 
-  const grouped = groupByModule(sortedLessons);
+  const grouped = groupByCategory(sortedLessons);
+
+  const handleCategoryClick = () => {
+    if (authLoading) return;
+    if (!authUser) {
+      router.push(`/auth/signin?redirect=${encodeURIComponent(`/lessons`)}`);
+    }
+  };
 
   const handleStartLesson = (lessonId: string) => {
+    if (authLoading) return;
     if (!authUser) {
       router.push(`/auth/signin?redirect=${encodeURIComponent(`/student/lessons/${lessonId}`)}`);
       return;
@@ -155,24 +160,30 @@ export default function PublicLessonsPage() {
             </div>
           )}
 
-          {!isOutOfEnergy && Object.entries(grouped).map(([module, moduleLessons]) => (
-            <section key={module} className="relative">
-              <div className="mb-8 flex items-center gap-4">
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary shadow-lg shadow-primary/20 text-base font-black text-white ring-4 ring-primary/5 transition-transform hover:scale-105">
-                  {module}
-                </div>
-                <div>
-                   <h3 className="text-xl font-black text-gray-800 uppercase tracking-tight">
-                      Level {module}
-                   </h3>
-                   <span className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">
-                      {moduleLessons.length} lessons available
-                   </span>
-                </div>
-              </div>
+          {!isOutOfEnergy && Object.entries(grouped).map(([category, categoryLessons]) => (
+            <section key={category} className="relative">
+              <div 
+                onClick={handleCategoryClick}
+                className={cn(
+                  "mb-8 flex items-center gap-4 transition-all",
+                  !authUser ? "cursor-pointer hover:opacity-70" : ""
+                )}
+              >
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-secondary shadow-lg shadow-secondary/20 text-base font-black text-white ring-4 ring-secondary/5 transition-transform hover:scale-105">
+              <BookOpen className="w-5 h-5 text-white" />
+            </div>
+            <div>
+               <h3 className="text-xl font-black text-gray-800 uppercase tracking-tight">
+                  {category}
+               </h3>
+               <span className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">
+                  {categoryLessons.length} units available in this path
+               </span>
+            </div>
+          </div>
 
               <div className="relative flex flex-col gap-5 pl-14 before:absolute before:inset-y-2 before:left-[1.45rem] before:ml-[1px] before:w-[2.5px] before:bg-gray-200">
-                {moduleLessons.map((lesson) => {
+                {categoryLessons.map((lesson) => {
                   const status = lessonStatus.get(lesson._id) || "locked";
                   const isLocked = status === "locked" || lesson.isPremiumOnly;
 

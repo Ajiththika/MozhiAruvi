@@ -7,7 +7,7 @@
 
 import api from "@/lib/api";
 import { authStore } from "@/lib/authStore";
-import { Lesson } from "./lessonService";
+import { Lesson, Progress } from "./lessonService";
 import { JoinRequest } from "./eventService";
 import { Blog } from "./blogService";
 import { TutorRequest } from "./tutorService";
@@ -84,9 +84,7 @@ export async function refresh(): Promise<string> {
 export interface DashboardData {
   user: SafeUser;
   lessons: Lesson[];
-  joinRequests: JoinRequest[];
-  blogs: Blog[];
-  questions: TutorRequest[];
+  progress: Progress[];
 }
 
 export async function getDashboardData(): Promise<DashboardData> {

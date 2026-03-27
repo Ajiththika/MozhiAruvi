@@ -53,9 +53,10 @@ export async function consumeCredit(req, res, next) {
 export async function getStudentDashboardData(req, res, next) {
     try {
         const userId = req.user.sub;
-        const [user, lessonsData, joinRequests, blogs, questions] = await Promise.all([
+        const [user, lessonsData, progress, joinRequests, blogs, questions] = await Promise.all([
             userService.getUserInfo(userId),
             lessonService.getAllLessons(),
+            lessonService.getUserProgressList(userId),
             eventService.getMyJoinRequests(userId),
             blogService.getUserBlogs(userId),
             tutorService.getStudentRequests(userId)
@@ -63,6 +64,7 @@ export async function getStudentDashboardData(req, res, next) {
         res.json({
             user: user.toSafeObject(),
             lessons: Array.isArray(lessonsData) ? lessonsData : (lessonsData.lessons || []),
+            progress,
             joinRequests,
             blogs,
             questions: questions.slice(0, 5)

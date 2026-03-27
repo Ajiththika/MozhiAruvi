@@ -69,7 +69,7 @@ export function Sidebar({ items, basePath }: SidebarProps) {
       {/* Brand Section */}
       <div className="flex h-24 items-center border-b border-border/60 px-8">
         <Link
-          href={basePath}
+          href="/"
           className="flex items-center gap-4 transition-all duration-300 hover:scale-[1.02]"
         >
           <div className="relative h-11 w-11 overflow-hidden rounded-2xl bg-primary/5 flex items-center justify-center p-2 border border-primary/10 shadow-inner">

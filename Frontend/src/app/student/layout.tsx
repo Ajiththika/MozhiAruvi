@@ -6,20 +6,16 @@ import { RoleProtectedRoute } from "@/components/features/auth/RoleProtectedRout
 // Only plain serializable objects — no React components as values
 const studentLinks: SidebarItem[] = [
   { name: "Dashboard",  href: "/student/dashboard",  icon: "home" },
-  { name: "Lessons",    href: "/lessons",             icon: "book-open" },
+  { name: "Lessons",    href: "/student/lessons",    icon: "book-open" },
   { name: "Progress",   href: "/student/progress",    icon: "line-chart" },
   { name: "Vocabulary", href: "/student/vocabulary",  icon: "library-big" },
-  { name: "Tutors",         href: "/tutors",             icon: "graduation-cap" },
-  { name: "Tutor Requests", href: "/student/tutors/my-requests", icon: "message-square" },
-  { name: "Events",         href: "/events",             icon: "calendar" },
-  { name: "Blogs",      href: "/blogs",       icon: "message-square" },
   { name: "Premium",    href: "/student/premium",     icon: "sparkles" },
   { name: "Profile",    href: "/student/profile",     icon: "user-circle" },
 ];
 
 export default function StudentLayout({ children }: { children: React.ReactNode }) {
   return (
-    <RoleProtectedRoute allowedRoles={["user"]}>
+    <RoleProtectedRoute allowedRoles={["student", "user"] as any}>
       <div className="flex min-h-screen w-full bg-soft/5 dark:bg-white">
         <Sidebar items={studentLinks} basePath="/student/dashboard" />
         <div className="flex flex-1 flex-col overflow-hidden">

@@ -3,7 +3,10 @@ import TutorRequest from '../models/TutorRequest.js';
 
 export async function getAvailableTutors(page = 1, limit = 6, filters = {}) {
     const skip = (page - 1) * limit;
-    const query = { role: 'teacher', isActive: true, isTutorAvailable: true };
+    const query = { 
+        role: { $in: ['teacher', 'tutor'] }, 
+        isActive: true 
+    };
 
     if (filters.search) {
         query.$or = [

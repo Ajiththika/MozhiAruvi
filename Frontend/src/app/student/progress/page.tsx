@@ -1,8 +1,49 @@
-import React from "react";
-import { Award, Flame, Target, Trophy, TrendingUp } from "lucide-react";
+"use client";
+
+import React, { useEffect, useState } from "react";
+import { Award, Flame, Target, Trophy, TrendingUp, Loader2, AlertCircle } from "lucide-react";
 import { StatCard } from "@/components/features/dashboard/StatCard";
+import { useAuth } from "@/context/AuthContext";
+import { getLessons, Lesson, Progress } from "@/services/lessonService";
 
 export default function StudentProgressPage() {
+   const { user } = useAuth();
+   const [lessons, setLessons] = useState<Lesson[]>([]);
+   const [progress, setProgress] = useState<Progress[]>([]);
+   const [loading, setLoading] = useState(true);
+   const [error, setError] = useState<string | null>(null);
+
+   useEffect(() => {
+     getLessons()
+       .then(res => {
+         setLessons(res.lessons);
+         setProgress(res.progress);
+       })
+       .catch(() => setError("Could not load progress data."))
+       .finally(() => setLoading(false));
+   }, []);
+
+   if (loading) {
+     return (
+       <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4">
+         <Loader2 className="h-10 w-10 animate-spin text-primary" />
+         <p className="text-sm font-semibold text-gray-500 tracking-tight animate-pulse">Calculating your achievements...</p>
+       </div>
+     );
+   }
+
+   const completedLessons = progress.filter(p => p.isCompleted);
+   const completedCount = completedLessons.length;
+   const totalLessons = lessons.length;
+   const progressPercentage = totalLessons > 0 ? Math.round((completedCount / totalLessons) * 100) : 0;
+   
+   // Average accuracy from completed lessons
+   const totalScore = completedLessons.reduce((sum, p) => sum + p.score, 0);
+   const avgAccuracy = completedCount > 0 ? Math.round(totalScore / completedLessons.length) : 0;
+
+   // Vocabulary estimate: 10 words per completed lesson
+   const vocabCount = completedCount * 10;
+
    return (
      <div className="space-y-10 animate-in fade-in zoom-in-95 duration-500 pb-12">
         <div>
@@ -10,87 +51,124 @@ export default function StudentProgressPage() {
               Learning Progress
            </h1>
            <p className="mt-2 text-sm text-gray-500 font-medium">
-              Visualize your Tamil learning journey and unlock achievements.
+              Visualize your Tamil learning journey and track your real-time academic milestones.
            </p>
         </div>
 
+        {error && (
+          <div className="flex items-center gap-3 rounded-2xl border border-red-100 bg-red-50 px-6 py-4 text-sm text-red-600 font-bold">
+            <AlertCircle className="h-5 w-5 shrink-0" /> {error}
+          </div>
+        )}
+
         {/* Top Metrics Row */}
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            <StatCard title="Current Streak" value="12 Days" description="Learned for 12 days in a row" icon={Flame} trend="up" trendValue="+2" className="border-secondary/10 bg-secondary/5" />
-            <StatCard title="Overall Accuracy" value="94%" description="Average quiz score" icon={Target} trend="up" trendValue="+1.2%" />
-            <StatCard title="Total Experience" value="8,450" description="XP earned from milestones" icon={Trophy} trend="up" trendValue="+1.2k" />
-            <StatCard title="Lessons Finished" value="34" description="Modules fully completed" icon={Award} trend="neutral" trendValue="Unit 3" />
+            <StatCard 
+               title="Current Experience" 
+               value={String(user?.xp || 0)} 
+               description="Total XP earned" 
+               icon={Trophy} 
+               className="border-primary/10 bg-primary/5" 
+            />
+            <StatCard 
+               title="Average Accuracy" 
+               value={`${avgAccuracy}%`} 
+               description="Based on your quiz performance" 
+               icon={Target} 
+               trend={avgAccuracy > 80 ? "up" : "neutral"}
+               trendValue={avgAccuracy > 0 ? "Real" : "No starts"} 
+            />
+            <StatCard 
+               title="Vocabulary" 
+               value={String(vocabCount)} 
+               description="Estimated words learned" 
+               icon={TrendingUp} 
+            />
+            <StatCard 
+               title="Course Completion" 
+               value={`${progressPercentage}%`} 
+               description={`${completedCount} of ${totalLessons} finished`} 
+               icon={Award} 
+               trend={progressPercentage > 0 ? "up" : "neutral"}
+            />
         </div>
 
-        {/* XP Chart Area (Visual structure only) */}
-        <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
-            <div className="flex items-center justify-between border-b border-gray-50 pb-4">
-               <h3 className="text-base font-semibold text-gray-800 flex items-center gap-2">
-                  <TrendingUp className="h-5 w-5 text-secondary" />
-                  Weekly Activity
+        {/* Learning History Preview */}
+        <div className="rounded-3xl border border-gray-100 bg-white p-8 md:p-10 shadow-2xl shadow-gray-200/5">
+            <div className="flex items-center justify-between border-b border-gray-50 pb-6">
+               <h3 className="text-lg font-black text-gray-800 flex items-center gap-3">
+                  <TrendingUp className="h-6 w-6 text-primary" />
+                  Your Journey Statistics
                </h3>
-               <select className="rounded-xl border border-gray-100 bg-gray-50 px-4 py-1.5 text-xs font-semibold text-gray-600 outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all">
-                  <option>Last 7 Days</option>
-                  <option>Last Month</option>
-               </select>
+               <div className="text-[10px] font-black uppercase tracking-widest text-gray-400">
+                  Real-time Data Sync
+               </div>
             </div>
            
-           <div className="mt-6 flex h-64 items-end justify-between gap-2 px-4">
-              {/* Mock Bar Chart */}
-               {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((day, i) => {
-                  const heights = ["h-32", "h-24", "h-48", "h-12", "h-64", "h-40", "h-56"];
-                  return (
-                     <div key={day} className="flex flex-col items-center gap-3 w-full group">
-                        <span className="opacity-0 group-hover:opacity-100 text-[10px] font-bold text-primary transition-opacity">
-                           {Math.floor(Math.random() * 500) + 50}
-                        </span>
-                        <div className={`w-full max-w-[48px] rounded-xl bg-accent/30 group-hover:bg-primary transition-all duration-300 ${heights[i]}`} />
-                        <span className="text-xs font-semibold text-gray-400">{day}</span>
-                     </div>
-                  );
-               })}
-           </div>
-       </div>
-
-       {/* Badges / Achievements */}
-       <div>
-            <h3 className="text-base font-semibold text-gray-800 mb-6 uppercase tracking-widest">
-               Achievements
-            </h3>
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
-                <div className="flex flex-col items-center rounded-2xl border border-gray-100 bg-white p-6 text-center hover:border-secondary/20 transition-all group">
-                   <div className="flex h-20 w-20 items-center justify-center rounded-full bg-secondary/10 text-secondary border-4 border-secondary/5 transition-transform group-hover:scale-110">
-                      <Flame className="h-10 w-10 fill-current" />
-                   </div>
-                   <h4 className="mt-4 font-bold text-gray-800 text-sm">7-Day Streak</h4>
-                   <p className="mt-1 text-xs text-gray-500 font-medium">Completed</p>
-                </div>
-                
-                <div className="flex flex-col items-center rounded-2xl border border-gray-100 bg-white p-6 text-center hover:border-primary/20 transition-all group">
-                   <div className="flex h-20 w-20 items-center justify-center rounded-full bg-primary/10 text-primary border-4 border-primary/5 transition-transform group-hover:scale-110">
-                      <Target className="h-10 w-10" />
-                   </div>
-                   <h4 className="mt-4 font-bold text-gray-800 text-sm">Sharpshooter</h4>
-                   <p className="mt-1 text-xs text-gray-500 font-medium">Completed</p>
-                </div>
- 
-                <div className="flex flex-col items-center rounded-2xl border border-gray-100 bg-white p-6 text-center opacity-70 grayscale">
-                   <div className="flex h-20 w-20 items-center justify-center rounded-full bg-gray-50 text-gray-400 border-4 border-gray-100">
-                      <Award className="h-10 w-10" />
-                   </div>
-                   <h4 className="mt-4 font-bold text-gray-600 text-sm">Word Master</h4>
-                   <p className="mt-2 text-[10px] font-bold text-primary uppercase tracking-widest bg-accent/30 px-2 py-0.5 rounded-full">Locked</p>
-                </div>
- 
-                <div className="flex flex-col items-center rounded-2xl border border-gray-100 bg-white p-6 text-center opacity-70 grayscale">
-                   <div className="flex h-20 w-20 items-center justify-center rounded-full bg-gray-50 text-gray-400 border-4 border-gray-100">
-                      <Trophy className="h-10 w-10" />
-                   </div>
-                   <h4 className="mt-4 font-bold text-gray-600 text-sm">Top 1 %</h4>
-                   <p className="mt-2 text-[10px] font-bold text-primary uppercase tracking-widest bg-accent/30 px-2 py-0.5 rounded-full">Locked</p>
-                </div>
+            <div className="mt-10 flex flex-col items-center justify-center py-10 text-center space-y-4">
+               <div className="relative h-40 w-40 flex items-center justify-center">
+                  <svg className="h-full w-full transform -rotate-90">
+                     <circle cx="80" cy="80" r="70" stroke="currentColor" strokeWidth="12" fill="transparent" className="text-gray-50" />
+                     <circle cx="80" cy="80" r="70" stroke="currentColor" strokeWidth="12" fill="transparent" strokeDasharray={440} strokeDashoffset={440 - (440 * progressPercentage) / 100} strokeLinecap="round" className="text-primary transition-all duration-1000" />
+                  </svg>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center">
+                     <span className="text-4xl font-black text-gray-800">{progressPercentage}%</span>
+                     <span className="text-[10px] font-black text-gray-400 uppercase tracking-tighter">Completed</span>
+                  </div>
+               </div>
+               <p className="text-sm text-gray-500 font-medium max-w-xs ring-offset-4">
+                  You have mastered {completedCount} lessons so far. Keep going to unlock more rewards!
+               </p>
             </div>
         </div>
-    </div>
-  );
+
+        {/* Badges / Achievements */}
+        <div className="space-y-8">
+             <h3 className="text-xs font-black text-gray-400 mb-6 uppercase tracking-[0.2em] border-l-4 border-secondary pl-3">
+                Academic Achievements
+             </h3>
+             <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+                 <div className={`flex flex-col items-center rounded-3xl border p-8 text-center transition-all group ${completedCount > 0 ? "border-emerald-100 bg-emerald-50/30" : "border-gray-100 bg-white opacity-60 grayscale"}`}>
+                    <div className={`flex h-16 w-16 items-center justify-center rounded-2xl bg-white shadow-xl transition-transform group-hover:scale-110 ${completedCount > 0 ? "text-emerald-500" : "text-gray-300"}`}>
+                       <Flame className="h-8 w-8" />
+                    </div>
+                    <h4 className="mt-6 font-bold text-gray-800 text-sm">First Steps</h4>
+                    <p className={`mt-2 text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full ${completedCount > 0 ? "bg-emerald-100 text-emerald-700" : "bg-gray-100 text-gray-400"}`}>
+                       {completedCount > 0 ? "Earned" : "Locked"}
+                    </p>
+                 </div>
+                 
+                 <div className={`flex flex-col items-center rounded-3xl border p-8 text-center transition-all group ${vocabCount >= 50 ? "border-blue-100 bg-blue-50/30" : "border-gray-100 bg-white opacity-60 grayscale"}`}>
+                    <div className={`flex h-16 w-16 items-center justify-center rounded-2xl bg-white shadow-xl transition-transform group-hover:scale-110 ${vocabCount >= 50 ? "text-primary" : "text-gray-300"}`}>
+                       <TrendingUp className="h-8 w-8" />
+                    </div>
+                    <h4 className="mt-6 font-bold text-gray-800 text-sm">Linguist</h4>
+                    <p className={`mt-2 text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full ${vocabCount >= 50 ? "bg-blue-100 text-primary" : "bg-gray-100 text-gray-400"}`}>
+                       {vocabCount >= 50 ? "Earned" : "Locked"}
+                    </p>
+                 </div>
+  
+                 <div className={`flex flex-col items-center rounded-3xl border p-8 text-center transition-all group ${avgAccuracy >= 90 && completedCount > 0 ? "border-purple-100 bg-purple-50/30" : "border-gray-100 bg-white opacity-60 grayscale"}`}>
+                    <div className={`flex h-16 w-16 items-center justify-center rounded-2xl bg-white shadow-xl transition-transform group-hover:scale-110 ${avgAccuracy >= 90 && completedCount > 0 ? "text-purple-500" : "text-gray-300"}`}>
+                       <Target className="h-8 w-8" />
+                    </div>
+                    <h4 className="mt-6 font-bold text-gray-800 text-sm">Sharp Mind</h4>
+                    <p className={`mt-2 text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full ${avgAccuracy >= 90 && completedCount > 0 ? "bg-purple-100 text-purple-700" : "bg-gray-100 text-gray-400"}`}>
+                       {avgAccuracy >= 90 && completedCount > 0 ? "Earned" : "Locked"}
+                    </p>
+                 </div>
+  
+                 <div className={`flex flex-col items-center rounded-3xl border p-8 text-center transition-all group ${progressPercentage === 100 ? "border-amber-100 bg-amber-50/30" : "border-gray-100 bg-white opacity-60 grayscale"}`}>
+                    <div className={`flex h-16 w-16 items-center justify-center rounded-2xl bg-white shadow-xl transition-transform group-hover:scale-110 ${progressPercentage === 100 ? "text-amber-500" : "text-gray-300"}`}>
+                       <Trophy className="h-8 w-8" />
+                    </div>
+                    <h4 className="mt-6 font-bold text-gray-800 text-sm">Course Master</h4>
+                    <p className={`mt-2 text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full ${progressPercentage === 100 ? "bg-amber-100 text-amber-700" : "bg-gray-100 text-gray-400"}`}>
+                       {progressPercentage === 100 ? "Earned" : "Locked"}
+                    </p>
+                 </div>
+             </div>
+         </div>
+     </div>
+   );
 }
