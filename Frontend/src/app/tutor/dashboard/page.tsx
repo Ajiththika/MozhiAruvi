@@ -125,7 +125,7 @@ export default function TutorDashboard() {
 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
         {/* Quick actions */}
-        <div className="lg:col-span-8 flex flex-col rounded-[3rem] bg-white border border-gray-100 p-10 md:p-14 shadow-2xl shadow-gray-200/10">
+        <div className="lg:col-span-8 flex flex-col rounded-2xl bg-white border border-gray-100 p-10 md:p-14 shadow-2xl shadow-gray-200/10">
           <div className="space-y-10">
             <h3 className="text-xl font-bold text-gray-800 flex items-center gap-3">
                <Layers className="h-6 w-6 text-primary" /> Operations Center
@@ -142,7 +142,7 @@ export default function TutorDashboard() {
                 <Link
                   key={action.href}
                   href={action.href}
-                  className="group flex items-center justify-between rounded-[2.5rem] border border-gray-50 bg-white p-8 transition-all hover:bg-soft/10 hover:border-secondary/30 shadow-xl shadow-gray-200/10"
+                  className="group flex items-center justify-between rounded-2xl border border-gray-50 bg-white p-8 transition-all hover:bg-soft/10 hover:border-secondary/30 shadow-xl shadow-gray-200/10"
                 >
                   <div className="flex items-center gap-6">
                     <div className={cn(
@@ -164,7 +164,7 @@ export default function TutorDashboard() {
         </div>
 
         {/* Inbox Preview */}
-        <div className="lg:col-span-4 flex flex-col rounded-[3rem] bg-white border border-gray-100 p-10 shadow-2xl shadow-gray-200/10">
+        <div className="lg:col-span-4 flex flex-col rounded-2xl bg-white border border-gray-100 p-10 shadow-2xl shadow-gray-200/10">
           <div className="flex items-center justify-between mb-10">
             <h3 className="text-lg font-bold text-gray-800">Live Inbox</h3>
             {activeRequests > 0 && (
@@ -175,7 +175,7 @@ export default function TutorDashboard() {
           </div>
 
           {activeRequests === 0 ? (
-            <div className="flex flex-1 flex-col items-center justify-center rounded-[2.5rem] border border-dashed border-gray-100 p-10 text-center space-y-4">
+            <div className="flex flex-1 flex-col items-center justify-center rounded-2xl border border-dashed border-gray-100 p-10 text-center space-y-4">
                <div className="h-16 w-16 rounded-full bg-gray-50 flex items-center justify-center border border-gray-100 shadow-inner">
                   <CheckCircle2 className="h-8 w-8 text-gray-200" />
                </div>

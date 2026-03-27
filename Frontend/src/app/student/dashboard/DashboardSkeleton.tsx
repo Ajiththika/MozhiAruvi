@@ -19,7 +19,7 @@ export function DashboardSkeleton() {
 
       {/* Main Content Skeleton */}
       <div className="space-y-12 mt-12">
-        <div className="h-64 bg-gray-50 rounded-[2.5rem] border border-gray-100" />
+        <div className="h-64 bg-gray-50 rounded-2xl border border-gray-100" />
       </div>
     </div>
   );

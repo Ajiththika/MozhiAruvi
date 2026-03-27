@@ -1,5 +1,6 @@
 import User from '../models/User.js';
 import Session from '../models/Session.js';
+import Transaction from '../models/Transaction.js';
 
 export async function getUserInfo(userId) {
     const user = await User.findById(userId);
@@ -44,6 +45,15 @@ export async function consumeCredit(userId) {
     user.learningCredits -= 1;
     // Keep lastCreditUpdate unchanged during consumption to maintain the 1hr interval
     await user.save();
+    
+    await Transaction.create({
+        user: userId,
+        amount: -1,
+        transactionType: 'CREDIT',
+        source: 'LESSON',
+        description: 'Consumed learning credit'
+    });
+    
     return user;
 }
 

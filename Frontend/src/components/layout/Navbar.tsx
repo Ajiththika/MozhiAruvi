@@ -20,7 +20,7 @@ export default function Navbar() {
     router.push("/");
   };
 
-  const getDashboardLink = () => getRoleDashboardRoute(user?.role ?? "user");
+  const getDashboardLink = () => getRoleDashboardRoute(user?.role ?? "student");
 
   const getProfileLink = () => {
     if (user?.role === "admin") return "/admin";
@@ -122,7 +122,7 @@ export default function Navbar() {
                       </Link>
                     )}
                     
-                    {user.role === 'user' && (
+                    {user.role === 'student' && (
                       <div className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 bg-gray-50/30 font-semibold">
                         <Award size={16} className="text-warning" />
                         <span>XP: {user.xp || 0}</span>

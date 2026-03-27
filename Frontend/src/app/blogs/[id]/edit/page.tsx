@@ -105,7 +105,7 @@ export default function EditBlogPage() {
             </div>
            )}
 
-           <div className="bg-white rounded-[3rem] border border-gray-100  p-8 md:p-14 shadow-2xl shadow-slate-200/20 dark:shadow-none space-y-10">
+           <div className="bg-white rounded-2xl border border-gray-100  p-8 md:p-14 shadow-2xl shadow-slate-200/20 dark:shadow-none space-y-10">
               {/* Title Section */}
               <div className="space-y-4">
                  <input 
@@ -160,7 +160,7 @@ export default function EditBlogPage() {
         {/* Action Sidebar / Settings */}
         <div className="w-full lg:w-80 shrink-0">
            <div className="sticky top-10 space-y-8">
-              <div className="bg-white rounded-[3rem] p-10 text-white shadow-2xl shadow-slate-900/10">
+              <div className="bg-white rounded-2xl p-10 text-white shadow-2xl shadow-slate-900/10">
                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-8 px-2">Update story</p>
                  <div className="flex flex-col gap-5">
                     <Button
@@ -203,7 +203,7 @@ export default function EditBlogPage() {
               </div>
 
               {/* Revision Sidebar */}
-              <div className="bg-primary/5 dark:bg-primary/10 border border-primary/10 rounded-[3rem] p-10">
+              <div className="bg-primary/5 dark:bg-primary/10 border border-primary/10 rounded-2xl p-10">
                  <h4 className="flex items-center gap-2 text-xs font-bold text-primary mb-6 tracking-tight">
                     <FileText className="w-4 h-4" /> Editing Policy
                  </h4>

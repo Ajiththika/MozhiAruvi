@@ -88,7 +88,7 @@ export default function AdminBlogsPage() {
             href="/blogs/write"
             variant="primary"
             size="xl"
-            className="rounded-[2.5rem] shadow-2xl shadow-primary/20 h-16 px-12 font-black uppercase text-[10px] tracking-widest bg-gray-900 hover:bg-black text-white"
+            className="rounded-2xl shadow-2xl shadow-primary/20 h-16 px-12 font-black uppercase text-[10px] tracking-widest bg-gray-900 hover:bg-black text-white"
           >
             <Plus className="w-5 h-5 mr-3" /> Write
           </Button>
@@ -118,7 +118,7 @@ export default function AdminBlogsPage() {
       ) : null}
 
       {!loading && filtered.length === 0 && !error && (
-        <div className="bg-white rounded-[3rem] border border-border p-32 text-center shadow-sm">
+        <div className="bg-white rounded-2xl border border-border p-32 text-center shadow-sm">
            <div className="h-24 w-24 bg-surface-soft rounded-full flex items-center justify-center mx-auto mb-8">
               <Filter className="h-10 w-10 text-gray-200" />
            </div>
@@ -129,7 +129,7 @@ export default function AdminBlogsPage() {
       {/* Audit Table */}
       {filtered.length > 0 && (
         <div className="space-y-16">
-          <div className="bg-white rounded-[3rem] border border-border shadow-[0_32px_64px_-16px_rgba(0,0,0,0.05)] overflow-hidden">
+          <div className="bg-white rounded-2xl border border-border shadow-[0_32px_64px_-16px_rgba(0,0,0,0.05)] overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-left">
                 <thead>

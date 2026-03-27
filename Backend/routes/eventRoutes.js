@@ -6,6 +6,8 @@ import { authorizeRoles } from '../middleware/authorizeRoles.js';
 import { ROLES } from '../utils/roles.js';
 import { validate } from '../middleware/validate.js';
 
+import upload from '../middleware/upload.js';
+
 const router = Router();
 
 // ── Validation Schemas ────────────────────────────────────────────────────────
@@ -31,13 +33,14 @@ const createEventSchema = z
             .string({ required_error: 'Time is required.' })
             .regex(/^\d{2}:\d{2}$/, 'Time must be in HH:mm format.'),
         capacity: z
-            .number({ required_error: 'Capacity is required.' })
+            .preprocess((val) => Number(val), z.number({ required_error: 'Capacity is required.' })
             .int('Capacity must be a whole number.')
-            .positive('Capacity must be a positive number.'),
+            .positive('Capacity must be a positive number.')),
         location: z
             .string({ required_error: 'Location is required.' })
             .trim()
             .min(1, 'Location cannot be empty.'),
+        image: z.string().optional(),
     })
     .strict();
 
@@ -54,12 +57,13 @@ const updateEventSchema = z
             .regex(/^\d{2}:\d{2}$/, 'Time must be in HH:mm format.')
             .optional(),
         capacity: z
-            .number()
+            .preprocess((val) => Number(val), z.number()
             .int('Capacity must be a whole number.')
-            .positive('Capacity must be a positive number.')
+            .positive('Capacity must be a positive number.'))
             .optional(),
         location: z.string().trim().min(1, 'Location cannot be empty.').optional(),
-        isActive: z.boolean().optional(),
+        isActive: z.preprocess((val) => val === 'true' || val === true, z.boolean()).optional(),
+        image: z.string().optional(),
     })
     .strict();
 
@@ -68,7 +72,7 @@ const joinRequestSchema = z
         fullName: z.string().trim().min(3, 'Full name must be at least 3 characters.').optional(),
         phoneNumber: z.string().trim().min(5, 'Phone number must be valid.').optional(),
         country: z.string().trim().min(2, 'Country is required.').optional(),
-        age: z.number().min(1, 'Age is required.').max(120).optional(),
+        age: z.preprocess((val) => Number(val), z.number().min(1, 'Age is required.').max(120).optional()),
         gender: z.enum(['male', 'female', 'other', 'prefer_not_to_say']).optional(),
         message: z.string().trim().max(500, 'Message cannot exceed 500 characters.').optional(),
     });
@@ -101,6 +105,11 @@ router.post(
     '/',
     authenticate,
     authorizeRoles(ROLES.ADMIN),
+    upload.single('image'),
+    (req, res, next) => {
+        if (req.file) req.body.image = req.file.path;
+        next();
+    },
     validate(createEventSchema),
     eventController.createEvent
 );
@@ -110,6 +119,11 @@ router.patch(
     '/:id',
     authenticate,
     authorizeRoles(ROLES.ADMIN),
+    upload.single('image'),
+    (req, res, next) => {
+        if (req.file) req.body.image = req.file.path;
+        next();
+    },
     validate(updateEventSchema),
     eventController.updateEvent
 );

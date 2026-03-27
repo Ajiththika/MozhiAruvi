@@ -108,7 +108,7 @@ export default function TutorProfileSettings() {
   return (
     <div className="mx-auto max-w-5xl space-y-8 py-8 px-4 animate-in fade-in slide-in-from-bottom-4 duration-700">
       {/* ── TOP HEADER SECTION ────────────────────────────────────────────────── */}
-      <div className="relative overflow-hidden rounded-[2.5rem] bg-white p-10 shadow-xl border border-border shadow-soft/20">
+      <div className="relative overflow-hidden rounded-2xl bg-white p-10 shadow-xl border border-border shadow-soft/20">
         <div className="absolute top-0 right-0 h-64 w-64 rounded-full bg-secondary/5 blur-3xl -mr-32 -mt-32" />
         
         <div className="relative flex flex-col md:flex-row justify-between items-center gap-8">
@@ -175,7 +175,7 @@ export default function TutorProfileSettings() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* ── TEACHING STATS ───────────────────────────────────────────────────── */}
         <div className="lg:col-span-1 space-y-8">
-           <div className="rounded-[2.5rem] bg-gray-900 p-8 text-white shadow-2xl relative overflow-hidden">
+           <div className="rounded-2xl bg-gray-900 p-8 text-white shadow-2xl relative overflow-hidden">
               <div className="absolute top-0 left-0 h-32 w-32 bg-secondary/10 rounded-full blur-2xl -ml-16 -mt-16" />
               <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-white/50 mb-8">Professional Metrics</h4>
               
@@ -212,7 +212,7 @@ export default function TutorProfileSettings() {
               </div>
            </div>
 
-           <div className="rounded-[2.5rem] bg-white p-8 border border-border shadow-sm">
+           <div className="rounded-2xl bg-white p-8 border border-border shadow-sm">
               <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-6">Mentorship Specs</h4>
               <div className="space-y-5">
                  <div className="flex items-center gap-4">
@@ -248,7 +248,7 @@ export default function TutorProfileSettings() {
 
         {/* ── PROFESSIONAL BACKGROUND ─────────────────────────────────────────── */}
         <div className="lg:col-span-2 space-y-8">
-           <div className="rounded-[2.5rem] bg-white p-10 border border-border shadow-sm min-h-[400px]">
+           <div className="rounded-2xl bg-white p-10 border border-border shadow-sm min-h-[400px]">
               <div className="flex items-center gap-4 mb-8">
                 <div className="h-12 w-12 rounded-2xl bg-primary/5 flex items-center justify-center text-primary">
                    <Briefcase className="h-5 w-5" />
@@ -292,7 +292,7 @@ export default function TutorProfileSettings() {
       {/* ── EDIT PROFILE MODAL ────────────────────────────────────────────────── */}
       {isEditing && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-md animate-in fade-in duration-300">
-           <div className="w-full max-w-4xl bg-white rounded-[3rem] shadow-2xl border border-border overflow-hidden animate-in zoom-in-95 duration-500">
+           <div className="w-full max-w-4xl bg-white rounded-2xl shadow-2xl border border-border overflow-hidden animate-in zoom-in-95 duration-500">
               <div className="flex items-center justify-between p-8 border-b border-border bg-surface-soft/30">
                  <div className="flex items-center gap-4">
                     <div className="h-12 w-12 rounded-2xl bg-secondary flex items-center justify-center text-white shadow-lg shadow-secondary/20">

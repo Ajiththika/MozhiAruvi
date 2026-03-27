@@ -198,7 +198,7 @@ export default function BlogDetailsPage() {
             </div>
           </header>
 
-          <div className="relative mb-14 rounded-[3rem] overflow-hidden bg-gray-50 border border-gray-100 aspect-[21/9] shadow-2xl shadow-slate-200/20">
+          <div className="relative mb-14 rounded-2xl overflow-hidden bg-gray-50 border border-gray-100 aspect-[21/9] shadow-2xl shadow-slate-200/20">
             {blog.featuredImage ? (
               <img src={blog.featuredImage} alt={blog.title} className="w-full h-full object-cover" />
             ) : (
@@ -213,7 +213,7 @@ export default function BlogDetailsPage() {
           </div>
           
           <div className="mt-20 border-t border-gray-100 pt-16">
-             <div className="bg-gray-50 rounded-[2.5rem] p-8 md:p-12 flex flex-col md:flex-row items-center justify-between gap-8 border border-gray-100">
+             <div className="bg-gray-50 rounded-2xl p-8 md:p-12 flex flex-col md:flex-row items-center justify-between gap-8 border border-gray-100">
                  <div className="space-y-4 text-center md:text-left">
                    <h3 className="text-2xl font-bold text-gray-800 tracking-tight">Enjoyed the story?</h3>
                    <p className="text-gray-500 text-sm font-medium">Capture your own Tamil expertise and share it with our growing community.</p>

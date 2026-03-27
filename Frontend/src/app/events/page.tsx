@@ -12,6 +12,7 @@ import { EventCard } from "@/components/features/events/EventCard";
 import RegistrationModal from "@/components/features/events/RegistrationModal";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
+import { cn } from "@/lib/utils";
 
 export default function EventsPage() {
   const { user } = useAuth();
@@ -27,8 +28,10 @@ export default function EventsPage() {
   
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<MozhiEvent | null>(null);
+  const [activeSlide, setActiveSlide] = useState(0);
 
   const isAdmin = user?.role === "admin";
+  const spotlightEvents = upcomingEvents.slice(0, 5);
 
   const handleEdit = (id: string) => {
     router.push(`/admin/events?edit=${id}`);
@@ -66,6 +69,14 @@ export default function EventsPage() {
       .finally(() => setLoadingPast(false));
   }, []);
 
+  useEffect(() => {
+    if (spotlightEvents.length <= 1) return;
+    const interval = setInterval(() => {
+      setActiveSlide((prev) => (prev + 1) % spotlightEvents.length);
+    }, 12000);
+    return () => clearInterval(interval);
+  }, [spotlightEvents.length]);
+
   const handleOpenRegistration = (event: MozhiEvent) => {
     if (!user) {
       router.push(`/auth/signin?redirect=${encodeURIComponent("/events")}`);
@@ -85,136 +96,106 @@ export default function EventsPage() {
       <Navbar />
 
       <main className="flex-1">
-        {/* ── 1. Premium Hero Section ─────────────────────────────── */}
-        <section className="relative overflow-hidden bg-white pt-24 pb-32 px-4 sm:px-6 lg:px-8 border-b border-gray-50">
-          <div className="absolute inset-0 pointer-events-none">
-            <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-primary/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
-            <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-secondary/5 rounded-full blur-3xl translate-y-1/4 -translate-x-1/4" />
-            <div className="absolute top-1/4 right-1/4 opacity-[0.03] font-black text-[20rem] text-primary select-none leading-none pointer-events-none rotate-12">
-              க
-            </div>
-          </div>
-
-          <div className="relative z-10 max-w-7xl mx-auto">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-20 items-center">
-              {/* Left Column: Content */}
-              <div className="lg:col-span-7 space-y-10 animate-in fade-in slide-in-from-left-4 duration-700">
-                <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-primary/5 text-[10px] font-black text-primary uppercase tracking-widest border border-primary/10">
-                  <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-                  Live Community Experience
+        {/* ── 1. Modern Horizontal Event Showcase ──────────────────────── */}
+        <section className="relative w-full bg-white pt-6 pb-12 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-7xl mx-auto">
+            <div className="relative w-full h-[350px] md:h-[450px] rounded-[2rem] overflow-hidden shadow-[0_32px_80px_-20px_rgba(0,0,0,0.15)] group border border-gray-100/30">
+              
+              {loadingUpcoming ? (
+                <div className="w-full h-full bg-gray-50 flex items-center justify-center">
+                  <Loader2 className="h-10 w-10 animate-spin text-primary/30" />
                 </div>
-
-                <h1 className="text-4xl md:text-5xl lg:text-7xl font-black text-gray-800 tracking-tight leading-tight">
-                  Connect, Learn & Grow with <br />
-                  <span className="text-primary italic">Tamil Culture</span>
-                </h1>
-
-                <p className="text-lg md:text-xl text-gray-600 max-w-2xl leading-relaxed font-medium">
-                  Experience the richness of Tamil heritage through curated workshops, poetry nights, and interactive meetups. Connect with native speakers worldwide.
-                </p>
-
-                <div className="flex flex-col sm:flex-row items-center gap-5 pt-6">
-                  <Button
-                    href="#upcoming"
-                    size="xl"
-                    className="w-full sm:w-auto px-10 shadow-xl shadow-primary/20"
-                  >
-                    Browse Events
-                  </Button>
-                  <Button
-                    href="/about"
-                    variant="outline"
-                    size="xl"
-                    className="w-full sm:w-auto px-10"
-                  >
-                    Explore Community
-                  </Button>
+              ) : spotlightEvents.length === 0 ? (
+                <div className="w-full h-full bg-gray-50 flex flex-col items-center justify-center p-12 text-center space-y-4">
+                  <Calendar size={48} className="text-gray-200" />
+                  <p className="text-sm font-black text-gray-300 uppercase tracking-widest leading-loose">
+                    No community spotlights <br /> currently scheduled
+                  </p>
                 </div>
-              </div>
-
-              {/* Right Column: Featured Event Card */}
-              <div className="lg:col-span-5 animate-in fade-in slide-in-from-right-4 duration-700 delay-150">
-                {loadingUpcoming ? (
-                  <div className="bg-gray-50 rounded-responsive h-[480px] w-full animate-pulse border border-gray-100 flex items-center justify-center">
-                    <Loader2 className="h-10 w-10 text-primary/20 animate-spin" />
-                  </div>
-                ) : upcomingEvents.length > 0 ? (
-                  <div className="relative group">
-                    <div className="absolute -inset-6 bg-primary/5 rounded-[3.5rem] blur-3xl group-hover:bg-primary/10 transition-colors duration-700" />
-                    <Card variant="elevated" padding="none" className="h-[520px] flex flex-col">
-                      <div className="bg-soft/20 aspect-[16/10] relative overflow-hidden">
-                        <div className="absolute top-6 left-6 flex flex-col items-center justify-center h-16 w-16 rounded-2xl bg-white shadow-xl text-primary border border-gray-100">
-                          <span className="text-[10px] font-black leading-none mb-1 uppercase tracking-tighter">
-                            {new Date(upcomingEvents[0].date).toLocaleDateString("en-US", { month: "short" })}
-                          </span>
-                          <span className="text-xl font-black">
-                            {new Date(upcomingEvents[0].date).getDate()}
-                          </span>
-                        </div>
-                        <div className="absolute bottom-6 left-6 right-6 flex items-center justify-between">
-                          <div className="px-4 py-1.5 rounded-full bg-white/80 backdrop-blur-md text-[10px] font-black text-gray-800 tracking-widest uppercase border border-white/20">
-                            Featured Event
-                          </div>
-                        </div>
-                        <div className="h-full w-full flex items-center justify-center text-8xl opacity-10 font-black grayscale group-hover:grayscale-0 transition-all select-none">
-                          MOZHI
-                        </div>
-                      </div>
-
-                      <CardBody className="p-10 space-y-6">
-                        <h3 className="text-3xl font-black text-gray-800 tracking-tight leading-tight group-hover:text-primary transition-colors">
-                          {upcomingEvents[0].title}
-                        </h3>
+              ) : (
+                <>
+                  <div 
+                    className="absolute inset-0 w-full h-full flex transition-transform duration-1000 ease-[cubic-bezier(0.23,1,0.32,1)]"
+                    style={{ transform: `translateX(-${activeSlide * 100}%)` }}
+                  >
+                    {spotlightEvents.map((event, idx) => (
+                      <div key={event._id} className="min-w-full h-full relative shrink-0">
+                        {/* Background Media */}
+                        <div
+                          className="absolute inset-0 bg-cover bg-center transition-transform duration-[15000ms] ease-linear group-hover:scale-110"
+                          style={{
+                            backgroundImage: event.image
+                              ? `url(${event.image})`
+                              : `linear-gradient(to bottom right, #00C9FF, #92FE9D)`
+                          }}
+                        />
+                        {/* Optimized High-Contrast Overlay */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
                         
-                        <div className="grid grid-cols-2 gap-6">
-                          <div className="flex items-center gap-3 text-gray-500 text-xs font-bold tracking-tight">
-                            <Clock className="w-5 h-5 text-primary/40" />
-                            {upcomingEvents[0].time}
-                          </div>
-                          <div className="flex items-center gap-3 text-gray-500 text-xs font-bold tracking-tight">
-                            <MapPin className="w-5 h-5 text-primary/40" />
-                            {upcomingEvents[0].location}
-                          </div>
+                        {/* Visual Decorative Layer */}
+                        <div className="absolute top-0 right-0 p-12 opacity-[0.03] font-black text-[30rem] text-white leading-none select-none pointer-events-none rotate-12">
+                           க
                         </div>
 
-                        <div className="space-y-4">
-                          <Button 
-                            onClick={() => handleOpenRegistration(upcomingEvents[0])}
-                            size="xl"
-                            className="w-full py-7 gap-3 shadow-xl shadow-primary/20"
-                          >
-                            Reserve My Spot <ChevronRight className="w-5 h-5" />
-                          </Button>
-                          {isAdmin && (
-                            <div className="flex gap-3">
-                              <Button
-                                onClick={() => handleEdit(upcomingEvents[0]._id)}
-                                variant="outline"
-                                className="flex-1 py-4 uppercase tracking-widest text-[10px]"
-                              >
-                                Edit
-                              </Button>
+                        {/* Content Overlay */}
+                        <div className="absolute inset-0 flex flex-col justify-end p-8 md:p-16 animate-in fade-in slide-in-from-bottom-8 duration-700 fill-mode-both">
+                          <div className="max-w-4xl space-y-6">
+                            <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-[10px] md:text-xs font-black text-white uppercase tracking-[0.2em]">
+                              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                              Spotlight Experience
+                            </div>
+
+                            <h2 className="text-4xl md:text-6xl lg:text-7xl font-black text-white tracking-tight leading-[1.05] drop-shadow-2xl">
+                              {event.title}
+                            </h2>
+
+                            <div className="flex flex-wrap items-center gap-8 text-white/80 font-bold text-xs md:text-sm pt-2">
+                              <span className="flex items-center gap-3">
+                                <Calendar className="w-4 h-4 text-emerald-400" />
+                                {new Date(event.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                              </span>
+                              <span className="flex items-center gap-3">
+                                <Clock className="w-4 h-4 text-emerald-400" />
+                                {event.time}
+                              </span>
+                              <span className="flex items-center gap-3">
+                                <MapPin className="w-4 h-4 text-emerald-400" />
+                                {event.location}
+                              </span>
+                            </div>
+
+                            <div className="pt-8">
                               <button
-                                onClick={() => handleDelete(upcomingEvents[0]._id)}
-                                className="flex-1 bg-red-50 text-red-600 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-red-100 transition-colors flex items-center justify-center gap-2"
+                                onClick={() => handleOpenRegistration(event)}
+                                className="inline-flex items-center gap-6 bg-white text-black px-10 py-5 rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] hover:bg-emerald-400 hover:text-white transition-all shadow-2xl active:scale-95 group/btn"
                               >
-                                <Trash2 className="w-4 h-4" /> Delete
+                                Reserve Your Spot
+                                <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                               </button>
                             </div>
-                          )}
+                          </div>
                         </div>
-                      </CardBody>
-                    </Card>
+                      </div>
+                    ))}
                   </div>
-                ) : (
-                  <Card variant="flat" padding="lg" className="h-[480px] flex flex-col items-center justify-center text-center space-y-6">
-                    <div className="h-20 w-20 rounded-full bg-white shadow-xl flex items-center justify-center text-4xl">🗓️</div>
-                    <h3 className="text-xl font-black text-gray-800 uppercase tracking-tight">Community Hub</h3>
-                    <p className="text-base text-gray-500 font-medium leading-relaxed max-w-xs">Join our global network. New events are scheduled regularly.</p>
-                    <Button href="/about" variant="outline" size="md">View Our Story</Button>
-                  </Card>
-                )}
-              </div>
+
+                  {/* Minimal Indicator Dots */}
+                  {spotlightEvents.length > 1 && (
+                    <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex items-center gap-3 z-30">
+                      {spotlightEvents.map((_, i) => (
+                        <button
+                          key={i}
+                          onClick={() => setActiveSlide(i)}
+                          className={cn(
+                            "h-1.5 rounded-full transition-all duration-500",
+                            activeSlide === i ? "bg-white w-10" : "bg-white/30 w-2 hover:bg-white/50"
+                          )}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </>
+              )}
             </div>
           </div>
         </section>

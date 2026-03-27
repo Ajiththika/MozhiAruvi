@@ -100,7 +100,7 @@ export default function TutorBlogsPage() {
       ) : null}
 
       {!loading && filtered.length === 0 && (
-        <div className="bg-white rounded-[3rem] border border-border p-24 text-center space-y-8 shadow-sm">
+        <div className="bg-white rounded-2xl border border-border p-24 text-center space-y-8 shadow-sm">
           <div className="h-24 w-24 bg-surface-soft rounded-full flex items-center justify-center mx-auto">
              <BookOpen className="h-10 w-10 text-gray-200" />
           </div>
@@ -118,7 +118,7 @@ export default function TutorBlogsPage() {
           {filtered.map((blog) => {
             const sc = statusConfig[blog.status] ?? statusConfig.draft;
             return (
-              <div key={blog._id} className="group relative flex flex-col h-full bg-white rounded-[3rem] border border-border overflow-hidden transition-all hover:shadow-[0_32px_64px_-16px_rgba(0,0,0,0.08)]">
+              <div key={blog._id} className="group relative flex flex-col h-full bg-white rounded-2xl border border-border overflow-hidden transition-all hover:shadow-[0_32px_64px_-16px_rgba(0,0,0,0.08)]">
                 <div className="aspect-[1.5/1] w-full bg-surface-soft relative overflow-hidden">
                   {blog.featuredImage ? (
                     <img src={blog.featuredImage} alt={blog.title} className="w-full h-full object-cover transition-transform group-hover:scale-110 duration-1000" />

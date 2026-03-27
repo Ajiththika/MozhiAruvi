@@ -92,33 +92,62 @@ function AdminEventsClient() {
       time: event.time,
       capacity: event.capacity,
       location: event.location,
+      image: event.image,
     });
     setEditingId(event._id);
     setShowCreate(true);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedFile(file);
+      setPreviewUrl(URL.createObjectURL(file));
+    }
+  };
+
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     setCreating(true);
     setError(null);
+
+    const formData = new FormData();
+    Object.entries(form).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        formData.append(key, value.toString());
+      }
+    });
+    if (selectedFile) {
+      formData.append("image", selectedFile);
+    }
+
     try {
       if (editingId) {
-        const updated = await updateEvent(editingId, form);
+        const updated = await updateEvent(editingId, formData);
         setEvents((prev) => prev.map(ev => ev._id === editingId ? updated : ev));
         setEditingId(null);
       } else {
-        const created = await createEvent(form);
+        const created = await createEvent(formData);
         setEvents((prev) => [created, ...prev]);
       }
       setShowCreate(false);
-      setForm({ eventCode: "", title: "", description: "", date: "", time: "", capacity: 20, location: "Online (Google Meet)" });
+      resetForm();
     } catch (err: any) {
       setError(err?.response?.data?.error?.message || err?.response?.data?.message || "Failed to process event.");
     } finally {
       setCreating(false);
     }
   };
+
+  const resetForm = () => {
+    setForm({ eventCode: "", title: "", description: "", date: "", time: "", capacity: 20, location: "Online (Google Meet)" });
+    setSelectedFile(null);
+    setPreviewUrl(null);
+  }
 
   const handleDelete = async (id: string) => {
     if (!window.confirm("Are you sure you want to delete this event? This will deactivate it for all users.")) return;
@@ -226,7 +255,7 @@ function AdminEventsClient() {
       )}
 
       {showCreate && (
-        <form onSubmit={handleCreate} className="rounded-[2.5rem] border border-primary/10 bg-primary/5 p-10 space-y-6 animate-in slide-in-from-top-2 duration-300">
+        <form onSubmit={handleCreate} className="rounded-2xl border border-primary/10 bg-primary/5 p-10 space-y-6 animate-in slide-in-from-top-2 duration-300">
           <h3 className="text-xl font-bold text-gray-800">{editingId ? 'Edit Event Details' : 'New Event Details'}</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-1.5">
@@ -261,6 +290,29 @@ function AdminEventsClient() {
               <input required value={form.location} onChange={e => setForm(f => ({ ...f, location: e.target.value }))}
                 placeholder="Google Meet or Venue"
                 className="w-full rounded-xl border border-gray-100 bg-white px-4 py-3 text-sm font-medium outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-sm" />
+            </div>
+            <div className="space-y-1.5 md:col-span-2">
+              <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Event Cover Image</label>
+              <div className="flex flex-col md:flex-row items-center gap-6 p-4 rounded-xl border border-dashed border-gray-200 bg-white/50">
+                {(previewUrl || (form as any).image) && (
+                  <div className="relative w-full md:w-48 h-28 rounded-xl overflow-hidden shadow-sm shrink-0">
+                    <img 
+                      src={previewUrl || (form as any).image} 
+                      className="w-full h-full object-cover" 
+                      alt="Preview" 
+                    />
+                  </div>
+                )}
+                <div className="flex-1 space-y-2">
+                  <input 
+                    type="file" 
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    className="block w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 cursor-pointer"
+                  />
+                  <p className="text-[10px] text-gray-400 font-medium italic">Recommended size: 1200x480px. Max 2MB.</p>
+                </div>
+              </div>
             </div>
           </div>
           <div className="space-y-1.5">

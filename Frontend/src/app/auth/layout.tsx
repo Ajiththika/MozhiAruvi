@@ -31,8 +31,8 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
 
         <div className="relative z-10 max-w-2xl mx-auto px-8 lg:px-16 text-center">
           
-          <div className="inline-flex items-center justify-center p-4 bg-white/60 backdrop-blur-xl rounded-[2.5rem] shadow-2xl mb-14 border border-white group relative hover:-translate-y-1 transition-transform duration-500">
-             <div className="absolute inset-0 bg-primary/5 rounded-[2.5rem] blur-2xl -z-10 group-hover:bg-primary/10 transition-colors"></div>
+          <div className="inline-flex items-center justify-center p-4 bg-white/60 backdrop-blur-xl rounded-2xl shadow-2xl mb-14 border border-white group relative hover:-translate-y-1 transition-transform duration-500">
+             <div className="absolute inset-0 bg-primary/5 rounded-2xl blur-2xl -z-10 group-hover:bg-primary/10 transition-colors"></div>
             <div className="w-20 h-20 bg-primary rounded-2xl flex items-center justify-center text-white text-4xl font-black shadow-xl group-hover:rotate-[-5deg] transition-transform duration-300">
               த
             </div>

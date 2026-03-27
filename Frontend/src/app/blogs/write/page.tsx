@@ -139,7 +139,7 @@ export default function CreateBlogPage() {
 
         <div className="space-y-12">
           {/* Enhanced Media Upload Orchestrator */}
-          <div className="relative group rounded-[3rem] border border-dashed border-border p-1.5 transition-all focus-within:border-primary/40 focus-within:ring-8 focus-within:ring-primary/5">
+          <div className="relative group rounded-2xl border border-dashed border-border p-1.5 transition-all focus-within:border-primary/40 focus-within:ring-8 focus-within:ring-primary/5">
             {form.featuredImage ? (
               <div className="relative aspect-[2/1] w-full rounded-[2.8rem] overflow-hidden group shadow-sm bg-surface-soft">
                  <img src={form.featuredImage} alt="Cover Preview" className="w-full h-full object-cover transition-transform group-hover:scale-105 duration-700" />

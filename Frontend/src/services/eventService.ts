@@ -18,6 +18,7 @@ export interface MozhiEvent {
   capacity: number;
   location: string;
   isActive: boolean;
+  image?: string;
   createdBy?: { _id: string; name: string; email?: string };
   participantsCount: number;
 }
@@ -46,8 +47,8 @@ export interface JoinRequestPayload {
 
 export type CreateEventPayload = Omit<
   MozhiEvent,
-  "_id" | "isActive" | "createdBy" | "participantsCount"
->;
+  "_id" | "isActive" | "createdBy" | "participantsCount" | "image"
+> & { image?: string | File };
 
 export type UpdateEventPayload = Partial<CreateEventPayload & { isActive: boolean }>;
 
@@ -93,16 +94,18 @@ export async function getMyEvents(): Promise<MozhiEvent[]> {
   return res.data.events;
 }
 
-export async function createEvent(payload: CreateEventPayload): Promise<MozhiEvent> {
-  const res = await api.post<{ event: MozhiEvent }>("/events", payload);
+export async function createEvent(payload: CreateEventPayload | FormData): Promise<MozhiEvent> {
+  const headers = payload instanceof FormData ? { 'Content-Type': 'multipart/form-data' } : {};
+  const res = await api.post<{ event: MozhiEvent }>("/events", payload, { headers });
   return res.data.event;
 }
 
 export async function updateEvent(
   id: string,
-  payload: UpdateEventPayload
+  payload: UpdateEventPayload | FormData
 ): Promise<MozhiEvent> {
-  const res = await api.patch<{ event: MozhiEvent }>(`/events/${id}`, payload);
+  const headers = payload instanceof FormData ? { 'Content-Type': 'multipart/form-data' } : {};
+  const res = await api.patch<{ event: MozhiEvent }>(`/events/${id}`, payload, { headers });
   return res.data.event;
 }
 

@@ -9,7 +9,7 @@ import { useAuth } from "@/context/AuthContext";
 
 interface RoleProtectedRouteProps {
   children: React.ReactNode;
-  allowedRoles: Array<"user" | "teacher" | "admin">;
+  allowedRoles: Array<"student" | "teacher" | "admin">;
 }
 
 export function RoleProtectedRoute({ children, allowedRoles }: RoleProtectedRouteProps) {

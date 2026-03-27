@@ -67,14 +67,14 @@ export default function StudentRequestsPage() {
           <AlertCircle className="h-5 w-5" /> {error}
         </div>
       ) : requests.length === 0 ? (
-        <div className="py-24 text-center bg-white rounded-[3rem] border border-dashed border-gray-100">
+        <div className="py-24 text-center bg-white rounded-2xl border border-dashed border-gray-100">
            <MessageSquare className="h-12 w-12 text-gray-200 mx-auto mb-6" />
            <h3 className="text-xl font-bold text-gray-800 uppercase tracking-widest">No requests yet</h3>
            <p className="text-gray-400 mt-2">Any questions you ask your tutors will appear here.</p>
            <Link href="/student/tutors" className="mt-8 inline-block text-sm font-bold text-primary hover:underline">Find a Teacher →</Link>
         </div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 ring-1 ring-slate-100 rounded-[2.5rem] bg-gray-50/30 p-2 overflow-hidden min-h-[600px]">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 ring-1 ring-slate-100 rounded-2xl bg-gray-50/30 p-2 overflow-hidden min-h-[600px]">
           {/* List */}
           <div className="lg:col-span-4 bg-white rounded-[2rem] border border-gray-100 overflow-y-auto max-h-[600px] shadow-sm">
             <div className="p-6 border-b border-slate-50">

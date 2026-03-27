@@ -76,7 +76,7 @@ export default function AboutPage() {
               </p>
             </div>
 
-            <div className="inline-block px-10 py-6 rounded-[2.5rem] bg-surface-soft border border-border shadow-inner mt-12 mb-12 transform hover:scale-105 transition-transform">
+            <div className="inline-block px-10 py-6 rounded-2xl bg-surface-soft border border-border shadow-inner mt-12 mb-12 transform hover:scale-105 transition-transform">
               <p className="text-3xl md:text-5xl font-black text-primary tracking-tight">தமிழ் மொழி வாழ்க</p>
               <p className="text-[10px] text-text-tertiary mt-2 uppercase font-black tracking-[0.3em]">Resonance of the Eternal Language</p>
             </div>
@@ -152,7 +152,7 @@ export default function AboutPage() {
                 <Card variant="elevated" padding="none" className="h-[520px] relative border-none bg-primary shadow-primary/20 group">
                    <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
                    <div className="p-10 flex flex-col items-center justify-center h-full text-center space-y-10">
-                      <div className="h-40 w-40 rounded-[3rem] bg-white flex items-center justify-center shadow-2xl rotate-3 group-hover:rotate-0 transition-transform duration-700">
+                      <div className="h-40 w-40 rounded-2xl bg-white flex items-center justify-center shadow-2xl rotate-3 group-hover:rotate-0 transition-transform duration-700">
                          <span className="text-8xl font-black text-primary">வா</span>
                       </div>
                       <div className="space-y-4">

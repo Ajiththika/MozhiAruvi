@@ -38,7 +38,7 @@ export function TutorCard({ tutor }: { tutor: Tutor }) {
   return (
     <div 
       onClick={handleExploreClick}
-      className="group relative flex flex-col rounded-[2.5rem] bg-white border border-gray-100 shadow-sm transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:shadow-secondary/20 overflow-hidden cursor-pointer"
+      className="group relative flex flex-col rounded-2xl bg-white border border-gray-100 shadow-sm transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:shadow-secondary/20 overflow-hidden cursor-pointer"
     >
       {/* Background Accent */}
       <div className="absolute top-0 right-0 h-32 w-32 bg-soft/10 rounded-full -mr-16 -mt-16 group-hover:bg-soft/20 transition-all duration-700" />

@@ -113,14 +113,14 @@ export default function PublicTutorProfilePage() {
             <div className="lg:col-span-8 flex flex-col gap-10">
               
               {/* Main Identity Banner */}
-              <div className="relative overflow-hidden rounded-[3.5rem] bg-white border border-gray-100 p-10 md:p-14 shadow-2xl shadow-slate-200/40">
+              <div className="relative overflow-hidden rounded-2xl bg-white border border-gray-100 p-10 md:p-14 shadow-2xl shadow-slate-200/40">
                 <div className="absolute top-0 right-0 h-[400px] w-[400px] rounded-full bg-primary/5 blur-3xl -mr-40 -mt-40" />
                 <div className="absolute bottom-0 left-0 h-[300px] w-[300px] rounded-full bg-secondary/5 blur-3xl -ml-40 -mb-40" />
                 
                 <div className="relative">
                   <div className="flex flex-col md:flex-row items-center md:items-start gap-10">
                     <div className="relative">
-                      <div className="h-40 w-40 overflow-hidden rounded-[2.5rem] bg-gray-50 border-4 border-white shadow-2xl transition-all duration-700 hover:rotate-2">
+                      <div className="h-40 w-40 overflow-hidden rounded-2xl bg-gray-50 border-4 border-white shadow-2xl transition-all duration-700 hover:rotate-2">
                         {tutor.profilePhoto ? (
                           <img src={tutor.profilePhoto} alt={tutor.name} className="h-full w-full object-cover transition-transform hover:scale-110 duration-500" />
                         ) : (
@@ -176,7 +176,7 @@ export default function PublicTutorProfilePage() {
 
               <div className="space-y-10">
                 {tutor.bio && (
-                  <div className="rounded-[3rem] bg-white border border-gray-100 p-10 md:p-14 shadow-xl shadow-slate-200/20">
+                  <div className="rounded-2xl bg-white border border-gray-100 p-10 md:p-14 shadow-xl shadow-slate-200/20">
                     <h2 className="text-xl font-bold text-gray-800 mb-8 flex items-center gap-3">
                       <BookOpen className="h-6 w-6 text-primary" /> Professional Background
                     </h2>
@@ -185,7 +185,7 @@ export default function PublicTutorProfilePage() {
                 )}
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
-                  <div className="rounded-[2.5rem] bg-white border border-gray-100 p-8 flex flex-col gap-6 shadow-xl shadow-slate-200/20 transition-all hover:border-primary/20">
+                  <div className="rounded-2xl bg-white border border-gray-100 p-8 flex flex-col gap-6 shadow-xl shadow-slate-200/20 transition-all hover:border-primary/20">
                      <div className="h-14 w-14 rounded-2xl bg-primary/5 flex items-center justify-center border border-primary/10">
                         <Sparkles className="h-7 w-7 text-primary" />
                      </div>
@@ -194,7 +194,7 @@ export default function PublicTutorProfilePage() {
                        <p className="text-md font-bold text-gray-800 leading-relaxed">{tutor.experience || "Native Teacher with extensive experience in conversational and formal Tamil instruction."}</p>
                      </div>
                   </div>
-                  <div className="rounded-[2.5rem] bg-white border border-gray-100 p-8 flex flex-col gap-6 shadow-xl shadow-slate-200/20 transition-all hover:border-secondary/20">
+                  <div className="rounded-2xl bg-white border border-gray-100 p-8 flex flex-col gap-6 shadow-xl shadow-slate-200/20 transition-all hover:border-secondary/20">
                      <div className="h-14 w-14 rounded-2xl bg-secondary/5 flex items-center justify-center border border-secondary/10">
                         <Globe className="h-7 w-7 text-secondary" />
                      </div>
@@ -210,7 +210,7 @@ export default function PublicTutorProfilePage() {
             {/* ── Right Column: Booking & Actions ── */}
             <div className="lg:col-span-4 flex flex-col gap-8">
               <div className="sticky top-24 space-y-6">
-                <div className="rounded-[3rem] bg-white p-10 text-white shadow-2xl shadow-primary/20 border border-gray-100 overflow-hidden">
+                <div className="rounded-2xl bg-white p-10 text-white shadow-2xl shadow-primary/20 border border-gray-100 overflow-hidden">
                   <div className="flex items-center justify-between mb-10 border-b border-gray-100 pb-8">
                      <div className="space-y-1">
                         <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Base Session Fee</p>
@@ -274,7 +274,7 @@ export default function PublicTutorProfilePage() {
 
                 <Link 
                   href="/student/tutors/my-requests" 
-                  className="flex items-center justify-center gap-3 w-full rounded-[2.5rem] border border-gray-100 bg-white py-5 text-xs font-bold text-gray-600 transition-all hover:border-primary hover:text-primary shadow-xl shadow-slate-200/20"
+                  className="flex items-center justify-center gap-3 w-full rounded-2xl border border-gray-100 bg-white py-5 text-xs font-bold text-gray-600 transition-all hover:border-primary hover:text-primary shadow-xl shadow-slate-200/20"
                 >
                    <ArrowLeft className="h-4 w-4" /> My Tutor Requests
                 </Link>

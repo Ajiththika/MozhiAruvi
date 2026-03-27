@@ -35,7 +35,17 @@ export default function StudentDashboard() {
   }
 
   return (
-    <div className="space-y-12 animate-in fade-in duration-700 max-w-7xl mx-auto py-8 lg:py-12 px-2 sm:px-6 lg:px-8">
+    <div className="relative min-h-screen bg-white">
+      {/* Tamil Watermark Background */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-primary/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-secondary/5 rounded-full blur-3xl translate-y-1/4 -translate-x-1/4" />
+        <div className="fixed top-1/4 right-1/4 opacity-[0.03] font-black text-[30rem] text-primary select-none leading-none pointer-events-none rotate-12">
+          அ
+        </div>
+      </div>
+
+      <div className="relative z-10 space-y-12 animate-in fade-in duration-700 max-w-7xl mx-auto py-8 lg:py-12 px-2 sm:px-6 lg:px-8">
       {/* Header Section */}
       <div className="space-y-4">
         <div className="flex items-center gap-3">
@@ -121,19 +131,21 @@ export default function StudentDashboard() {
                   </div>
                 </div>
 
-                <div className="hidden lg:flex shrink-0 w-48 h-48 rounded-[3rem] bg-white/5 items-center justify-center border border-white/10 shadow-inner group-hover:rotate-6 transition-transform duration-700">
+                <div className="hidden lg:flex shrink-0 w-48 h-48 rounded-2xl bg-white/5 items-center justify-center border border-white/10 shadow-inner group-hover:rotate-6 transition-transform duration-700">
                    <BookMarked className="w-20 h-20 text-white/50" />
                 </div>
               </div>
             </Card>
           ) : (
             <Card variant="outline" padding="xl" className="flex flex-col items-center justify-center text-center border-dashed bg-gray-50/50">
-              <BookOpen className="h-14 w-14 text-gray-200 mb-6" />
-              <p className="text-lg font-black text-gray-400 uppercase tracking-widest">No Active Lessons</p>
-              <Button href="/student/lessons" variant="primary" className="mt-6">Explore the Curriculum</Button>
+              <div className="h-20 w-20 rounded-full bg-white shadow-xl flex items-center justify-center text-4xl mb-6">📚</div>
+              <p className="text-xl font-black text-gray-800 uppercase tracking-widest">Awaiting Knowledge</p>
+              <p className="text-gray-500 font-medium my-4 max-w-sm">You haven't begun any modules yet. Embark on your linguistic journey today.</p>
+              <Button href="/student/lessons" variant="primary" size="lg" className="rounded-2xl shadow-xl shadow-primary/20 mt-4">Explore the Curriculum <ArrowRight className="ml-2 h-4 w-4" /></Button>
             </Card>
           )}
         </div>
       </div>
-    );
+    </div>
+  );
 }

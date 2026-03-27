@@ -236,7 +236,7 @@ export default function BlogsPage() {
             {featured && (
               <Link
                 href={`/blogs/${featured.slug || featured._id}`}
-                className="group relative flex flex-col md:flex-row gap-0 overflow-hidden rounded-[3rem] bg-white border border-border transition-all hover:shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)]"
+                className="group relative flex flex-col md:flex-row gap-0 overflow-hidden rounded-2xl bg-white border border-border transition-all hover:shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)]"
               >
                 <div className="w-full md:w-1/2 aspect-[16/10] md:aspect-auto bg-surface-soft relative overflow-hidden">
                   {featured.featuredImage ? (
@@ -300,7 +300,7 @@ export default function BlogsPage() {
                       href={`/blogs/${post.slug || post._id}`}
                       className="flex flex-col flex-1"
                     >
-                      <div className="aspect-[1.4/1] w-full bg-surface-soft rounded-[3rem] relative overflow-hidden mb-8 border border-border transition-all hover:border-primary/20">
+                      <div className="aspect-[1.4/1] w-full bg-surface-soft rounded-2xl relative overflow-hidden mb-8 border border-border transition-all hover:border-primary/20">
                         {post.featuredImage ? (
                           <img src={post.featuredImage} alt={post.title} className="w-full h-full object-cover transition-transform group-hover:scale-110 duration-1000" />
                         ) : (

@@ -78,7 +78,7 @@ export default function PublicTutorsPage() {
           </div>
 
           {/* --- Search & Filter Bar --- */}
-          <div className="space-y-8 bg-gray-50/50 rounded-[2.5rem] p-8 md:p-10 border border-gray-100">
+          <div className="space-y-8 bg-gray-50/50 rounded-2xl p-8 md:p-10 border border-gray-100">
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-6 border-b border-gray-200/50">
                <div className="relative w-full lg:max-w-md">
                  <Search className="absolute left-5 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
@@ -142,7 +142,7 @@ export default function PublicTutorsPage() {
             ) : (
               <>
                 {tutors.length === 0 ? (
-                  <div className="py-24 text-center bg-white rounded-[3rem] border border-dashed border-gray-100">
+                  <div className="py-24 text-center bg-white rounded-2xl border border-dashed border-gray-100">
                     <div className="h-24 w-24 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-8">
                       <GraduationCap className="h-12 w-12 text-gray-200" />
                     </div>

@@ -26,6 +26,13 @@ app.use((req, res, next) => {
 
 // ── Security ──────────────────────────────────────────────────────────────────
 app.use(helmet());
+app.use((req, res, next) => {
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Surrogate-Control', 'no-store');
+    res.setHeader('Expires', '0');
+    next();
+});
 app.use(cors({
     origin: ['http://localhost:3000', 'http://127.0.0.1:3000', process.env.FRONTEND_ORIGIN].filter(Boolean),
     credentials: true,

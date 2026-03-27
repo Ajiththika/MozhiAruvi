@@ -54,7 +54,7 @@ export function Modal({
       {/* Modal Content */}
       <div
         className={cn(
-          "relative w-full overflow-hidden rounded-[2.5rem] bg-surface shadow-3xl animate-in zoom-in-95 slide-in-from-bottom-10 duration-500 fill-mode-forwards border border-border/60",
+          "relative w-full overflow-hidden rounded-2xl bg-surface shadow-3xl animate-in zoom-in-95 slide-in-from-bottom-10 duration-500 fill-mode-forwards border border-border/60",
           sizes[size]
         )}
       >

@@ -1,10 +1,8 @@
-export function getRoleDashboardRoute(role: "user" | "student" | "teacher" | "admin" | "tutor"): string {
+export function getRoleDashboardRoute(role: "student" | "teacher" | "admin"): string {
   switch (role) {
-    case "user":
     case "student":
       return "/student/dashboard";
     case "teacher":
-    case "tutor":
       return "/tutor/dashboard";
     case "admin":
       return "/admin/dashboard";

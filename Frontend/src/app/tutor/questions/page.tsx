@@ -138,7 +138,7 @@ export default function TeacherRequestsPage() {
               <div
                 key={r._id}
                 className={cn(
-                  "group relative overflow-hidden rounded-[2.5rem] bg-white border transition-all duration-300",
+                  "group relative overflow-hidden rounded-2xl bg-white border transition-all duration-300",
                   isPending ? "border-primary/20 shadow-xl shadow-primary/[0.03]" : "border-gray-100  opacity-90 hover:opacity-100"
                 )}
               >
