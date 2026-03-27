@@ -155,7 +155,7 @@ export default function AdminDashboard() {
               { label: "Curriculum Builder", href: "/admin/lessons", count: null },
               { label: "Moderate Events", href: "/admin/events", count: stats?.totalEvents || 0 },
               { label: "Create Event", href: "/admin/events", count: null },
-              { label: "Write a Story", href: "/student/blogs/create", count: null },
+              { label: "Write a Story", href: "/blogs/write", count: null },
             ].map((action) => (
               <Button
                 key={action.label}

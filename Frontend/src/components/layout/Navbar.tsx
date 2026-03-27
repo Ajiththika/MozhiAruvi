@@ -43,8 +43,8 @@ export default function Navbar() {
                   priority 
                 />
               </div>
-              <span className="text-xl md:text-2xl font-bold text-primary">
-                <span className="text-secondary">Mozhi</span>Aruvi
+              <span className="text-xl md:text-2xl font-black text-gray-900 tracking-tighter flex items-center gap-1">
+                Mozhi<span className="text-primary italic">Aruvi</span>
               </span>
             </Link>
           </div>

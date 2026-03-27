@@ -73,30 +73,30 @@ export default function AdminBlogsPage() {
 
   return (
     <div className="animate-in fade-in duration-700 max-w-7xl mx-auto py-10">
-      <div className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-8 pb-10 border-b border-gray-100">
-        <div className="space-y-4">
-           <div className="flex items-center gap-2">
-              <span className="h-1.5 w-6 rounded-full bg-primary" />
-              <span className="text-xs font-bold text-primary tracking-tight">Post moderation</span>
+      <div className="mb-16 flex flex-col md:flex-row md:items-end justify-between gap-12 pb-14 border-b border-border">
+        <div className="space-y-6">
+           <div className="flex items-center gap-4">
+              <div className="h-0.5 w-10 bg-primary/40 rounded-full" />
+              <span className="text-[10px] font-black text-gray-400 uppercase tracking-[0.25em]">Central Archive Control</span>
            </div>
-           <h1 className="text-4xl font-bold text-gray-800 tracking-tight leading-none">Content Control</h1>
-           <p className="text-gray-500 font-medium max-w-md">Oversee community contributions and maintain excellence.</p>
+           <h1 className="text-5xl font-black text-gray-900 tracking-tighter leading-none">Content Moderation</h1>
+           <p className="text-gray-400 font-bold max-w-lg tracking-tight">Audit and orchestrate community contributions to maintain architectural and cultural excellence.</p>
         </div>
         
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-6">
           <Button
-            href="/student/blogs/create"
+            href="/blogs/write"
             variant="primary"
-            size="md"
-            className="rounded-xl shadow-xl shadow-primary/20"
+            size="xl"
+            className="rounded-[2.5rem] shadow-2xl shadow-primary/20 h-16 px-12 font-black uppercase text-[10px] tracking-widest bg-gray-900 hover:bg-black text-white"
           >
-            <Plus className="w-4 h-4 mr-2" /> Write Story
+            <Plus className="w-5 h-5 mr-3" /> Write
           </Button>
           <button
             onClick={() => fetchBlogs(currentPage)}
-            className="flex items-center gap-2 rounded-xl border border-gray-100 bg-white px-5 py-3 text-sm font-bold text-gray-600 hover:bg-gray-50 transition-all shadow-sm"
+            className="flex items-center gap-3 rounded-[2rem] border border-border bg-white h-16 px-10 text-[10px] font-black uppercase tracking-widest text-gray-600 hover:bg-gray-50 transition-all shadow-sm group"
           >
-            <RefreshCw className={cn("h-4 w-4", loading && "animate-spin")} /> Refresh
+            <RefreshCw className={cn("h-4 w-4 transition-transform group-hover:rotate-180 duration-700", loading && "animate-spin")} /> Refresh Log
           </button>
         </div>
       </div>
@@ -105,40 +105,43 @@ export default function AdminBlogsPage() {
 
       {/* Error / Loading */}
       {error && (
-        <div className="mb-8 flex items-center gap-4 rounded-2xl border border-red-100 bg-red-50 p-5 text-sm font-bold text-red-700">
+        <div className="mb-12 flex items-center gap-6 rounded-[2rem] border border-red-100 bg-red-50 p-8 text-sm font-bold text-red-700">
           <AlertCircle className="h-6 w-6 shrink-0" /> {error}
         </div>
       )}
 
       {loading && filtered.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-32 gap-6">
-          <Loader2 className="h-12 w-12 animate-spin text-primary" />
-          <p className="text-sm font-bold text-gray-400">Loading audit log...</p>
+        <div className="flex flex-col items-center justify-center py-48 gap-8">
+          <Loader2 className="h-16 w-16 animate-spin text-primary" />
+          <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Auditing the repository...</p>
         </div>
       ) : null}
 
       {!loading && filtered.length === 0 && !error && (
-        <div className="bg-white rounded-3xl border border-gray-100 p-20 text-center">
-          <p className="text-gray-500 font-medium">No results match your selection.</p>
+        <div className="bg-white rounded-[3rem] border border-border p-32 text-center shadow-sm">
+           <div className="h-24 w-24 bg-surface-soft rounded-full flex items-center justify-center mx-auto mb-8">
+              <Filter className="h-10 w-10 text-gray-200" />
+           </div>
+          <p className="text-gray-400 font-bold tracking-tight text-xl">No archival entries match your filter logic.</p>
         </div>
       )}
 
       {/* Audit Table */}
       {filtered.length > 0 && (
-        <div className="space-y-12">
-          <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-2xl shadow-slate-200/20 overflow-hidden">
+        <div className="space-y-16">
+          <div className="bg-white rounded-[3rem] border border-border shadow-[0_32px_64px_-16px_rgba(0,0,0,0.05)] overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-left">
                 <thead>
-                  <tr className="bg-gray-50/50 border-b border-gray-100">
-                    <th className="px-8 py-6 text-xs font-bold text-gray-400 uppercase tracking-widest">Article details</th>
-                    <th className="px-8 py-6 text-xs font-bold text-gray-400 uppercase tracking-widest hidden md:table-cell">Author</th>
-                    <th className="px-8 py-6 text-xs font-bold text-gray-400 uppercase tracking-widest">Current state</th>
-                    <th className="px-8 py-6 text-xs font-bold text-gray-400 uppercase tracking-widest hidden lg:table-cell">Timestamp</th>
-                    <th className="px-8 py-6 text-xs font-bold text-gray-400 uppercase tracking-widest text-right">Moderation</th>
+                  <tr className="bg-surface-soft border-b border-border">
+                    <th className="px-12 py-8 text-[10px] font-black text-gray-400 uppercase tracking-widest">Repository Details</th>
+                    <th className="px-12 py-8 text-[10px] font-black text-gray-400 uppercase tracking-widest hidden md:table-cell">Contributor</th>
+                    <th className="px-12 py-8 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">Current State</th>
+                    <th className="px-12 py-8 text-[10px] font-black text-gray-400 uppercase tracking-widest hidden lg:table-cell">Audit Stamp</th>
+                    <th className="px-12 py-8 text-[10px] font-black text-gray-400 uppercase tracking-widest text-right">Moderation Logic</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-50">
+                <tbody className="divide-y divide-border">
                   {filtered.map((blog) => {
                     const sc = statusConfig[blog.status] ?? statusConfig.draft;
                     const inAction = actionId === blog._id;

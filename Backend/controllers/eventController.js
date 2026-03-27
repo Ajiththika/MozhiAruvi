@@ -41,7 +41,7 @@ export async function updateEvent(req, res, next) {
 export async function deleteEvent(req, res, next) {
     try {
         await eventService.deleteEvent(req.params.id);
-        res.json({ message: 'Event deactivated successfully.' });
+        res.json({ message: 'Event deleted successfully.' });
     } catch (e) { next(e); }
 }
 

@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, Suspense } from "react";
 import { DataTable, ColumnDef } from "@/components/ui/DataTable";
 import { Calendar as CalendarIcon, MapPin, Users, Globe2, Trash2, PlusCircle, AlertCircle, Loader2 } from "lucide-react";
-import { getEvents, deleteEvent, createEvent, MozhiEvent, CreateEventPayload } from "@/services/eventService";
+import { getEvents, deleteEvent, createEvent, updateEvent, MozhiEvent, CreateEventPayload, getEventById } from "@/services/eventService";
+import { useSearchParams, useRouter } from "next/navigation";
 
 const EventStatusBadge = ({ isActive }: { isActive: boolean }) => {
    if (isActive) {
@@ -13,12 +14,27 @@ const EventStatusBadge = ({ isActive }: { isActive: boolean }) => {
 }
 
 export default function AdminEventsPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center py-20 gap-3 text-gray-400 font-bold uppercase tracking-widest text-xs">
+        <Loader2 className="h-5 w-5 animate-spin" /> Loading Admin Dashboard...
+      </div>
+    }>
+      <AdminEventsClient />
+    </Suspense>
+  );
+}
+
+function AdminEventsClient() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [events, setEvents] = useState<MozhiEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [showCreate, setShowCreate] = useState(false);
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
   
   const [form, setForm] = useState<CreateEventPayload>({
     eventCode: "",
@@ -34,6 +50,31 @@ export default function AdminEventsPage() {
     fetchEvents();
   }, []);
 
+  // ── Handle external edit param ────────────────────────────────────
+  useEffect(() => {
+    const editId = searchParams.get('edit');
+    if (editId) {
+      // If we already have events, find it
+      const existing = events.find(e => e._id === editId);
+      if (existing) {
+        handleEdit(existing);
+        // Clear param
+        const url = new URL(window.location.href);
+        url.searchParams.delete('edit');
+        window.history.replaceState({}, '', url.toString());
+      } else if (!loading) {
+        // Not in list (maybe on another page), fetch it
+        getEventById(editId)
+          .then(handleEdit)
+          .catch(console.error);
+        // Clear param
+        const url = new URL(window.location.href);
+        url.searchParams.delete('edit');
+        window.history.replaceState({}, '', url.toString());
+      }
+    }
+  }, [searchParams, events, loading]);
+
   const fetchEvents = () => {
     setLoading(true);
     getEvents(1, 50)
@@ -42,23 +83,45 @@ export default function AdminEventsPage() {
       .finally(() => setLoading(false));
   };
 
+  const handleEdit = (event: MozhiEvent) => {
+    setForm({
+      eventCode: event.eventCode,
+      title: event.title,
+      description: event.description,
+      date: event.date.split('T')[0],
+      time: event.time,
+      capacity: event.capacity,
+      location: event.location,
+    });
+    setEditingId(event._id);
+    setShowCreate(true);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     setCreating(true);
     setError(null);
     try {
-      const created = await createEvent(form);
-      setEvents((prev) => [created, ...prev]);
+      if (editingId) {
+        const updated = await updateEvent(editingId, form);
+        setEvents((prev) => prev.map(ev => ev._id === editingId ? updated : ev));
+        setEditingId(null);
+      } else {
+        const created = await createEvent(form);
+        setEvents((prev) => [created, ...prev]);
+      }
       setShowCreate(false);
       setForm({ eventCode: "", title: "", description: "", date: "", time: "", capacity: 20, location: "Online (Google Meet)" });
     } catch (err: any) {
-      setError(err?.response?.data?.error?.message || err?.response?.data?.message || "Failed to create event.");
+      setError(err?.response?.data?.error?.message || err?.response?.data?.message || "Failed to process event.");
     } finally {
       setCreating(false);
     }
   };
 
   const handleDelete = async (id: string) => {
+    if (!window.confirm("Are you sure you want to delete this event? This will deactivate it for all users.")) return;
     setDeletingId(id);
     try {
       await deleteEvent(id);
@@ -71,12 +134,12 @@ export default function AdminEventsPage() {
   };
 
   const columns: ColumnDef<MozhiEvent>[] = [
-    // ... same columns as before ...
+    // ... columns ...
     {
       header: "Event",
       accessorKey: "title",
       cell: (row) => (
-         <div className="flex flex-col">
+         <div className="flex flex-col text-left">
             <span className="font-bold text-gray-800 dark:text-slate-100">{row.title}</span>
             <span className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400 mt-0.5">
                <Globe2 className="h-3 w-3" /> {row.eventCode}
@@ -110,13 +173,19 @@ export default function AdminEventsPage() {
       accessorKey: "_id",
       className: "text-right",
       cell: (row) => (
-         <div className="flex justify-end gap-2">
+         <div className="flex justify-end gap-3">
+            <button
+              onClick={() => handleEdit(row)}
+              className="text-sm font-bold text-gray-400 hover:text-primary transition inline-flex items-center gap-1 uppercase tracking-widest text-[10px]"
+            >
+               Edit
+            </button>
             <button
               onClick={() => handleDelete(row._id)}
               disabled={deletingId === row._id}
-              className="text-sm font-semibold text-red-600 hover:text-red-500 transition ml-2 inline-flex items-center gap-1 disabled:opacity-40"
+              className="text-sm font-bold text-red-600 hover:text-red-500 transition inline-flex items-center gap-1 disabled:opacity-40 uppercase tracking-widest text-[10px]"
             >
-               <Trash2 className="w-4 h-4" /> {deletingId === row._id ? 'Deactivating...' : 'Deactivate'}
+               <Trash2 className="w-3.5 h-3.5" /> {deletingId === row._id ? 'Deleting...' : 'Delete'}
             </button>
          </div>
       )
@@ -137,7 +206,13 @@ export default function AdminEventsPage() {
            <p className="mt-2 text-gray-500 font-medium">Monitor and create community events.</p>
         </div>
         <button
-          onClick={() => setShowCreate(!showCreate)}
+          onClick={() => {
+            if (showCreate) {
+              setEditingId(null);
+              setForm({ eventCode: "", title: "", description: "", date: "", time: "", capacity: 20, location: "Online (Google Meet)" });
+            }
+            setShowCreate(!showCreate);
+          }}
           className="flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-primary/90 active:scale-95"
         >
           <PlusCircle className="h-4 w-4" /> {showCreate ? "Cancel" : "Create New Event"}
@@ -152,7 +227,7 @@ export default function AdminEventsPage() {
 
       {showCreate && (
         <form onSubmit={handleCreate} className="rounded-[2.5rem] border border-primary/10 bg-primary/5 p-10 space-y-6 animate-in slide-in-from-top-2 duration-300">
-          <h3 className="text-xl font-bold text-gray-800">New Event Details</h3>
+          <h3 className="text-xl font-bold text-gray-800">{editingId ? 'Edit Event Details' : 'New Event Details'}</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-1.5">
               <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Event Code *</label>
@@ -195,11 +270,11 @@ export default function AdminEventsPage() {
               className="w-full resize-none rounded-xl border border-gray-100 bg-white px-4 py-3 text-sm font-medium outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-sm" />
           </div>
           <div className="flex justify-end gap-3 pt-4">
-            <button type="button" onClick={() => setShowCreate(false)} className="rounded-xl border border-gray-100 px-6 py-3 text-sm font-bold text-gray-500 hover:bg-gray-50 transition-colors">
+            <button type="button" onClick={() => { setShowCreate(false); setEditingId(null); setForm({ eventCode: "", title: "", description: "", date: "", time: "", capacity: 20, location: "Online (Google Meet)" }); }} className="rounded-xl border border-gray-100 px-6 py-3 text-sm font-bold text-gray-500 hover:bg-gray-50 transition-colors">
               Cancel
             </button>
             <button type="submit" disabled={creating} className="rounded-xl bg-primary px-8 py-3 text-sm font-bold text-white hover:bg-primary/90 disabled:opacity-60 transition-all shadow-lg shadow-primary/20 active:scale-95">
-              {creating ? "Creating..." : "Create Event"}
+              {creating ? (editingId ? "Updating..." : "Creating...") : (editingId ? "Update Event" : "Create Event")}
             </button>
           </div>
         </form>

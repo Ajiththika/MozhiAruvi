@@ -18,7 +18,7 @@ export interface SafeUser {
   _id: string;
   name: string;
   email: string;
-  role: "user" | "teacher" | "admin";
+  role: "user" | "teacher" | "admin" | "student" | "tutor";
   isTutorAvailable?: boolean;
   profilePhoto?: string | null;
   level?: "Beginner" | "Intermediate" | "Advanced" | "Not Set";
@@ -60,6 +60,7 @@ export async function login(data: {
   email: string;
   password: string;
 }): Promise<AuthResponse> {
+  console.log("[AUTH] Dispatching login request to /auth/login...");
   const res = await api.post<AuthResponse>("/auth/login", data);
   authStore.set(res.data.accessToken);
   return res.data;

@@ -57,37 +57,61 @@ interface SidebarProps {
 export function Sidebar({ items, basePath }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
-  const { logoutUser } = useAuth();
+  const { user, logoutUser } = useAuth();
 
   const handleLogout = async () => {
     await logoutUser();
     router.push("/auth/signin");
   };
 
+  const getProfileLink = () => {
+    if (user?.role === 'admin') return '/admin/profile';
+    if (user?.role === 'teacher' || user?.role === 'tutor') return '/tutor/profile';
+    return '/student/profile';
+  };
+
   return (
     <aside className="hidden w-72 flex-col border-r border-border bg-background md:flex h-screen sticky top-0">
-      {/* Brand Section */}
-      <div className="flex h-24 items-center border-b border-border/60 px-8">
-        <Link
-          href="/"
-          className="flex items-center gap-4 transition-all duration-300 hover:scale-[1.02]"
+      {/* Brand & Profile Section */}
+      <div className="flex flex-col border-b border-border/60">
+        <div className="flex h-20 items-center px-8">
+          <Link href="/" className="flex items-center gap-3 transition-all duration-300 hover:scale-[1.02]">
+            <div className="relative h-9 w-9 overflow-hidden rounded-xl bg-primary/5 flex items-center justify-center p-1.5 border border-primary/10 shadow-inner">
+              <Image src="/logo.png" alt="Mozhi Aruvi Logo" fill className="object-contain p-1" />
+            </div>
+            <span className="text-xl font-black tracking-tighter text-gray-900 flex items-center gap-1">
+              Mozhi<span className="text-primary italic">Aruvi</span>
+            </span>
+          </Link>
+        </div>
+
+        {/* User Profile Header */}
+        <Link 
+          href={getProfileLink()}
+          className="mx-6 mb-6 p-4 rounded-2xl bg-surface-soft/40 border border-border/40 hover:bg-surface-soft transition-all duration-300 group"
         >
-          <div className="relative h-11 w-11 overflow-hidden rounded-2xl bg-primary/5 flex items-center justify-center p-2 border border-primary/10 shadow-inner">
-            <Image 
-              src="/logo.png" 
-              alt="Mozhi Aruvi Logo" 
-              fill 
-              className="object-contain p-1.5" 
-            />
+          <div className="flex items-center gap-4">
+            <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-xl bg-white border border-border shadow-sm group-hover:border-primary/30 transition-colors">
+              {user?.profilePhoto ? (
+                <Image src={user.profilePhoto} alt={user.name} fill className="object-cover" />
+              ) : (
+                <div className="h-full w-full flex items-center justify-center bg-primary/5">
+                  <UserCircle className="h-7 w-7 text-primary/40" />
+                </div>
+              )}
+            </div>
+            <div className="min-w-0">
+              <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Welcome back</p>
+              <h4 className="text-sm font-black text-gray-800 truncate pr-2 group-hover:text-primary transition-colors">
+                {user?.name || "Member"}
+              </h4>
+            </div>
           </div>
-          <span className="text-2xl font-black tracking-tight text-text-primary">
-            Mozhi <span className="text-primary">Aruvi</span>
-          </span>
         </Link>
       </div>
 
       {/* Navigation Space */}
-      <nav className="flex-1 space-y-2.5 overflow-y-auto p-6 scrollbar-hide py-10">
+      <nav className="flex-1 space-y-2 overflow-y-auto p-6 scrollbar-hide py-6">
         {items.map((item) => {
           const Icon = iconMap[item.icon];
           if (!Icon) return null;
@@ -101,42 +125,37 @@ export function Sidebar({ items, basePath }: SidebarProps) {
               key={item.name}
               href={item.href}
               className={cn(
-                "group flex items-center gap-4 px-5 py-4 text-sm font-bold transition-all duration-300 rounded-responsive",
+                "group flex items-center gap-4 px-5 py-3.5 text-sm font-bold transition-all duration-300 rounded-responsive",
                 isActive
-                  ? "bg-primary text-white shadow-xl shadow-primary/30 translate-x-1"
-                  : "text-text-secondary hover:bg-primary/5 hover:text-primary active:scale-[0.98]"
+                  ? "bg-primary text-white shadow-lg shadow-primary/20"
+                  : "text-text-secondary hover:bg-primary/5 hover:text-primary"
               )}
             >
-              <div className={cn(
-                "p-2 rounded-xl transition-colors",
-                isActive ? "bg-white/10" : "bg-surface-soft group-hover:bg-primary/10 border border-border/40"
-              )}>
-                <Icon
-                  className={cn(
-                    "h-4.5 w-4.5 shrink-0 transition-transform duration-300 group-hover:scale-110",
-                    isActive ? "text-white" : "text-text-secondary group-hover:text-primary"
-                  )}
-                />
-              </div>
+              <Icon
+                className={cn(
+                  "h-4.5 w-4.5 shrink-0 transition-transform duration-300 group-hover:scale-110",
+                  isActive ? "text-white" : "text-text-secondary group-hover:text-primary"
+                )}
+              />
               <span className="tracking-tight font-black uppercase text-[10px] tracking-widest">{item.name}</span>
               {isActive && (
-                <div className="ml-auto w-2 h-2 rounded-full bg-white animate-pulse" />
+                <div className="ml-auto w-1.5 h-1.5 rounded-full bg-white opacity-60" />
               )}
             </Link>
           );
         })}
       </nav>
 
-      {/* Accessibility Anchor: Footer Actions */}
-      <div className="border-t border-border p-6 bg-surface-soft/60">
+      {/* Footer Actions */}
+      <div className="border-t border-border p-6 mt-auto">
         <button
           onClick={handleLogout}
-          className="group flex w-full items-center gap-4 rounded-responsive px-5 py-4 text-[10px] font-black uppercase tracking-[0.2em] text-error transition-all duration-300 hover:bg-error/5 border border-transparent hover:border-error/20"
+          className="group flex w-full items-center gap-4 rounded-responsive px-5 py-4 text-[10px] font-black uppercase tracking-[0.2em] text-error transition-all duration-300 hover:bg-error/5 border border-transparent hover:border-error/10"
         >
-          <div className="p-2 rounded-xl bg-error/10 text-error group-hover:bg-error group-hover:text-white transition-all shadow-sm">
-            <LogOut className="h-4.5 w-4.5" />
+          <div className="p-2 rounded-xl bg-error/10 text-error group-hover:bg-error group-hover:text-white transition-all">
+            <LogOut className="h-4 w-4" />
           </div>
-          Session Logout
+          Logout Portal
         </button>
       </div>
     </aside>

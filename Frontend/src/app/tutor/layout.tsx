@@ -5,10 +5,9 @@ import { RoleProtectedRoute } from "@/components/features/auth/RoleProtectedRout
 
 const tutorLinks: SidebarItem[] = [
   { name: "Dashboard",        href: "/tutor/dashboard",  icon: "home" },
+  { name: "My Blogs",         href: "/tutor/blogs",     icon: "message-square" },
   { name: "Student Requests", href: "/tutor/questions",  icon: "message-square" },
-  { name: "Schedule",  href: "/tutor/schedule",   icon: "calendar-days" },
-  { name: "Events",    href: "/events",           icon: "calendar" },
-  { name: "Profile",   href: "/tutor/profile",    icon: "user-circle" },
+  { name: "Settings",         href: "/tutor/profile",    icon: "settings" },
 ];
 
 export default function TutorLayout({ children }: { children: React.ReactNode }) {

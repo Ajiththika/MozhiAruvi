@@ -1,0 +1,272 @@
+"use client";
+
+import React, { useState, useRef } from "react";
+import { createBlog } from "@/services/blogService";
+import { useRouter } from "next/navigation";
+import { ArrowLeft, Loader2, CheckCircle2, AlertCircle, Save, Send, UserCircle, Image as ImageIcon, Sparkles, Upload, X } from "lucide-react";
+import Link from "next/link";
+import { useAuth } from "@/context/AuthContext";
+import Button from "@/components/ui/Button";
+import api from "@/lib/api";
+
+const CATEGORIES = ["Grammar", "Culture", "Pronunciation", "Tutor Tips", "Updates", "General"];
+
+export default function CreateBlogPage() {
+  const router = useRouter();
+  const { user, isLoading } = useAuth();
+  const [submitting, setSubmitting] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  // Protect page
+  React.useEffect(() => {
+    if (!isLoading) {
+      if (!user) {
+        router.push(`/auth/signin?redirect=${encodeURIComponent("/blogs/write")}`);
+      }
+    }
+  }, [user, isLoading, router]);
+
+  const [banner, setBanner] = useState<{ type: "success" | "error"; message: string } | null>(null);
+  const [form, setForm] = useState({
+    title: "", content: "", excerpt: "", category: "General", featuredImage: "",
+  });
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('image', file);
+
+    setUploading(true);
+    setBanner(null);
+    try {
+      const res = await api.post('/upload/image', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      setForm(prev => ({ ...prev, featuredImage: res.data.url }));
+    } catch (err: any) {
+      setBanner({ type: "error", message: "Image transmission failed. Please try again." });
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleSubmit = async (isDraft: boolean) => {
+    if (!form.title.trim() || !form.content.trim()) {
+      setBanner({ type: "error", message: "Title and Content are required to preserve your story." });
+      return;
+    }
+    setSubmitting(true);
+    setBanner(null);
+    try {
+      const blog = await createBlog({ ...form, status: isDraft ? "draft" : "published" });
+      setBanner({ type: "success", message: isDraft ? "Story preserved as draft." : "Story published to the community!" });
+      setTimeout(() => {
+        if (isDraft) router.push("/blogs");
+        else router.push(`/blogs/${blog.slug || blog._id}`);
+      }, 1500);
+    } catch (err: any) {
+      setBanner({ type: "error", message: err?.response?.data?.message || "Something went wrong. Please try again." });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-surface-soft selection:bg-primary/10">
+      {/* Premium Sticky Navigation */}
+      <nav className="fixed top-0 z-50 w-full bg-white/90 backdrop-blur-xl border-b border-border h-20 px-8">
+        <div className="max-w-7xl mx-auto h-full flex items-center justify-between">
+          <div className="flex items-center gap-10">
+             <Link href="/blogs" className="group flex items-center gap-2 text-gray-400 hover:text-gray-900 transition-all font-black uppercase text-[10px] tracking-widest">
+                <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" /> Back
+             </Link>
+             <Link href="/" className="flex items-center gap-2 group">
+               <span className="text-xl md:text-2xl font-black text-gray-900 tracking-tighter">
+                 Mozhi<span className="text-primary italic">Aruvi</span>
+               </span>
+             </Link>
+          </div>
+
+          <div className="flex items-center gap-6">
+            <button
+               onClick={() => handleSubmit(true)}
+               disabled={submitting || uploading}
+               className="text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-gray-900 transition-all disabled:opacity-30"
+            >
+               Save Draft
+            </button>
+            <Button
+              onClick={() => handleSubmit(false)}
+              disabled={submitting || uploading}
+              className="h-12 px-10 rounded-2xl bg-gray-900 hover:bg-black text-white text-[10px] font-black uppercase tracking-widest shadow-2xl transition-all disabled:opacity-50 flex items-center gap-3"
+            >
+              {submitting && <Loader2 size={16} className="animate-spin" />}
+              Publish Story
+            </Button>
+            
+            <div className="h-10 w-10 rounded-full bg-surface-soft border border-border overflow-hidden ml-4">
+              {user?.profilePhoto ? (
+                <img src={user.profilePhoto} alt="User" className="h-full w-full object-cover" />
+              ) : (
+                <UserCircle className="h-6 w-6 text-gray-200 mt-2 ml-2" />
+              )}
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      {/* Main Editorial Canvas */}
+      <main className="pt-40 pb-32 max-w-[850px] mx-auto px-10 animate-in fade-in slide-in-from-bottom-4 duration-1000">
+        
+        {banner && (
+          <div className={`mb-16 flex items-start gap-5 rounded-3xl border p-8 text-sm font-bold shadow-xl animate-in slide-in-from-top-4 ${
+            banner.type === "success"
+              ? "border-emerald-100 bg-emerald-50 text-emerald-700 shadow-emerald-500/5"
+              : "border-red-100 bg-red-50 text-red-700 shadow-red-500/5"
+          }`}>
+            {banner.type === "success" ? <CheckCircle2 className="h-6 w-6 shrink-0 mt-0.5" /> : <AlertCircle className="h-6 w-6 shrink-0 mt-0.5" />}
+            {banner.message}
+          </div>
+        )}
+
+        <div className="space-y-12">
+          {/* Enhanced Media Upload Orchestrator */}
+          <div className="relative group rounded-[3rem] border border-dashed border-border p-1.5 transition-all focus-within:border-primary/40 focus-within:ring-8 focus-within:ring-primary/5">
+            {form.featuredImage ? (
+              <div className="relative aspect-[2/1] w-full rounded-[2.8rem] overflow-hidden group shadow-sm bg-surface-soft">
+                 <img src={form.featuredImage} alt="Cover Preview" className="w-full h-full object-cover transition-transform group-hover:scale-105 duration-700" />
+                 <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4 backdrop-blur-sm">
+                    <button 
+                      onClick={() => fileInputRef.current?.click()}
+                      className="p-4 bg-white rounded-full text-gray-900 shadow-xl hover:scale-110 transition-transform"
+                    >
+                       <Upload size={20} />
+                    </button>
+                    <button 
+                      onClick={() => setForm(p => ({ ...p, featuredImage: "" }))}
+                      className="p-4 bg-white rounded-full text-red-500 shadow-xl hover:scale-110 transition-transform"
+                    >
+                       <X size={20} />
+                    </button>
+                 </div>
+              </div>
+            ) : (
+              <button 
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploading}
+                className="flex flex-col items-center justify-center w-full aspect-[21/9] rounded-[2.8rem] bg-white hover:bg-surface-soft transition-all space-y-4 group"
+              >
+                 <div className="p-5 rounded-full bg-surface-soft group-hover:bg-white border border-border transition-all">
+                    {uploading ? <Loader2 size={24} className="animate-spin text-primary" /> : <Upload size={24} className="text-gray-400 group-hover:text-primary transition-colors" />}
+                 </div>
+                 <div className="text-center">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-gray-900">Upload Visual Cover</p>
+                    <p className="text-[9px] font-bold text-gray-400 mt-1 uppercase tracking-widest">Landscape recommended (Base 2:1)</p>
+                 </div>
+              </button>
+            )}
+            <input 
+              type="file" 
+              ref={fileInputRef} 
+              onChange={handleFileChange} 
+              className="hidden" 
+              accept="image/*" 
+            />
+          </div>
+
+          <div className="flex flex-col space-y-12">
+            {/* Metadata Tier */}
+            <div className="flex items-center gap-6 px-1">
+               <div className="flex items-center gap-3 bg-white border border-border px-6 py-2 rounded-2xl shadow-sm">
+                  <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Category</span>
+                  <select 
+                    name="category" 
+                    value={form.category} 
+                    onChange={handleChange} 
+                    className="text-[10px] font-black uppercase tracking-widest text-gray-900 outline-none cursor-pointer pr-4"
+                  >
+                    {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+                  </select>
+               </div>
+               <div className="h-0.5 w-12 bg-border rounded-full" />
+               <div className="flex items-center gap-2">
+                  <Sparkles size={14} className="text-secondary" />
+                  <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Cultural Archive</span>
+               </div>
+            </div>
+
+            {/* Title - Architectural Typography */}
+            <textarea
+              name="title"
+              value={form.title}
+              onChange={handleChange}
+              rows={1}
+              placeholder="Title of your story..."
+              className="w-full text-5xl md:text-7xl font-black text-gray-900 placeholder:text-gray-100 border-none outline-none resize-none px-1 overflow-hidden h-auto tracking-tighter leading-[0.9]"
+              onInput={(e) => {
+                const target = e.target as HTMLTextAreaElement;
+                target.style.height = "auto";
+                target.style.height = target.scrollHeight + "px";
+              }}
+            />
+
+            {/* Excerpt - Refined Context */}
+            <textarea
+              name="excerpt"
+              value={form.excerpt}
+              onChange={handleChange}
+              rows={1}
+              placeholder="A brief preview for your audience..."
+              className="w-full text-2xl font-bold text-gray-400 placeholder:text-gray-100 border-none outline-none resize-none px-1 h-auto leading-relaxed tracking-tight"
+              onInput={(e) => {
+                const target = e.target as HTMLTextAreaElement;
+                target.style.height = "auto";
+                target.style.height = target.scrollHeight + "px";
+              }}
+            />
+
+            <div className="h-px w-full bg-border opacity-50" />
+
+            {/* Body Content - Narrative Focused */}
+            <textarea
+              name="content"
+              value={form.content}
+              onChange={handleChange}
+              rows={15}
+              placeholder="Start sharing your linguistic journey..."
+              className="w-full text-xl md:text-2xl leading-[1.8] text-gray-700 placeholder:text-gray-100 border-none outline-none resize-none px-1 font-medium bg-transparent min-h-[500px] tracking-tight"
+              onInput={(e) => {
+                const target = e.target as HTMLTextAreaElement;
+                target.style.height = "auto";
+                target.style.height = target.scrollHeight + "px";
+              }}
+            />
+          </div>
+        </div>
+
+        {/* Global Stats Overlay */}
+        <div className="fixed right-12 bottom-12 flex flex-col items-end gap-3 pointer-events-none">
+           <div className="px-6 py-3 bg-white border border-border rounded-2xl shadow-2xl pointer-events-auto flex items-center gap-6">
+              <div className="flex flex-col">
+                 <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Narrative Depth</span>
+                 <span className="text-sm font-black text-gray-900">{form.content.trim() ? form.content.trim().split(/\s+/).length : 0} Words</span>
+              </div>
+              <div className="h-8 w-px bg-border" />
+              <div className="flex flex-col">
+                 <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Time Spent</span>
+                 <span className="text-sm font-black text-gray-900">{Math.ceil((form.content.trim() ? form.content.trim().split(/\s+/).length : 0) / 200)} min</span>
+              </div>
+           </div>
+        </div>
+      </main>
+    </div>
+  );
+}

@@ -6,11 +6,11 @@ import { RoleProtectedRoute } from "@/components/features/auth/RoleProtectedRout
 const adminLinks: SidebarItem[] = [
   { name: "Dashboard", href: "/admin/dashboard", icon: "home" },
   { name: "Users",     href: "/admin/users",     icon: "users" },
-  { name: "Teachers",  href: "/admin/teachers",  icon: "graduation-cap" },
+  { name: "Tutors",    href: "/admin/teachers",  icon: "graduation-cap" },
   { name: "Lessons",   href: "/admin/lessons",   icon: "book-open" },
-  { name: "Events",    href: "/admin/events",    icon: "calendar" },
   { name: "Blogs",     href: "/admin/blogs",     icon: "message-square" },
-  { name: "Settings",  href: "/admin/settings",  icon: "settings" },
+  { name: "Events",    href: "/admin/events",    icon: "calendar" },
+  { name: "Settings",  href: "/admin/profile",   icon: "settings" },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {

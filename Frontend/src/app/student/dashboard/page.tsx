@@ -1,35 +1,27 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { StatCard } from "@/components/features/dashboard/StatCard";
 import { BookOpen, Trophy, AlertCircle, ArrowRight, Clock, BookMarked } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
-import { getDashboardData, SafeUser } from "@/services/authService";
-import { Lesson, Progress } from "@/services/lessonService";
-
+import { getDashboardData } from "@/services/authService";
+import { useQuery } from "@tanstack/react-query";
 import { DashboardSkeleton } from "./DashboardSkeleton";
 
 export default function StudentDashboard() {
-  const [user, setUser] = useState<SafeUser | null>(null);
-  const [lessons, setLessons] = useState<Lesson[]>([]);
-  const [progress, setProgress] = useState<Progress[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { data, isLoading, isError, error: queryError } = useQuery({
+    queryKey: ["student", "dashboard"],
+    queryFn: () => {
+      console.log("[DEBUG] Fetching student dashboard data...");
+      return getDashboardData();
+    },
+    staleTime: 2 * 60 * 1000,
+  });
 
-  useEffect(() => {
-    getDashboardData()
-      .then((data) => {
-        setUser(data.user);
-        setLessons(data.lessons);
-        setProgress(data.progress || []);
-      })
-      .catch((err) => {
-        console.error(err);
-        setError("Could not load dashboard data.");
-      })
-      .finally(() => setLoading(false));
-  }, []);
+  const user = data?.user || null;
+  const lessons = data?.lessons || [];
+  const progress = data?.progress || [];
 
   const nextLesson = lessons.find(l => {
     const p = progress.find(pr => pr.lessonId === l._id);
@@ -38,7 +30,7 @@ export default function StudentDashboard() {
   const completedCount = progress.filter(p => p.isCompleted).length;
   const progressPercentage = lessons.length > 0 ? Math.round((completedCount / lessons.length) * 100) : 0;
 
-  if (loading) {
+  if (isLoading) {
     return <DashboardSkeleton />;
   }
 
@@ -62,10 +54,10 @@ export default function StudentDashboard() {
         </div>
       </div>
 
-      {error && (
+      {isError && (
         <Card variant="outline" className="border-red-100 bg-red-50/30 flex items-center gap-4 text-red-600">
            <AlertCircle className="shrink-0 w-6 h-6" />
-           <p className="font-bold tracking-tight">{error}</p>
+           <p className="font-bold tracking-tight">{(queryError as any)?.message || "Could not load dashboard data."}</p>
         </Card>
       )}
 

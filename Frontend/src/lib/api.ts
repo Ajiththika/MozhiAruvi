@@ -20,6 +20,7 @@ const apiBaseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl.slice(0, -1) : rawBaseU
 const api = axios.create({
   baseURL: apiBaseUrl,
   withCredentials: true,
+  timeout: 10000,
   headers: { "Content-Type": "application/json" },
 });
 
@@ -89,9 +90,11 @@ api.interceptors.response.use(
 
     // 2. Logging and Final reject
     if (error.response) {
-      console.error(`[API] ${error.response.status} Error: ${originalRequest.url}`, error.response.data);
+      console.error(`[API] Server Error: ${error.response.status} at ${originalRequest.url}`, error.response.data);
+    } else if (error.request) {
+      console.error(`[API] Connection Failure: No response from server at ${apiBaseUrl}${originalRequest.url || ""}. Ensure backend is active on port 5000.`);
     } else {
-      console.error(`[API] Network Error at: ${apiBaseUrl}${originalRequest.url || ''}`);
+      console.error(`[API] Request Construction Error: ${error.message}`);
     }
 
     return Promise.reject(error);

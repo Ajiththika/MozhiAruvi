@@ -5,12 +5,11 @@ import { RoleProtectedRoute } from "@/components/features/auth/RoleProtectedRout
 
 // Only plain serializable objects — no React components as values
 const studentLinks: SidebarItem[] = [
-  { name: "Dashboard",  href: "/student/dashboard",  icon: "home" },
-  { name: "Lessons",    href: "/student/lessons",    icon: "book-open" },
-  { name: "Progress",   href: "/student/progress",    icon: "line-chart" },
-  { name: "Vocabulary", href: "/student/vocabulary",  icon: "library-big" },
-  { name: "Premium",    href: "/student/premium",     icon: "sparkles" },
-  { name: "Profile",    href: "/student/profile",     icon: "user-circle" },
+  { name: "Dashboard",     href: "/student/dashboard",  icon: "home" },
+  { name: "Lessons",       href: "/student/lessons",    icon: "book-open" },
+  { name: "Tutors",        href: "/tutors",             icon: "graduation-cap" },
+  { name: "My Progress",   href: "/student/progress",   icon: "line-chart" },
+  { name: "Settings",      href: "/student/profile",    icon: "settings" },
 ];
 
 export default function StudentLayout({ children }: { children: React.ReactNode }) {

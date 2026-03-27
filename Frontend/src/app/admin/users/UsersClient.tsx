@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { DataTable, ColumnDef } from "@/components/ui/DataTable";
 import { Loader2, AlertCircle, ShieldCheck, ShieldAlert, CheckCircle2, XCircle, Edit2, User, Globe, Phone, Hash } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
 import { Input } from "@/components/ui/Input";
 import { Card } from "@/components/ui/Card";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 function RoleBadge({ role }: { role: BaseUser["role"] }) {
   const map: Record<string, string> = {
@@ -33,40 +34,33 @@ function RoleBadge({ role }: { role: BaseUser["role"] }) {
 }
 
 export default function UsersClient() {
-  const [users, setUsers] = useState<BaseUser[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
+  const [currentPage, setCurrentPage] = useState(1);
   const [actioning, setActioning] = useState<string | null>(null);
   const [editingUser, setEditingUser] = useState<BaseUser | null>(null);
   const [editFormData, setEditFormData] = useState<Partial<BaseUser>>({});
   const [isSaving, setIsSaving] = useState(false);
 
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [totalItems, setTotalItems] = useState(0);
+  const { data, isLoading, isError, error, refetch } = useQuery({
+    queryKey: ["admin", "users", currentPage],
+    queryFn: () => {
+      console.log(`[DEBUG] Fetching admin users... Page: ${currentPage}`);
+      return getAllUsers(currentPage);
+    },
+    staleTime: 2 * 60 * 1000,
+  });
 
-  const load = (page: number = 1) => {
-    setLoading(true);
-    getAllUsers(page)
-      .then((res) => {
-        setUsers(res.users);
-        setTotalPages(res.totalPages);
-        setTotalItems(res.totalItems);
-        setCurrentPage(res.currentPage);
-      })
-      .catch(() => setError("Could not load users."))
-      .finally(() => setLoading(false));
-  };
-
-  useEffect(() => { load(currentPage); }, [currentPage]);
+  const users = data?.users || [];
+  const totalPages = data?.totalPages || 1;
+  const totalItems = data?.totalItems || 0;
 
   const handleToggle = async (user: BaseUser) => {
     setActioning(user._id);
     try {
-      const updated = user.isActive
+      user.isActive
         ? await deactivateUser(user._id)
         : await activateUser(user._id);
-      setUsers((prev) => prev.map((u) => (u._id === updated._id ? updated : u)));
+      queryClient.invalidateQueries({ queryKey: ["admin", "users"] });
     } catch (err: any) {
       alert(err.response?.data?.message || "Failed to update user status");
     } finally {
@@ -92,8 +86,8 @@ export default function UsersClient() {
     if (!editingUser) return;
     setIsSaving(true);
     try {
-      const updated = await updateUserAdmin(editingUser._id, editFormData);
-      setUsers(prev => prev.map(u => u._id === updated._id ? updated : u));
+      await updateUserAdmin(editingUser._id, editFormData);
+      queryClient.invalidateQueries({ queryKey: ["admin", "users"] });
       setEditingUser(null);
     } catch (err: any) {
       alert(err.response?.data?.message || "Failed to update user");
@@ -181,8 +175,8 @@ export default function UsersClient() {
            <p className="text-lg text-gray-500 font-medium max-w-xl">Unified management system for student and mentor accounts across the Mozhi Aruvi network.</p>
         </div>
         <Button
-          onClick={() => load(currentPage)}
-          isLoading={loading}
+          onClick={() => refetch()}
+          isLoading={isLoading}
           variant="outline"
           size="lg"
           className="uppercase tracking-widest text-[10px] font-black px-8"
@@ -191,13 +185,13 @@ export default function UsersClient() {
         </Button>
       </div>
 
-      {error && (
+      {isError && (
         <Card variant="outline" className="border-red-100 bg-red-50/30 flex items-center gap-4 text-red-600">
-          <AlertCircle className="h-6 w-6 shrink-0" /> <span className="font-bold">{error}</span>
+          <AlertCircle className="h-6 w-6 shrink-0" /> <span className="font-bold">{error?.message || "Could not load users."}</span>
         </Card>
       )}
 
-      {loading ? (
+      {isLoading ? (
         <div className="flex flex-col items-center justify-center py-40 gap-6">
           <Loader2 className="h-12 w-12 animate-spin text-primary/30" />
            <p className="text-[10px] font-black text-gray-300 uppercase tracking-widest">Querying database...</p>

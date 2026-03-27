@@ -5,51 +5,48 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { Search, AlertCircle, GraduationCap, Wifi, Layers } from "lucide-react";
 import { TutorCard } from "@/components/features/tutors/TutorCard";
-import { getAvailableTutors, Tutor } from "@/services/tutorService";
+import { getAvailableTutors } from "@/services/tutorService";
 import { cn } from "@/lib/utils";
 import Button from "@/components/ui/Button";
 import { Pagination } from "@/components/ui/Pagination";
+import { useQuery } from "@tanstack/react-query";
 
 type LevelFilter = "all" | "beginner" | "intermediate" | "advanced";
 type ModeFilter  = "all" | "online" | "offline" | "both";
 
 export default function PublicTutorsPage() {
-  const [tutors, setTutors]     = useState<Tutor[]>([]);
-  const [loading, setLoading]   = useState(true);
-  const [error, setError]       = useState<string | null>(null);
-  const [search, setSearch]     = useState("");
+  const [searchInput, setSearchInput] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [level, setLevel]       = useState<LevelFilter>("all");
   const [mode, setMode]         = useState<ModeFilter>("all");
-
-  // Pagination
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [totalTutors, setTotalTutors] = useState(0);
 
-  const loadTutors = (page: number) => {
-    setLoading(true);
-    getAvailableTutors(page, 6, { search, level, mode })
-      .then((res) => {
-        setTutors(res.tutors);
-        setTotalPages(res.totalPages);
-        setTotalTutors(res.totalTutors);
-        setCurrentPage(res.currentPage);
-      })
-      .catch(() => setError("Could not load tutors. Please try again."))
-      .finally(() => setLoading(false));
-  };
-
+  // Search Debounce Logic
   useEffect(() => {
-    loadTutors(currentPage);
-  }, [currentPage]);
+    const handler = setTimeout(() => {
+      setDebouncedSearch(searchInput);
+      setCurrentPage(1); // Reset to page 1 on search
+    }, 500);
+    return () => clearTimeout(handler);
+  }, [searchInput]);
 
+  // Reset page when filters change
   useEffect(() => {
-    if (currentPage !== 1) {
-      setCurrentPage(1);
-    } else {
-      loadTutors(1);
-    }
-  }, [search, level, mode]);
+    setCurrentPage(1);
+  }, [level, mode]);
+
+  const { data, isLoading, isError, error, refetch } = useQuery({
+    queryKey: ["tutors", currentPage, debouncedSearch, level, mode],
+    queryFn: () => {
+      console.log(`[DEBUG] Fetching tutors... Page: ${currentPage}, Search: ${debouncedSearch}`);
+      return getAvailableTutors(currentPage, 6, { search: debouncedSearch, level, mode });
+    },
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const tutors = data?.tutors || [];
+  const totalPages = data?.totalPages || 1;
+  const totalTutors = data?.totalTutors || 0;
 
   const levelOpts: { value: LevelFilter; label: string }[] = [
     { value: "all", label: "All Levels" },
@@ -87,8 +84,8 @@ export default function PublicTutorsPage() {
                  <Search className="absolute left-5 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
                  <input
                    type="text"
-                   value={search}
-                   onChange={(e) => setSearch(e.target.value)}
+                   value={searchInput}
+                   onChange={(e) => setSearchInput(e.target.value)}
                    placeholder="Search by name, skill, or language…"
                    className="w-full rounded-[2rem] border border-gray-100 bg-white py-4 pl-14 pr-6 text-sm font-semibold text-gray-700 outline-none transition-all placeholder:text-gray-400 focus:border-primary focus:ring-4 focus:ring-primary/5 shadow-xl shadow-gray-200/5"
                  />
@@ -128,20 +125,19 @@ export default function PublicTutorsPage() {
             </div>
           </div>
 
-          {/* --- 3. Results Section --- */}
-          <div className="min-h-[400px]">
-            {loading ? (
+           <div className="min-h-[400px]">
+            {isLoading ? (
               <div className="flex flex-col items-center justify-center py-32 gap-6">
                 <div className="h-12 w-12 border-4 border-primary border-t-transparent rounded-full animate-spin shadow-xl ring-4 ring-primary/5" />
                 <p className="text-sm font-bold text-gray-400 uppercase tracking-widest animate-pulse">Syncing with our global network…</p>
               </div>
-            ) : error ? (
+            ) : isError ? (
               <div className="flex items-center justify-between rounded-3xl border border-red-100 bg-red-50/50 px-8 py-6 text-sm text-red-600 font-bold">
                 <div className="flex items-center gap-4">
                    <AlertCircle className="h-6 w-6 shrink-0" /> 
-                   <span>{error}</span>
+                   <span>{error?.message || "Could not load tutors. Please try again."}</span>
                 </div>
-                <button onClick={() => loadTutors(1)} className="text-xs underline uppercase tracking-widest">Retry</button>
+                <button onClick={() => refetch()} className="text-xs underline uppercase tracking-widest">Retry</button>
               </div>
             ) : (
               <>
@@ -152,9 +148,9 @@ export default function PublicTutorsPage() {
                     </div>
                     <h3 className="text-2xl font-black text-gray-800 mb-3 uppercase tracking-tight">No teachers found</h3>
                     <p className="text-gray-500 max-w-sm mx-auto font-medium">
-                      {search ? <>We couldn't find matches for <strong>"{search}"</strong>. Try broadening your criteria.</> : "Expand your search filters to find more tutors."}
+                      {searchInput ? <>We couldn't find matches for <strong>"{searchInput}"</strong>. Try broadening your criteria.</> : "Expand your search filters to find more tutors."}
                     </p>
-                    <Button onClick={() => {setSearch(""); setLevel("all"); setMode("all");}} variant="secondary" className="mt-8 px-10">Clear all filters</Button>
+                    <Button onClick={() => {setSearchInput(""); setLevel("all"); setMode("all");}} variant="secondary" className="mt-8 px-10">Clear all filters</Button>
                   </div>
                 ) : (
                   <div className="space-y-12">

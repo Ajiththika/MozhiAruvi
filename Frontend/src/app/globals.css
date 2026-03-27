@@ -37,9 +37,9 @@
     @apply text-text-primary font-bold tracking-tight; 
   }
   
-  h1 { @apply text-3xl md:text-4xl lg:text-5xl font-black tracking-tight leading-tight; }
-  h2 { @apply text-2xl font-bold; }
-  h3 { @apply text-xl font-bold; }
+  h1 { @apply text-3xl md:text-4xl lg:text-5xl font-black leading-tight; }
+  h2 { font-size: var(--text-2xl); }
+  h3 { font-size: var(--text-xl); }
 
   /* Responsive Corner Radius Utility */
   .rounded-responsive {

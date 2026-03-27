@@ -12,22 +12,22 @@ import eventRoutes from './routes/eventRoutes.js';
 import tutorRoutes from './routes/tutorRoutes.js';
 import teacherApplicationRoutes from './routes/teacherApplicationRoutes.js';
 import blogRoutes from './routes/blogRoutes.js';
+import uploadRoutes from './routes/uploadRoutes.js';
 import { testSmtpConnection } from './services/mailService.js';
 import { errorHandler } from './middleware/error.js';
 
 const app = express();
 
+// ── Diagnostics ───────────────────────────────────────────────────────────────
+app.use((req, res, next) => {
+    console.log(`[REQ] ${req.method} ${req.url} (Origin: ${req.get('origin') || 'No Origin'})`);
+    next();
+});
+
 // ── Security ──────────────────────────────────────────────────────────────────
 app.use(helmet());
 app.use(cors({
-    origin: (origin, callback) => {
-        const allowed = [process.env.FRONTEND_ORIGIN, 'http://localhost:3000', 'http://127.0.0.1:3000'];
-        if (!origin || allowed.includes(origin)) {
-            callback(null, true);
-        } else {
-            callback(new Error('CORS not allowed from ' + origin));
-        }
-    },
+    origin: ['http://localhost:3000', 'http://127.0.0.1:3000', process.env.FRONTEND_ORIGIN].filter(Boolean),
     credentials: true,
 }));
 
@@ -47,6 +47,7 @@ app.use('/api/events', eventRoutes);
 app.use('/api/tutors', tutorRoutes);
 app.use('/api/teachers', teacherApplicationRoutes);
 app.use('/api/blogs', blogRoutes);
+app.use('/api/upload', uploadRoutes);
 
 app.get('/health', (_req, res) => res.json({ status: 'ok' }));
 

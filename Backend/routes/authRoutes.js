@@ -12,7 +12,7 @@ const refreshLimiter = rateLimit({ windowMs: 15 * 60_000, max: 50, message: { er
 const forgotLimiter = rateLimit({ windowMs: 60 * 60_000, max: 5, message: { error: { code: 'RATE_LIMITED', message: 'Too many attempts.' } } });
 
 router.post('/register', validate(registerSchema), auth.register);
-router.post('/login', loginLimiter, validate(loginSchema), auth.login);
+router.post('/login', (req, res, next) => { console.log('[AUTH] Login route hit'); next(); }, validate(loginSchema), auth.login);
 router.post('/refresh', refreshLimiter, auth.refresh);
 router.post('/logout', auth.logout);
 router.get('/me', authenticate, auth.me);

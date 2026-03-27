@@ -31,10 +31,10 @@ router.get('/public/:id', authenticateOptional, blogController.getSinglePublicBl
 // ── Authenticated User Routes ────────────────────────────────────────────────
 router.get('/my-blogs', authenticate, blogController.getMyBlogs);
 router.get('/saved', authenticate, blogController.getMySavedBlogs);
-router.post('/', authenticate, authorizeRoles(ROLES.ADMIN, ROLES.TEACHER), validate(createBlogSchema), blogController.createBlog);
+router.post('/', authenticate, authorizeRoles(ROLES.ADMIN, ROLES.TEACHER, ROLES.STUDENT), validate(createBlogSchema), blogController.createBlog);
 router.post('/:id/save', authenticate, blogController.toggleSaveBlog);
-router.put('/:id', authenticate, authorizeRoles(ROLES.ADMIN, ROLES.TEACHER), validate(updateBlogSchema), blogController.updateMyBlog);
-router.delete('/:id', authenticate, authorizeRoles(ROLES.ADMIN, ROLES.TEACHER), blogController.deleteMyBlog);
+router.put('/:id', authenticate, authorizeRoles(ROLES.ADMIN, ROLES.TEACHER, ROLES.STUDENT), validate(updateBlogSchema), blogController.updateMyBlog);
+router.delete('/:id', authenticate, authorizeRoles(ROLES.ADMIN, ROLES.TEACHER, ROLES.STUDENT), blogController.deleteMyBlog);
 
 // ── Admin Routes ─────────────────────────────────────────────────────────────
 router.get('/admin/all', authenticate, authorizeRoles(ROLES.ADMIN), blogController.getAllBlogs);

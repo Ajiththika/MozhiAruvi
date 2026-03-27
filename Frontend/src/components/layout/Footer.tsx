@@ -9,8 +9,8 @@ export default function Footer() {
           
           {/* Brand Column */}
           <div className="md:col-span-2 space-y-6">
-            <Link href="/" className="text-3xl font-bold text-primary flex items-center gap-2 mb-4 tracking-tight">
-              <span className="text-secondary tracking-tight">Mozhi</span>Aruvi
+            <Link href="/" className="text-2xl font-black text-gray-900 flex items-center gap-1 mb-6 tracking-tighter">
+              Mozhi<span className="text-primary italic">Aruvi</span>
             </Link>
             <p className="text-gray-700 dark:text-gray-400 max-w-sm text-base leading-relaxed font-medium">
               The modern platform for learning Tamil language and culture. We connect learners with expert tutors and interactive heritage resources.

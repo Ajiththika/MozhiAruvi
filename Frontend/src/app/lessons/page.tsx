@@ -1,18 +1,20 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React from "react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { BookOpen, AlertCircle, Lock, Circle, Star, Zap, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { getLessons, Lesson, Progress } from "@/services/lessonService";
-import { getMe, SafeUser } from "@/services/authService";
+import { SafeUser } from "@/services/authService";
 import { useAuth } from "@/context/AuthContext";
 import { cn } from "@/lib/utils";
+import { useQuery } from "@tanstack/react-query";
+import { LessonsSkeleton } from "./LessonsSkeleton";
 
-function groupByCategory(lessons: Lesson[]) {
-  const map: Record<string, Lesson[]> = {};
+function groupByCategory(lessons: any[]) {
+  const map: Record<string, any[]> = {};
   lessons.forEach((l) => {
     const category = l.moduleName || "General Curriculum";
     if (!map[category]) map[category] = [];
@@ -21,40 +23,20 @@ function groupByCategory(lessons: Lesson[]) {
   return map;
 }
 
-import { LessonsSkeleton } from "./LessonsSkeleton";
-
 export default function PublicLessonsPage() {
   const router = useRouter();
   const { user: authUser, isLoading: authLoading } = useAuth();
-  const [lessons, setLessons] = useState<Lesson[]>([]);
-  const [progresses, setProgresses] = useState<Progress[]>([]);
-  const [user, setUser] = useState<SafeUser | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  
+  const { data, isLoading, isError, error } = useQuery({
+    queryKey: ["lessons"],
+    queryFn: async () => {
+      console.log("[DEBUG] Fetching lessons...");
+      return getLessons();
+    },
+    staleTime: 10 * 60 * 1000, // Lessons don't change often
+  });
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const { lessons: lessonData, progress: progressData } = await getLessons();
-        setLessons(lessonData || []);
-        setProgresses(progressData || []);
-        
-        if (authUser) {
-          const userData = await getMe();
-          setUser(userData);
-        }
-      } catch (err) {
-        if (lessons.length === 0) {
-           setError("Could not load path. Please refresh.");
-        }
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
-  }, [authUser, router]);
-
-  if (loading) {
+  if (isLoading || authLoading) {
     return (
       <div className="min-h-screen flex flex-col bg-white">
         <Navbar />
@@ -64,15 +46,17 @@ export default function PublicLessonsPage() {
     );
   }
 
-  const credits = user?.learningCredits ?? 0;
-  const isOutOfEnergy = user ? credits <= 0 : false;
+  const lessons = data?.lessons || [];
+  const progresses = data?.progress || [];
+  const credits = authUser?.learningCredits ?? 0;
+  const isOutOfEnergy = authUser ? credits <= 0 : false;
 
   const sortedLessons = [...lessons].sort((a, b) => {
     if (a.moduleNumber !== b.moduleNumber) return (a.moduleNumber || 1) - (b.moduleNumber || 1);
     return a.orderIndex - b.orderIndex;
   });
 
-  const progressMap = new Map(progresses.map(p => [p.lessonId, p]));
+  const progressMap = new Map(progresses.map((p: any) => [p.lessonId, p]));
   const lessonStatus = new Map<string, "locked" | "unlocked" | "completed">();
 
   let isPreviousCompleted = true;
@@ -126,7 +110,7 @@ export default function PublicLessonsPage() {
             {authUser && (
               <div className="flex items-center gap-6 font-bold text-lg">
                 <div className="flex items-center gap-1.5 text-amber-500" title="XP Earned">
-                  <Star className="w-6 h-6 fill-current" /> {user?.xp || 0}
+                  <Star className="w-6 h-6 fill-current" /> {authUser?.xp || 0}
                 </div>
                 <div className="flex items-center gap-1.5 text-secondary" title="Daily Credits">
                   <Zap className="w-6 h-6 fill-current" /> {credits}/25

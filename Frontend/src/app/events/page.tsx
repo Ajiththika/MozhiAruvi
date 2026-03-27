@@ -5,9 +5,9 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { Button } from "@/components/ui/Button";
 import { Card, CardBody } from "@/components/ui/Card";
-import { getEvents, MozhiEvent, submitJoinRequest, JoinRequestPayload } from "@/services/eventService";
+import { getEvents, deleteEvent, MozhiEvent, submitJoinRequest, JoinRequestPayload } from "@/services/eventService";
 import { Pagination } from "@/components/ui/Pagination";
-import { Loader2, Clock, MapPin, User, ChevronRight, Lock, Info, Calendar } from "lucide-react";
+import { Loader2, Clock, MapPin, User, ChevronRight, Lock, Info, Calendar, Trash2 } from "lucide-react";
 import { EventCard } from "@/components/features/events/EventCard";
 import RegistrationModal from "@/components/features/events/RegistrationModal";
 import { useAuth } from "@/context/AuthContext";
@@ -27,6 +27,23 @@ export default function EventsPage() {
   
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<MozhiEvent | null>(null);
+
+  const isAdmin = user?.role === "admin";
+
+  const handleEdit = (id: string) => {
+    router.push(`/admin/events?edit=${id}`);
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!window.confirm("Are you sure you want to delete this event? This action will deactivate it for all users.")) return;
+    try {
+      await deleteEvent(id);
+      setUpcomingEvents(prev => prev.filter(e => e._id !== id));
+      alert("Event deleted successfully.");
+    } catch (err) {
+      alert("Failed to delete event.");
+    }
+  };
 
   useEffect(() => {
     setLoadingUpcoming(true);
@@ -160,13 +177,32 @@ export default function EventsPage() {
                           </div>
                         </div>
 
-                        <Button 
-                          onClick={() => handleOpenRegistration(upcomingEvents[0])}
-                          size="xl"
-                          className="w-full py-7 gap-3 shadow-xl shadow-primary/20"
-                        >
-                          Reserve My Spot <ChevronRight className="w-5 h-5" />
-                        </Button>
+                        <div className="space-y-4">
+                          <Button 
+                            onClick={() => handleOpenRegistration(upcomingEvents[0])}
+                            size="xl"
+                            className="w-full py-7 gap-3 shadow-xl shadow-primary/20"
+                          >
+                            Reserve My Spot <ChevronRight className="w-5 h-5" />
+                          </Button>
+                          {isAdmin && (
+                            <div className="flex gap-3">
+                              <Button
+                                onClick={() => handleEdit(upcomingEvents[0]._id)}
+                                variant="outline"
+                                className="flex-1 py-4 uppercase tracking-widest text-[10px]"
+                              >
+                                Edit
+                              </Button>
+                              <button
+                                onClick={() => handleDelete(upcomingEvents[0]._id)}
+                                className="flex-1 bg-red-50 text-red-600 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-red-100 transition-colors flex items-center justify-center gap-2"
+                              >
+                                <Trash2 className="w-4 h-4" /> Delete
+                              </button>
+                            </div>
+                          )}
+                        </div>
                       </CardBody>
                     </Card>
                   </div>
@@ -216,6 +252,8 @@ export default function EventsPage() {
                       {...event}
                       id={event._id}
                       onRsvp={() => handleOpenRegistration(event)}
+                      onEdit={isAdmin ? () => handleEdit(event._id) : undefined}
+                      onDelete={isAdmin ? () => handleDelete(event._id) : undefined}
                     />
                   ))}
                 </div>
