@@ -1,0 +1,17 @@
+﻿src/app/student/settings/page.tsx(4,10): error TS2305: Module '"@/services/userService"' has no exported member 'getProfile'.
+src/app/student/settings/page.tsx(4,22): error TS2305: Module '"@/services/userService"' has no exported member 'updateProfile'.
+src/app/student/settings/page.tsx(4,37): error TS2305: Module '"@/services/userService"' has no exported member 'UserProfile'.
+src/app/student/settings/page.tsx(4,50): error TS2305: Module '"@/services/userService"' has no exported member 'UpdateProfilePayload'.
+src/app/student/settings/page.tsx(20,14): error TS7006: Parameter 'p' implicitly has an 'any' type.
+src/app/student/settings/page.tsx(106,39): error TS7006: Parameter 'f' implicitly has an 'any' type.
+src/app/student/settings/page.tsx(131,39): error TS7006: Parameter 'f' implicitly has an 'any' type.
+src/app/tutor/settings/page.tsx(5,3): error TS2305: Module '"@/services/userService"' has no exported member 'getProfile'.
+src/app/tutor/settings/page.tsx(5,15): error TS2305: Module '"@/services/userService"' has no exported member 'updateProfile'.
+src/app/tutor/settings/page.tsx(5,30): error TS2305: Module '"@/services/userService"' has no exported member 'UserProfile'.
+src/app/tutor/settings/page.tsx(5,43): error TS2305: Module '"@/services/userService"' has no exported member 'UpdateProfilePayload'.
+src/app/tutor/settings/page.tsx(38,14): error TS7006: Parameter 'p' implicitly has an 'any' type.
+src/app/tutor/settings/page.tsx(75,19): error TS7006: Parameter 'p' implicitly has an 'any' type.
+src/app/tutor/settings/page.tsx(153,39): error TS7006: Parameter 'f' implicitly has an 'any' type.
+src/app/tutor/settings/page.tsx(175,39): error TS7006: Parameter 'f' implicitly has an 'any' type.
+src/app/tutor/settings/page.tsx(189,41): error TS7006: Parameter 'f' implicitly has an 'any' type.
+src/app/tutor/settings/page.tsx(201,41): error TS7006: Parameter 'f' implicitly has an 'any' type.

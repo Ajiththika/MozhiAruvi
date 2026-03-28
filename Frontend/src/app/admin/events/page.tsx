@@ -4,7 +4,6 @@ import React, { useEffect, useState, Suspense } from "react";
 import { DataTable, ColumnDef } from "@/components/ui/DataTable";
 import { Calendar as CalendarIcon, MapPin, Users, Globe2, Trash2, PlusCircle, AlertCircle, Loader2 } from "lucide-react";
 import { getEvents, deleteEvent, createEvent, updateEvent, MozhiEvent, CreateEventPayload, getEventById } from "@/services/eventService";
-import api from "@/lib/api";
 import { useSearchParams, useRouter } from "next/navigation";
 
 const EventStatusBadge = ({ isActive }: { isActive: boolean }) => {
@@ -95,56 +94,44 @@ function AdminEventsClient() {
       location: event.location,
       image: event.image,
     });
-    setPreviewUrl(event.image || null);
     setEditingId(event._id);
     setShowCreate(true);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const [uploading, setUploading] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       setSelectedFile(file);
       setPreviewUrl(URL.createObjectURL(file));
-      
-      // Auto-upload the image to Cloudinary immediately for better UX
-      const formData = new FormData();
-      formData.append('image', file);
-      
-      setUploading(true);
-      setError(null);
-      try {
-        const res = await api.post('/upload/image', formData, {
-          headers: { 'Content-Type': 'multipart/form-data' }
-        });
-        if (res.data.success) {
-          setForm(prev => ({ ...prev, image: res.data.url }));
-        }
-      } catch (err: any) {
-        setError("Image upload failed. Please try again.");
-      } finally {
-        setUploading(false);
-      }
     }
   };
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (uploading) return;
     setCreating(true);
     setError(null);
 
+    const formData = new FormData();
+    Object.entries(form).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        formData.append(key, value.toString());
+      }
+    });
+    if (selectedFile) {
+      formData.append("image", selectedFile);
+    }
+
     try {
       if (editingId) {
-        const updated = await updateEvent(editingId, form);
+        const updated = await updateEvent(editingId, formData);
         setEvents((prev) => prev.map(ev => ev._id === editingId ? updated : ev));
         setEditingId(null);
       } else {
-        const created = await createEvent(form);
+        const created = await createEvent(formData);
         setEvents((prev) => [created, ...prev]);
       }
       setShowCreate(false);
@@ -157,7 +144,7 @@ function AdminEventsClient() {
   };
 
   const resetForm = () => {
-    setForm({ eventCode: "", title: "", description: "", date: "", time: "", capacity: 20, location: "Online (Google Meet)", image: "" });
+    setForm({ eventCode: "", title: "", description: "", date: "", time: "", capacity: 20, location: "Online (Google Meet)" });
     setSelectedFile(null);
     setPreviewUrl(null);
   }
@@ -306,64 +293,25 @@ function AdminEventsClient() {
             </div>
             <div className="space-y-1.5 md:col-span-2">
               <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Event Cover Image</label>
-              <div className="relative group rounded-2xl border border-dashed border-gray-200 bg-white/50 p-2 transition-all focus-within:border-primary/40 focus-within:ring-8 focus-within:ring-primary/5">
-                {(previewUrl || (form as any).image) ? (
-                  <div className="relative aspect-[21/9] w-full rounded-xl overflow-hidden group shadow-sm bg-gray-100">
+              <div className="flex flex-col md:flex-row items-center gap-6 p-4 rounded-xl border border-dashed border-gray-200 bg-white/50">
+                {(previewUrl || (form as any).image) && (
+                  <div className="relative w-full md:w-48 h-28 rounded-xl overflow-hidden shadow-sm shrink-0">
                     <img 
                       src={previewUrl || (form as any).image} 
-                      className="w-full h-full object-cover transition-transform group-hover:scale-105 duration-700" 
+                      className="w-full h-full object-cover" 
                       alt="Preview" 
                     />
-                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4 backdrop-blur-sm">
-                      <button 
-                        type="button"
-                        onClick={() => (document.getElementById('event-image-input') as HTMLInputElement)?.click()}
-                        className="p-3 bg-white rounded-full text-gray-900 shadow-xl hover:scale-110 transition-transform"
-                      >
-                        <PlusCircle size={20} />
-                      </button>
-                      <button 
-                        type="button"
-                        onClick={() => {
-                          setPreviewUrl(null);
-                          setSelectedFile(null);
-                          setForm(prev => ({ ...prev, image: "" }));
-                        }}
-                        className="p-3 bg-white rounded-full text-red-500 shadow-xl hover:scale-110 transition-transform"
-                      >
-                        <Trash2 size={20} />
-                      </button>
-                    </div>
-                    {uploading && (
-                      <div className="absolute inset-0 bg-white/60 backdrop-blur-sm flex flex-col items-center justify-center gap-3">
-                        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                        <span className="text-[10px] font-black uppercase tracking-widest text-primary">Uploading to Cloudinary...</span>
-                      </div>
-                    )}
                   </div>
-                ) : (
-                  <button 
-                    type="button"
-                    onClick={() => (document.getElementById('event-image-input') as HTMLInputElement)?.click()}
-                    disabled={uploading}
-                    className="flex flex-col items-center justify-center w-full aspect-[21/9] rounded-xl bg-white hover:bg-gray-50 transition-all space-y-4 group"
-                  >
-                    <div className="p-5 rounded-full bg-gray-50 group-hover:bg-white border border-gray-100 transition-all">
-                      {uploading ? <Loader2 size={24} className="animate-spin text-primary" /> : <PlusCircle size={24} className="text-gray-400 group-hover:text-primary transition-colors" />}
-                    </div>
-                    <div className="text-center">
-                      <p className="text-[10px] font-black uppercase tracking-widest text-gray-900">Upload Event Cover</p>
-                      <p className="text-[9px] font-bold text-gray-400 mt-1 uppercase tracking-widest italic tracking-tight">Landscape recommended (Base 21:9). Max 2MB.</p>
-                    </div>
-                  </button>
                 )}
-                <input 
-                  id="event-image-input"
-                  type="file" 
-                  accept="image/*"
-                  onChange={handleFileChange}
-                  className="hidden"
-                />
+                <div className="flex-1 space-y-2">
+                  <input 
+                    type="file" 
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    className="block w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 cursor-pointer"
+                  />
+                  <p className="text-[10px] text-gray-400 font-medium italic">Recommended size: 1200x480px. Max 2MB.</p>
+                </div>
               </div>
             </div>
           </div>

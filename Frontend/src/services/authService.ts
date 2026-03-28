@@ -8,13 +8,38 @@
 import api from "@/lib/api";
 import { authStore } from "@/lib/authStore";
 import { Lesson, Progress } from "./lessonService";
-import { User } from "@/types/user";
+import { JoinRequest } from "./eventService";
+import { Blog } from "./blogService";
+import { TutorRequest } from "./tutorService";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
+export interface SafeUser {
+  _id: string;
+  name: string;
+  email: string;
+  role: "student" | "teacher" | "admin";
+  isTutorAvailable?: boolean;
+  profilePhoto?: string | null;
+  level?: "Beginner" | "Intermediate" | "Advanced" | "Not Set";
+  learningCredits?: number;
+  credits?: number;
+  xp?: number;
+  phoneNumber?: string;
+  country?: string;
+  age?: number;
+  gender?: string;
+  bio?: string;
+  specialization?: string;
+  experience?: string;
+  hourlyRate?: number;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
 export interface AuthResponse {
   accessToken: string;
-  user: User;
+  user: SafeUser;
 }
 
 // ── Register ──────────────────────────────────────────────────────────────────
@@ -58,7 +83,7 @@ export async function refresh(): Promise<string> {
 }
 
 export interface DashboardData {
-  user: User;
+  user: SafeUser;
   lessons: Lesson[];
   progress: Progress[];
 }
@@ -68,8 +93,8 @@ export async function getDashboardData(): Promise<DashboardData> {
   return res.data;
 }
 
-export async function getMe(): Promise<User> {
-  const res = await api.get<{ user: User }>("/auth/me");
+export async function getMe(): Promise<SafeUser> {
+  const res = await api.get<{ user: SafeUser }>("/auth/me");
   return res.data.user;
 }
 

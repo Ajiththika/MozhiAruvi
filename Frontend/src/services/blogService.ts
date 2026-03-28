@@ -1,5 +1,5 @@
 import api from "@/lib/api";
-import { User } from "@/types/user";
+import { UserProfile } from "./userService";
 
 export interface Blog {
   _id: string;
@@ -9,7 +9,7 @@ export interface Blog {
   excerpt?: string;
   category?: string;
   featuredImage?: string;
-  author: User;
+  author: UserProfile;
   status: 'draft' | 'pending' | 'published' | 'rejected';
   savedBy?: string[];
   createdAt: string;

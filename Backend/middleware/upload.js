@@ -1,11 +1,11 @@
 import multer from 'multer';
-import { avatarStorage } from '../config/cloudinary.js';
+import { storage } from '../config/cloudinary.js';
 
 /**
  * Configure multer with Cloudinary storage and basic file validation
  */
 const upload = multer({
-  storage: avatarStorage,
+  storage,
   limits: {
     fileSize: 2 * 1024 * 1024, // 2MB limit
   },

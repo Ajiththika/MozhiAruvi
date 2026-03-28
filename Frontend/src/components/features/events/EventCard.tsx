@@ -52,23 +52,22 @@ export function EventCard({
   const isAdminView = !!onEdit || !!onDelete;
 
   return (
-    <Card variant="elevated" padding="none" className="flex flex-col group h-full hover:shadow-2xl transition-all duration-500 overflow-hidden border-none bg-white">
-      {/* Media / Top Section (FULL COVER) */}
-      <div className="relative aspect-video w-full bg-gray-100 overflow-hidden">
+    <Card variant="elevated" padding="none" className="flex flex-col group h-full">
+      {/* Media / Top Section */}
+      <div className="relative h-48 w-full bg-soft/20 overflow-hidden">
         {image ? (
           <img 
             src={image} 
             alt={title} 
-            className="h-full w-full object-cover transition-transform duration-1000 group-hover:scale-110" 
+            className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110" 
           />
         ) : (
-          <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-primary/5 to-secondary/5 text-4xl font-black text-primary/10 tracking-tighter uppercase select-none">
-            MozhiAruvi
+          <div className="flex h-full w-full items-center justify-center bg-gray-50 text-4xl font-black text-gray-200 tracking-tighter opacity-50">
+            MOZHI
           </div>
         )}
-        <div className="absolute left-0 top-0 w-full h-full bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-        <div className="absolute left-6 top-6">
-          <span className="rounded-full bg-white/95 px-4 py-2 text-[10px] uppercase font-black tracking-widest text-gray-900 shadow-2xl backdrop-blur-md border border-white/20">
+        <div className="absolute left-4 top-4">
+          <span className="rounded-full bg-white/90 px-4 py-1.5 text-[10px] uppercase font-black tracking-widest text-gray-700 shadow-xl backdrop-blur-md border border-white/20">
             {type}
           </span>
         </div>

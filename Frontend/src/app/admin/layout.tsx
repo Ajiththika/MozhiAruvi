@@ -1,6 +1,7 @@
 import React from "react";
-import { SidebarItem } from "@/components/layout/Sidebar";
-import { DashboardLayout } from "@/components/layout/DashboardLayout";
+import { Sidebar, SidebarItem } from "@/components/layout/Sidebar";
+import { Topbar } from "@/components/layout/Topbar";
+import { RoleProtectedRoute } from "@/components/features/auth/RoleProtectedRoute";
 
 const adminLinks: SidebarItem[] = [
   { name: "Dashboard", href: "/admin/dashboard", icon: "home" },
@@ -14,13 +15,18 @@ const adminLinks: SidebarItem[] = [
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   return (
-    <DashboardLayout 
-      links={adminLinks} 
-      title="Admin Portal" 
-      allowedRoles={["admin"]} 
-      basePath="/admin/dashboard"
-    >
-      {children}
-    </DashboardLayout>
+    <RoleProtectedRoute allowedRoles={["admin"]}>
+      <div className="flex min-h-screen w-full bg-soft/5 dark:bg-white">
+        <Sidebar items={adminLinks} basePath="/admin/dashboard" />
+        <div className="flex flex-1 flex-col overflow-hidden">
+          <Topbar title="Admin Portal" />
+          <main className="flex-1 overflow-y-auto px-4 md:px-8 lg:px-12 py-10 md:py-14">
+            <div className="mx-auto max-w-7xl animate-in fade-in zoom-in-95 duration-500">
+              {children}
+            </div>
+          </main>
+        </div>
+      </div>
+    </RoleProtectedRoute>
   );
 }

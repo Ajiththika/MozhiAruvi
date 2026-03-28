@@ -1,4 +1,14 @@
-import { User } from "@/types/user";
+/**
+ * authStore.ts
+ *
+ * Minimal in-memory store for the JWT access token.
+ * The refresh token lives in an HTTP-only cookie managed entirely by the
+ * backend — we never touch it here.
+ *
+ * Why in-memory?
+ *  - XSS-safe: JS malware cannot read it from localStorage/sessionStorage
+ *  - The Axios interceptor reads it automatically on every request
+ */
 
 let accessToken: string | null = null;
 const SESSION_HINT_KEY = "mozhi_session_hint";
@@ -16,13 +26,13 @@ export const authStore = {
     }
   },
 
-  saveUser(user: User): void {
+  saveUser(user: any): void {
     if (typeof window !== "undefined") {
       localStorage.setItem(USER_CACHE_KEY, JSON.stringify(user));
     }
   },
 
-  getCachedUser(): User | null {
+  getCachedUser(): any | null {
     if (typeof window === "undefined") return null;
     const raw = localStorage.getItem(USER_CACHE_KEY);
     if (!raw) return null;
