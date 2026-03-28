@@ -4,9 +4,10 @@ import React, { useEffect, useState } from "react";
 import { StatCard } from "@/components/features/dashboard/StatCard";
 import { Users, GraduationCap, BookOpen, Calendar, Loader2, AlertCircle, ArrowRight } from "lucide-react";
 import Link from "next/link";
-import { getAllUsers, getAllTutors, getTeacherApplications, getAdminStats, AdminStats, BaseUser, TeacherApplication } from "@/services/adminService";
+import { getAllUsers, getAllTutors, getTeacherApplications, getAdminStats, AdminStats, TeacherApplication } from "@/services/adminService";
 import { getEvents, MozhiEvent } from "@/services/eventService";
-import { getMe, SafeUser } from "@/services/authService";
+import { getMe } from "@/services/authService";
+import { User } from "@/types/user";
 import Button from "@/components/ui/Button";
 
 function StatusBadge({ status }: { status: TeacherApplication["status"] }) {
@@ -24,10 +25,10 @@ function StatusBadge({ status }: { status: TeacherApplication["status"] }) {
 }
 
 export default function AdminDashboard() {
-  const [admin, setAdmin] = useState<SafeUser | null>(null);
+  const [admin, setAdmin] = useState<User | null>(null);
   const [stats, setStats] = useState<AdminStats | null>(null);
-  const [users, setUsers] = useState<BaseUser[]>([]);
-  const [tutors, setTutors] = useState<BaseUser[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
+  const [tutors, setTutors] = useState<User[]>([]);
   const [applications, setApplications] = useState<TeacherApplication[]>([]);
   const [events, setEvents] = useState<MozhiEvent[]>([]);
   const [loading, setLoading] = useState(true);

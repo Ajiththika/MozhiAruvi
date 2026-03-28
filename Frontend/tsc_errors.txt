@@ -1,3 +1,0 @@
-src/components/layout/Navbar.tsx(23,56): error TS2345: Argument of type '"student" | "teacher" | "admin" | "user"' is not assignable to parameter of type '"student" | "teacher" | "admin"'.
-  Type '"user"' is not assignable to type '"student" | "teacher" | "admin"'.
-src/components/layout/Navbar.tsx(125,22): error TS2367: This comparison appears to be unintentional because the types '"student" | "teacher" | "admin"' and '"user"' have no overlap.

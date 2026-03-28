@@ -5,24 +5,9 @@
  */
 
 import api from "@/lib/api";
+import { User } from "@/types/user";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
-
-export interface BaseUser {
-  _id: string;
-  name: string;
-  email: string;
-  role: "user" | "teacher" | "admin";
-  isActive: boolean;
-  isTutorAvailable?: boolean;
-  phoneNumber?: string;
-  country?: string;
-  age?: number;
-  gender?: string;
-  bio?: string;
-  specialization?: string;
-  experience?: string;
-}
 
 export interface TeacherApplication {
   _id: string;
@@ -72,31 +57,31 @@ export async function getAdminStats(): Promise<AdminStats> {
 
 // ── User Management ───────────────────────────────────────────────────────────
 
-export async function getAllUsers(page = 1, limit = 6): Promise<PaginatedResponse<BaseUser> & { users: BaseUser[] }> {
-  const res = await api.get<PaginatedResponse<BaseUser> & { users: BaseUser[] }>(`/admin/users?page=${page}&limit=${limit}`);
+export async function getAllUsers(page = 1, limit = 6): Promise<PaginatedResponse<User> & { users: User[] }> {
+  const res = await api.get<PaginatedResponse<User> & { users: User[] }>(`/admin/users?page=${page}&limit=${limit}`);
   return res.data;
 }
 
-export async function getAllTutors(page = 1, limit = 6): Promise<PaginatedResponse<BaseUser> & { tutors: BaseUser[] }> {
-  const res = await api.get<PaginatedResponse<BaseUser> & { tutors: BaseUser[] }>(`/admin/tutors?page=${page}&limit=${limit}`);
+export async function getAllTutors(page = 1, limit = 6): Promise<PaginatedResponse<User> & { tutors: User[] }> {
+  const res = await api.get<PaginatedResponse<User> & { tutors: User[] }>(`/admin/tutors?page=${page}&limit=${limit}`);
   return res.data;
 }
 
-export async function deactivateUser(id: string): Promise<BaseUser> {
-  const res = await api.patch<{ user: BaseUser }>(`/admin/users/${id}/deactivate`);
+export async function deactivateUser(id: string): Promise<User> {
+  const res = await api.patch<{ user: User }>(`/admin/users/${id}/deactivate`);
   return res.data.user;
 }
 
-export async function activateUser(id: string): Promise<BaseUser> {
-  const res = await api.patch<{ user: BaseUser }>(`/admin/users/${id}/activate`);
+export async function activateUser(id: string): Promise<User> {
+  const res = await api.patch<{ user: User }>(`/admin/users/${id}/activate`);
   return res.data.user;
 }
 
 export async function updateTutorStatus(
   id: string,
   isTutorAvailable: boolean
-): Promise<BaseUser> {
-  const res = await api.patch<{ user: BaseUser }>(`/admin/users/${id}/tutor-status`, {
+): Promise<User> {
+  const res = await api.patch<{ user: User }>(`/admin/users/${id}/tutor-status`, {
     isTutorAvailable,
   });
   return res.data.user;
@@ -104,9 +89,9 @@ export async function updateTutorStatus(
 
 export async function updateUserAdmin(
   id: string,
-  data: Partial<BaseUser>
-): Promise<BaseUser> {
-  const res = await api.patch<{ user: BaseUser }>(`/admin/users/${id}/edit`, data);
+  data: Partial<User>
+): Promise<User> {
+  const res = await api.patch<{ user: User }>(`/admin/users/${id}/edit`, data);
   return res.data.user;
 }
 

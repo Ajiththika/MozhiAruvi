@@ -5,31 +5,7 @@
  */
 
 import api from "@/lib/api";
-
-// ── Types ─────────────────────────────────────────────────────────────────────
-
-export interface UserProfile {
-  _id: string;
-  name: string;
-  email: string;
-  role: string;
-  bio?: string;
-  experience?: string;
-  specialization?: string;
-  profilePhoto?: string | null;
-  isTutorAvailable?: boolean;
-  credits?: number;
-  level?: "Beginner" | "Intermediate" | "Advanced" | "Not Set";
-  learningCredits?: number;
-  xp?: number;
-}
-
-export interface UpdateProfilePayload {
-  name?: string;
-  bio?: string;
-  experience?: string;
-  specialization?: string;
-}
+import { User, UpdateUserPayload } from "@/types/user";
 
 export interface UpdatePasswordPayload {
   currentPassword: string;
@@ -38,15 +14,15 @@ export interface UpdatePasswordPayload {
 
 // ── Get profile ───────────────────────────────────────────────────────────────
 
-export async function getProfile(): Promise<UserProfile> {
-  const res = await api.get<{ user: UserProfile }>("/users/me");
+export async function getProfile(): Promise<User> {
+  const res = await api.get<{ user: User }>("/users/me");
   return res.data.user;
 }
 
 // ── Update profile ────────────────────────────────────────────────────────────
 
-export async function updateProfile(payload: UpdateProfilePayload): Promise<UserProfile> {
-  const res = await api.patch<{ user: UserProfile }>("/users/me", payload);
+export async function updateProfile(payload: UpdateUserPayload): Promise<User> {
+  const res = await api.patch<{ user: User }>("/users/me", payload);
   return res.data.user;
 }
 
@@ -66,10 +42,8 @@ export async function deactivateAccount(): Promise<{ message: string }> {
 
 // ── Progression / Duolingo Flow ──────────────────────────────────────────────────
 
-import { SafeUser } from "./authService";
-
-export async function setLevel(level: "Beginner" | "Intermediate" | "Advanced" | "Not Set"): Promise<SafeUser> {
-  const res = await api.patch<{ message: string; user: SafeUser }>("/users/me/level", { level });
+export async function setLevel(level: "Beginner" | "Intermediate" | "Advanced" | "Not Set"): Promise<User> {
+  const res = await api.patch<{ message: string; user: User }>("/users/me/level", { level });
   return res.data.user;
 }
 

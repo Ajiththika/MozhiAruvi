@@ -5,7 +5,8 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Play, HelpCircle, Loader2, AlertCircle, Zap } from "lucide-react";
 import { getLessonById, getLessonQuestions, submitAnswers, Lesson, Question, SubmitAnswerItem } from "@/services/lessonService";
-import { getMe, SafeUser } from "@/services/authService";
+import { getMe } from "@/services/authService";
+import { User } from "@/types/user";
 import { consumeCredit } from "@/services/userService";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
@@ -24,7 +25,7 @@ export default function LessonInteractiveSession() {
 
   const [lesson, setLesson] = useState<Lesson | null>(null);
   const [questions, setQuestions] = useState<Question[]>([]);
-  const [user, setUser] = useState<SafeUser | null>(null);
+  const [user, setUser] = useState<User | null>(null);
 
   const [selected, setSelected] = useState<Record<string, number>>({});
   const [feedback, setFeedback] = useState<Record<string, "correct" | "incorrect">>({});

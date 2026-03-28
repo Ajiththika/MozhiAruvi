@@ -1,20 +1,21 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { SafeUser, getMe, refresh, logout } from "@/services/authService";
+import { getMe, refresh, logout } from "@/services/authService";
 import { authStore } from "@/lib/authStore";
+import { User } from "@/types/user";
 
 interface AuthContextType {
-  user: SafeUser | null;
+  user: User | null;
   isLoading: boolean;
-  setUser: React.Dispatch<React.SetStateAction<SafeUser | null>>;
+  setUser: React.Dispatch<React.SetStateAction<User | null>>;
   logoutUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<SafeUser | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -48,7 +49,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     initAuth();
   }, []);
 
-  const handleSetUser = (u: SafeUser | ( (prev: SafeUser | null) => SafeUser | null )) => {
+  const handleSetUser = (u: User | ( (prev: User | null) => User | null )) => {
     setUser((prev) => {
       const newUser = typeof u === "function" ? u(prev) : u;
       if (newUser) {

@@ -5,7 +5,8 @@ import { BookOpen, Loader2, AlertCircle, Lock, Circle, Star, Zap, CheckCircle2 }
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { getLessons, Lesson, Progress } from "@/services/lessonService";
-import { getMe, SafeUser } from "@/services/authService";
+import { getMe } from "@/services/authService";
+import { User } from "@/types/user";
 import { cn } from "@/lib/utils";
 
 function groupByCategory(lessons: Lesson[]) {
@@ -22,7 +23,7 @@ export default function StudentLessonsPage() {
   const router = useRouter();
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [progresses, setProgresses] = useState<Progress[]>([]);
-  const [user, setUser] = useState<SafeUser | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 

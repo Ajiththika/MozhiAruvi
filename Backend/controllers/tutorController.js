@@ -1,90 +1,69 @@
 import * as tutorService from '../services/tutorService.js';
+import { asyncHandler } from '../utils/asyncHandler.js';
 
-export async function listAvailableTutors(req, res, next) {
-    try {
-        const { page = 1, limit = 6, search, level, mode } = req.query;
-        const result = await tutorService.getAvailableTutors(
-            parseInt(page), 
-            parseInt(limit), 
-            { search, level, mode }
-        );
-        res.json(result);
-    } catch (e) { next(e); }
-}
+export const listAvailableTutors = asyncHandler(async (req, res) => {
+    const { page = 1, limit = 6, search, level, mode } = req.query;
+    const result = await tutorService.getAvailableTutors(
+        parseInt(page), 
+        parseInt(limit), 
+        { search, level, mode }
+    );
+    res.json(result);
+});
 
-export async function getTutorById(req, res, next) {
-    try {
-        const tutor = await tutorService.getTutorById(req.params.id);
-        res.json({ tutor });
-    } catch (e) { next(e); }
-}
+export const getTutorById = asyncHandler(async (req, res) => {
+    const tutor = await tutorService.getTutorById(req.params.id);
+    res.json({ tutor });
+});
 
-export async function updateTutorProfile(req, res, next) {
-    try {
-        if (req.file) {
-            req.body.profilePhoto = req.file.path;
-        }
-        const tutor = await tutorService.updateTutorProfile(req.user.sub, req.body);
-        res.json({ message: 'Profile updated.', tutor: tutor.toSafeObject() });
-    } catch (e) { next(e); }
-}
+export const updateTutorProfile = asyncHandler(async (req, res) => {
+    if (req.file) {
+        req.body.profilePhoto = req.file.path;
+    }
+    const tutor = await tutorService.updateTutorProfile(req.user.sub, req.body);
+    res.json({ message: 'Profile updated.', tutor: tutor.toSafeObject() });
+});
 
-export async function updateTutorAvailability(req, res, next) {
-    try {
-        const tutor = await tutorService.updateTutorAvailability(req.user.sub, req.body.isTutorAvailable);
-        res.json({ message: 'Availability updated.', tutor });
-    } catch (e) { next(e); }
-}
+export const updateTutorAvailability = asyncHandler(async (req, res) => {
+    const tutor = await tutorService.updateTutorAvailability(req.user.sub, req.body.isTutorAvailable);
+    res.json({ message: 'Availability updated.', tutor });
+});
 
-export async function requestTutor(req, res, next) {
-    try {
-        const request = await tutorService.createRequest(req.user.sub, req.body);
-        res.status(201).json({ 
-            message: `Request sent to tutor. ${request.priceCredits} XP points dedicated to this interaction.`, 
-            request 
-        });
-    } catch (e) { next(e); }
-}
+export const requestTutor = asyncHandler(async (req, res) => {
+    const request = await tutorService.createRequest(req.user.sub, req.body);
+    res.status(201).json({ 
+        message: `Request sent to tutor. ${request.priceCredits} XP points dedicated to this interaction.`, 
+        request 
+    });
+});
 
-export async function getLearnerRequests(req, res, next) {
-    try {
-        const requests = await tutorService.getStudentRequests(req.user.sub);
-        res.json({ requests });
-    } catch (e) { next(e); }
-}
+export const getLearnerRequests = asyncHandler(async (req, res) => {
+    const requests = await tutorService.getStudentRequests(req.user.sub);
+    res.json({ requests });
+});
 
-export async function getTutorPendingRequests(req, res, next) {
-    try {
-        const requests = await tutorService.getActiveTutorRequests(req.user.sub);
-        res.json({ requests });
-    } catch (e) { next(e); }
-}
+export const getTutorPendingRequests = asyncHandler(async (req, res) => {
+    const requests = await tutorService.getActiveTutorRequests(req.user.sub);
+    res.json({ requests });
+});
 
-export async function acceptRequest(req, res, next) {
-    try {
-        const request = await tutorService.updateRequestStatus(req.user.sub, req.params.id, 'accepted');
-        res.json({ message: 'Request accepted.', request });
-    } catch (e) { next(e); }
-}
+export const acceptRequest = asyncHandler(async (req, res) => {
+    const request = await tutorService.updateRequestStatus(req.user.sub, req.params.id, 'accepted');
+    res.json({ message: 'Request accepted.', request });
+});
 
-export async function declineRequest(req, res, next) {
-    try {
-        const request = await tutorService.updateRequestStatus(req.user.sub, req.params.id, 'declined');
-        res.json({ message: 'Request declined. Credits refunded to user.', request });
-    } catch (e) { next(e); }
-}
+export const declineRequest = asyncHandler(async (req, res) => {
+    const request = await tutorService.updateRequestStatus(req.user.sub, req.params.id, 'declined');
+    res.json({ message: 'Request declined. Credits refunded to user.', request });
+});
 
-export async function resolveRequest(req, res, next) {
-    try {
-        const request = await tutorService.resolveRequest(req.user.sub, req.params.id, req.body.response);
-        res.json({ message: 'Request resolved and response sent.', request });
-    } catch (e) { next(e); }
-}
+export const resolveRequest = asyncHandler(async (req, res) => {
+    const request = await tutorService.resolveRequest(req.user.sub, req.params.id, req.body.response);
+    res.json({ message: 'Request resolved and response sent.', request });
+});
 
-export async function addMessage(req, res, next) {
-    try {
-        const { role, content } = req.body; // role: 'student' | 'teacher'
-        const request = await tutorService.addRequestMessage(req.user.sub, req.params.id, content, role);
-        res.json({ message: 'Message added.', request });
-    } catch (e) { next(e); }
-}
+export const addMessage = asyncHandler(async (req, res) => {
+    const { role, content } = req.body; // role: 'student' | 'teacher'
+    const request = await tutorService.addRequestMessage(req.user.sub, req.params.id, content, role);
+    res.json({ message: 'Message added.', request });
+});

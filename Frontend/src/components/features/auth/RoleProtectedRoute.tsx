@@ -2,7 +2,8 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { getMe, SafeUser } from "@/services/authService";
+import { getMe } from "@/services/authService";
+import { User } from "@/types/user";
 import { getRoleDashboardRoute } from "@/lib/roleUtils";
 import { Loader2 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
@@ -45,7 +46,7 @@ export function RoleProtectedRoute({ children, allowedRoles }: RoleProtectedRout
 
       // Slow path: no user in context yet, try fetching from API
       try {
-        const user: SafeUser = await getMe();
+        const user: User = await getMe();
         if (!isMounted.current) return;
         setUser(user);
         if (allowedRoles.includes(user.role)) {

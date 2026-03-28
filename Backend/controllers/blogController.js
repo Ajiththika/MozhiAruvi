@@ -1,84 +1,63 @@
- import * as blogService from '../services/blogService.js';
+import * as blogService from '../services/blogService.js';
+import { asyncHandler } from '../utils/asyncHandler.js';
 
 // ── Public ───────────────────────────────────────────────────────────────────
-export async function getPublicBlogs(req, res, next) {
-    try {
-        const { page = 1, limit = 6 } = req.query;
-        const result = await blogService.getPublicBlogs(parseInt(page), parseInt(limit));
-        res.json(result);
-    } catch (e) { next(e); }
-}
+export const getPublicBlogs = asyncHandler(async (req, res) => {
+    const { page = 1, limit = 6 } = req.query;
+    const result = await blogService.getPublicBlogs(parseInt(page), parseInt(limit));
+    res.json(result);
+});
 
-export async function getSinglePublicBlog(req, res, next) {
-    try {
-        const blog = await blogService.getBlogByIdOrSlug(req.params.id, req.user);
-        res.json({ blog });
-    } catch (e) { next(e); }
-}
+export const getSinglePublicBlog = asyncHandler(async (req, res) => {
+    const blog = await blogService.getBlogByIdOrSlug(req.params.id, req.user);
+    res.json({ blog });
+});
 
 // ── Authenticated User ────────────────────────────────────────────────────────
-export async function createBlog(req, res, next) {
-    try {
-        const blog = await blogService.createBlog(req.user.sub, req.body);
-        res.status(201).json({ blog });
-    } catch (e) { next(e); }
-}
+export const createBlog = asyncHandler(async (req, res) => {
+    const blog = await blogService.createBlog(req.user.sub, req.body);
+    res.status(201).json({ blog });
+});
 
-export async function getMyBlogs(req, res, next) {
-    try {
-        const blogs = await blogService.getUserBlogs(req.user.sub);
-        res.json({ blogs });
-    } catch (e) { next(e); }
-}
+export const getMyBlogs = asyncHandler(async (req, res) => {
+    const blogs = await blogService.getUserBlogs(req.user.sub);
+    res.json({ blogs });
+});
 
-export async function updateMyBlog(req, res, next) {
-    try {
-        const blog = await blogService.updateBlog(req.params.id, req.user.sub, req.body);
-        res.json({ blog });
-    } catch (e) { next(e); }
-}
+export const updateMyBlog = asyncHandler(async (req, res) => {
+    const blog = await blogService.updateBlog(req.params.id, req.user.sub, req.body);
+    res.json({ blog });
+});
 
-export async function deleteMyBlog(req, res, next) {
-    try {
-        await blogService.deleteBlog(req.params.id, req.user.sub);
-        res.json({ message: 'Blog deleted successfully.' });
-    } catch (e) { next(e); }
-}
+export const deleteMyBlog = asyncHandler(async (req, res) => {
+    await blogService.deleteBlog(req.params.id, req.user.sub);
+    res.json({ message: 'Blog deleted successfully.' });
+});
 
 // Saved / Bookmarks
-export async function getMySavedBlogs(req, res, next) {
-    try {
-        const blogs = await blogService.getSavedBlogs(req.user.sub);
-        res.json({ blogs });
-    } catch (e) { next(e); }
-}
+export const getMySavedBlogs = asyncHandler(async (req, res) => {
+    const blogs = await blogService.getSavedBlogs(req.user.sub);
+    res.json({ blogs });
+});
 
-export async function toggleSaveBlog(req, res, next) {
-    try {
-        const result = await blogService.toggleSaveBlog(req.user.sub, req.params.id);
-        res.json(result);
-    } catch (e) { next(e); }
-}
+export const toggleSaveBlog = asyncHandler(async (req, res) => {
+    const result = await blogService.toggleSaveBlog(req.user.sub, req.params.id);
+    res.json(result);
+});
 
 // ── Admin ─────────────────────────────────────────────────────────────────────
-export async function getAllBlogs(req, res, next) {
-    try {
-        const { page = 1, limit = 6 } = req.query;
-        const result = await blogService.getAllBlogsForAdmin(parseInt(page), parseInt(limit));
-        res.json(result);
-    } catch (e) { next(e); }
-}
+export const getAllBlogs = asyncHandler(async (req, res) => {
+    const { page = 1, limit = 6 } = req.query;
+    const result = await blogService.getAllBlogsForAdmin(parseInt(page), parseInt(limit));
+    res.json(result);
+});
 
-export async function updateBlogStatus(req, res, next) {
-    try {
-        const blog = await blogService.adminUpdateStatus(req.params.id, req.body.status);
-        res.json({ blog });
-    } catch (e) { next(e); }
-}
+export const updateBlogStatus = asyncHandler(async (req, res) => {
+    const blog = await blogService.adminUpdateStatus(req.params.id, req.body.status);
+    res.json({ blog });
+});
 
-export async function adminDeleteBlog(req, res, next) {
-    try {
-        await blogService.adminDeleteBlog(req.params.id);
-        res.json({ message: 'Blog deleted successfully by admin.' });
-    } catch (e) { next(e); }
-}
+export const adminDeleteBlog = asyncHandler(async (req, res) => {
+    await blogService.adminDeleteBlog(req.params.id);
+    res.json({ message: 'Blog deleted successfully by admin.' });
+});

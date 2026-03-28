@@ -3,71 +3,58 @@ import * as lessonService from '../services/lessonService.js';
 import * as eventService from '../services/eventService.js';
 import * as blogService from '../services/blogService.js';
 import * as tutorService from '../services/tutorService.js';
+import { asyncHandler } from '../utils/asyncHandler.js';
 
-export async function getProfile(req, res, next) {
-    try {
-        const user = await userService.getUserInfo(req.user.sub);
-        res.json({ user: user.toSafeObject() });
-    } catch (e) { next(e); }
-}
+export const getProfile = asyncHandler(async (req, res) => {
+    const user = await userService.getUserInfo(req.user.sub);
+    res.json({ user: user.toSafeObject() });
+});
 
-export async function updateProfile(req, res, next) {
-    try {
-        if (req.file) {
-            req.body.profilePhoto = req.file.path;
-        }
-        const user = await userService.updateUserInfo(req.user.sub, req.body);
-        res.json({ message: 'Profile updated successfully', user: user.toSafeObject() });
-    } catch (e) { next(e); }
-}
+export const updateProfile = asyncHandler(async (req, res) => {
+    if (req.file) {
+        req.body.profilePhoto = req.file.path;
+    }
+    const user = await userService.updateUserInfo(req.user.sub, req.body);
+    res.json({ message: 'Profile updated successfully', user: user.toSafeObject() });
+});
 
-export async function updatePassword(req, res, next) {
-    try {
-        await userService.changeUserPassword(req.user.sub, req.body.currentPassword, req.body.newPassword);
-        res.json({ message: 'Password updated successfully. Please log in again.' });
-    } catch (e) { next(e); }
-}
+export const updatePassword = asyncHandler(async (req, res) => {
+    await userService.changeUserPassword(req.user.sub, req.body.currentPassword, req.body.newPassword);
+    res.json({ message: 'Password updated successfully. Please log in again.' });
+});
 
-export async function deactivateAccount(req, res, next) {
-    try {
-        await userService.deactivateUserAccount(req.user.sub);
-        res.clearCookie('rt');
-        res.json({ message: 'Account deactivated successfully. You have been logged out.' });
-    } catch (e) { next(e); }
-}
+export const deactivateAccount = asyncHandler(async (req, res) => {
+    await userService.deactivateUserAccount(req.user.sub);
+    res.clearCookie('rt');
+    res.json({ message: 'Account deactivated successfully. You have been logged out.' });
+});
 
-export async function setLevel(req, res, next) {
-    try {
-        const user = await userService.setUserLevel(req.user.sub, req.body.level);
-        res.json({ message: 'Level updated', user: user.toSafeObject() });
-    } catch (e) { next(e); }
-}
+export const setLevel = asyncHandler(async (req, res) => {
+    const user = await userService.setUserLevel(req.user.sub, req.body.level);
+    res.json({ message: 'Level updated', user: user.toSafeObject() });
+});
 
-export async function consumeCredit(req, res, next) {
-    try {
-        const user = await userService.consumeCredit(req.user.sub);
-        res.json({ message: 'Credit consumed', learningCredits: user.learningCredits });
-    } catch (e) { next(e); }
-}
+export const consumeCredit = asyncHandler(async (req, res) => {
+    const user = await userService.consumeCredit(req.user.sub);
+    res.json({ message: 'Credit consumed', learningCredits: user.learningCredits });
+});
 
-export async function getStudentDashboardData(req, res, next) {
-    try {
-        const userId = req.user.sub;
-        const [user, lessonsData, progress, joinRequests, blogs, questions] = await Promise.all([
-            userService.getUserInfo(userId),
-            lessonService.getAllLessons(),
-            lessonService.getUserProgressList(userId),
-            eventService.getMyJoinRequests(userId),
-            blogService.getUserBlogs(userId),
-            tutorService.getStudentRequests(userId)
-        ]);
-        res.json({
-            user: user.toSafeObject(),
-            lessons: Array.isArray(lessonsData) ? lessonsData : (lessonsData.lessons || []),
-            progress,
-            joinRequests,
-            blogs,
-            questions: questions.slice(0, 5)
-        });
-    } catch (e) { next(e); }
-}
+export const getStudentDashboardData = asyncHandler(async (req, res) => {
+    const userId = req.user.sub;
+    const [user, lessonsData, progress, joinRequests, blogs, questions] = await Promise.all([
+        userService.getUserInfo(userId),
+        lessonService.getAllLessons(),
+        lessonService.getUserProgressList(userId),
+        eventService.getMyJoinRequests(userId),
+        blogService.getUserBlogs(userId),
+        tutorService.getStudentRequests(userId)
+    ]);
+    res.json({
+        user: user.toSafeObject(),
+        lessons: Array.isArray(lessonsData) ? lessonsData : (lessonsData.lessons || []),
+        progress,
+        joinRequests,
+        blogs,
+        questions: questions.slice(0, 5)
+    });
+});

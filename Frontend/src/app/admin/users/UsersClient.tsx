@@ -2,15 +2,15 @@
 
 import React, { useState } from "react";
 import { DataTable, ColumnDef } from "@/components/ui/DataTable";
-import { Loader2, AlertCircle, ShieldCheck, ShieldAlert, CheckCircle2, XCircle, Edit2, User, Globe, Phone, Hash } from "lucide-react";
+import { Loader2, AlertCircle, ShieldCheck, ShieldAlert, CheckCircle2, XCircle, Edit2, User as UserIcon, Globe, Phone, Hash } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   getAllUsers,
   deactivateUser,
   activateUser,
   updateUserAdmin,
-  BaseUser,
 } from "@/services/adminService";
+import { User } from "@/types/user";
 import { Pagination } from "@/components/ui/Pagination";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
@@ -18,7 +18,7 @@ import { Input } from "@/components/ui/Input";
 import { Card } from "@/components/ui/Card";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 
-function RoleBadge({ role }: { role: BaseUser["role"] }) {
+function RoleBadge({ role }: { role: User["role"] }) {
   const map: Record<string, string> = {
     user: "bg-primary/5 text-primary border-primary/10",
     teacher: "bg-emerald-50 text-emerald-600 border-emerald-100",
@@ -37,8 +37,8 @@ export default function UsersClient() {
   const queryClient = useQueryClient();
   const [currentPage, setCurrentPage] = useState(1);
   const [actioning, setActioning] = useState<string | null>(null);
-  const [editingUser, setEditingUser] = useState<BaseUser | null>(null);
-  const [editFormData, setEditFormData] = useState<Partial<BaseUser>>({});
+  const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [editFormData, setEditFormData] = useState<Partial<User>>({});
   const [isSaving, setIsSaving] = useState(false);
 
   const { data, isLoading, isError, error, refetch } = useQuery({
@@ -54,7 +54,7 @@ export default function UsersClient() {
   const totalPages = data?.totalPages || 1;
   const totalItems = data?.totalItems || 0;
 
-  const handleToggle = async (user: BaseUser) => {
+  const handleToggle = async (user: User) => {
     setActioning(user._id);
     try {
       user.isActive
@@ -68,7 +68,7 @@ export default function UsersClient() {
     }
   };
 
-  const handleEditOpen = (user: BaseUser) => {
+  const handleEditOpen = (user: User) => {
     setEditingUser(user);
     setEditFormData({ ...user });
   };
@@ -96,7 +96,7 @@ export default function UsersClient() {
     }
   };
 
-  const columns: ColumnDef<BaseUser>[] = [
+  const columns: ColumnDef<User>[] = [
     {
       header: "User Identity",
       accessorKey: "name",
@@ -222,7 +222,7 @@ export default function UsersClient() {
               name="name" 
               value={editFormData.name || ""} 
               onChange={handleEditChange}
-              icon={<User size={14} className="text-primary" />}
+              icon={<UserIcon size={14} className="text-primary" />}
             />
             <Input 
               label="System Authority" 
@@ -269,7 +269,7 @@ export default function UsersClient() {
                 { label: "Other", value: "other" },
                 { label: "Prefer not to say", value: "prefer_not_to_say" },
               ]}
-              icon={<User size={14} className="text-primary" />}
+              icon={<UserIcon size={14} className="text-primary" />}
             />
           </div>
 

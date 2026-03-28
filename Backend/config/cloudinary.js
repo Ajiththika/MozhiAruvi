@@ -10,13 +10,20 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-const storage = new CloudinaryStorage({
-  cloudinary: cloudinary,
-  params: {
-    folder: 'mozhi-arivu/avatars',
-    allowed_formats: ['jpg', 'png', 'jpeg', 'webp'],
-    transformation: [{ width: 500, height: 500, crop: 'limit' }],
-  },
-});
+/**
+ * Creates a CloudinaryStorage instance for a specific folder.
+ */
+export const createCloudinaryStorage = (folderName = 'mozhi-arivu/general') => {
+  return new CloudinaryStorage({
+    cloudinary: cloudinary,
+    params: {
+      folder: folderName,
+      allowed_formats: ['jpg', 'png', 'jpeg', 'webp', 'gif'],
+    },
+  });
+};
 
-export { cloudinary, storage };
+// Legacy Export for avatars
+export const avatarStorage = createCloudinaryStorage('mozhi-arivu/avatars');
+
+export { cloudinary };
