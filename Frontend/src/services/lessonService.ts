@@ -12,6 +12,9 @@ export interface Lesson {
   _id: string;
   title: string;
   description?: string;
+  category?: 'Uyir Eluthu' | 'Mei Eluthu' | 'Uyirmei Eluthu' | 'Ayutha Eluthu' | 'Grantha Eluthugal';
+  type?: 'MCQ' | 'speaking' | 'writing' | 'mixed';
+  examples?: string[];
   moduleName: string;
   sectionName: string;
   moduleNumber: number;
@@ -23,7 +26,7 @@ export interface Lesson {
 
 export interface Question {
   _id: string;
-  type?: "learn" | "match" | "identify" | "listening" | "fill" | "spelling" | "quiz" | "speaking" | "choice";
+  type?: "learn" | "match" | "identify" | "listening" | "fill" | "spelling" | "quiz" | "speaking" | "choice" | "writing";
   text: string;
   options?: string[];
   correctOptionIndex?: number;

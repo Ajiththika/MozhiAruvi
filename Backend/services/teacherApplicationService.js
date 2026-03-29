@@ -15,7 +15,7 @@ function makeError(msg, status, code) {
 /**
  * Submit a new teacher application.
  * Rules:
- *   - Only users with role 'user' can apply.
+ *   - Only users with role 'student' can apply.
  *   - Cannot apply while a 'pending' or 'needs_revision' application exists
  *     (user should update their existing application instead).
  *   - If a previous application was rejected or approved, a new one is allowed.
@@ -24,9 +24,9 @@ export async function applyForTeacher(userId, data) {
     const user = await User.findById(userId).select('role');
     if (!user) throw makeError('User not found.', 404, 'NOT_FOUND');
 
-    if (user.role !== 'user') {
+    if (user.role !== 'student') {
         throw makeError(
-            'Only users with role "user" can apply to become a teacher.',
+            'Only users with role "student" can apply to become a teacher.',
             403,
             'FORBIDDEN'
         );

@@ -21,10 +21,13 @@ export interface SafeUser {
   role: "student" | "teacher" | "admin";
   isTutorAvailable?: boolean;
   profilePhoto?: string | null;
-  level?: "Beginner" | "Intermediate" | "Advanced" | "Not Set";
+  level?: "Basic" | "Beginner" | "Intermediate" | "Advanced" | "Not Set";
+  hasCompletedOnboarding?: boolean;
   learningCredits?: number;
+  power?: number;
   credits?: number;
   xp?: number;
+  points?: number;
   phoneNumber?: string;
   country?: string;
   age?: number;
@@ -86,6 +89,12 @@ export interface DashboardData {
   user: SafeUser;
   lessons: Lesson[];
   progress: Progress[];
+  statistics?: {
+    totalLessons: number;
+    completedCount: number;
+    progressPercentage: number;
+    nextLesson: Lesson | null;
+  };
 }
 
 export async function getDashboardData(): Promise<DashboardData> {
@@ -95,6 +104,17 @@ export async function getDashboardData(): Promise<DashboardData> {
 
 export async function getMe(): Promise<SafeUser> {
   const res = await api.get<{ user: SafeUser }>("/auth/me");
+  return res.data.user;
+}
+
+export async function completeOnboarding(data: {
+  age?: number | string;
+  level?: "Basic" | "Beginner" | "Intermediate" | "Advanced" | "Not Set";
+  goal?: string;
+  timeAvailability?: string;
+  priorKnowledge?: string;
+}): Promise<SafeUser> {
+  const res = await api.post<{ message: string, user: SafeUser }>("/users/me/onboarding", data);
   return res.data.user;
 }
 

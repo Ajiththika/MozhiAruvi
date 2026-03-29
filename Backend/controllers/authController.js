@@ -29,6 +29,9 @@ export async function refresh(req, res, next) {
         tokenService.setRefreshCookie(res, { raw, sessionId });
         res.json({ accessToken });
     } catch (e) {
+        if (e.name === 'MongooseError' || e?.message?.includes('timeout') || e?.message?.includes('buffering')) {
+            return res.status(503).json({ message: 'Database is currently offline. Retry later.' });
+        }
         tokenService.clearRefreshCookie(res);
         // If it's a known 401 from the service, return it cleanly
         if (e.status === 401) {

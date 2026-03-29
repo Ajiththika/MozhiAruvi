@@ -26,7 +26,15 @@ const updatePasswordSchema = z.object({
 }).strict();
 
 const setLevelSchema = z.object({
-    level: z.enum(['Beginner', 'Intermediate', 'Advanced', 'Not Set']),
+    level: z.enum(['Basic', 'Beginner', 'Intermediate', 'Advanced', 'Not Set']),
+}).strict();
+
+const onboardingSchema = z.object({
+    age: z.number().or(z.string()).optional(),
+    level: z.enum(['Basic', 'Beginner', 'Intermediate', 'Advanced', 'Not Set']).optional(),
+    goal: z.string().optional(),
+    timeAvailability: z.string().optional(),
+    priorKnowledge: z.string().optional(),
 }).strict();
 
 router.get('/me', authenticate, userController.getProfile);
@@ -35,6 +43,7 @@ router.patch('/me', authenticate, upload.single('profilePhoto'), validate(update
 router.patch('/me/password', authenticate, validate(updatePasswordSchema), userController.updatePassword);
 router.patch('/me/deactivate', authenticate, userController.deactivateAccount);
 router.patch('/me/level', authenticate, validate(setLevelSchema), userController.setLevel);
+router.post('/me/onboarding', authenticate, validate(onboardingSchema), userController.completeOnboarding);
 router.post('/me/consume-credit', authenticate, userController.consumeCredit);
 
 export default router;

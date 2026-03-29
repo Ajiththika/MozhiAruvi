@@ -57,9 +57,16 @@ export async function refreshTokens(req) {
 }
 
 export async function getMe(userId) {
-    const user = await User.findById(userId);
-    if (!user) { const err = new Error('User not found.'); err.status = 404; err.code = 'NOT_FOUND'; throw err; }
-    return user;
+    try {
+        const user = await User.findById(userId);
+        if (!user) { const err = new Error('User not found.'); err.status = 404; err.code = 'NOT_FOUND'; throw err; }
+        return user;
+    } catch (e) {
+        if (e.name === 'MongooseError' || e.message?.includes('timeout') || e.message?.includes('buffering')) {
+            const err = new Error('Database is offline.'); err.status = 503; throw err;
+        }
+        throw e;
+    }
 }
 
 export async function sendForgotEmail(req) {

@@ -13,14 +13,27 @@ export async function getPublicBlogs(page = 1, limit = 6) {
     const skip = (page - 1) * limit;
     const query = { status: 'published' };
     
-    const [blogs, totalBlogs] = await Promise.all([
-        Blog.find(query)
-            .populate('author', 'name email profilePhoto')
-            .sort({ createdAt: -1 })
-            .skip(skip)
-            .limit(limit),
-        Blog.countDocuments(query)
-    ]);
+    let blogs = [];
+    let totalBlogs = 0;
+
+    try {
+        const results = await Promise.all([
+            Blog.find(query)
+                .populate('author', 'name email profilePhoto')
+                .sort({ createdAt: -1 })
+                .skip(skip)
+                .limit(limit),
+            Blog.countDocuments(query)
+        ]);
+        blogs = results[0];
+        totalBlogs = results[1];
+    } catch (e) {
+        if (e.name === 'MongooseError' || e.message?.includes('timeout') || e.message?.includes('buffering')) {
+            console.warn('[blogService] DB offline, returning empty public blogs');
+        } else {
+            throw e;
+        }
+    }
 
     return {
         blogs,
@@ -46,11 +59,21 @@ export async function getBlogByIdOrSlug(identifier, viewer = null) {
 }
 
 export async function getUserBlogs(authorId) {
-    return await Blog.find({ author: authorId }).populate('author', 'name email').sort({ createdAt: -1 });
+    try {
+        return await Blog.find({ author: authorId }).populate('author', 'name email').sort({ createdAt: -1 });
+    } catch (e) {
+        if (e.name === 'MongooseError' || e.message?.includes('timeout') || e.message?.includes('buffering')) return [];
+        throw e;
+    }
 }
 
 export async function getSavedBlogs(userId) {
-    return await Blog.find({ savedBy: userId }).populate('author', 'name email').sort({ createdAt: -1 });
+    try {
+        return await Blog.find({ savedBy: userId }).populate('author', 'name email').sort({ createdAt: -1 });
+    } catch (e) {
+        if (e.name === 'MongooseError' || e.message?.includes('timeout') || e.message?.includes('buffering')) return [];
+        throw e;
+    }
 }
 
 export async function toggleSaveBlog(userId, blogId) {
@@ -92,14 +115,27 @@ export async function deleteBlog(blogId, authorId) {
 export async function getAllBlogsForAdmin(page = 1, limit = 6) {
     const skip = (page - 1) * limit;
     
-    const [blogs, totalBlogs] = await Promise.all([
-        Blog.find()
-            .populate('author', 'name email profilePhoto')
-            .sort({ createdAt: -1 })
-            .skip(skip)
-            .limit(limit),
-        Blog.countDocuments()
-    ]);
+    let blogs = [];
+    let totalBlogs = 0;
+
+    try {
+        const results = await Promise.all([
+            Blog.find()
+                .populate('author', 'name email profilePhoto')
+                .sort({ createdAt: -1 })
+                .skip(skip)
+                .limit(limit),
+            Blog.countDocuments()
+        ]);
+        blogs = results[0];
+        totalBlogs = results[1];
+    } catch (e) {
+        if (e.name === 'MongooseError' || e.message?.includes('timeout') || e.message?.includes('buffering')) {
+            console.warn('[blogService] DB offline, returning empty admin blogs');
+        } else {
+            throw e;
+        }
+    }
 
     return {
         blogs,

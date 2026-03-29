@@ -41,12 +41,24 @@ const refreshClient = axios.create({
   headers: { "Content-Type": "application/json" },
 });
 
+refreshClient.interceptors.response.use((response) => {
+  if (response.data && response.data.success === true && response.data.data !== undefined) {
+    response.data = response.data.data;
+  }
+  return response;
+});
+
 // ── 3. Response interceptor ──────────────────────────────────────────────
 
 let refreshingPromise: Promise<string> | null = null;
 
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    if (response.data && response.data.success === true && response.data.data !== undefined) {
+      response.data = response.data.data;
+    }
+    return response;
+  },
   async (error: AxiosError) => {
     const originalRequest = error.config as any;
 

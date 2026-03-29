@@ -1,4 +1,6 @@
 import User from '../models/User.js';
+import TeacherApplication from '../models/TeacherApplication.js';
+import Event from '../models/Event.js';
 
 // Get users with pagination
 export async function getAllUsers(page = 1, limit = 6) {
@@ -81,8 +83,8 @@ export async function getDashboardStats() {
         User.countDocuments(),
         User.countDocuments({ isActive: true }),
         User.countDocuments({ isTutorAvailable: true }),
-        import('../models/TeacherApplication.js').then(m => m.default.countDocuments({ status: 'pending' })),
-        import('../models/Event.js').then(m => m.default.countDocuments())
+        TeacherApplication.countDocuments({ status: 'pending' }),
+        Event.countDocuments()
     ]);
 
     return {

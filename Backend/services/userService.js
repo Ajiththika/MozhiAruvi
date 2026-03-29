@@ -26,6 +26,22 @@ export async function getUserInfo(userId) {
         await user.save();
     }
 
+    if (user.power < 30) {
+        const now = new Date();
+        const lastUpdate = user.lastPowerUpdate || now;
+        const diffMs = now - lastUpdate;
+        const diffHours = Math.floor(diffMs / oneHour);
+        if (diffHours > 0) {
+            const newPower = Math.min(30, user.power + diffHours);
+            user.power = newPower;
+            user.lastPowerUpdate = new Date(lastUpdate.getTime() + (diffHours * oneHour));
+            await user.save();
+        }
+    } else if (!user.lastPowerUpdate) {
+        user.lastPowerUpdate = new Date();
+        await user.save();
+    }
+
     return user;
 }
 
@@ -34,6 +50,18 @@ export async function setUserLevel(userId, level) {
     if (!user) {
         const err = new Error('User not found'); err.status = 404; err.code = 'NOT_FOUND'; throw err;
     }
+    return user;
+}
+
+export async function completeOnboarding(userId, data) {
+    const user = await User.findById(userId);
+    if (!user) {
+        const err = new Error('User not found'); err.status = 404; err.code = 'NOT_FOUND'; throw err;
+    }
+    if (data.age) user.age = data.age;
+    if (data.level) user.level = data.level;
+    user.hasCompletedOnboarding = true;
+    await user.save();
     return user;
 }
 

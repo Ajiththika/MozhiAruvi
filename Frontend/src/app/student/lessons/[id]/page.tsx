@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Play, HelpCircle, Loader2, AlertCircle, Zap } from "lucide-react";
+import { ArrowLeft, Play, HelpCircle, Loader2, AlertCircle, Zap, BookOpen } from "lucide-react";
 import { getLessonById, getLessonQuestions, submitAnswers, Lesson, Question, SubmitAnswerItem } from "@/services/lessonService";
 import { getMe, SafeUser } from "@/services/authService";
 import { consumeCredit } from "@/services/userService";
@@ -15,8 +15,9 @@ import { QuestionCard } from "@/components/features/lessons/QuestionCard";
 import { AudioRecorder } from "@/components/features/lessons/AudioRecorder";
 import { AskTutorModal } from "@/components/features/lessons/AskTutorModal";
 import { LessonProgress } from "@/components/features/lessons/LessonProgress";
+import { WritingCanvas } from "@/components/features/lessons/WritingCanvas";
 
-type Phase = "loading" | "ready" | "out_of_credits" | "completed" | "error";
+type Phase = "loading" | "preview" | "ready" | "out_of_power" | "completed" | "error";
 
 export default function LessonInteractiveSession() {
   const { id } = useParams<{ id: string }>();
@@ -35,7 +36,7 @@ export default function LessonInteractiveSession() {
 
   const [score, setScore] = useState<{ score: number; total: number; passed: boolean } | null>(null);
   const [submitting, setSubmitting] = useState(false);
-  const [credits, setCredits] = useState(25);
+  const [powers, setPowers] = useState(30);
 
   const [showAskPanel, setShowAskPanel] = useState(false);
 
@@ -43,42 +44,41 @@ export default function LessonInteractiveSession() {
     Promise.all([getMe(), getLessonById(id as string), getLessonQuestions(id as string)])
       .then(([userData, l, qs]) => {
         setUser(userData);
-        setCredits(userData.learningCredits || 0);
+        setPowers(userData.power ?? 30);
 
-        if ((userData.learningCredits || 0) <= 0) {
-          setPhase("out_of_credits");
+        if ((userData.power ?? 30) <= 0) {
+          setPhase("out_of_power");
           return;
         }
 
         setLesson(l);
         setQuestions(qs);
-        setPhase("ready");
+        setPhase("preview");
       })
-      .catch(() => setPhase("error"));
+      .catch((err) => {
+          console.error(err);
+          setPhase("error");
+      });
   }, [id]);
 
   const correctAnswersCount = Object.values(feedback).filter(f => f === "correct").length;
   const progress = questions.length > 0 ? Math.round((correctAnswersCount / questions.length) * 100) : 0;
 
-  const takeCredit = async (): Promise<boolean> => {
-    try {
-      await consumeCredit();
-      setCredits(c => c - 1);
-      return true;
-    } catch (e: any) {
-      if (e?.response?.status === 403) {
-        setPhase("out_of_credits");
-      }
-      return false;
+  const takePower = async (): Promise<boolean> => {
+    // Optimistic, no API deduction here for power.
+    // It is deducted at the end!
+    if (powers <= 0) {
+        setPhase("out_of_power");
+        return false;
     }
+    return true;
   };
 
   const handleSelect = async (qId: string, idx: number, correctIdx?: number) => {
     if (feedback[qId] === "correct") return;
     
-    // consume credit first
-    const hasCredit = await takeCredit();
-    if (!hasCredit) return;
+    const hasPower = await takePower();
+    if (!hasPower) return;
 
     setSelected((prev) => ({ ...prev, [qId]: idx }));
 
@@ -137,6 +137,22 @@ export default function LessonInteractiveSession() {
     }
   };
 
+  const handleWritingResult = (qId: string, passed: boolean) => {
+      const hasPower = takePower();
+      if (!hasPower) return;
+
+      if (passed) {
+          setFeedback(prev => ({ ...prev, [qId]: "correct" }));
+          // We mark selecting an option just to have an entry for submit
+          setSelected((prev) => ({ ...prev, [qId]: 0 })); 
+          setTimeout(() => {
+              if (currentQ < questions.length - 1) setCurrentQ(c => c + 1);
+          }, 1500);
+      } else {
+          setFeedback(prev => ({ ...prev, [qId]: "incorrect" }));
+      }
+  };
+
   if (phase === "loading") {
     return (
       <div className="flex h-screen items-center justify-center bg-background">
@@ -166,7 +182,7 @@ export default function LessonInteractiveSession() {
     );
   }
 
-  if (phase === "out_of_credits") {
+  if (phase === "out_of_power") {
     return (
         <div className="flex h-screen items-center justify-center bg-background p-6">
           <Card variant="elevated" className="max-w-md text-center border-amber-500/20 bg-amber-500/5">
@@ -178,14 +194,56 @@ export default function LessonInteractiveSession() {
              </div>
             <h2 className="text-3xl font-black text-gray-800 mb-4 tracking-tight">Energy Depleted</h2>
             <p className="text-gray-500 mb-10 font-medium leading-relaxed italic px-4">
-              Your learning energy has reached critical levels. Re-engage to continue your linguistic growth.
+              Your learning energy has reached critical levels. 1 Power regenerates every hour.
             </p>
             <div className="space-y-4">
-                <Button href="/student/premium" size="xl" className="w-full shadow-xl shadow-primary/20 bg-primary">Restore Energy</Button>
                 <Button href="/student/dashboard" variant="ghost" size="md" className="w-full font-black uppercase tracking-widest text-[10px]">Return To Dashboard</Button>
             </div>
           </Card>
         </div>
+      );
+  }
+
+  if (phase === "preview") {
+      return (
+         <div className="flex flex-col h-screen bg-background items-center justify-center p-6 sm:p-12 animate-in fade-in zoom-in-95 duration-700">
+             <Card variant="elevated" padding="xl" className="max-w-2xl w-full text-center space-y-8">
+                <div className="mx-auto w-24 h-24 bg-primary/10 rounded-full flex items-center justify-center mb-6 ring-8 ring-primary/5">
+                    <BookOpen className="w-12 h-12 text-primary" />
+                </div>
+                <div>
+                   <h2 className="text-sm font-black text-secondary tracking-[0.3em] uppercase mb-2">
+                       Module {lesson?.moduleNumber || "X"} — {lesson?.category}
+                   </h2>
+                   <h1 className="text-4xl sm:text-5xl font-black text-gray-800 tracking-tight leading-tight">
+                       {lesson?.title}
+                   </h1>
+                </div>
+
+                <p className="text-lg text-gray-600 font-medium px-4">
+                   {lesson?.description || "In this module, you will practice your listening, speaking, reading, and writing skills."}
+                </p>
+
+                {lesson?.examples && lesson.examples.length > 0 && (
+                    <div className="bg-gray-50 p-6 rounded-3xl border border-gray-100 mt-8 mb-8 text-left">
+                        <h3 className="text-xs font-black uppercase tracking-widest text-gray-400 mb-4 text-center">Preview & Learn</h3>
+                        <div className="flex flex-wrap gap-4 justify-center">
+                            {lesson.examples.map((ex, i) => (
+                                <span key={i} className="px-4 py-2 bg-white border border-gray-200 shadow-sm rounded-xl font-bold text-xl text-primary">
+                                    {ex}
+                                </span>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                <div className="pt-8">
+                    <Button onClick={() => setPhase("ready")} size="xl" className="w-full max-w-sm mx-auto shadow-xl shadow-primary/20 bg-primary hover:bg-primary/90 text-lg rounded-full">
+                        Start Lesson
+                    </Button>
+                </div>
+             </Card>
+         </div>
       );
   }
 
@@ -251,7 +309,7 @@ export default function LessonInteractiveSession() {
             </div>
           </div>
 
-          <LessonProgress progress={progress} credits={credits} />
+          <LessonProgress progress={progress} credits={powers} />
 
           {/* Action Hub */}
           <div className="flex items-center gap-4">
@@ -295,12 +353,12 @@ export default function LessonInteractiveSession() {
             </div>
 
             {/* Input System: Multiple Choice */}
-            {q?.type === "choice" && (
+            {(!q?.type || q?.type === "quiz" || q?.type === "choice" || q?.type === "match" || q?.type === "identify") && (
               <QuestionCard
                 question={q}
-                feedback={feedback[q._id]}
-                selectedIndex={selected[q._id]}
-                credits={credits}
+                feedback={feedback[q?._id]}
+                selectedIndex={selected[q?._id]}
+                credits={powers}
                 onSelect={handleSelect}
               />
             )}
@@ -312,9 +370,18 @@ export default function LessonInteractiveSession() {
                   questionId={q._id}
                   expectedAudioText={q.expectedAudioText}
                   isCorrect={feedback[q._id] === "correct"}
-                  takeCredit={takeCredit}
+                  takeCredit={takePower}
                   onResult={(passed, message) => handleAudioResult(q._id, passed, message)}
                   backendMessage={backendMessage[q._id]}
+                />
+            )}
+
+            {/* Input System: Writing Canvas */}
+            {q?.type === "writing" && (
+                <WritingCanvas 
+                   onResult={(passed) => handleWritingResult(q._id, passed)}
+                   expectedText={q.text.split(' ').pop()} // Very simple fallback for expected char visually
+                   isCorrect={feedback[q._id] === "correct"}
                 />
             )}
 

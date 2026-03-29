@@ -43,6 +43,13 @@ export async function setLevel(req, res, next) {
     } catch (e) { next(e); }
 }
 
+export async function completeOnboarding(req, res, next) {
+    try {
+        const user = await userService.completeOnboarding(req.user.sub, req.body);
+        res.json({ message: 'Onboarding completed', user: user.toSafeObject() });
+    } catch (e) { next(e); }
+}
+
 export async function consumeCredit(req, res, next) {
     try {
         const user = await userService.consumeCredit(req.user.sub);
@@ -61,13 +68,31 @@ export async function getStudentDashboardData(req, res, next) {
             blogService.getUserBlogs(userId),
             tutorService.getStudentRequests(userId)
         ]);
+        const lessonsList = Array.isArray(lessonsData) ? lessonsData : (lessonsData.lessons || []);
+        
+        // Backend-driven metric computation
+        const totalLessons = lessonsList.length;
+        const completedCount = progress.filter(p => p.isCompleted).length;
+        const progressPercentage = totalLessons > 0 ? Math.round((completedCount / totalLessons) * 100) : 0;
+        
+        const nextLesson = lessonsList.find(l => {
+            const p = progress.find(pr => String(pr.lessonId) === String(l._id));
+            return !p || !p.isCompleted;
+        }) || (totalLessons > 0 ? lessonsList[0] : null);
+
         res.json({
             user: user.toSafeObject(),
-            lessons: Array.isArray(lessonsData) ? lessonsData : (lessonsData.lessons || []),
+            lessons: lessonsList,
             progress,
             joinRequests,
             blogs,
-            questions: questions.slice(0, 5)
+            questions: questions.slice(0, 5),
+            statistics: {
+                totalLessons,
+                completedCount,
+                progressPercentage,
+                nextLesson,
+            }
         });
     } catch (e) { next(e); }
 }

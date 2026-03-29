@@ -28,14 +28,27 @@ export async function getAvailableTutors(page = 1, limit = 6, filters = {}) {
         }
     }
 
-    const [tutors, totalTutors] = await Promise.all([
-        User.find(query)
-            .select('name bio experience specialization hourlyRate languages email schedule teachingMode profilePhoto levelSupport responseTime isTutorAvailable')
-            .sort({ createdAt: -1 })
-            .skip(skip)
-            .limit(limit),
-        User.countDocuments(query)
-    ]);
+    let tutors = [];
+    let totalTutors = 0;
+
+    try {
+        const results = await Promise.all([
+            User.find(query)
+                .select('name bio experience specialization hourlyRate languages email schedule teachingMode profilePhoto levelSupport responseTime isTutorAvailable')
+                .sort({ createdAt: -1 })
+                .skip(skip)
+                .limit(limit),
+            User.countDocuments(query)
+        ]);
+        tutors = results[0];
+        totalTutors = results[1];
+    } catch (e) {
+        if (e.name === 'MongooseError' || e.message.includes('timeout') || e.message.includes('buffering')) {
+            console.warn('[tutorService] DB offline, returning empty tutors limit');
+        } else {
+            throw e;
+        }
+    }
 
     return {
         tutors,

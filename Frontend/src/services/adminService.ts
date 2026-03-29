@@ -12,7 +12,7 @@ export interface BaseUser {
   _id: string;
   name: string;
   email: string;
-  role: "user" | "teacher" | "admin";
+  role: "student" | "teacher" | "admin";
   isActive: boolean;
   isTutorAvailable?: boolean;
   phoneNumber?: string;

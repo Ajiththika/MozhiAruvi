@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { StatCard } from "@/components/features/dashboard/StatCard";
-import { BookOpen, Trophy, AlertCircle, ArrowRight, Clock, BookMarked } from "lucide-react";
+import { BookOpen, Trophy, AlertCircle, ArrowRight, Clock, BookMarked, Star, Zap } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { getDashboardData } from "@/services/authService";
@@ -23,12 +23,10 @@ export default function StudentDashboard() {
   const lessons = data?.lessons || [];
   const progress = data?.progress || [];
 
-  const nextLesson = lessons.find(l => {
-    const p = progress.find(pr => pr.lessonId === l._id);
-    return !p || !p.isCompleted;
-  }) || (lessons.length > 0 ? lessons[0] : null);
-  const completedCount = progress.filter(p => p.isCompleted).length;
-  const progressPercentage = lessons.length > 0 ? Math.round((completedCount / lessons.length) * 100) : 0;
+  const nextLesson = data?.statistics?.nextLesson || (lessons.length > 0 ? lessons[0] : null);
+  const completedCount = data?.statistics?.completedCount ?? progress.filter(p => p.isCompleted).length;
+  const progressPercentage = data?.statistics?.progressPercentage ?? (lessons.length > 0 ? Math.round((completedCount / lessons.length) * 100) : 0);
+  const totalLessons = data?.statistics?.totalLessons ?? lessons.length;
 
   if (isLoading) {
     return <DashboardSkeleton />;
@@ -72,18 +70,30 @@ export default function StudentDashboard() {
       )}
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
-          title="Curriculum"
-          value={lessons.length}
-          description="Available modules"
-          icon={BookOpen}
+          title="Points Earned"
+          value={user?.points || user?.xp || 0}
+          description="Total learning points"
+          icon={Star}
         />
         <StatCard
-          title="Course Progress"
-          value={`${progressPercentage}%`}
-          description={`${completedCount} of ${lessons.length} finished`}
+          title="Powers"
+          value={`${user?.power ?? 30}/30`}
+          description="Daily energy"
+          icon={Zap}
+        />
+        <StatCard
+          title="Current Level"
+          value={user?.level || "Beginner"}
+          description="Learning stage"
           icon={Trophy}
+        />
+        <StatCard
+          title="Badges"
+          value={(user as any)?.badges?.length || 0}
+          description="Achievements unlocked"
+          icon={BookOpen}
         />
       </div>
 

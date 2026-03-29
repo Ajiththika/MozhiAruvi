@@ -5,7 +5,12 @@ import User from '../models/User.js';
 
 // ── Lesons (Public/User) ──────────────────────────────────────────────────────
 export async function getAllLessons() {
-    return Lesson.find().sort({ moduleNumber: 1, orderIndex: 1 });
+    try {
+        return await Lesson.find().sort({ moduleNumber: 1, orderIndex: 1 });
+    } catch (e) {
+        if (e.name === 'MongooseError' || e.message.includes('timeout') || e.message.includes('buffering')) return [];
+        throw e;
+    }
 }
 
 export async function getLessonById(lessonId) {
@@ -23,7 +28,12 @@ export async function getUserProgressList(userId) {
 // ── Questions (Public/User) ───────────────────────────────────────────────────
 export async function getQuestionsForLesson(lessonId) {
     // For Duolingo style immediate feedback, we return answers. Secure mode can be added later.
-    return Question.find({ lessonId }).select('_id type text options scoreValue correctOptionIndex correctAnswer expectedAudioText');
+    try {
+        return await Question.find({ lessonId }).select('_id type text options scoreValue correctOptionIndex correctAnswer expectedAudioText');
+    } catch (e) {
+        if (e.name === 'MongooseError' || e.message.includes('timeout') || e.message.includes('buffering')) return [];
+        throw e;
+    }
 }
 
 // ── Submission and Progress (Phase 4 & 5) ─────────────────────────────────────
@@ -60,6 +70,7 @@ export async function evaluateAnswersAndSaveProgress(userId, lessonId, answers) 
 
     const passThreshold = totalPossibleScore * 0.7; // Example: 70% to pass
     const passed = score >= passThreshold;
+    const powerCost = questions.length;
 
     let progress = await Progress.findOne({ userId, lessonId });
 
@@ -73,9 +84,12 @@ export async function evaluateAnswersAndSaveProgress(userId, lessonId, answers) 
             completedAt: passed ? new Date() : undefined
         });
 
-        // Add credits to user if passed and this is their first time
+        // Award 50 points for passing, deduct power for taking the test
         if (passed) {
-            await User.findByIdAndUpdate(userId, { $inc: { credits: 50 } }); // Award 50 credits for passing
+            await User.findByIdAndUpdate(userId, { $inc: { points: 50, xp: 50, power: -powerCost } }); 
+        } else {
+            // Deduct power even if failed
+            await User.findByIdAndUpdate(userId, { $inc: { power: -powerCost } });
         }
     } else {
         // Update if the score was higher but avoid re-triggering first time events blindly
@@ -85,7 +99,10 @@ export async function evaluateAnswersAndSaveProgress(userId, lessonId, answers) 
         if (!progress.isCompleted && passed) {
             progress.isCompleted = true;
             progress.completedAt = new Date();
-            await User.findByIdAndUpdate(userId, { $inc: { credits: 50 } }); // First time passing!
+            await User.findByIdAndUpdate(userId, { $inc: { points: 50, xp: 50, power: -powerCost } }); // First time passing!
+        } else {
+            const retakePoints = passed ? 30 : 0; // After retry max 30 points
+            await User.findByIdAndUpdate(userId, { $inc: { points: retakePoints, power: -powerCost } });
         }
         await progress.save();
     }

@@ -11,7 +11,7 @@ export default function AdminLessonsPage() {
   
   // Create Modal State
   const [showCreate, setShowCreate] = useState(false);
-  const [formData, setFormData] = useState({ title: "", moduleName: "Tamil Alphabets", sectionName: "உயிர் எழுத்து", orderIndex: 1, isPremiumOnly: false, moduleNumber: 1 });
+  const [formData, setFormData] = useState({ title: "", moduleName: "Tamil Alphabets", sectionName: "உயிர் எழுத்து", orderIndex: 1, isPremiumOnly: false, moduleNumber: 1, category: "Uyir Eluthu", type: "mixed", examples: "" });
   const [creating, setCreating] = useState(false);
 
   // Manage Questions Modal
@@ -40,7 +40,10 @@ export default function AdminLessonsPage() {
     e.preventDefault();
     setCreating(true);
     try {
-      await api.post("/lessons", formData);
+      await api.post("/lessons", { 
+          ...formData, 
+          examples: formData.examples ? formData.examples.split(",").map(e => e.trim()).filter(e => e.length > 0) : [] 
+      });
       setShowCreate(false);
       fetchLessons();
     } catch (err) {
@@ -144,6 +147,33 @@ export default function AdminLessonsPage() {
                 <input required type="number" value={formData.orderIndex} onChange={e => setFormData({...formData, orderIndex: parseInt(e.target.value)||1})} className="w-full p-2 border rounded-xl dark:bg-white" />
               </div>
             </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-bold text-gray-600 dark:text-gray-300 mb-1">Category</label>
+                <select value={formData.category} onChange={e => setFormData({...formData, category: e.target.value})} className="w-full p-2 border rounded-xl dark:bg-white">
+                    <option value="Uyir Eluthu">Uyir Eluthu</option>
+                    <option value="Mei Eluthu">Mei Eluthu</option>
+                    <option value="Uyirmei Eluthu">Uyirmei Eluthu</option>
+                    <option value="Ayutha Eluthu">Ayutha Eluthu</option>
+                    <option value="Grantha Eluthugal">Grantha Eluthugal</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-gray-600 dark:text-gray-300 mb-1">Lesson Type</label>
+                <select value={formData.type} onChange={e => setFormData({...formData, type: e.target.value})} className="w-full p-2 border rounded-xl dark:bg-white">
+                    <option value="mixed">Mixed</option>
+                    <option value="MCQ">MCQ Only</option>
+                    <option value="speaking">Speaking Focus</option>
+                    <option value="writing">Writing Focus</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-bold text-gray-600 dark:text-gray-300 mb-1">Examples (comma separated text)</label>
+              <input value={formData.examples} onChange={e => setFormData({...formData, examples: e.target.value})} className="w-full p-2 border rounded-xl dark:bg-white" placeholder="e.g. அ - அம்மா, ஆ - ஆடு" />
+            </div>
             
             <div className="flex justify-end gap-3 mt-4">
               <button type="button" onClick={() => setShowCreate(false)} className="px-4 py-2 font-bold text-gray-500 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-xl">Cancel</button>
@@ -225,6 +255,7 @@ export default function AdminLessonsPage() {
                         <select className="w-full p-2 border rounded-xl " value={qFormData.type} onChange={e => setQFormData({...qFormData, type: e.target.value})}>
                           <option value="quiz">Multiple Choice</option>
                           <option value="speaking">Speaking Practice</option>
+                          <option value="writing">Writing Practice</option>
                           <option value="fill">Fill in Blank / Typing</option>
                           <option value="match">Match Pairs</option>
                         </select>

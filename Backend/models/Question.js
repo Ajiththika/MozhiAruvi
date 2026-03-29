@@ -4,7 +4,7 @@ const questionSchema = new mongoose.Schema({
     lessonId: { type: mongoose.Schema.Types.ObjectId, ref: 'Lesson', required: true },
     type: { 
         type: String, 
-        enum: ['learn', 'match', 'identify', 'listening', 'fill', 'spelling', 'quiz', 'speaking', 'choice'], 
+        enum: ['learn', 'match', 'identify', 'listening', 'fill', 'spelling', 'quiz', 'speaking', 'choice', 'writing'], 
         default: 'quiz', 
         required: true 
     },

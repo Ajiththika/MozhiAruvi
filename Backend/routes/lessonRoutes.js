@@ -11,6 +11,9 @@ const router = Router();
 // Zod schemas for Lesson
 const createLessonSchema = z.object({
     title: z.string().min(1, 'Title is required'),
+    category: z.enum(['Uyir Eluthu', 'Mei Eluthu', 'Uyirmei Eluthu', 'Ayutha Eluthu', 'Grantha Eluthugal']).optional().default('Uyir Eluthu'),
+    type: z.enum(['MCQ', 'speaking', 'writing', 'mixed']).optional().default('mixed'),
+    examples: z.array(z.string()).optional(),
     moduleName: z.string().optional(),
     sectionName: z.string().optional(),
     description: z.string().optional(),
@@ -24,7 +27,7 @@ const createLessonSchema = z.object({
 const updateLessonSchema = createLessonSchema.partial();
 
 const createQuestionSchema = z.object({
-    type: z.enum(['learn', 'match', 'identify', 'listening', 'fill', 'spelling', 'quiz', 'speaking', 'choice']).optional().default('quiz'),
+    type: z.enum(['learn', 'match', 'identify', 'listening', 'fill', 'spelling', 'quiz', 'speaking', 'choice', 'writing']).optional().default('quiz'),
     text: z.string().min(1, 'Question text required'),
     options: z.array(z.string()).optional(),
     correctOptionIndex: z.number().int().nonnegative('Correct option index required').optional(),
@@ -37,7 +40,7 @@ const createQuestionSchema = z.object({
 const submitAnswersSchema = z.object({
     answers: z.array(z.object({
         questionId: z.string(),
-        selectedOptionIndex: z.number().int().nonnegative().optional(),
+        selectedOptionIndex: z.number().int().optional(),
         isSpeakingCompleted: z.boolean().optional()
     }))
 }).strict();

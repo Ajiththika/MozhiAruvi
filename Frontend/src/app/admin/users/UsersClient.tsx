@@ -20,11 +20,11 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 function RoleBadge({ role }: { role: BaseUser["role"] }) {
   const map: Record<string, string> = {
-    user: "bg-primary/5 text-primary border-primary/10",
+    student: "bg-primary/5 text-primary border-primary/10",
     teacher: "bg-emerald-50 text-emerald-600 border-emerald-100",
     admin: "bg-purple-50 text-purple-600 border-purple-100",
   };
-  const labelMap: Record<string, string> = { user: "Student", teacher: "Tutor", admin: "Admin" };
+  const labelMap: Record<string, string> = { student: "Student", teacher: "Tutor", admin: "Admin" };
   
   return (
     <span className={cn("inline-flex rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-widest border", map[role] ?? "")}>
@@ -227,10 +227,10 @@ export default function UsersClient() {
             <Input 
               label="System Authority" 
               name="role" 
-              value={editFormData.role || "user"} 
+              value={editFormData.role || "student"} 
               onChange={handleEditChange}
               options={[
-                { label: "Student", value: "user" },
+                { label: "Student", value: "student" },
                 { label: "Tutor", value: "teacher" },
                 { label: "Administrator", value: "admin" },
               ]}

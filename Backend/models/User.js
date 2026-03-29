@@ -37,10 +37,15 @@ const userSchema = new mongoose.Schema({
   premiumExpiresAt: { type: Date },
 
   // Learning Progression & Duolingo features
-  level: { type: String, enum: ['Beginner', 'Intermediate', 'Advanced', 'Not Set'], default: 'Not Set' },
+  level: { type: String, enum: ['Basic', 'Beginner', 'Intermediate', 'Advanced', 'Not Set'], default: 'Not Set' },
   learningCredits: { type: Number, default: 25 },
   lastCreditUpdate: { type: Date, default: Date.now },
   xp: { type: Number, default: 0 },
+  points: { type: Number, default: 0 },
+  power: { type: Number, default: 30 },
+  lastPowerUpdate: { type: Date, default: Date.now },
+  badges: [{ type: String }],
+  hasCompletedOnboarding: { type: Boolean, default: false },
 
   // Auth internals
   resetPasswordToken: { type: String },
@@ -60,8 +65,8 @@ userSchema.methods.comparePassword = function (plain) {
 };
 
 userSchema.methods.toSafeObject = function () {
-  const { _id, name, email, role, isActive, isTutorAvailable, isPremium, credits, createdAt, teachingMode, profilePhoto, level, learningCredits, xp, lastCreditUpdate, phoneNumber, country, age, gender, bio, experience, specialization, languages } = this;
-  return { _id, name, email, role, isActive, isTutorAvailable, isPremium, credits, createdAt, teachingMode, profilePhoto, level, learningCredits, xp, lastCreditUpdate, phoneNumber, country, age, gender, bio, experience, specialization, languages };
+  const { _id, name, email, role, isActive, isTutorAvailable, isPremium, credits, createdAt, teachingMode, profilePhoto, level, learningCredits, xp, points, power, lastPowerUpdate, badges, hasCompletedOnboarding, lastCreditUpdate, phoneNumber, country, age, gender, bio, experience, specialization, languages } = this;
+  return { _id, name, email, role, isActive, isTutorAvailable, isPremium, credits, createdAt, teachingMode, profilePhoto, level, learningCredits, xp, points, power, lastPowerUpdate, badges, hasCompletedOnboarding, lastCreditUpdate, phoneNumber, country, age, gender, bio, experience, specialization, languages };
 };
 
 export default mongoose.model('User', userSchema);

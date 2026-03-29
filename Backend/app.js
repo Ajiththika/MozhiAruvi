@@ -45,6 +45,13 @@ app.use(cookieParser());
 // ── Google OAuth (passport) ───────────────────────────────────────────────────
 initGoogle(app);
 
+// ── Response Wrapper & CSRF ───────────────────────────────────────────────────
+import { responseWrapper } from './middleware/responseWrapper.js';
+import { csrfProtection } from './middleware/csrf.js';
+
+app.use(responseWrapper);
+app.use(csrfProtection);
+
 // ── Routes ────────────────────────────────────────────────────────────────────
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
