@@ -38,6 +38,8 @@ export interface TeacherApplication {
   adminNotes?: string;
   rejectionReason?: string;
   reviewedAt?: string;
+  createdAt: string;
+  languages?: string[];
 }
 
 export interface JoinRequestAdminView {

@@ -100,7 +100,7 @@ export async function createRequest(studentId, data) {
 
     const student = await User.findById(studentId);
     if (student.credits < priceCredits && !student.isPremium) {
-        const err = new Error(`Insufficient credits. You need ${priceCredits} XP points for this request.`); err.status = 402; err.code = 'NOT_ENOUGH_CREDITS'; throw err;
+        const err = new Error(`Insufficient credits. You need ${priceCredits} credits for this request.`); err.status = 402; err.code = 'NOT_ENOUGH_CREDITS'; throw err;
     }
 
     // Deduct credits immediately

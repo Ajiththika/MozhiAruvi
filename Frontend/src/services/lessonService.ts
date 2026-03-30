@@ -12,16 +12,17 @@ export interface Lesson {
   _id: string;
   title: string;
   description?: string;
-  category?: 'Uyir Eluthu' | 'Mei Eluthu' | 'Uyirmei Eluthu' | 'Ayutha Eluthu' | 'Grantha Eluthugal';
+  category?: string;
   type?: 'MCQ' | 'speaking' | 'writing' | 'mixed';
   examples?: string[];
-  moduleName: string;
-  sectionName: string;
-  moduleNumber: number;
-  orderIndex: number;
+  moduleName?: string;
+  sectionName?: string;
+  moduleNumber?: number;
+  orderIndex?: number;
   videoUrl?: string;
   content?: string;
   isPremiumOnly: boolean;
+  level?: 'Basic' | 'Beginner' | 'Intermediate' | 'Advanced';
 }
 
 export interface Question {
@@ -54,6 +55,8 @@ export interface SubmitResult {
   total: number;
   passed: boolean;
   results: Array<{ questionId: string; correct: boolean }>;
+  user?: any;
+  redirect?: string;
 }
 
 // ── Get all lessons ───────────────────────────────────────────────────────────
@@ -72,9 +75,9 @@ export async function getLessonById(id: string): Promise<Lesson> {
 
 // ── Get lesson questions ──────────────────────────────────────────────────────
 
-export async function getLessonQuestions(id: string): Promise<Question[]> {
-  const res = await api.get<{ questions: Question[] }>(`/lessons/${id}/questions`);
-  return res.data.questions;
+export async function getLessonQuestions(id: string): Promise<{ questions: Question[], user: any }> {
+  const res = await api.get<{ questions: Question[], user: any }>(`/lessons/${id}/questions`);
+  return res.data;
 }
 
 // ── Submit answers ────────────────────────────────────────────────────────────

@@ -36,23 +36,25 @@ export default function LessonInteractiveSession() {
 
   const [score, setScore] = useState<{ score: number; total: number; passed: boolean } | null>(null);
   const [submitting, setSubmitting] = useState(false);
-  const [powers, setPowers] = useState(30);
+  const [powers, setPowers] = useState(25);
 
   const [showAskPanel, setShowAskPanel] = useState(false);
 
   useEffect(() => {
     Promise.all([getMe(), getLessonById(id as string), getLessonQuestions(id as string)])
-      .then(([userData, l, qs]) => {
+      .then(([userData, l, qsData]) => {
         setUser(userData);
-        setPowers(userData.power ?? 30);
+        const energy = userData.progress?.energy ?? 25;
+        setPowers(energy);
 
-        if ((userData.power ?? 30) <= 0) {
+        if (energy <= 0 && !userData.isPremium) {
           setPhase("out_of_power");
           return;
         }
 
         setLesson(l);
-        setQuestions(qs);
+        setQuestions(qsData.questions);
+        if (qsData.user) setUser(qsData.user);
         setPhase("preview");
       })
       .catch((err) => {
@@ -65,9 +67,8 @@ export default function LessonInteractiveSession() {
   const progress = questions.length > 0 ? Math.round((correctAnswersCount / questions.length) * 100) : 0;
 
   const takePower = async (): Promise<boolean> => {
-    // Optimistic, no API deduction here for power.
-    // It is deducted at the end!
-    if (powers <= 0) {
+    // Rely on backend for actual deduction
+    if (powers <= 0 && !user?.isPremium) {
         setPhase("out_of_power");
         return false;
     }
@@ -114,9 +115,24 @@ export default function LessonInteractiveSession() {
         }
       });
       const res = await submitAnswers(id as string, answers);
+      
+      if (res.user) {
+        setUser(res.user);
+        setPowers(res.user.progress?.energy ?? 0);
+      }
+      
+      if (res.redirect === "/subscription") {
+        router.push("/subscription");
+        return;
+      }
+
       setScore(res);
       setPhase("completed");
-    } catch (e) {
+    } catch (e: any) {
+      if (e.response?.data?.redirect) {
+        router.push(e.response.data.redirect);
+        return;
+      }
       console.error(e);
       alert("Submission failed.");
     } finally {

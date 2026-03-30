@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useEffect, useState } from "react";
 import { BookOpen, Loader2, AlertCircle, Lock, Circle, Star, Zap, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
@@ -80,41 +82,32 @@ export default function StudentLessonsPage() {
   const powers = user?.power ?? 30; // Uses power instead of credits
   const isOutOfEnergy = powers <= 0;
 
-  const sortedLessons = [...lessons].sort((a, b) => {
+  const userLevel = user?.level || "Basic";
+
+  // Filter lessons based on user level
+  const filteredLessons = lessons.filter(l => (l.level || "Basic") === userLevel);
+
+  const sortedLessons = [...filteredLessons].sort((a, b) => {
     if (a.moduleNumber !== b.moduleNumber) return (a.moduleNumber || 1) - (b.moduleNumber || 1);
-    return a.orderIndex - b.orderIndex;
+    return (a.orderIndex || 0) - (b.orderIndex || 0);
   });
 
   const progressMap = new Map(progresses.map(p => [p.lessonId, p]));
   const lessonStatus = new Map<string, "locked" | "unlocked" | "completed">();
 
-  // LEVEL-BASED ACCESS
-  const isAdvanced = user?.level === "Advanced";
-  const isIntermediate = user?.level === "Intermediate";
-
+  // Progress logic
   let isPreviousCompleted = true;
   for (const l of sortedLessons) {
     const prog = progressMap.get(l._id);
     const isCompleted = prog?.isCompleted ?? false;
     const catIdx = CATEGORY_ORDER.indexOf(l.category || "Uyir Eluthu");
     
-    let isSkippedByLevel = false;
-
-    // Advanced accesses all categories without sequential unlocking constraint
-    // Intermediate starts mid-level (e.g., skips index 0 and 1: Uyir and Mei)
-    if (isAdvanced) {
-        isSkippedByLevel = true;
-    } else if (isIntermediate && catIdx >= 2) {
-        // Unlocks Uyirmei and forward
-        isSkippedByLevel = true;
-    }
-
     if (isCompleted) {
       lessonStatus.set(l._id, "completed");
       isPreviousCompleted = true;
-    } else if (isPreviousCompleted || isSkippedByLevel) {
+    } else if (isPreviousCompleted) {
       lessonStatus.set(l._id, "unlocked");
-      if (!isSkippedByLevel) isPreviousCompleted = false; // Only block sequential if not skipped
+      isPreviousCompleted = false;
     } else {
       lessonStatus.set(l._id, "locked");
     }
@@ -152,7 +145,7 @@ export default function StudentLessonsPage() {
 
       <div className="px-2">
         <h2 className="text-2xl font-black tracking-tight text-gray-800 dark:text-white flex items-center gap-3 uppercase">
-          <BookOpen className="h-6 w-6 text-secondary" /> Learning Path
+          <BookOpen className="h-6 w-6 text-secondary" /> Learning Path - {userLevel}
         </h2>
         <p className="mt-1 text-sm font-medium text-gray-500 dark:text-gray-400">
           Complete categories to earn badges in your journey.
@@ -233,10 +226,20 @@ export default function StudentLessonsPage() {
                             </div>
                          </div>
                       ) : (
-                         <Link
-                           href={`/student/lessons/${lesson._id}`}
+                         <div
+                           onClick={() => {
+                             if (!user) {
+                               router.push("/login");
+                               return;
+                             }
+                             if ((user.power ?? 30) <= 0) {
+                               alert("No energy left. Please wait for power to regenerate.");
+                               return;
+                             }
+                             router.push(`/student/lessons/${lesson._id}`);
+                           }}
                            className={cn(
-                              "group flex items-center gap-4 rounded-2xl border p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md active:scale-[0.99]",
+                              "group flex items-center gap-4 rounded-2xl border p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md active:scale-[0.99] cursor-pointer",
                               status === "completed" 
                                  ? "border-success/20 bg-success/5 hover:border-success/40 dark:border-success/10" 
                                  : "border-gray-100 bg-white hover:border-secondary shadow-[0_4px_0_0_rgba(240,240,240,1)] hover:shadow-[0_4px_0_0_var(--tw-shadow-color)] shadow-secondary/20 dark:bg-white"
@@ -275,7 +278,7 @@ export default function StudentLessonsPage() {
                            <div className="shrink-0 text-xs font-black uppercase tracking-widest text-primary opacity-0 group-hover:opacity-100 transition-all -translate-x-2 group-hover:translate-x-0">
                              {status === "completed" ? "Review" : "Start"}
                            </div>
-                         </Link>
+                         </div>
                       )}
                     </div>
                   );

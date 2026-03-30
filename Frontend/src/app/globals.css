@@ -29,25 +29,51 @@
 
 @layer base {
   body {
-    @apply bg-background text-text-primary font-sans antialiased;
+    background-color: var(--color-background);
+    color: var(--color-text-primary);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
     scroll-behavior: smooth;
   }
   
   h1, h2, h3, h4, h5, h6 { 
-    @apply text-text-primary font-bold tracking-tight; 
+    color: var(--color-text-primary);
+    font-weight: 700;
+    letter-spacing: -0.025em; 
   }
   
-  h1 { @apply text-3xl md:text-4xl lg:text-5xl font-black leading-tight; }
+  h1 { 
+    font-size: 1.875rem;
+    line-height: 1.25;
+    font-weight: 900; 
+  }
+  @media (min-width: 768px) {
+    h1 { font-size: 2.25rem; }
+  }
+  @media (min-width: 1024px) {
+    h1 { font-size: 3rem; line-height: 1; }
+  }
+  
   h2 { font-size: var(--text-2xl); }
   h3 { font-size: var(--text-xl); }
 
   /* Responsive Corner Radius Utility */
   .rounded-responsive {
-    @apply rounded-xl md:rounded-2xl;
+    border-radius: 0.75rem;
+  }
+  @media (min-width: 768px) {
+    .rounded-responsive {
+      border-radius: 1rem;
+    }
   }
 
   /* Accessibility focus ring */
   :focus-visible {
-    @apply outline-none ring-4 ring-primary/20 transition-shadow;
+    outline: none;
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-primary) 20%, transparent);
+    transition-property: box-shadow;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
   }
 }

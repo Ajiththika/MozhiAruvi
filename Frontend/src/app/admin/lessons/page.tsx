@@ -9,9 +9,12 @@ export default function AdminLessonsPage() {
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [loading, setLoading] = useState(true);
   
+  // Extract unique categories for datalist
+  const existingCategories = Array.from(new Set(lessons.map(l => l.category).filter(Boolean)));
+  
   // Create Modal State
   const [showCreate, setShowCreate] = useState(false);
-  const [formData, setFormData] = useState({ title: "", moduleName: "Tamil Alphabets", sectionName: "உயிர் எழுத்து", orderIndex: 1, isPremiumOnly: false, moduleNumber: 1, category: "Uyir Eluthu", type: "mixed", examples: "" });
+  const [formData, setFormData] = useState({ title: "", isPremiumOnly: false, category: "", type: "mixed", level: "Basic" });
   const [creating, setCreating] = useState(false);
 
   // Manage Questions Modal
@@ -41,8 +44,9 @@ export default function AdminLessonsPage() {
     setCreating(true);
     try {
       await api.post("/lessons", { 
-          ...formData, 
-          examples: formData.examples ? formData.examples.split(",").map(e => e.trim()).filter(e => e.length > 0) : [] 
+          ...formData,
+          moduleName: formData.category,
+          sectionName: formData.category
       });
       setShowCreate(false);
       fetchLessons();
@@ -68,7 +72,7 @@ export default function AdminLessonsPage() {
     setQLoading(true);
     try {
       const data = await getLessonQuestions(id);
-      setQuestions(data);
+      setQuestions(data.questions);
     } catch (e) {
     } finally {
       setQLoading(false);
@@ -86,7 +90,7 @@ export default function AdminLessonsPage() {
       });
       // reload
       const data = await getLessonQuestions(activeLessonId);
-      setQuestions(data);
+      setQuestions(data.questions);
       setQFormData({ type: "quiz", text: "", options: "Choice 1, Choice 2", correctAnswer: "", correctOptionIndex: 0, scoreValue: 10, expectedAudioText: "" });
     } catch (e) {
       alert("Error creating activity");
@@ -100,7 +104,7 @@ export default function AdminLessonsPage() {
     try {
       await api.delete(`/lessons/${activeLessonId}/questions/${qId}`);
       const data = await getLessonQuestions(activeLessonId);
-      setQuestions(data);
+      setQuestions(data.questions);
     } catch (e) {
       alert("Delete failed");
     }
@@ -125,54 +129,50 @@ export default function AdminLessonsPage() {
       {showCreate && (
         <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-md border border-gray-100  mb-8 max-w-2xl">
           <h3 className="text-xl font-bold mb-4 dark:text-white">Create New Lesson Node</h3>
-          <form onSubmit={handleCreate} className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-bold text-gray-600 dark:text-gray-300 mb-1">Module Name</label>
-                <input required value={formData.moduleName} onChange={e => setFormData({...formData, moduleName: e.target.value})} className="w-full p-2 border rounded-xl dark:bg-white" placeholder="e.g. Tamil Alphabets" />
-              </div>
-              <div>
-                <label className="block text-sm font-bold text-gray-600 dark:text-gray-300 mb-1">Section Name</label>
-                <input required value={formData.sectionName} onChange={e => setFormData({...formData, sectionName: e.target.value})} className="w-full p-2 border rounded-xl dark:bg-white" placeholder="e.g. உயிர் எழுத்து" />
-              </div>
+          <form onSubmit={handleCreate} className="space-y-6">
+            <datalist id="existing-categories">
+              {existingCategories.map((cat: any) => (
+                <option key={cat} value={cat} />
+              ))}
+            </datalist>
+
+            <div>
+              <label className="block text-sm font-bold text-gray-600 dark:text-gray-300 mb-1">Lesson Title</label>
+              <input required value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})} className="w-full p-3 border border-gray-200 dark:border-gray-700 rounded-xl dark:bg-gray-900 focus:ring-2 focus:ring-primary outline-none transition-all" placeholder="e.g. Basic Greetings" />
             </div>
-            
-            <div className="grid grid-cols-2 gap-4">
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-bold text-gray-600 dark:text-gray-300 mb-1">Lesson Title</label>
-                <input required value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})} className="w-full p-2 border rounded-xl dark:bg-white" placeholder="e.g. Basics 1" />
+                <label className="block text-sm font-bold text-gray-600 dark:text-gray-300 mb-1">Level</label>
+                <select value={formData.level} onChange={e => setFormData({...formData, level: e.target.value})} className="w-full p-3 border border-gray-200 dark:border-gray-700 rounded-xl dark:bg-gray-900 focus:ring-2 focus:ring-primary outline-none transition-all cursor-pointer">
+                    <option value="Basic">Basic</option>
+                    <option value="Beginner">Beginner</option>
+                    <option value="Intermediate">Intermediate</option>
+                    <option value="Advanced">Advanced</option>
+                </select>
               </div>
+
               <div>
-                <label className="block text-sm font-bold text-gray-600 dark:text-gray-300 mb-1">Order Index (Path position)</label>
-                <input required type="number" value={formData.orderIndex} onChange={e => setFormData({...formData, orderIndex: parseInt(e.target.value)||1})} className="w-full p-2 border rounded-xl dark:bg-white" />
+                <label className="block text-sm font-bold text-gray-600 dark:text-gray-300 mb-1">Category</label>
+                <input required list="existing-categories" value={formData.category} onChange={e => setFormData({...formData, category: e.target.value})} className="w-full p-3 border border-gray-200 dark:border-gray-700 rounded-xl dark:bg-gray-900 focus:ring-2 focus:ring-primary outline-none transition-all" placeholder="Type or select a category" />
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-bold text-gray-600 dark:text-gray-300 mb-1">Category</label>
-                <select value={formData.category} onChange={e => setFormData({...formData, category: e.target.value})} className="w-full p-2 border rounded-xl dark:bg-white">
-                    <option value="Uyir Eluthu">Uyir Eluthu</option>
-                    <option value="Mei Eluthu">Mei Eluthu</option>
-                    <option value="Uyirmei Eluthu">Uyirmei Eluthu</option>
-                    <option value="Ayutha Eluthu">Ayutha Eluthu</option>
-                    <option value="Grantha Eluthugal">Grantha Eluthugal</option>
-                </select>
-              </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-bold text-gray-600 dark:text-gray-300 mb-1">Lesson Type</label>
-                <select value={formData.type} onChange={e => setFormData({...formData, type: e.target.value})} className="w-full p-2 border rounded-xl dark:bg-white">
+                <select value={formData.type} onChange={e => setFormData({...formData, type: e.target.value})} className="w-full p-3 border border-gray-200 dark:border-gray-700 rounded-xl dark:bg-gray-900 focus:ring-2 focus:ring-primary outline-none transition-all cursor-pointer">
                     <option value="mixed">Mixed</option>
                     <option value="MCQ">MCQ Only</option>
                     <option value="speaking">Speaking Focus</option>
                     <option value="writing">Writing Focus</option>
                 </select>
               </div>
-            </div>
 
-            <div>
-              <label className="block text-sm font-bold text-gray-600 dark:text-gray-300 mb-1">Examples (comma separated text)</label>
-              <input value={formData.examples} onChange={e => setFormData({...formData, examples: e.target.value})} className="w-full p-2 border rounded-xl dark:bg-white" placeholder="e.g. அ - அம்மா, ஆ - ஆடு" />
+              <div className="flex items-center gap-3 pt-6">
+                <input type="checkbox" id="isPremium" checked={formData.isPremiumOnly} onChange={e => setFormData({...formData, isPremiumOnly: e.target.checked})} className="w-5 h-5 rounded text-primary border-gray-300 cursor-pointer" />
+                <label htmlFor="isPremium" className="text-sm font-bold text-amber-600 dark:text-amber-500 cursor-pointer">Is Premium Only?</label>
+              </div>
             </div>
             
             <div className="flex justify-end gap-3 mt-4">
@@ -188,38 +188,78 @@ export default function AdminLessonsPage() {
       {loading ? (
         <div className="flex justify-center p-12"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>
       ) : (
-        <div className="bg-white dark:bg-gray-800 border border-gray-100  rounded-2xl shadow-sm overflow-hidden auto-x-scroll">
-          <table className="w-full text-left border-collapse">
-            <thead className="bg-gray-50 border-b border-gray-100 ">
-              <tr>
-                <th className="p-4 font-bold text-gray-600 dark:text-gray-300">Module / Section</th>
-                <th className="p-4 font-bold text-gray-600 dark:text-gray-300">Lesson Title</th>
-                <th className="p-4 font-bold text-gray-600 dark:text-gray-300">Access</th>
-                <th className="p-4 font-bold text-gray-600 dark:text-gray-300 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {lessons.length === 0 && <tr><td colSpan={4} className="p-8 text-center text-gray-500">No lessons built yet.</td></tr>}
-              {lessons.map(lesson => (
-                <tr key={lesson._id} className="border-b border-gray-100  hover:bg-gray-50 dark:hover:bg-gray-800/50">
-                  <td className="p-4">
-                    <div className="font-bold text-primary">{lesson.moduleName}</div>
-                    <div className="text-sm font-semibold text-gray-500 mt-0.5">{lesson.sectionName}</div>
-                  </td>
-                  <td className="p-4 font-bold text-gray-800 dark:text-slate-100">{lesson.title}</td>
-                  <td className="p-4 font-bold text-gray-800 dark:text-slate-100">{lesson.isPremiumOnly ? "Premium" : "Free"}</td>
-                  <td className="p-4 text-right flex items-center justify-end gap-2">
-                    <button onClick={() => openActivities(lesson._id)} className="p-2 text-gray-400 hover:text-primary bg-white dark:bg-slate-700 shadow-sm border dark:border-slate-600 rounded-lg transition" title="Manage Activities">
-                       <ExternalLink className="w-4 h-4" />
-                    </button>
-                    <button onClick={() => handleDelete(lesson._id)} className="p-2 text-gray-400 hover:text-red-500 bg-white dark:bg-slate-700 shadow-sm border dark:border-slate-600 rounded-lg transition" title="Delete Lesson">
-                       <Trash2 className="w-4 h-4" />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div>
+          {lessons.length === 0 && <div className="p-8 text-center text-gray-500 bg-white rounded-2xl border border-dashed">No lessons built yet.</div>}
+          
+          {Object.entries(
+            lessons.reduce((acc: Record<string, Record<string, Lesson[]>>, lesson) => {
+              const level = lesson.level || "Basic";
+              const category = lesson.category || "Uncategorized";
+              if (!acc[level]) acc[level] = {};
+              if (!acc[level][category]) acc[level][category] = [];
+              acc[level][category].push(lesson);
+              return acc;
+            }, {})
+          ).map(([level, categories]) => (
+            <div key={level} className="mb-12">
+              <h2 className="text-2xl font-black mb-6 text-primary uppercase tracking-widest flex items-center gap-3 border-b-2 border-primary/20 pb-4">
+                <Layers className="w-6 h-6" /> {level} Level
+              </h2>
+              
+              <div className="space-y-8 pl-4 lg:pl-8 border-l-2 border-gray-100 dark:border-gray-800 ml-4">
+                {Object.entries(categories).map(([category, catLessons]) => (
+                  <div key={category} className="relative">
+                    <div className="absolute -left-[41px] lg:-left-[57px] top-6 w-8 border-t-2 border-gray-100 dark:border-gray-800" />
+                    <h3 className="text-xl font-bold mb-4 text-gray-700 dark:text-gray-200 flex items-center gap-2">
+                       <BookOpen className="w-5 h-5 text-secondary" /> {category}
+                    </h3>
+                    
+                    <div className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl shadow-sm overflow-hidden overflow-x-auto">
+                      <table className="w-full text-left border-collapse min-w-[600px]">
+                        <thead className="bg-gray-50 dark:bg-gray-900 border-b border-gray-100 dark:border-gray-700">
+                          <tr>
+                            <th className="p-4 font-bold text-gray-600 dark:text-gray-300">Module / Section</th>
+                            <th className="p-4 font-bold text-gray-600 dark:text-gray-300">Lesson Title</th>
+                            <th className="p-4 font-bold text-gray-600 dark:text-gray-300">Type / Access</th>
+                            <th className="p-4 font-bold text-gray-600 dark:text-gray-300 text-right">Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {catLessons.map(lesson => (
+                            <tr key={lesson._id} className="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                              <td className="p-4">
+                                <div className="font-bold text-gray-800 dark:text-gray-200">{lesson.moduleName}</div>
+                                <div className="text-sm font-semibold text-gray-500 mt-0.5">{lesson.sectionName}</div>
+                              </td>
+                              <td className="p-4 font-bold text-primary">{lesson.title}</td>
+                              <td className="p-4">
+                                <div className="flex flex-col gap-1">
+                                  <span className="text-xs font-bold uppercase tracking-wider text-gray-500">{lesson.type || "mixed"}</span>
+                                  <span className={`text-[10px] font-black uppercase inline-block px-2 py-0.5 rounded-full w-max ${lesson.isPremiumOnly ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-500' : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30'}`}>
+                                    {lesson.isPremiumOnly ? "Premium" : "Free"}
+                                  </span>
+                                </div>
+                              </td>
+                              <td className="p-4 text-right">
+                                <div className="flex items-center justify-end gap-2">
+                                  <button onClick={() => openActivities(lesson._id)} className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-bold text-white bg-secondary hover:bg-secondary/90 shadow-sm shadow-secondary/20 rounded-lg transition" title="Manage Activities">
+                                     <Layers className="w-4 h-4" /> Activities
+                                  </button>
+                                  <button onClick={() => handleDelete(lesson._id)} className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition" title="Delete Lesson">
+                                     <Trash2 className="w-4 h-4" />
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
         </div>
       )}
 

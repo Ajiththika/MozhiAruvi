@@ -101,12 +101,11 @@ api.interceptors.response.use(
     }
 
     // 2. Logging and Final reject
-    if (error.response) {
-      console.error(`[API] Server Error: ${error.response.status} at ${originalRequest.url}`, error.response.data);
-    } else if (error.request) {
-      console.error(`[API] Connection Failure: No response from server at ${apiBaseUrl}${originalRequest.url || ""}. Ensure backend is active on port 5000.`);
-    } else {
-      console.error(`[API] Request Construction Error: ${error.message}`);
+    // 2. Logging and Final reject
+    console.error("[API ERROR]:", error.response?.data || error.message);
+
+    if (!error.response) {
+      console.error("Server not reachable");
     }
 
     return Promise.reject(error);

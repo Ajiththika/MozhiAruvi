@@ -46,6 +46,7 @@ const createEventSchema = z
 
 const updateEventSchema = z
     .object({
+        eventCode: z.string().trim().min(1, 'Event code cannot be empty.').optional(),
         title: z.string().trim().min(1, 'Title cannot be empty.').optional(),
         description: z.string().trim().min(1, 'Description cannot be empty.').optional(),
         date: z

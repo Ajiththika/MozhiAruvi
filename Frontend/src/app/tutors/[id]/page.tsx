@@ -214,7 +214,7 @@ export default function PublicTutorProfilePage() {
                   <div className="flex items-center justify-between mb-10 border-b border-gray-100 pb-8">
                      <div className="space-y-1">
                         <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Base Session Fee</p>
-                        <p className="text-4xl font-bold text-gray-800">{tutor.hourlyRate || "10"} <span className="text-xs text-gray-500 font-bold uppercase ml-1">XP Points</span></p>
+                        <p className="text-4xl font-bold text-gray-800">${tutor.hourlyRate || "10"}</p>
                      </div>
                      <div className="h-14 w-14 rounded-2xl bg-primary/5 border border-primary/10 flex items-center justify-center">
                         <Sparkles className="h-7 w-7 text-secondary" />
@@ -233,7 +233,7 @@ export default function PublicTutorProfilePage() {
                            </div>
                            <span>Ask a Question</span>
                         </div>
-                        <span className="text-[10px] bg-white px-3 py-1 rounded-full text-gray-500 font-black">10 XP</span>
+                        <span className="text-[10px] bg-white px-3 py-1 rounded-full text-gray-500 font-black">$10</span>
                      </button>
 
                      <button 
@@ -247,7 +247,7 @@ export default function PublicTutorProfilePage() {
                            </div>
                            <span>Live 1:1 Class</span>
                         </div>
-                        <span className="text-[10px] bg-white px-3 py-1 rounded-full text-gray-500 font-black">30 XP</span>
+                        <span className="text-[10px] bg-white px-3 py-1 rounded-full text-gray-500 font-black">$30</span>
                      </button>
 
                      <button 
@@ -261,7 +261,7 @@ export default function PublicTutorProfilePage() {
                            </div>
                            <span>5-Session Package</span>
                         </div>
-                        <span className="text-[10px] bg-white px-3 py-1 rounded-full text-gray-500 font-black">100 XP</span>
+                        <span className="text-[10px] bg-white px-3 py-1 rounded-full text-gray-500 font-black">$100</span>
                      </button>
                   </div>
 

@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import { BookOpen, Lock, Circle, Star, Zap, CheckCircle2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { getLessons } from "@/services/lessonService";
@@ -23,7 +23,7 @@ export default function PublicLessonsClient({ initialLessons }: { initialLessons
   const router = useRouter();
   const { user: authUser, isLoading: authLoading } = useAuth();
 
-  const { data, isLoading, isError, error } = useQuery({
+  const { data, isLoading, isError, error, refetch: refetchLessons } = useQuery({
     queryKey: ["lessons"],
     queryFn: async () => {
       console.log("[DEBUG] Fetching lessons...");
@@ -32,18 +32,29 @@ export default function PublicLessonsClient({ initialLessons }: { initialLessons
     staleTime: 10 * 60 * 1000, // Lessons don't change often
   });
 
+  // Auto-refresh energy every 60 seconds
+  useEffect(() => {
+    if (!authUser) return;
+    const interval = setInterval(async () => {
+        // We can use a refetch from auth context or just call getMe
+        // For simplicity, we just trigger a lessons refetch which also syncs energy in backend
+        refetchLessons();
+    }, 60000);
+    return () => clearInterval(interval);
+  }, [authUser, refetchLessons]);
+
   if (isLoading || authLoading) {
     return <LessonsSkeleton />;
   }
 
   const lessons = data?.lessons || [];
   const progresses: Array<{ lessonId: string; isCompleted: boolean }> = data?.progress || [];
-  const credits = authUser?.learningCredits ?? 0;
-  const isOutOfEnergy = authUser ? credits <= 0 : false;
+  const energy = authUser?.progress?.energy ?? 25;
+  const isOutOfEnergy = authUser ? energy <= 0 && !authUser.isPremium : false;
 
   const sortedLessons = [...lessons].sort((a, b) => {
     if (a.moduleNumber !== b.moduleNumber) return (a.moduleNumber || 1) - (b.moduleNumber || 1);
-    return a.orderIndex - b.orderIndex;
+    return (a.orderIndex || 0) - (b.orderIndex || 0);
   });
 
   const progressMap = new Map(progresses.map((p: any) => [p.lessonId, p]));
@@ -80,6 +91,10 @@ export default function PublicLessonsClient({ initialLessons }: { initialLessons
       router.push(`/auth/signin?redirect=${encodeURIComponent(`/student/lessons/${lessonId}`)}`);
       return;
     }
+    if (isOutOfEnergy) {
+      router.push("/subscription");
+      return;
+    }
     router.push(`/student/lessons/${lessonId}`);
   };
 
@@ -97,8 +112,8 @@ export default function PublicLessonsClient({ initialLessons }: { initialLessons
             <div className="flex items-center gap-1.5 text-amber-500" title="XP Earned">
               <Star className="w-6 h-6 fill-current" /> {authUser?.xp || 0}
             </div>
-            <div className="flex items-center gap-1.5 text-secondary" title="Daily Credits">
-              <Zap className="w-6 h-6 fill-current" /> {credits}/25
+            <div className="flex items-center gap-1.5 text-secondary" title="Power (regenerates 1/hour)">
+              <Zap className={cn("w-6 h-6 fill-current", energy < 5 ? "animate-pulse text-red-500" : "")} /> {energy}/25
             </div>
           </div>
         )}

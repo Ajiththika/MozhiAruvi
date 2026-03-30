@@ -19,7 +19,7 @@ export async function getAllUsers(page = 1, limit = 6) {
 
 export async function getAllTutors(page = 1, limit = 6) {
     const skip = (page - 1) * limit;
-    const query = { isTutorAvailable: true };
+    const query = { role: { $in: ['teacher', 'tutor'] }, isActive: true };
     const [tutors, totalItems] = await Promise.all([
         User.find(query).select('-password -resetPasswordToken -resetPasswordExpires').sort({ createdAt: -1 }).skip(skip).limit(limit),
         User.countDocuments(query)
@@ -41,8 +41,6 @@ export async function setUserActiveStatus(userId, status) {
     await user.save();
     return user;
 }
-
-
 
 export async function setTutorStatus(userId, status) {
     const user = await User.findById(userId);
@@ -74,6 +72,11 @@ export async function editUser(userId, updateData) {
         }
     });
 
+    // Special logic: If role is upgraded to teacher by admin, make them available by default
+    if (updateData.role === 'teacher' || updateData.role === 'tutor') {
+        user.isTutorAvailable = true;
+    }
+
     await user.save();
     return user;
 }
@@ -82,7 +85,7 @@ export async function getDashboardStats() {
     const [totalUsers, activeUsers, totalTutors, pendingApps, totalEvents] = await Promise.all([
         User.countDocuments(),
         User.countDocuments({ isActive: true }),
-        User.countDocuments({ isTutorAvailable: true }),
+        User.countDocuments({ role: { $in: ['teacher', 'tutor'] }, isActive: true }),
         TeacherApplication.countDocuments({ status: 'pending' }),
         Event.countDocuments()
     ]);

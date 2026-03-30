@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState } from "react";
 import { completeOnboarding } from "@/services/authService";
 import { useRouter } from "next/navigation";

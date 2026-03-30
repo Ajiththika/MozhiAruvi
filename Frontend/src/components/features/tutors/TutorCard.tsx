@@ -83,23 +83,16 @@ export function TutorCard({ tutor }: { tutor: Tutor }) {
                 <h3 className="text-lg font-bold text-gray-800 leading-tight transition-colors group-hover:text-primary">
                   {name}
                 </h3>
-                <ShieldCheck className="h-4 w-4 text-primary shrink-0" />
               </div>
               <p className="text-xs font-bold text-primary/80 tracking-tight">
-                {specialization ?? "Tamil Language Expert"}
+                {specialization ?? "Language Expert"}
               </p>
-              <div className="flex items-center gap-2 pt-1">
-                 <div className="flex items-center text-amber-400">
-                    {[1,2,3,4,5].map(i => <Star key={i} className="w-2.5 h-2.5 fill-current" />)}
-                 </div>
-                 <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Verified</span>
-              </div>
             </div>
             {hourlyRate && (
               <div className="text-right shrink-0">
                 <div className="flex flex-col items-end">
-                   <span className="text-lg font-black text-gray-800 leading-none">{hourlyRate}</span>
-                   <span className="text-[8px] font-black text-gray-400 uppercase tracking-widest mt-1">XP / Sess.</span>
+                   <span className="text-lg font-black text-gray-800 leading-none">${hourlyRate}</span>
+                   <span className="text-[8px] font-black text-gray-400 uppercase tracking-widest mt-1">per class</span>
                 </div>
               </div>
             )}

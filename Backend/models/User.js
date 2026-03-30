@@ -45,6 +45,12 @@ const userSchema = new mongoose.Schema({
   power: { type: Number, default: 30 },
   lastPowerUpdate: { type: Date, default: Date.now },
   badges: [{ type: String }],
+  progress: {
+    energy: { type: Number, default: 25 },
+    lastEnergyUpdate: { type: Date, default: Date.now },
+    completedLessons: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Lesson' }],
+    level: { type: String, enum: ['basic', 'intermediate', 'advanced'], default: 'basic' }
+  },
   hasCompletedOnboarding: { type: Boolean, default: false },
 
   // Auth internals
@@ -65,8 +71,8 @@ userSchema.methods.comparePassword = function (plain) {
 };
 
 userSchema.methods.toSafeObject = function () {
-  const { _id, name, email, role, isActive, isTutorAvailable, isPremium, credits, createdAt, teachingMode, profilePhoto, level, learningCredits, xp, points, power, lastPowerUpdate, badges, hasCompletedOnboarding, lastCreditUpdate, phoneNumber, country, age, gender, bio, experience, specialization, languages } = this;
-  return { _id, name, email, role, isActive, isTutorAvailable, isPremium, credits, createdAt, teachingMode, profilePhoto, level, learningCredits, xp, points, power, lastPowerUpdate, badges, hasCompletedOnboarding, lastCreditUpdate, phoneNumber, country, age, gender, bio, experience, specialization, languages };
+  const { _id, name, email, role, isActive, isTutorAvailable, isPremium, progress, credits, createdAt, teachingMode, profilePhoto, level, learningCredits, xp, points, power, lastPowerUpdate, badges, hasCompletedOnboarding, lastCreditUpdate, phoneNumber, country, age, gender, bio, experience, specialization, languages } = this;
+  return { _id, name, email, role, isActive, isTutorAvailable, isPremium, progress, credits, createdAt, teachingMode, profilePhoto, level, learningCredits, xp, points, power, lastPowerUpdate, badges, hasCompletedOnboarding, lastCreditUpdate, phoneNumber, country, age, gender, bio, experience, specialization, languages };
 };
 
 export default mongoose.model('User', userSchema);

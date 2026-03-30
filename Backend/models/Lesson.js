@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 const lessonSchema = new mongoose.Schema({
     title: { type: String, required: true, trim: true },
     description: { type: String, trim: true },
-    category: { type: String, enum: ['Uyir Eluthu', 'Mei Eluthu', 'Uyirmei Eluthu', 'Ayutha Eluthu', 'Grantha Eluthugal'], required: true, default: 'Uyir Eluthu' },
+    category: { type: String, required: true, default: 'General' },
     type: { type: String, enum: ['MCQ', 'speaking', 'writing', 'mixed'], default: 'mixed' },
     examples: [{ type: String }],
     moduleName: { type: String, required: true, default: 'Tamil Alphabets' },
@@ -12,7 +12,8 @@ const lessonSchema = new mongoose.Schema({
     videoUrl: { type: String }, // optional video content link
     content: { type: String },  // textual lesson material (HTML or Markdown)
     isPremiumOnly: { type: Boolean, default: false }, // pay-gated lesson
-    orderIndex: { type: Number, required: true },
+    orderIndex: { type: Number, default: 0 },
+    level: { type: String, enum: ['Basic', 'Beginner', 'Intermediate', 'Advanced'], default: 'Basic' },
 }, { timestamps: true });
 
 export default mongoose.model('Lesson', lessonSchema);

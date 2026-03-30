@@ -90,11 +90,22 @@ export default function StudentDashboard() {
           icon={Trophy}
         />
         <StatCard
-          title="Badges"
-          value={(user as any)?.badges?.length || 0}
-          description="Achievements unlocked"
+          title="Completed"
+          value={completedCount.toString()}
+          description={`${progressPercentage}% Path done`}
           icon={BookOpen}
         />
+      </div>
+
+      {/* Progress Bar */}
+      <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm mt-8">
+         <div className="flex justify-between items-center mb-3">
+            <span className="text-sm font-black uppercase tracking-widest text-primary">Path Progress</span>
+            <span className="text-sm font-bold text-gray-500">{progressPercentage}%</span>
+         </div>
+         <div className="h-4 bg-gray-100 rounded-full overflow-hidden w-full">
+            <div className="h-full bg-primary transition-all duration-1000" style={{ width: `${progressPercentage}%` }} />
+         </div>
       </div>
 
       {/* Section: Learning Roadmap */}

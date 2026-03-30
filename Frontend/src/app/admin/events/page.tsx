@@ -255,81 +255,168 @@ function AdminEventsClient() {
       )}
 
       {showCreate && (
-        <form onSubmit={handleCreate} className="rounded-2xl border border-primary/10 bg-primary/5 p-10 space-y-6 animate-in slide-in-from-top-2 duration-300">
-          <h3 className="text-xl font-bold text-gray-800">{editingId ? 'Edit Event Details' : 'New Event Details'}</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Event Code *</label>
-              <input required value={form.eventCode} onChange={e => setForm(f => ({ ...f, eventCode: e.target.value.toUpperCase() }))}
-                placeholder="e.g. ADM-TAMIL-01"
-                className="w-full rounded-xl border border-gray-100 bg-white px-4 py-3 text-sm font-medium outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-sm" />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start animate-in slide-in-from-top-4 duration-500">
+          {/* Left Side: Interactive Form */}
+          <form onSubmit={handleCreate} className="relative overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-xl shadow-primary/5 p-8 space-y-8">
+            <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-primary to-secondary" />
+            
+            <div className="flex flex-col space-y-1">
+              <h3 className="text-xl font-black text-gray-800 tracking-tight">{editingId ? 'Edit Event' : 'New Event'}</h3>
+              <p className="text-xs font-medium text-gray-500">Fill in the details to update the community.</p>
             </div>
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Title *</label>
-              <input required value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
-                placeholder="Event Title"
-                className="w-full rounded-xl border border-gray-100 bg-white px-4 py-3 text-sm font-medium outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-sm" />
+
+            <div className="space-y-5">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-1">Event Code</label>
+                  <input required value={form.eventCode} onChange={e => setForm(f => ({ ...f, eventCode: e.target.value.toUpperCase() }))}
+                    placeholder="E.g., ADM-01"
+                    className="w-full rounded-xl border border-gray-100 bg-gray-50/50 px-4 py-2.5 text-sm font-medium outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all focus:bg-white" />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-1">Capacity</label>
+                  <input required type="number" min={1} value={form.capacity} onChange={e => setForm(f => ({ ...f, capacity: Number(e.target.value) }))}
+                    className="w-full rounded-xl border border-gray-100 bg-gray-50/50 px-4 py-2.5 text-sm font-medium outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all focus:bg-white" />
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-1">Event Title</label>
+                <input required value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
+                  placeholder="Enter a catchy title..."
+                  className="w-full rounded-xl border border-gray-100 bg-gray-50/50 px-4 py-2.5 text-sm font-semibold text-gray-800 outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all focus:bg-white" />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-1">Date</label>
+                  <input required type="date" min={today} value={form.date} onChange={e => setForm(f => ({ ...f, date: e.target.value }))}
+                    className="w-full rounded-xl border border-gray-100 bg-gray-50/50 px-4 py-2.5 text-sm font-medium outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all focus:bg-white" />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-1">Time</label>
+                  <input required type="time" value={form.time} onChange={e => setForm(f => ({ ...f, time: e.target.value }))}
+                    className="w-full rounded-xl border border-gray-100 bg-gray-50/50 px-4 py-2.5 text-sm font-medium outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all focus:bg-white" />
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-1">Location</label>
+                <input required value={form.location} onChange={e => setForm(f => ({ ...f, location: e.target.value }))}
+                  placeholder="Online (Google Meet) or venue"
+                  className="w-full rounded-xl border border-gray-100 bg-gray-50/50 px-4 py-2.5 text-sm font-medium outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all focus:bg-white" />
+              </div>
+
+              <div className="space-y-3">
+                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-1">Event Banner</label>
+                <div className="relative group overflow-hidden rounded-xl bg-gray-50 border border-gray-100 hover:border-primary/30 transition-all p-3">
+                  <input type="file" accept="image/*" onChange={handleFileChange} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 flex items-center justify-center rounded-lg bg-white border border-gray-100 shadow-sm">
+                      <PlusCircle className="w-5 h-5 text-gray-300 group-hover:text-primary transition-colors" />
+                    </div>
+                    <span className="text-xs font-bold text-gray-500">{selectedFile ? selectedFile.name : "Select cover image"}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-1">Description</label>
+                <textarea required rows={3} value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
+                  placeholder="Tell us about the event..."
+                  className="w-full resize-none rounded-xl border border-gray-100 bg-gray-50/50 px-4 py-3 text-sm font-medium outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all focus:bg-white" />
+              </div>
             </div>
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Date *</label>
-              <input required type="date" min={today} value={form.date} onChange={e => setForm(f => ({ ...f, date: e.target.value }))}
-                className="w-full rounded-xl border border-gray-100 bg-white px-4 py-3 text-sm font-medium outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-sm" />
+
+            <div className="flex items-center justify-end gap-3 pt-4 border-t border-gray-50">
+              <button type="button" onClick={() => { setShowCreate(false); setEditingId(null); resetForm(); }} 
+                 className="rounded-xl px-5 py-2.5 text-xs font-bold text-gray-400 hover:text-gray-600 transition-colors">
+                Cancel
+              </button>
+              <button type="submit" disabled={creating} 
+                 className="rounded-xl bg-primary px-6 py-2.5 text-sm font-bold text-white hover:bg-primary/90 disabled:opacity-60 transition-all shadow-lg shadow-primary/20 active:scale-95 flex items-center gap-2">
+                 {creating && <Loader2 className="w-3 h-3 animate-spin" />}
+                {creating ? "Processing..." : (editingId ? "Update" : "Publish")}
+              </button>
             </div>
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Time *</label>
-              <input required type="time" value={form.time} onChange={e => setForm(f => ({ ...f, time: e.target.value }))}
-                className="w-full rounded-xl border border-gray-100 bg-white px-4 py-3 text-sm font-medium outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-sm" />
-            </div>
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Capacity *</label>
-              <input required type="number" min={1} value={form.capacity} onChange={e => setForm(f => ({ ...f, capacity: Number(e.target.value) }))}
-                className="w-full rounded-xl border border-gray-100 bg-white px-4 py-3 text-sm font-medium outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-sm" />
-            </div>
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Location *</label>
-              <input required value={form.location} onChange={e => setForm(f => ({ ...f, location: e.target.value }))}
-                placeholder="Google Meet or Venue"
-                className="w-full rounded-xl border border-gray-100 bg-white px-4 py-3 text-sm font-medium outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-sm" />
-            </div>
-            <div className="space-y-1.5 md:col-span-2">
-              <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Event Cover Image</label>
-              <div className="flex flex-col md:flex-row items-center gap-6 p-4 rounded-xl border border-dashed border-gray-200 bg-white/50">
-                {(previewUrl || (form as any).image) && (
-                  <div className="relative w-full md:w-48 h-28 rounded-xl overflow-hidden shadow-sm shrink-0">
-                    <img 
-                      src={previewUrl || (form as any).image} 
-                      className="w-full h-full object-cover" 
-                      alt="Preview" 
-                    />
+          </form>
+
+          {/* Right Side: Live Preview Card (Matching Model UI) */}
+          <div className="hidden lg:sticky lg:top-8 lg:flex flex-col items-center">
+            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.3em] mb-4">Live Preview</span>
+            
+            <div className="w-full max-w-[400px] overflow-hidden rounded-[40px] border border-gray-100 bg-white shadow-2xl shadow-primary/10 animate-in fade-in zoom-in-95 duration-700">
+              {/* Card Header (Image/Banner) */}
+              <div className="relative aspect-[10/9] bg-[#f8f9fa] flex items-center justify-center p-12 overflow-hidden">
+                {previewUrl || (form as any).image ? (
+                  <img src={previewUrl || (form as any).image} className="absolute inset-0 w-full h-full object-cover" alt="Preview" />
+                ) : (
+                  <div className="flex flex-col items-center gap-2 opacity-10">
+                    <h2 className="text-6xl font-black tracking-tighter text-gray-900">MOZHI</h2>
                   </div>
                 )}
-                <div className="flex-1 space-y-2">
-                  <input 
-                    type="file" 
-                    accept="image/*"
-                    onChange={handleFileChange}
-                    className="block w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 cursor-pointer"
-                  />
-                  <p className="text-[10px] text-gray-400 font-medium italic">Recommended size: 1200x480px. Max 2MB.</p>
+                
+                {/* Badge Overlay */}
+                <div className="absolute top-8 left-8 shadow-2xl shadow-black/10">
+                   <div className="bg-white rounded-full px-5 py-2 text-[10px] font-black text-gray-700 uppercase tracking-widest border border-gray-50/50">
+                      Community Event
+                   </div>
+                </div>
+              </div>
+
+              {/* Card Body */}
+              <div className="p-10 space-y-8">
+                <h2 className="text-3xl font-black text-[#1a1a1a] tracking-tight leading-tight">
+                  {form.title || "Your Event Title"}
+                </h2>
+
+                <div className="space-y-6">
+                  {/* Date */}
+                  <div className="flex items-center gap-4">
+                    <div className="h-12 w-12 flex items-center justify-center rounded-2xl bg-[#eff2ff] text-[#4d69ff]">
+                      <CalendarIcon className="w-5 h-5" />
+                    </div>
+                    <span className="text-lg font-bold text-gray-600">
+                      {form.date || "2026-04-14"}
+                    </span>
+                  </div>
+
+                  {/* Time */}
+                  <div className="flex items-center gap-4">
+                    <div className="h-12 w-12 flex items-center justify-center rounded-2xl bg-[#e8fff3] text-[#00c566]">
+                      <Globe2 className="w-5 h-5" />
+                    </div>
+                    <span className="text-lg font-bold text-gray-600">
+                      {form.time || "18:00"}
+                    </span>
+                  </div>
+
+                  {/* Participants */}
+                  <div className="flex items-center gap-4">
+                    <div className="h-12 w-12 flex items-center justify-center rounded-2xl bg-[#fff7ef] text-[#ff8c39]">
+                      <Users className="w-5 h-5" />
+                    </div>
+                    <span className="text-lg font-bold text-gray-600">
+                      1 / {form.capacity || "50"} joined
+                    </span>
+                  </div>
+
+                  {/* Location */}
+                  <div className="flex items-center gap-4">
+                    <div className="h-12 w-12 flex items-center justify-center rounded-2xl bg-[#f5f7f9] text-[#78829d]">
+                      <MapPin className="w-5 h-5" />
+                    </div>
+                    <span className="text-lg font-bold text-gray-500 font-medium">
+                      {form.location || "Online Zoom Session"}
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
+            
+            <p className="mt-6 text-[10px] font-bold text-gray-300 uppercase tracking-widest italic">Preview updates in real-time</p>
           </div>
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Description *</label>
-            <textarea required rows={4} value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
-              placeholder="What is this event about?"
-              className="w-full resize-none rounded-xl border border-gray-100 bg-white px-4 py-3 text-sm font-medium outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-sm" />
-          </div>
-          <div className="flex justify-end gap-3 pt-4">
-            <button type="button" onClick={() => { setShowCreate(false); setEditingId(null); setForm({ eventCode: "", title: "", description: "", date: "", time: "", capacity: 20, location: "Online (Google Meet)" }); }} className="rounded-xl border border-gray-100 px-6 py-3 text-sm font-bold text-gray-500 hover:bg-gray-50 transition-colors">
-              Cancel
-            </button>
-            <button type="submit" disabled={creating} className="rounded-xl bg-primary px-8 py-3 text-sm font-bold text-white hover:bg-primary/90 disabled:opacity-60 transition-all shadow-lg shadow-primary/20 active:scale-95">
-              {creating ? (editingId ? "Updating..." : "Creating...") : (editingId ? "Update Event" : "Create Event")}
-            </button>
-          </div>
-        </form>
+        </div>
       )}
       
       {loading ? (

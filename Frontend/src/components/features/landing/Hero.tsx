@@ -12,7 +12,12 @@ const tamilDecorations = [
   {
     char: "அ",
     className:
-      "top-[-20px] left-[-10px] text-[160px] text-secondary opacity-[0.4] -rotate-12",
+      "top-[-10px] left-[30px] text-[100px] text-secondary opacity-[0.4] -rotate-12",
+  },
+  {
+    char: "பௌ",
+    className:
+      "top-[300px] left-[200px] text-[80px] text-secondary opacity-[0.2] -rotate-12",
   },
   {
     char: "ழ",

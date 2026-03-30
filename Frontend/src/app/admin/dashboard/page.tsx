@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { StatCard } from "@/components/features/dashboard/StatCard";
-import { Users, GraduationCap, BookOpen, Calendar, Loader2, AlertCircle, ArrowRight } from "lucide-react";
+import { Users, GraduationCap, BookOpen, Calendar, Loader2, AlertCircle, ArrowRight, Globe } from "lucide-react";
 import Link from "next/link";
 import { getAllUsers, getAllTutors, getTeacherApplications, getAdminStats, AdminStats, BaseUser, TeacherApplication } from "@/services/adminService";
 import { getEvents, MozhiEvent } from "@/services/eventService";
@@ -11,13 +11,13 @@ import Button from "@/components/ui/Button";
 
 function StatusBadge({ status }: { status: TeacherApplication["status"] }) {
   const map: Record<string, string> = {
-    pending: "bg-warning/10 text-warning",
-    approved: "bg-success/10 text-success",
-    rejected: "bg-error/10 text-error",
-    needs_revision: "bg-warning/10 text-warning",
+    pending: "bg-amber-50 text-amber-700 border border-amber-200",
+    approved: "bg-emerald-50 text-emerald-700 border border-emerald-200",
+    rejected: "bg-red-50 text-red-700 border border-red-200",
+    needs_revision: "bg-orange-50 text-orange-700 border border-orange-200",
   };
   return (
-    <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold capitalize ${map[status] ?? ""}`}>
+    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-bold capitalize border ${map[status] ?? ""}`}>
       {status.replace("_", " ")}
     </span>
   );
@@ -122,22 +122,48 @@ export default function AdminDashboard() {
           </div>
 
           {applications.length === 0 ? (
-            <div className="flex items-center justify-center py-12 text-sm text-gray-600">No applications yet.</div>
+            <div className="flex flex-col items-center justify-center py-20 px-8 text-center">
+               <div className="h-16 w-16 bg-gray-50 rounded-full flex items-center justify-center mb-4 transition-all">
+                  <GraduationCap className="h-8 w-8 text-gray-200" />
+               </div>
+               <p className="text-sm font-bold text-gray-400 uppercase tracking-widest leading-relaxed">No pending applications at the moment.</p>
+            </div>
           ) : (
-            <div className="divide-y divide-zinc-100 dark:divide-zinc-800">
-              {applications.slice(0, 5).map((app) => (
-                <div key={app._id} className="flex items-center justify-between px-6 py-4">
-                  <div>
-                    <p className="text-sm font-semibold text-gray-800">{app.fullName}</p>
-                    <p className="text-xs text-gray-500">{app.userId?.email}</p>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <StatusBadge status={app.status} />
-                    {app.status === "pending" && (
-                      <Button href="/admin/teachers" variant="secondary" size="sm">
-                        Review
-                      </Button>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-slate-100/50">
+              {applications.slice(0, 4).map((app) => (
+                <div key={app._id} className="bg-white p-8 flex flex-col gap-6 hover:bg-gray-50/80 transition-all group border-b border-r border-slate-100 last:border-b-0">
+                  <div className="flex items-start justify-between gap-6">
+                    <div className="flex items-center gap-5">
+                      <div className="h-16 w-16 rounded-2xl bg-primary/5 flex items-center justify-center ring-4 ring-primary/5 shrink-0 overflow-hidden border border-primary/10 shadow-inner group-hover:ring-primary/20 transition-all">
+                         <span className="text-2xl font-black text-primary group-hover:scale-110 transition-transform">{(app.userId?.name || app.fullName).charAt(0)}</span>
+                      </div>
+                      <div className="min-w-0">
+                        <h4 className="text-base font-black text-gray-800 tracking-tight truncate leading-tight mb-1">{app.userId?.name || app.fullName}</h4>
+                        <div className="flex items-center gap-2 mb-2">
+                           <StatusBadge status={app.status} />
+                           <span className="text-[8px] font-black text-gray-300 uppercase tracking-widest">Applicant</span>
+                        </div>
+                        <p className="text-[10px] font-bold text-primary tracking-widest uppercase">{app.specialization || "Expert Teacher"}</p>
+                      </div>
+                    </div>
+                    {app.hourlyRate && (
+                      <div className="text-right flex flex-col items-end">
+                         <span className="text-lg font-black text-gray-800 leading-none">${app.hourlyRate}</span>
+                         <span className="text-[8px] font-black text-gray-400 uppercase tracking-widest mt-1">per class</span>
+                      </div>
                     )}
+                  </div>
+                  
+                  <div className="flex items-center justify-between border-t border-slate-50 pt-5">
+                     <div className="flex items-center gap-2">
+                        <div className="h-6 w-6 rounded-lg bg-gray-50 flex items-center justify-center shrink-0">
+                           <Globe className="h-3 w-3 text-primary" />
+                        </div>
+                        <p className="text-[10px] font-bold text-gray-500 truncate max-w-[100px]">{app.userId?.email || "Email Hidden"}</p>
+                     </div>
+                     <Button href="/admin/teachers" variant="ghost" size="sm" className="h-9 px-6 text-[10px] font-black uppercase tracking-[0.2em] text-primary hover:bg-primary/10 hover:text-primary rounded-xl transition-all active:scale-95 shadow-sm border border-slate-100 hover:border-primary/20 bg-white">
+                        Review Profile
+                     </Button>
                   </div>
                 </div>
               ))}

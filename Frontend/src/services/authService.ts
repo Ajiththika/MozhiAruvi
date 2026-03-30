@@ -36,6 +36,13 @@ export interface SafeUser {
   specialization?: string;
   experience?: string;
   hourlyRate?: number;
+  isPremium?: boolean;
+  progress?: {
+    energy: number;
+    lastEnergyUpdate: string;
+    completedLessons: string[];
+    level: string;
+  };
   createdAt?: string;
   updatedAt?: string;
 }

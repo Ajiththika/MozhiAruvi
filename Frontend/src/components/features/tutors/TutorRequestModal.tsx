@@ -21,21 +21,21 @@ const REQUEST_INFO = {
     label: "Ask a Question",
     icon: MessageSquare,
     price: 10,
-    description: "Brief question or clarification (10 XP)",
+    description: "Brief question or clarification ($10)",
     placeholder: "Type your Tamil learning question here…",
   },
   live_class: {
     label: "Live 1-on-1 Class",
     icon: Video,
     price: 30,
-    description: "Request a 45-min live session (30 XP)",
+    description: "Request a 45-min live session ($30)",
     placeholder: "What would you like to learn in this session?",
   },
   multi_class: {
     label: "Multi-Session Package",
     icon: Layers,
     price: 100,
-    description: "Intensive 5-session package (100 XP)",
+    description: "Intensive 5-session package ($100)",
     placeholder: "Describe your learning goals for this package…",
   },
 };
@@ -206,7 +206,7 @@ export function TutorRequestModal({ tutor, onClose, initialType = "question" }: 
                 </div>
                 <div className="flex-1">
                    <p className="text-[10px] font-bold text-primary uppercase tracking-wider">Interaction Cost</p>
-                   <p className="text-sm font-bold text-gray-700">{info.price} XP points</p>
+                   <p className="text-sm font-bold text-gray-700">${info.price}</p>
                 </div>
                 {error && (
                   <div className="flex items-center gap-1.5 text-red-500 font-bold text-xs bg-white px-3 py-1 rounded-lg border border-red-100">
@@ -235,7 +235,7 @@ export function TutorRequestModal({ tutor, onClose, initialType = "question" }: 
                   className="flex-[2] flex items-center justify-center gap-3 rounded-[1.5rem] bg-primary py-4 text-sm font-bold text-white shadow-xl shadow-primary/20 hover:scale-[1.01] hover:bg-secondary active:scale-[0.99] disabled:opacity-30 disabled:hover:scale-100 transition-all"
                 >
                   {sending ? <Loader2 className="h-5 w-5 animate-spin" /> : <Send className="h-5 w-5" />}
-                  {sending ? "Processing..." : `Send for ${info.price} XP`}
+                  {sending ? "Processing..." : `Send for $${info.price}`}
                 </button>
               </div>
             </div>

@@ -1,6 +1,6 @@
-import { Router } from 'express';
 import * as lessonController from '../controllers/lessonController.js';
-import { authenticate } from '../middleware/auth.js';
+import { Router } from 'express';
+import { authenticate, authenticateOptional } from '../middleware/auth.js';
 import { authorizeRoles } from '../middleware/authorizeRoles.js';
 import { ROLES } from '../utils/roles.js';
 import { validate } from '../middleware/validate.js';
@@ -11,7 +11,7 @@ const router = Router();
 // Zod schemas for Lesson
 const createLessonSchema = z.object({
     title: z.string().min(1, 'Title is required'),
-    category: z.enum(['Uyir Eluthu', 'Mei Eluthu', 'Uyirmei Eluthu', 'Ayutha Eluthu', 'Grantha Eluthugal']).optional().default('Uyir Eluthu'),
+    category: z.string().min(1, 'Category is required'),
     type: z.enum(['MCQ', 'speaking', 'writing', 'mixed']).optional().default('mixed'),
     examples: z.array(z.string()).optional(),
     moduleName: z.string().optional(),
@@ -21,7 +21,8 @@ const createLessonSchema = z.object({
     videoUrl: z.string().url('Invalid URL').optional().or(z.literal('')),
     content: z.string().optional(),
     isPremiumOnly: z.boolean().optional(),
-    orderIndex: z.number().int().nonnegative('Order index must be positive'),
+    orderIndex: z.number().int().optional().default(0),
+    level: z.enum(['Basic', 'Beginner', 'Intermediate', 'Advanced']).optional().default('Basic'),
 }).strict();
 
 const updateLessonSchema = createLessonSchema.partial();
@@ -52,7 +53,7 @@ const evaluateSpeakingSchema = z.object({
 
 // ── User Endpoints ────────────────────────────────────────────────────────────
 // Phase 3: List and View Lessons
-router.get('/', authenticate, lessonController.listLessons);
+router.get('/', authenticateOptional, lessonController.listLessons);
 router.get('/:id', authenticate, lessonController.getLessonDetails);
 
 // Phase 4: View Questions & Submit Answers
@@ -66,5 +67,6 @@ router.patch('/:id', authenticate, authorizeRoles(ROLES.ADMIN), validate(updateL
 router.delete('/:id', authenticate, authorizeRoles(ROLES.ADMIN), lessonController.deleteLesson);
 
 router.post('/:id/questions', authenticate, authorizeRoles(ROLES.ADMIN), validate(createQuestionSchema), lessonController.createQuestion);
+router.delete('/:id/questions/:qId', authenticate, authorizeRoles(ROLES.ADMIN), lessonController.deleteQuestion);
 
 export default router;

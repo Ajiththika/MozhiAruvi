@@ -71,6 +71,8 @@ export async function evaluateAnswersAndSaveProgress(userId, lessonId, answers) 
     const passThreshold = totalPossibleScore * 0.7; // Example: 70% to pass
     const passed = score >= passThreshold;
     const powerCost = questions.length;
+    const isPerfect = score === totalPossibleScore;
+    const pointsAwarded = isPerfect ? 50 : (passed ? 30 : 0);
 
     let progress = await Progress.findOne({ userId, lessonId });
 
@@ -84,9 +86,12 @@ export async function evaluateAnswersAndSaveProgress(userId, lessonId, answers) 
             completedAt: passed ? new Date() : undefined
         });
 
-        // Award 50 points for passing, deduct power for taking the test
+        // Award points for passing, deduct power, save to User model array
         if (passed) {
-            await User.findByIdAndUpdate(userId, { $inc: { points: 50, xp: 50, power: -powerCost } }); 
+            await User.findByIdAndUpdate(userId, { 
+                $inc: { points: pointsAwarded, xp: pointsAwarded, power: -powerCost },
+                $addToSet: { 'progress.completedLessons': lessonId }
+            }); 
         } else {
             // Deduct power even if failed
             await User.findByIdAndUpdate(userId, { $inc: { power: -powerCost } });
@@ -99,9 +104,12 @@ export async function evaluateAnswersAndSaveProgress(userId, lessonId, answers) 
         if (!progress.isCompleted && passed) {
             progress.isCompleted = true;
             progress.completedAt = new Date();
-            await User.findByIdAndUpdate(userId, { $inc: { points: 50, xp: 50, power: -powerCost } }); // First time passing!
+            await User.findByIdAndUpdate(userId, { 
+                $inc: { points: pointsAwarded, xp: pointsAwarded, power: -powerCost },
+                $addToSet: { 'progress.completedLessons': lessonId }
+            });
         } else {
-            const retakePoints = passed ? 30 : 0; // After retry max 30 points
+            const retakePoints = passed ? 10 : 0; // Much smaller points for retake
             await User.findByIdAndUpdate(userId, { $inc: { points: retakePoints, power: -powerCost } });
         }
         await progress.save();
@@ -141,4 +149,11 @@ export async function createQuestion(lessonId, data) {
         ...data,
         lessonId
     });
+}
+
+export async function deleteQuestion(questionId) {
+    const question = await Question.findByIdAndDelete(questionId);
+    if (!question) {
+        const err = new Error('Question not found'); err.status = 404; err.code = 'NOT_FOUND'; throw err;
+    }
 }
