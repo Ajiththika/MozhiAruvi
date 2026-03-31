@@ -60,6 +60,7 @@ router.get('/:id', authenticate, lessonController.getLessonDetails);
 router.get('/:id/questions', authenticate, lessonController.getLessonQuestions);
 router.post('/:id/submit', authenticate, validate(submitAnswersSchema), lessonController.submitAnswers);
 router.post('/:id/evaluate-speaking', authenticate, validate(evaluateSpeakingSchema), lessonController.evaluateSpeaking);
+router.post('/:id/generate-speech', authenticate, lessonController.generateSpeech);
 
 // ── Admin Endpoints ───────────────────────────────────────────────────────────
 router.post('/', authenticate, authorizeRoles(ROLES.ADMIN), validate(createLessonSchema), lessonController.createLesson);

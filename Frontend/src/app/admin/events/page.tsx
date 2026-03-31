@@ -5,6 +5,8 @@ import { DataTable, ColumnDef } from "@/components/ui/DataTable";
 import { Calendar as CalendarIcon, MapPin, Users, Globe2, Trash2, PlusCircle, AlertCircle, Loader2 } from "lucide-react";
 import { getEvents, deleteEvent, createEvent, updateEvent, MozhiEvent, CreateEventPayload, getEventById } from "@/services/eventService";
 import { useSearchParams, useRouter } from "next/navigation";
+import { Pagination } from "@/components/ui/Pagination";
+import { Button } from "@/components/ui/Button";
 
 const EventStatusBadge = ({ isActive }: { isActive: boolean }) => {
    if (isActive) {
@@ -36,6 +38,11 @@ function AdminEventsClient() {
   const [error, setError] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   
+  // Pagination State
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalEvents, setTotalEvents] = useState(0);
+
   const [form, setForm] = useState<CreateEventPayload>({
     eventCode: "",
     title: "",
@@ -47,8 +54,8 @@ function AdminEventsClient() {
   });
 
   useEffect(() => {
-    fetchEvents();
-  }, []);
+    fetchEvents(currentPage);
+  }, [currentPage]);
 
   // ── Handle external edit param ────────────────────────────────────
   useEffect(() => {
@@ -75,10 +82,15 @@ function AdminEventsClient() {
     }
   }, [searchParams, events, loading]);
 
-  const fetchEvents = () => {
+  const fetchEvents = (page: number = 1) => {
     setLoading(true);
-    getEvents(1, 50)
-      .then(res => setEvents(res.events))
+    getEvents(page, 6) // Standardized to 6 per page
+      .then(res => {
+        setEvents(res.events);
+        setTotalPages(res.totalPages);
+        setTotalEvents(res.totalEvents);
+        setCurrentPage(res.currentPage);
+      })
       .catch(console.error)
       .finally(() => setLoading(false));
   };
@@ -424,7 +436,16 @@ function AdminEventsClient() {
           <Loader2 className="h-5 w-5 animate-spin" /> Loading records...
         </div>
       ) : (
-        <DataTable title="All Scheduled Events" columns={columns} data={events} onSearch={() => {}} />
+        <div className="space-y-8">
+           <DataTable title={`All Scheduled Events (${totalEvents})`} columns={columns} data={events} onSearch={() => {}} />
+           <div className="pt-8 border-t border-gray-100">
+              <Pagination 
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={setCurrentPage}
+              />
+           </div>
+        </div>
       )}
     </div>
   );

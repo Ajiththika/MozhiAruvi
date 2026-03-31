@@ -27,8 +27,9 @@ export interface Lesson {
 
 export interface Question {
   _id: string;
-  type?: "learn" | "match" | "identify" | "listening" | "fill" | "spelling" | "quiz" | "speaking" | "choice" | "writing";
+  type?: "learn" | "match" | "identify" | "listening" | "fill" | "spelling" | "quiz" | "speaking" | "choice" | "writing" | "reading";
   text: string;
+  paragraph?: string; // For Read and Respond
   options?: string[];
   correctOptionIndex?: number;
   correctAnswer?: string;
@@ -55,6 +56,7 @@ export interface SubmitResult {
   total: number;
   passed: boolean;
   results: Array<{ questionId: string; correct: boolean }>;
+  nextLessonId?: string;
   user?: any;
   redirect?: string;
 }
@@ -95,12 +97,17 @@ export async function submitAnswers(
 export async function evaluateSpeaking(
   lessonId: string,
   questionId: string,
-  audioBase64?: string
-): Promise<{ passed: boolean; message: string }> {
-  const res = await api.post<{ passed: boolean; message: string }>(
+  audioBase64: string
+): Promise<{ isCorrect: boolean; score: number; transcription: string; feedback: string; correctText: string }> {
+  const res = await api.post<{ isCorrect: boolean; score: number; transcription: string; feedback: string; correctText: string }>(
     `/lessons/${lessonId}/evaluate-speaking`,
     { questionId, audioBase64 }
   );
+  return res.data;
+}
+
+export async function generateSpeech(lessonId: string, text: string): Promise<{ audioUrl: string }> {
+  const res = await api.post<{ audioUrl: string }>(`/lessons/${lessonId}/generate-speech`, { text });
   return res.data;
 }
 

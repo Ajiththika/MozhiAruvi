@@ -9,7 +9,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         {/* Simple Top Nav */}
         <div className="p-6 md:p-8 lg:px-12 flex items-center justify-between">
           <Link href="/" className="text-2xl font-black text-text-primary flex items-center gap-2 hover:opacity-80 transition-opacity">
-            <span className="text-primary italic">Mozhi</span>Aruvi
+            <span className="text-primary ">Mozhi</span>Aruvi
           </Link>
         </div>
         

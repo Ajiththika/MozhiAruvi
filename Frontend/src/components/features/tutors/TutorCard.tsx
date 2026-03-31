@@ -149,11 +149,6 @@ export function TutorCard({ tutor }: { tutor: Tutor }) {
 
       {/* Footer / Action */}
       <div className="p-7 pt-0">
-          {!user && (
-            <p className="text-[10px] text-center font-bold text-primary italic mb-4 animate-pulse">
-               Sign in to connect with this teacher
-            </p>
-          )}
           <div className="group/btn relative flex items-center justify-center gap-2 rounded-2xl bg-primary py-4 text-[10px] font-black text-white uppercase tracking-[0.2em] shadow-xl transition-all hover:bg-secondary active:scale-95 overflow-hidden">
             <span className="relative z-10 transition-all group-hover/btn:translate-x-[-4px]">Explore Profile</span>
             <ArrowRight className="relative z-10 h-3 w-3 transition-all group-hover/btn:translate-x-4 opacity-70" />

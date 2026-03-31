@@ -17,6 +17,8 @@ const userSchema = new mongoose.Schema({
 
   // Status & Admin
   isActive: { type: Boolean, default: true },
+  warnings: { type: Number, default: 0 },
+  adminNotes: { type: String, trim: true },
 
   // Tutor specific fields
   isTutorAvailable: { type: Boolean, default: false },
@@ -71,8 +73,8 @@ userSchema.methods.comparePassword = function (plain) {
 };
 
 userSchema.methods.toSafeObject = function () {
-  const { _id, name, email, role, isActive, isTutorAvailable, isPremium, progress, credits, createdAt, teachingMode, profilePhoto, level, learningCredits, xp, points, power, lastPowerUpdate, badges, hasCompletedOnboarding, lastCreditUpdate, phoneNumber, country, age, gender, bio, experience, specialization, languages } = this;
-  return { _id, name, email, role, isActive, isTutorAvailable, isPremium, progress, credits, createdAt, teachingMode, profilePhoto, level, learningCredits, xp, points, power, lastPowerUpdate, badges, hasCompletedOnboarding, lastCreditUpdate, phoneNumber, country, age, gender, bio, experience, specialization, languages };
+  const { _id, name, email, role, isActive, warnings, adminNotes, isTutorAvailable, isPremium, progress, credits, createdAt, teachingMode, profilePhoto, level, learningCredits, xp, points, power, lastPowerUpdate, badges, hasCompletedOnboarding, lastCreditUpdate, phoneNumber, country, age, gender, bio, experience, specialization, languages } = this;
+  return { _id, name, email, role, isActive, warnings, adminNotes, isTutorAvailable, isPremium, progress, credits, createdAt, teachingMode, profilePhoto, level, learningCredits, xp, points, power, lastPowerUpdate, badges, hasCompletedOnboarding, lastCreditUpdate, phoneNumber, country, age, gender, bio, experience, specialization, languages };
 };
 
 export default mongoose.model('User', userSchema);

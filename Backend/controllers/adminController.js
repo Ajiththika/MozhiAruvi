@@ -40,6 +40,13 @@ export async function changeTutorStatus(req, res, next) {
     } catch (e) { next(e); }
 }
 
+export async function warnUser(req, res, next) {
+    try {
+        const user = await adminService.warnUser(req.params.id);
+        res.json({ message: 'Warning issued to mentor.', user: user.toSafeObject() });
+    } catch (e) { next(e); }
+}
+
 export async function editUser(req, res, next) {
     try {
         const user = await adminService.editUser(req.params.id, req.body);

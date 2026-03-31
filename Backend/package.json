@@ -9,6 +9,8 @@
     "start": "node server.js"
   },
   "dependencies": {
+    "@google-cloud/speech": "^7.3.0",
+    "@google-cloud/text-to-speech": "^6.4.0",
     "bcryptjs": "^2.4.3",
     "cloudinary": "^1.41.3",
     "cookie-parser": "^1.4.6",
@@ -25,6 +27,7 @@
     "openai": "^6.33.0",
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0",
+    "string-similarity-js": "^2.1.4",
     "zod": "^3.22.4"
   }
 }

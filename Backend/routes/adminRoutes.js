@@ -22,6 +22,7 @@ router.patch('/users/:id/edit', authenticate, authorizeRoles(ROLES.ADMIN), admin
 
 // Admin functions
 router.patch('/users/:id/tutor-status', authenticate, authorizeRoles(ROLES.ADMIN), adminController.changeTutorStatus);
+router.patch('/users/:id/warn', authenticate, authorizeRoles(ROLES.ADMIN), adminController.warnUser);
 
 // ── Teacher Application Management ──────────────────────────────────────────
 router.get('/teacher-applications', authenticate, authorizeRoles(ROLES.ADMIN), teacherApplicationController.getTeacherApplications);

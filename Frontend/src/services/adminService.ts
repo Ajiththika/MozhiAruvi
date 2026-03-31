@@ -14,6 +14,8 @@ export interface BaseUser {
   email: string;
   role: "student" | "teacher" | "admin";
   isActive: boolean;
+  warnings?: number;
+  adminNotes?: string;
   isTutorAvailable?: boolean;
   phoneNumber?: string;
   country?: string;
@@ -104,6 +106,11 @@ export async function updateTutorStatus(
   return res.data.user;
 }
 
+export async function warnUser(id: string): Promise<BaseUser> {
+  const res = await api.patch<{ user: BaseUser }>(`/admin/users/${id}/warn`);
+  return res.data.user;
+}
+
 export async function updateUserAdmin(
   id: string,
   data: Partial<BaseUser>
@@ -114,7 +121,7 @@ export async function updateUserAdmin(
 
 // ── Teacher Applications ──────────────────────────────────────────────────────
 
-export async function getTeacherApplications(page = 1, limit = 8, status?: string): Promise<PaginatedResponse<TeacherApplication> & { applications: TeacherApplication[] }> {
+export async function getTeacherApplications(page = 1, limit = 6, status?: string): Promise<PaginatedResponse<TeacherApplication> & { applications: TeacherApplication[] }> {
   const params = new URLSearchParams({ page: String(page), limit: String(limit) });
   if (status) params.append("status", status);
   const res = await api.get<PaginatedResponse<TeacherApplication> & { applications: TeacherApplication[] }>(

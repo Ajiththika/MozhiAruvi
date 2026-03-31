@@ -80,7 +80,7 @@ export function Sidebar({ items, basePath }: SidebarProps) {
               <Image src="/logo.png" alt="Mozhi Aruvi Logo" fill className="object-contain p-1" />
             </div>
             <span className="text-xl font-black tracking-tighter text-gray-900 flex items-center gap-1">
-              Mozhi<span className="text-primary italic">Aruvi</span>
+              Mozhi<span className="text-primary">Aruvi</span>
             </span>
           </Link>
         </div>

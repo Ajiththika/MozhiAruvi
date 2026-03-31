@@ -19,7 +19,7 @@ export async function getAllUsers(page = 1, limit = 6) {
 
 export async function getAllTutors(page = 1, limit = 6) {
     const skip = (page - 1) * limit;
-    const query = { role: { $in: ['teacher', 'tutor'] }, isActive: true };
+    const query = { role: { $in: ['teacher', 'tutor'] } };
     const [tutors, totalItems] = await Promise.all([
         User.find(query).select('-password -resetPasswordToken -resetPasswordExpires').sort({ createdAt: -1 }).skip(skip).limit(limit),
         User.countDocuments(query)
@@ -48,6 +48,16 @@ export async function setTutorStatus(userId, status) {
         const err = new Error('User not found'); err.status = 404; err.code = 'NOT_FOUND'; throw err;
     }
     user.isTutorAvailable = status;
+    await user.save();
+    return user;
+}
+
+export async function warnUser(userId) {
+    const user = await User.findById(userId);
+    if (!user) {
+        const err = new Error('User not found'); err.status = 404; err.code = 'NOT_FOUND'; throw err;
+    }
+    user.warnings = (user.warnings || 0) + 1;
     await user.save();
     return user;
 }
@@ -85,7 +95,7 @@ export async function getDashboardStats() {
     const [totalUsers, activeUsers, totalTutors, pendingApps, totalEvents] = await Promise.all([
         User.countDocuments(),
         User.countDocuments({ isActive: true }),
-        User.countDocuments({ role: { $in: ['teacher', 'tutor'] }, isActive: true }),
+        User.countDocuments({ role: { $in: ['teacher', 'tutor'] } }),
         TeacherApplication.countDocuments({ status: 'pending' }),
         Event.countDocuments()
     ]);

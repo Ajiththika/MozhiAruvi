@@ -114,7 +114,7 @@ export default function AdminTeachersPage() {
   const load = (page: number = 1) => {
     setLoading(true);
     const filterParam = statusFilter === "all" ? undefined : statusFilter;
-    getTeacherApplications(page, 8, filterParam as any)
+    getTeacherApplications(page, 6, filterParam as any)
       .then((res) => {
         setApplications(res.applications);
         setTotalPages(res.totalPages);
@@ -160,12 +160,17 @@ export default function AdminTeachersPage() {
 
   const columns: ColumnDef<TeacherApplication>[] = [
     {
-      header: "Applicant",
+      header: "Applicant Identity",
       accessorKey: "fullName",
       cell: (row) => (
-        <div className="flex flex-col gap-0.5">
-          <span className="font-bold text-gray-800 text-sm">{row.fullName}</span>
-          <span className="text-xs text-gray-500">{row.userId?.email}</span>
+        <div className="flex items-center gap-4">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-orange-50 font-black text-orange-600 text-lg border border-orange-100 shadow-inner uppercase tracking-tighter shrink-0">
+            {(row.userId?.name || row.fullName).charAt(0)}
+          </div>
+          <div className="min-w-0">
+            <p className="font-black text-gray-800 text-sm tracking-tight truncate">{row.userId?.name || row.fullName}</p>
+            <p className="text-[10px] font-medium text-gray-400 truncate">{row.userId?.email || "Email undisclosed"}</p>
+          </div>
         </div>
       ),
     },
@@ -173,76 +178,71 @@ export default function AdminTeachersPage() {
       header: "Specialization",
       accessorKey: "specialization",
       cell: (row) => (
-        <span className="text-xs font-semibold text-gray-600 truncate max-w-[140px] block">
-          {row.specialization || "—"}
-        </span>
-      ),
+        <div className="flex flex-col">
+           <span className="text-xs font-bold text-gray-700">{row.specialization || "Teacher Aspirant"}</span>
+           <span className="text-[10px] text-gray-400 font-medium italic">{(row.languages || []).join(", ")}</span>
+        </div>
+      )
     },
     {
-      header: "Status",
+      header: "Application Status",
       accessorKey: "status",
       cell: (row) => <StatusBadge status={row.status} />,
     },
     {
-      header: "Reviewed",
-      accessorKey: "reviewedAt",
-      cell: (row) => (
-        <span className="text-xs text-gray-500">
-          {row.reviewedAt ? new Date(row.reviewedAt).toLocaleDateString("en-GB") : "Awaiting"}
-        </span>
-      ),
-    },
-    {
-      header: "Actions",
-      accessorKey: "_id",
-      className: "text-right",
-      cell: (row) =>
-        row.status === "pending" || row.status === "needs_revision" ? (
-          <div className="flex items-center justify-end gap-2">
-            <Button
-              onClick={() => handleApprove(row._id)}
-              isLoading={actioning === row._id}
-              variant="secondary"
-              size="sm"
-              className="flex items-center gap-1.5 text-emerald-700 border-emerald-200 hover:bg-emerald-50"
-            >
-              <CheckCircle2 size={12} /> Approve
-            </Button>
-            {row.status === "pending" && (
-              <Button
-                onClick={() => setModal({ type: "revision", id: row._id })}
-                disabled={actioning === row._id}
-                variant="outline"
-                size="sm"
-                className="flex items-center gap-1.5 text-orange-700 border-orange-200 hover:bg-orange-50"
-              >
-                <MessageSquare size={12} /> Revise
-              </Button>
-            )}
-            <Button
-              onClick={() => setModal({ type: "reject", id: row._id })}
-              disabled={actioning === row._id}
-              variant="danger"
-              size="sm"
-              className="flex items-center gap-1.5"
-            >
-              <XCircle size={12} /> Reject
-            </Button>
+       header: "System Logic",
+       accessorKey: "_id",
+       className: "text-right",
+       cell: (row) => (
+          <div className="flex items-center justify-end gap-3">
+             {(row.status === "pending" || row.status === "needs_revision") ? (
+               <>
+                 <Button
+                   onClick={() => handleApprove(row._id)}
+                   isLoading={actioning === row._id}
+                   variant="secondary"
+                   size="sm"
+                   className="text-[10px] uppercase font-black px-4 bg-emerald-600 text-white hover:bg-emerald-700 shadow-md shadow-emerald-600/10"
+                 >
+                   Empower
+                 </Button>
+                 {row.status === "pending" && (
+                   <Button
+                     onClick={() => setModal({ type: "revision", id: row._id })}
+                     disabled={actioning === row._id}
+                     variant="outline"
+                     size="sm"
+                     className="text-[10px] uppercase font-black px-4"
+                   >
+                     Revise
+                   </Button>
+                 )}
+                 <Button
+                   onClick={() => setModal({ type: "reject", id: row._id })}
+                   disabled={actioning === row._id}
+                   variant="danger"
+                   size="sm"
+                   className="text-[10px] uppercase font-black px-4"
+                 >
+                   Reject
+                 </Button>
+               </>
+             ) : (
+               <span className="text-[10px] font-black text-gray-300 uppercase tracking-widest px-4">Locked • Records Final</span>
+             )}
           </div>
-        ) : (
-          <StatusBadge status={row.status} />
-        ),
-    },
+       )
+    }
   ];
 
   return (
     <>
-      {/* Action modals */}
+      {/* Action modals (Reject/Revision) kept as before */}
       {modal?.type === "reject" && (
         <ActionModal
-          title="Reject Application"
-          label="Reason for rejection"
-          placeholder="Explain why this application is being rejected..."
+          title="Archive Logic: Permanent Rejection"
+          label="Detailed justification"
+          placeholder="Document why this application is unsuitable for theMozhi Aruvi mentor pool..."
           onConfirm={handleReject}
           onCancel={() => setModal(null)}
           isLoading={actioning === modal.id}
@@ -251,9 +251,9 @@ export default function AdminTeachersPage() {
       )}
       {modal?.type === "revision" && (
         <ActionModal
-          title="Request Revision"
-          label="Revision notes for applicant"
-          placeholder="Describe what needs to be updated or clarified..."
+          title="Review Feedback: Revision Requested"
+          label="Required procedural updates"
+          placeholder="Describe which credentials or profile details need fortification..."
           onConfirm={handleRevision}
           onCancel={() => setModal(null)}
           isLoading={actioning === modal.id}
@@ -261,38 +261,38 @@ export default function AdminTeachersPage() {
         />
       )}
 
-      <div className="space-y-8 animate-in fade-in zoom-in-95 duration-500 pb-12">
+      <div className="space-y-12 animate-in fade-in duration-700 max-w-7xl mx-auto py-10 lg:py-16">
         {/* Page Header */}
-        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 border-b border-gray-100 pb-8">
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <span className="h-1.5 w-6 rounded-full bg-secondary" />
-              <span className="text-[10px] font-black text-secondary uppercase tracking-[0.3em]">Management</span>
+        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-8 border-b border-gray-100 pb-12">
+          <div className="space-y-6">
+            <div className="flex items-center gap-3">
+              <span className="h-2 w-12 rounded-full bg-orange-400" />
+              <span className="text-[10px] font-black text-orange-500 uppercase tracking-[0.3em]">Validation Authority</span>
             </div>
-            <h1 className="text-3xl md:text-4xl font-black text-gray-800 uppercase tracking-tight">Teacher Applications</h1>
-            <p className="mt-2 text-gray-500 font-medium">Review, approve, or reject teacher applications from users.</p>
+            <h1 className="text-4xl md:text-5xl font-black text-gray-900 tracking-tight leading-none uppercase">Teacher Applications</h1>
+            <p className="text-lg text-gray-500 font-medium max-w-xl">Audit and orchestrate the expansion of the Mozhi Aruvi linguistic fleet by validating new mentor credentials.</p>
           </div>
           <Button
             onClick={() => load(currentPage)}
             isLoading={loading}
             variant="outline"
-            size="md"
-            className="text-xs font-black uppercase tracking-widest"
+            size="lg"
+            className="uppercase tracking-widest text-[10px] font-black px-10 border-2"
           >
-            Refresh Data
+            Refresh Records
           </Button>
         </div>
 
         {/* Status Filter Tabs */}
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-3">
           {STATUS_TABS.map((tab) => (
             <button
               key={tab.value}
               onClick={() => setStatusFilter(tab.value)}
-              className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all ${
+              className={`px-6 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all duration-300 border-2 ${
                 statusFilter === tab.value
-                  ? "bg-primary text-white shadow-md shadow-primary/20"
-                  : "bg-white border border-gray-100 text-gray-600 hover:border-primary hover:text-primary"
+                  ? "bg-gray-900 text-white border-gray-900 shadow-xl shadow-gray-900/10 scale-105"
+                  : "bg-white border-gray-100 text-gray-400 hover:border-gray-200 hover:text-gray-600"
               }`}
             >
               {tab.label}
@@ -301,126 +301,28 @@ export default function AdminTeachersPage() {
         </div>
 
         {error && (
-          <div className="flex items-center gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 font-bold">
-            <AlertCircle className="h-5 w-5 shrink-0" /> {error}
+          <div className="flex items-center gap-4 rounded-3xl border border-red-100 bg-red-50/50 p-8 text-sm text-red-600">
+             <AlertCircle className="h-6 w-6 shrink-0" /> <span className="font-bold">{error}</span>
           </div>
         )}
 
         {loading ? (
-          <div className="flex flex-col items-center justify-center py-32 gap-4">
-            <Loader2 className="h-10 w-10 animate-spin text-primary" />
-            <p className="text-xs font-bold text-gray-400 uppercase tracking-widest animate-pulse">Fetching applications…</p>
+          <div className="flex flex-col items-center justify-center py-40 gap-8 bg-white rounded-[3rem] border border-dashed border-gray-100 shadow-sm">
+            <div className="h-16 w-16 border-4 border-orange-500 border-t-transparent rounded-full animate-spin shadow-xl ring-4 ring-orange-500/5 text-center" />
+            <p className="text-[10px] font-black text-gray-300 uppercase tracking-widest animate-pulse">Requesting secure data from node...</p>
           </div>
         ) : applications.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-24 text-center rounded-[2.5rem] border border-dashed border-gray-100 bg-white shadow-xl shadow-gray-200/5 items-center">
-             <div className="h-20 w-20 bg-gray-50 rounded-full flex items-center justify-center mb-6">
-                <GraduationCap className="h-10 w-10 text-gray-200" />
+          <div className="flex flex-col items-center justify-center py-32 text-center rounded-[3rem] border border-dashed border-gray-100 bg-white shadow-xl shadow-gray-200/5 transition-all">
+             <div className="h-24 w-24 bg-gray-50 rounded-[2rem] flex items-center justify-center mb-8 rotate-12">
+                <GraduationCap className="h-12 w-12 text-gray-200 -rotate-12" />
              </div>
-             <h3 className="text-xl font-bold text-gray-800 uppercase tracking-tight mb-2">No applications found</h3>
-             <p className="text-gray-500 font-medium max-w-sm">There are no teacher applications matching your criteria.</p>
+             <h3 className="text-2xl font-black text-gray-800 uppercase tracking-tight mb-3">Clearance Secured</h3>
+             <p className="text-gray-400 font-bold max-w-sm">No linguistic applications match your current filtration logic. All records are processed.</p>
           </div>
         ) : (
-          <div className="space-y-12">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-3 gap-8">
-              {applications.map((app) => (
-                <div key={app._id} className="group relative flex flex-col rounded-3xl bg-white border border-gray-100 shadow-sm transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:shadow-primary/10 overflow-hidden">
-                  <div className="p-8 space-y-6">
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex items-center gap-5">
-                        <div className="h-20 w-20 rounded-2xl bg-primary/5 flex items-center justify-center ring-4 ring-primary/5 border border-primary/10 overflow-hidden shrink-0 shadow-inner group-hover:ring-primary/20 transition-all">
-                           <span className="text-3xl font-black text-primary">{(app.userId?.name || app.fullName).charAt(0)}</span>
-                        </div>
-                        <div className="min-w-0">
-                          <h3 className="text-xl font-black text-gray-800 leading-tight group-hover:text-primary transition-colors truncate">
-                            {app.userId?.name || app.fullName}
-                          </h3>
-                          <div className="flex items-center gap-2 mt-1">
-                             <StatusBadge status={app.status} />
-                          </div>
-                          <p className="text-[10px] font-bold text-primary tracking-widest uppercase mt-2">
-                            {app.specialization || "Teacher Aspirant"}
-                          </p>
-                        </div>
-                      </div>
-                      
-                      {app.hourlyRate && (
-                        <div className="text-right flex flex-col items-end shrink-0">
-                           <span className="text-2xl font-black text-gray-800 leading-none">${app.hourlyRate}</span>
-                           <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1">per class</span>
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="flex flex-wrap gap-2">
-                       {app.teachingMode && (
-                        <span className="rounded-lg bg-sky-50 px-3 py-1.5 text-[10px] font-bold text-sky-700 border border-sky-100 flex items-center gap-1.5 uppercase tracking-widest">
-                           <Globe className="w-3 h-3" />
-                           {app.teachingMode}
-                        </span>
-                       )}
-                       {app.languages && app.languages.length > 0 && (
-                        <span className="rounded-lg bg-emerald-50 px-3 py-1.5 text-[10px] font-bold text-emerald-700 border border-emerald-100 flex items-center gap-1.5 uppercase tracking-widest">
-                           Speaks: {app.languages.join(", ")}
-                        </span>
-                       )}
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4 py-6 border-y border-gray-100 border-dashed">
-                       <div>
-                          <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Applied On</p>
-                          <p className="text-xs font-bold text-gray-700">{new Date(app.createdAt).toLocaleDateString("en-GB")}</p>
-                       </div>
-                       <div className="text-right">
-                          <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Applicant Email</p>
-                          <p className="text-xs font-bold text-primary truncate">{app.userId?.email || "N/A"}</p>
-                       </div>
-                    </div>
-
-                    <div className="space-y-3 pt-2">
-                      {(app.status === "pending" || app.status === "needs_revision") ? (
-                        <div className="flex flex-col gap-3">
-                          <Button
-                            onClick={() => handleApprove(app._id)}
-                            isLoading={actioning === app._id}
-                            className="w-full rounded-2xl bg-emerald-600 text-white hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-600/20 text-[10px] font-black uppercase tracking-[0.2em] py-4 flex items-center justify-center gap-2"
-                          >
-                            <CheckCircle2 size={14} /> Approve Applicant
-                          </Button>
-                          <div className="flex gap-3">
-                            {app.status === "pending" && (
-                              <Button
-                                onClick={() => setModal({ type: "revision", id: app._id })}
-                                disabled={actioning === app._id}
-                                variant="outline"
-                                className="flex-1 rounded-2xl text-orange-600 border-orange-200 hover:bg-orange-50 text-[10px] font-black uppercase tracking-widest py-4 flex items-center justify-center gap-2"
-                              >
-                                <MessageSquare size={14} /> Revise
-                              </Button>
-                            )}
-                            <Button
-                              onClick={() => setModal({ type: "reject", id: app._id })}
-                              disabled={actioning === app._id}
-                              variant="danger"
-                              className="flex-1 rounded-2xl text-[10px] font-black uppercase tracking-widest py-4 flex items-center justify-center gap-2"
-                            >
-                              <XCircle size={14} /> Reject
-                            </Button>
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="flex items-center justify-center p-5 bg-gray-50 rounded-2xl border border-dashed border-gray-200">
-                           <div className="flex items-center gap-2">
-                              {app.status === 'approved' ? <CheckCircle2 className="w-4 h-4 text-emerald-500" /> : <XCircle className="w-4 h-4 text-red-500" />}
-                              <p className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em]">Application {app.status}</p>
-                           </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-            <div className="pt-8 border-t border-gray-100">
+          <div className="space-y-12 animate-in slide-in-from-bottom-8 duration-700">
+            <DataTable title={`Linguistic Fleet Intelligence (${totalItems} entities)`} columns={columns} data={applications} />
+            <div className="pt-10 border-t border-gray-100">
               <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
             </div>
           </div>

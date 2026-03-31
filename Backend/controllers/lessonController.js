@@ -60,84 +60,122 @@ export async function submitAnswers(req, res, next) {
 
         const result = await lessonService.evaluateAnswersAndSaveProgress(req.user.sub, req.params.id, req.body.answers);
         
-        // Deduct 1 energy per question answered
-        const questionsAnswered = req.body.answers.length;
-        user.progress.energy = Math.max(0, user.progress.energy - questionsAnswered);
-        await user.save();
+        // Count incorrect answers to deduct energy, or 1 if failed
+        const mistakes = (result.results || []).filter(r => !r.correct).length;
+        if (mistakes > 0) {
+            user.progress.energy = Math.max(0, user.progress.energy - mistakes);
+            await user.save();
+        }
 
         res.json({
             message: 'Lesson submitted successfully.',
             score: result.score,
-            totalPossibleScore: result.totalPossibleScore,
+            total: result.totalPossibleScore,
             passed: result.passed,
             progress: result.progress,
+            nextLessonId: result.nextLessonId,
             user: user.toSafeObject() // Return updated user for frontend sync
         });
     } catch (e) { next(e); }
 }
 
-import OpenAI, { toFile } from 'openai';
+import speech from '@google-cloud/speech';
+import tts from '@google-cloud/text-to-speech';
+import { stringSimilarity } from 'string-similarity-js';
+import Question from '../models/Question.js';
 
-const openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY || 'dummy_key'
-});
+// Lazy client getters — avoids crashing the server at startup when
+// Google Cloud credentials are not configured.
+function getTTSClient() {
+    try { return new tts.TextToSpeechClient(); }
+    catch (e) { console.warn('[Google TTS] Client unavailable:', e.message); return null; }
+}
+
+function getSpeechClient() {
+    try { return new speech.SpeechClient(); }
+    catch (e) { console.warn('[Google STT] Client unavailable:', e.message); return null; }
+}
+
+export async function generateSpeech(req, res, next) {
+    try {
+        const { text } = req.body;
+        if (!text) return res.status(400).json({ message: "Text is required" });
+
+        const ttsClient = getTTSClient();
+        if (!ttsClient) {
+            return res.status(503).json({ message: "Speech synthesis is not configured on this server." });
+        }
+
+        const request = {
+            input: { text },
+            voice: { languageCode: 'ta-IN', ssmlGender: 'NEUTRAL' },
+            audioConfig: { audioEncoding: 'MP3' },
+        };
+
+        const [response] = await ttsClient.synthesizeSpeech(request);
+        const audioBase64 = response.audioContent.toString('base64');
+        res.json({ audioUrl: `data:audio/mp3;base64,${audioBase64}` });
+    } catch (e) {
+        console.error("[Google TTS Error]:", e.message);
+        next(e);
+    }
+}
 
 export async function evaluateSpeaking(req, res, next) {
     try {
         const { questionId, audioBase64 } = req.body;
-        
-        let score = 95;
-        let isSimulated = true;
+        const question = await Question.findById(questionId);
+        if (!question) return res.status(404).json({ message: "Question not found" });
+
+        const speechClient = getSpeechClient();
+        if (!speechClient) {
+            return res.status(503).json({ message: "Speech recognition is not configured on this server." });
+        }
+
+        const expectedText = question.expectedAudioText || question.text;
+        const cleanBase64 = audioBase64.replace(/^data:audio\/\w+;base64,/, '');
+
+        const audio = { content: cleanBase64 };
+        const config = {
+            encoding: 'WEBM_OPUS',
+            sampleRateHertz: 48000,
+            languageCode: 'ta-IN',
+        };
+        const request = { audio, config };
+
         let transcription = "";
-        let message = "AI pronunciation scoring is currently offline. Simulating validation successfully.";
-        let passed = true;
+        let score = 0;
+        let passed = false;
+        let feedback = "No speech detected. Please try again.";
 
-        if (process.env.OPENAI_API_KEY) {
-            try {
-                // Convert Base64 back to buffer
-                const cleanBase64 = audioBase64.replace(/^data:audio\/\w+;base64,/, '');
-                const audioBuffer = Buffer.from(cleanBase64, 'base64');
-                const file = await toFile(audioBuffer, 'audio.webm', { type: 'audio/webm' });
+        try {
+            const [response] = await speechClient.recognize(request);
+            transcription = response.results
+                .map(result => result.alternatives[0].transcript)
+                .join('\n');
 
-                const transcriptionResult = await openai.audio.transcriptions.create({
-                    file,
-                    model: 'whisper-1',
-                    language: 'ta', // Focus on Tamil audio
-                });
+            if (transcription) {
+                const normalizedExpected = expectedText.trim().toLowerCase();
+                const normalizedUser = transcription.trim().toLowerCase();
 
-                transcription = transcriptionResult.text || "";
-                
-                // For a more advanced setup, you could pass transcription back to GPT-4 
-                // to score semantic similarities against expected text.
-                // For now, if transcription is not almost empty, we assume they spoke.
-                if (transcription.trim().length > 2) {
-                    score = 90; // Fixed base score if successfully caught words
-                    passed = true;
-                } else {
-                    score = 10;
-                    passed = false;
-                }
-                
-                isSimulated = false;
-                message = "Pronunciation analyzed successfully.";
-                
-            } catch (err) {
-                console.error("[AI Speech-to-Text] Error:", err.message);
-                message = "AI service temporarily unavailable. Reverted to simulation mode.";
+                score = stringSimilarity(normalizedExpected, normalizedUser) * 100;
+                passed = score >= 70;
+
+                feedback = passed
+                    ? (score > 90 ? "Excellent pronunciation!" : "Good job! Almost perfect.")
+                    : "Not quite. Listen and try again.";
             }
-        } else {
-            // Simulated processing delay
-            await new Promise(resolve => setTimeout(resolve, 800));
-            transcription = "simulated speech snippet";
+        } catch (err) {
+            console.error("[Google STT Error]:", err.message);
+            return res.status(500).json({ message: "Speech recognition failed" });
         }
 
         res.json({
-            isScorable: false,
-            isSimulated,
-            passed,
-            score,
+            isCorrect: passed,
+            score: Math.round(score),
+            correctText: expectedText,
             transcription,
-            message
+            feedback
         });
     } catch (e) { next(e); }
 }

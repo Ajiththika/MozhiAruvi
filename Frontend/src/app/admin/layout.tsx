@@ -4,13 +4,14 @@ import { Topbar } from "@/components/layout/Topbar";
 import { RoleProtectedRoute } from "@/components/features/auth/RoleProtectedRoute";
 
 const adminLinks: SidebarItem[] = [
-  { name: "Dashboard", href: "/admin/dashboard", icon: "home" },
-  { name: "Users",     href: "/admin/users",     icon: "users" },
-  { name: "Tutors",    href: "/admin/teachers",  icon: "graduation-cap" },
-  { name: "Lessons",   href: "/admin/lessons",   icon: "book-open" },
-  { name: "Blogs",     href: "/admin/blogs",     icon: "message-square" },
-  { name: "Events",    href: "/admin/events",    icon: "calendar" },
-  { name: "Settings",  href: "/admin/profile",   icon: "settings" },
+  { name: "Dashboard",   href: "/admin/dashboard", icon: "home" },
+  { name: "Users",       href: "/admin/users",     icon: "users" },
+  { name: "Tutors",      href: "/admin/tutors",    icon: "graduation-cap" },
+  { name: "Lessons",     href: "/admin/lessons",   icon: "book-open" },
+  { name: "Categories",  href: "/admin/categories",icon: "library-big" },
+  { name: "Blogs",       href: "/admin/blogs",     icon: "message-square" },
+  { name: "Events",      href: "/admin/events",    icon: "calendar" },
+  { name: "Settings",    href: "/admin/profile",   icon: "settings" },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {

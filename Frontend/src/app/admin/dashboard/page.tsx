@@ -7,6 +7,7 @@ import Link from "next/link";
 import { getAllUsers, getAllTutors, getTeacherApplications, getAdminStats, AdminStats, BaseUser, TeacherApplication } from "@/services/adminService";
 import { getEvents, MozhiEvent } from "@/services/eventService";
 import { getMe, SafeUser } from "@/services/authService";
+import { getAllBlogsForAdmin, Blog } from "@/services/blogService";
 import Button from "@/components/ui/Button";
 
 function StatusBadge({ status }: { status: TeacherApplication["status"] }) {
@@ -28,19 +29,21 @@ export default function AdminDashboard() {
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [users, setUsers] = useState<BaseUser[]>([]);
   const [tutors, setTutors] = useState<BaseUser[]>([]);
+  const [blogs, setBlogs] = useState<Blog[]>([]);
   const [applications, setApplications] = useState<TeacherApplication[]>([]);
   const [events, setEvents] = useState<MozhiEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    Promise.all([getMe(), getAdminStats(), getAllUsers(), getAllTutors(), getTeacherApplications(), getEvents()])
-      .then(([me, st, us, ts, apps, evs]) => {
+    Promise.all([getMe(), getAdminStats(), getAllUsers(), getAllTutors(), getAllBlogsForAdmin(), getTeacherApplications(), getEvents()])
+      .then(([me, st, us, ts, bl, apps, evs]) => {
         setAdmin(me);
         setStats(st);
         setUsers(us.users);
         setTutors(ts.tutors);
-        setApplications(apps.applications);
+        setBlogs(bl.blogs.filter(b => b.status === 'pending'));
+        setApplications(apps.applications.filter(a => a.status === 'pending')); // Focus on pending
         setEvents(evs.events);
       })
       .catch(() => setError("Could not load dashboard data. Check backend connection."))
@@ -89,86 +92,146 @@ export default function AdminDashboard() {
           value={String(stats?.totalTutors ?? 0)}
           description="Teachers on the platform"
           icon={GraduationCap}
-          trend={tutors.length > 0 ? "up" : "neutral"}
+          trend="neutral"
           trendValue="Live"
         />
         <StatCard
-          title="Pending Reviews"
-          value={String(stats?.pendingApps ?? 0)}
-          description="Teacher applications to review"
+          title="Pending Stories"
+          value={String(blogs.length)}
+          description="Awaiting moderation"
           icon={BookOpen}
-          trend={(stats?.pendingApps ?? 0) > 0 ? "up" : "neutral"}
-          trendValue={(stats?.pendingApps ?? 0) > 0 ? "Action Required" : "Steady"}
-          className={(stats?.pendingApps ?? 0) > 0 ? "border-warning/10 bg-warning/5" : ""}
+          trend={blogs.length > 0 ? "up" : "neutral"}
+          className={blogs.length > 0 ? "border-amber-100 bg-amber-50/50" : ""}
         />
         <StatCard
           title="Active Events"
           value={String(stats?.totalEvents ?? 0)}
-          description="Across all categories"
+          description="Platform activities"
           icon={Calendar}
         />
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        {/* Pending Applications Table */}
-        <div className="lg:col-span-2 rounded-3xl border border-gray-100 bg-white shadow-sm overflow-hidden flex flex-col shadow-gray-200/5">
-          <div className="flex items-center justify-between border-b border-gray-50 px-8 py-6">
-            <h3 className="text-base font-bold text-gray-800 tracking-tight">
-              Teacher Applications
-            </h3>
-            <Button href="/admin/teachers" variant="ghost" size="sm" className="text-primary hover:text-secondary font-bold">
-              View All →
-            </Button>
+        {/* Pending Applications & Active Tutors */}
+        <div className="lg:col-span-2 space-y-8">
+          <div className="rounded-3xl border border-gray-100 bg-white shadow-sm overflow-hidden flex flex-col shadow-gray-200/5">
+            <div className="flex items-center justify-between border-b border-gray-50 px-8 py-6 bg-amber-50/5">
+              <div className="flex items-center gap-3">
+                <div className="h-2 w-2 rounded-full bg-amber-400 animate-pulse" />
+                <h3 className="text-base font-bold text-gray-800 tracking-tight">
+                   Pending Mentor Applications
+                </h3>
+              </div>
+              <Button href="/admin/teachers" variant="ghost" size="sm" className="text-primary hover:text-secondary font-bold">
+                Review All →
+              </Button>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead className="bg-gray-50/50 border-b border-gray-100">
+                   <tr>
+                      <th className="px-8 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Applicant Identity</th>
+                      <th className="px-8 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Specialization</th>
+                      <th className="px-8 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-right">Action</th>
+                   </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-50">
+                  {applications.length === 0 ? (
+                    <tr>
+                       <td colSpan={3} className="py-16 text-center">
+                          <p className="text-xs font-bold text-gray-300 uppercase tracking-widest">No pending applications found.</p>
+                       </td>
+                    </tr>
+                  ) : (
+                    applications.slice(0, 3).map((app) => (
+                      <tr key={app._id} className="hover:bg-gray-50/50 transition-colors group">
+                        <td className="px-8 py-4">
+                          <div className="flex items-center gap-4">
+                            <div className="h-10 w-10 rounded-xl bg-amber-50 flex items-center justify-center font-black text-amber-600 text-sm border border-amber-100 group-hover:scale-105 transition-transform">
+                               {(app.userId?.name || app.fullName).charAt(0)}
+                            </div>
+                            <div className="min-w-0">
+                               <p className="text-sm font-black text-gray-800 truncate">{app.userId?.name || app.fullName}</p>
+                               <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-amber-50/50 border border-amber-100 w-fit mt-1">
+                                  <span className="h-1 w-1 rounded-full bg-amber-400" />
+                                  <span className="text-[9px] font-bold text-amber-600 uppercase tracking-tight">Pending Review</span>
+                               </div>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-8 py-4">
+                           <span className="text-xs font-bold text-gray-600 truncate block max-w-[150px]">
+                              {app.specialization || "Teach Candidate"}
+                           </span>
+                        </td>
+                        <td className="px-8 py-4 text-right">
+                           <Button href="/admin/teachers" variant="ghost" size="sm" className="h-8 px-4 text-[10px] font-black uppercase tracking-widest text-primary border border-primary/10 rounded-lg">
+                              Review
+                           </Button>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
 
-          {applications.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-20 px-8 text-center">
-               <div className="h-16 w-16 bg-gray-50 rounded-full flex items-center justify-center mb-4 transition-all">
-                  <GraduationCap className="h-8 w-8 text-gray-200" />
-               </div>
-               <p className="text-sm font-bold text-gray-400 uppercase tracking-widest leading-relaxed">No pending applications at the moment.</p>
+          <div className="rounded-3xl border border-gray-100 bg-white shadow-sm overflow-hidden flex flex-col shadow-gray-200/5">
+            <div className="flex items-center justify-between border-b border-gray-50 px-8 py-6 bg-primary/5">
+              <div className="flex items-center gap-3">
+                <div className="h-2 w-2 rounded-full bg-primary animate-pulse" />
+                <h3 className="text-base font-bold text-gray-800 tracking-tight">
+                  Pending Story Approvals
+                </h3>
+              </div>
+              <Button href="/admin/blogs" variant="ghost" size="sm" className="text-primary hover:text-secondary font-bold">
+                Moderate All →
+              </Button>
             </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-slate-100/50">
-              {applications.slice(0, 4).map((app) => (
-                <div key={app._id} className="bg-white p-8 flex flex-col gap-6 hover:bg-gray-50/80 transition-all group border-b border-r border-slate-100 last:border-b-0">
-                  <div className="flex items-start justify-between gap-6">
-                    <div className="flex items-center gap-5">
-                      <div className="h-16 w-16 rounded-2xl bg-primary/5 flex items-center justify-center ring-4 ring-primary/5 shrink-0 overflow-hidden border border-primary/10 shadow-inner group-hover:ring-primary/20 transition-all">
-                         <span className="text-2xl font-black text-primary group-hover:scale-110 transition-transform">{(app.userId?.name || app.fullName).charAt(0)}</span>
-                      </div>
-                      <div className="min-w-0">
-                        <h4 className="text-base font-black text-gray-800 tracking-tight truncate leading-tight mb-1">{app.userId?.name || app.fullName}</h4>
-                        <div className="flex items-center gap-2 mb-2">
-                           <StatusBadge status={app.status} />
-                           <span className="text-[8px] font-black text-gray-300 uppercase tracking-widest">Applicant</span>
-                        </div>
-                        <p className="text-[10px] font-bold text-primary tracking-widest uppercase">{app.specialization || "Expert Teacher"}</p>
-                      </div>
-                    </div>
-                    {app.hourlyRate && (
-                      <div className="text-right flex flex-col items-end">
-                         <span className="text-lg font-black text-gray-800 leading-none">${app.hourlyRate}</span>
-                         <span className="text-[8px] font-black text-gray-400 uppercase tracking-widest mt-1">per class</span>
-                      </div>
-                    )}
-                  </div>
-                  
-                  <div className="flex items-center justify-between border-t border-slate-50 pt-5">
-                     <div className="flex items-center gap-2">
-                        <div className="h-6 w-6 rounded-lg bg-gray-50 flex items-center justify-center shrink-0">
-                           <Globe className="h-3 w-3 text-primary" />
-                        </div>
-                        <p className="text-[10px] font-bold text-gray-500 truncate max-w-[100px]">{app.userId?.email || "Email Hidden"}</p>
-                     </div>
-                     <Button href="/admin/teachers" variant="ghost" size="sm" className="h-9 px-6 text-[10px] font-black uppercase tracking-[0.2em] text-primary hover:bg-primary/10 hover:text-primary rounded-xl transition-all active:scale-95 shadow-sm border border-slate-100 hover:border-primary/20 bg-white">
-                        Review Profile
-                     </Button>
-                  </div>
-                </div>
-              ))}
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead className="bg-gray-50/50 border-b border-gray-100">
+                   <tr>
+                      <th className="px-8 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Story Details</th>
+                      <th className="px-8 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-right">Moderator Logic</th>
+                   </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-50">
+                  {blogs.length === 0 ? (
+                    <tr>
+                       <td colSpan={2} className="py-16 text-center">
+                          <p className="text-xs font-bold text-gray-300 uppercase tracking-widest">No stories awaiting approval.</p>
+                       </td>
+                    </tr>
+                  ) : (
+                    blogs.slice(0, 3).map((blog) => (
+                      <tr key={blog._id} className="hover:bg-gray-50/50 transition-colors group">
+                        <td className="px-8 py-4">
+                          <div className="flex items-center gap-4">
+                            <div className="h-10 w-10 rounded-xl bg-primary/5 flex items-center justify-center font-black text-primary text-sm border border-primary/10 group-hover:scale-105 transition-transform">
+                               {(blog.author?.name || "B").charAt(0)}
+                            </div>
+                            <div className="min-w-0">
+                               <p className="text-sm font-black text-gray-800 truncate">{blog.title}</p>
+                               <p className="text-[10px] font-bold text-gray-400 truncate tracking-tight">By {blog.author?.name || "Member"}</p>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-8 py-4 text-right whitespace-nowrap">
+                           <Button href="/admin/blogs" variant="ghost" size="sm" className="h-8 px-4 text-[10px] font-black uppercase tracking-widest text-primary border border-primary/10 rounded-lg">
+                              Moderate
+                           </Button>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
             </div>
-          )}
+          </div>
         </div>
 
         {/* Quick Admin Actions */}
@@ -177,10 +240,10 @@ export default function AdminDashboard() {
           <div className="flex flex-col gap-3">
             {[
               { label: "Manage Users", href: "/admin/users", count: stats?.totalUsers || 0 },
+              { label: "Verified Mentors", href: "/admin/tutors", count: stats?.totalTutors || 0 },
               { label: "Review Teachers", href: "/admin/teachers", count: stats?.pendingApps || 0 },
               { label: "Curriculum Builder", href: "/admin/lessons", count: null },
               { label: "Moderate Events", href: "/admin/events", count: stats?.totalEvents || 0 },
-              { label: "Create Event", href: "/admin/events", count: null },
               { label: "Write a Story", href: "/blogs/write", count: null },
             ].map((action) => (
               <Button

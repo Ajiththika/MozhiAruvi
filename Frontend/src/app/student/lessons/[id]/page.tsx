@@ -3,10 +3,9 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Play, HelpCircle, Loader2, AlertCircle, Zap, BookOpen } from "lucide-react";
-import { getLessonById, getLessonQuestions, submitAnswers, Lesson, Question, SubmitAnswerItem } from "@/services/lessonService";
+import { ArrowLeft, Play, HelpCircle, Loader2, AlertCircle, Zap, BookOpen, User, CheckCircle2, XCircle } from "lucide-react";
+import { getLessonById, getLessonQuestions, submitAnswers, generateSpeech, Lesson, Question, SubmitAnswerItem } from "@/services/lessonService";
 import { getMe, SafeUser } from "@/services/authService";
-import { consumeCredit } from "@/services/userService";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
@@ -34,15 +33,34 @@ export default function LessonInteractiveSession() {
   const [phase, setPhase] = useState<Phase>("loading");
   const [currentQ, setCurrentQ] = useState(0);
 
-  const [score, setScore] = useState<{ score: number; total: number; passed: boolean } | null>(null);
+  const [score, setScore] = useState<{ score: number; total: number; passed: boolean; nextLessonId?: string } | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [powers, setPowers] = useState(25);
 
   const [showAskPanel, setShowAskPanel] = useState(false);
+  const [playingAudioId, setPlayingAudioId] = useState<string | null>(null);
+
+  const handlePlayAudio = async (text: string, qId: string) => {
+    if (!text) return;
+    try {
+      setPlayingAudioId(qId);
+      const { audioUrl } = await generateSpeech(id as string, text);
+      const audio = new Audio(audioUrl);
+      audio.play();
+      audio.onended = () => setPlayingAudioId(null);
+    } catch (err) {
+      console.error("TTS playback failed:", err);
+      setPlayingAudioId(null);
+    }
+  };
 
   useEffect(() => {
-    Promise.all([getMe(), getLessonById(id as string), getLessonQuestions(id as string)])
-      .then(([userData, l, qsData]) => {
+    getMe()
+      .then((userData) => {
+        if (!userData) {
+           router.push("/auth/login");
+           return;
+        }
         setUser(userData);
         const energy = userData.progress?.energy ?? 25;
         setPowers(energy);
@@ -52,6 +70,11 @@ export default function LessonInteractiveSession() {
           return;
         }
 
+        return Promise.all([getLessonById(id as string), getLessonQuestions(id as string)]);
+      })
+      .then((res) => {
+        if (!res) return;
+        const [l, qsData] = res;
         setLesson(l);
         setQuestions(qsData.questions);
         if (qsData.user) setUser(qsData.user);
@@ -61,7 +84,7 @@ export default function LessonInteractiveSession() {
           console.error(err);
           setPhase("error");
       });
-  }, [id]);
+  }, [id, router]);
 
   const correctAnswersCount = Object.values(feedback).filter(f => f === "correct").length;
   const progress = questions.length > 0 ? Math.round((correctAnswersCount / questions.length) * 100) : 0;
@@ -85,9 +108,6 @@ export default function LessonInteractiveSession() {
 
     if (idx === correctIdx) {
       setFeedback((prev) => ({ ...prev, [qId]: "correct" }));
-      setTimeout(() => {
-        if (currentQ < questions.length - 1) setCurrentQ((c) => c + 1);
-      }, 1000);
     } else {
       setFeedback((prev) => ({ ...prev, [qId]: "incorrect" }));
     }
@@ -144,9 +164,6 @@ export default function LessonInteractiveSession() {
     if (passed) {
       setFeedback(prev => ({ ...prev, [qId]: "correct" }));
       setBackendMessage(prev => ({ ...prev, [qId]: message }));
-      setTimeout(() => {
-        if (currentQ < questions.length - 1) setCurrentQ(c => c + 1);
-      }, 3000);
     } else {
       setFeedback(prev => ({ ...prev, [qId]: "incorrect" }));
       setBackendMessage(prev => ({ ...prev, [qId]: message }));
@@ -161,9 +178,6 @@ export default function LessonInteractiveSession() {
           setFeedback(prev => ({ ...prev, [qId]: "correct" }));
           // We mark selecting an option just to have an entry for submit
           setSelected((prev) => ({ ...prev, [qId]: 0 })); 
-          setTimeout(() => {
-              if (currentQ < questions.length - 1) setCurrentQ(c => c + 1);
-          }, 1500);
       } else {
           setFeedback(prev => ({ ...prev, [qId]: "incorrect" }));
       }
@@ -213,6 +227,7 @@ export default function LessonInteractiveSession() {
               Your learning energy has reached critical levels. 1 Power regenerates every hour.
             </p>
             <div className="space-y-4">
+                <Button href="/subscription" variant="primary" size="lg" className="w-full">Level Up to Premium</Button>
                 <Button href="/student/dashboard" variant="ghost" size="md" className="w-full font-black uppercase tracking-widest text-[10px]">Return To Dashboard</Button>
             </div>
           </Card>
@@ -286,15 +301,21 @@ export default function LessonInteractiveSession() {
                  </div>
                  <div className="bg-gray-50 p-6 rounded-3xl border border-gray-200">
                     <p className="text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2">Status</p>
-                    <p className={cn("text-xl font-black uppercase tracking-widest", score?.passed ? "text-emerald-500" : "text-red-500")}>
-                        {score?.passed ? "Ascended" : "Try Again"}
+                    <p className={cn("text-xl font-black uppercase tracking-widest leading-none mt-2", score?.passed ? "text-emerald-500" : "text-red-500")}>
+                        {score?.passed ? "Passed" : "Try Again"}
                     </p>
                  </div>
               </div>
 
               <div className="flex flex-col sm:flex-row items-center gap-6 w-full pt-4">
-                <Button href="/student/lessons" size="xl" className="w-full rounded-2xl shadow-xl shadow-primary/20">Next Module</Button>
-                <Button href="/student/dashboard" variant="outline" size="xl" className="w-full rounded-2xl">Return Hub</Button>
+                <Button 
+                    href={score?.nextLessonId ? `/student/lessons/${score.nextLessonId}` : "/student/lessons"} 
+                    size="xl" 
+                    className="w-full rounded-2xl shadow-xl shadow-primary/20"
+                >
+                    {score?.nextLessonId ? "Next Lesson" : "Back to Course"}
+                </Button>
+                <Button href="/student/dashboard" variant="outline" size="xl" className="w-full rounded-2xl">Dashboard Hub</Button>
               </div>
            </div>
         </Card>
@@ -343,112 +364,214 @@ export default function LessonInteractiveSession() {
       <main className="flex-1 flex flex-col items-center justify-center p-6 md:p-12 lg:p-16 max-w-7xl mx-auto w-full">
         <div className="w-full flex-col flex items-center gap-12 h-full">
           
-          <div className="w-full flex flex-col items-center space-y-10 animate-in slide-in-from-bottom-6 duration-700">
+          <div className="w-full flex flex-col items-center space-y-12 animate-in slide-in-from-bottom-6 duration-700">
             
-            <div className="text-center space-y-6 max-w-3xl">
-               <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full border border-primary/20 bg-primary/5 text-primary text-[10px] font-black uppercase tracking-widest">
-                  Question {currentQ + 1} of {questions.length}
+            <div className="text-center space-y-10 max-w-4xl">
+               <div className="inline-flex items-center gap-3 px-4 py-1.5 rounded-full border border-primary/20 bg-primary/5 text-primary text-[10px] font-black uppercase tracking-[0.2em]">
+                  Mission Segment {currentQ + 1} • {questions.length - currentQ - 1} Remaining
                </div>
-               <h2 className="text-3xl md:text-4xl lg:text-5xl font-black text-gray-800 tracking-tight leading-tight">
-                 {q?.text || "Knowledge Assessment"}
-               </h2>
-               {q?.expectedAudioText && (
-                 <p className="text-xl font-medium text-gray-500 italic bg-gray-50 inline-block px-6 py-1 rounded-full border border-gray-200">
-                   / {q.expectedAudioText} /
-                 </p>
+               
+               {/* Read and Respond: Paragraph Area */}
+               {q?.type === 'reading' && q?.paragraph && (
+                  <div className="bg-white/50 p-10 rounded-[2.5rem] border-2 border-gray-100 shadow-2xl shadow-gray-200/20 text-left max-w-3xl mx-auto backdrop-blur-sm relative overflow-hidden group hover:border-primary/20 transition-all duration-500">
+                     <div className="absolute top-0 right-0 p-8 opacity-5">
+                         <BookOpen size={120} className="text-primary transform rotate-12" />
+                     </div>
+                     <div className="flex items-start gap-6 relative z-10">
+                        <div className="h-12 w-12 rounded-2xl bg-primary text-white flex items-center justify-center shrink-0 shadow-lg shadow-primary/30">
+                           <BookOpen className="h-6 w-6" />
+                        </div>
+                        <p className="text-2xl md:text-3xl font-bold leading-snug text-gray-700 tracking-tight">
+                           {q.paragraph}
+                        </p>
+                     </div>
+                  </div>
                )}
+
+                <div className="flex flex-col items-center gap-8">
+                  <div className="flex items-center justify-center gap-6">
+                    <h2 className="text-4xl md:text-5xl lg:text-6xl font-black text-gray-800 tracking-tight leading-tight max-w-4xl">
+                        {q?.type === 'fill' ? (
+                            q.text.split('_____').map((part: string, i: number, arr: string[]) => (
+                                <React.Fragment key={i}>
+                                    {part}
+                                    {i < arr.length - 1 && (
+                                        <span className={cn(
+                                            "inline-block mx-3 min-w-[140px] px-2 text-center border-b-8 border-gray-200 transition-all duration-500",
+                                            feedback[q._id] === 'correct' ? "border-emerald-500 text-emerald-600 scale-110" : 
+                                            feedback[q._id] === 'incorrect' ? "border-red-500 text-red-600 animate-shake" : "animate-pulse"
+                                        )}>
+                                            {feedback[q._id] ? (q.options?.[q.correctOptionIndex ?? 0] || q.correctAnswer) : "..."}
+                                        </span>
+                                    )}
+                                </React.Fragment>
+                            ))
+                        ) : q?.text}
+                    </h2>
+                    {/* Speaker/TTS Button - Only shown for speaking activities to avoid clutter */}
+                    {(q?.type === 'speaking') && (
+                      <button
+                          onClick={() => handlePlayAudio(q?.text || "", q?._id)}
+                          disabled={playingAudioId === q?._id}
+                          className={cn(
+                          "flex items-center justify-center h-16 w-16 rounded-[2rem] border-2 transition-all shadow-xl hover:scale-110 active:scale-95 shrink-0",
+                          playingAudioId === q?._id ? "bg-primary/20 border-primary animate-pulse" : "bg-white border-primary/20 text-primary hover:bg-primary/5"
+                          )}
+                          title="Listen to pronunciation"
+                      >
+                          {playingAudioId === q?._id ? <Loader2 className="h-8 w-8 animate-spin" /> : <Play className="h-8 w-8 fill-primary" />}
+                      </button>
+                    )}
+                  </div>
+                  
+                  {q?.type === 'reading' && (
+                      <p className="text-xs font-black uppercase tracking-widest text-primary/40 bg-primary/5 px-4 py-1.5 rounded-full">Comprehension Task</p>
+                  )}
+                </div>
             </div>
 
-            {/* Interaction State Visualizer */}
-            <div className="h-1 bg-gray-100 w-full max-w-2xl rounded-full overflow-hidden">
-               <div className={cn(
-                 "h-full bg-primary transition-all duration-700",
-                 feedback[q?._id] === "correct" ? "w-full bg-emerald-500" :
-                 feedback[q?._id] === "incorrect" ? "w-1/2 bg-red-500" : "w-1/4"
-               )} />
-            </div>
-
-            {/* Input System: Multiple Choice */}
-            {(!q?.type || q?.type === "quiz" || q?.type === "choice" || q?.type === "match" || q?.type === "identify") && (
-              <QuestionCard
-                question={q}
-                feedback={feedback[q?._id]}
-                selectedIndex={selected[q?._id]}
-                credits={powers}
-                onSelect={handleSelect}
-              />
-            )}
-
-            {/* Input System: Speaking */}
-            {q?.type === "speaking" && (
-                <AudioRecorder
-                  lessonId={id as string}
-                  questionId={q._id}
-                  expectedAudioText={q.expectedAudioText}
-                  isCorrect={feedback[q._id] === "correct"}
-                  takeCredit={takePower}
-                  onResult={(passed, message) => handleAudioResult(q._id, passed, message)}
-                  backendMessage={backendMessage[q._id]}
-                />
-            )}
-
-            {/* Input System: Writing Canvas */}
-            {q?.type === "writing" && (
-                <WritingCanvas 
-                   onResult={(passed) => handleWritingResult(q._id, passed)}
-                   expectedText={q.text.split(' ').pop()} // Very simple fallback for expected char visually
-                   isCorrect={feedback[q._id] === "correct"}
-                />
-            )}
-
-            {/* Control System */}
-            <div className="flex items-center gap-6 pt-16 w-full max-w-4xl border-t border-gray-200">
-               <button 
-                 onClick={handleManualPrev}
-                 disabled={currentQ === 0}
-                 className="flex h-14 w-14 items-center justify-center rounded-2xl border border-gray-200 bg-white text-gray-500 hover:text-primary disabled:opacity-20 transition-all font-black shadow-sm"
-               >
-                  <ArrowLeft className="h-5 w-5" />
-               </button>
-
-               <div className="flex-1 flex justify-center items-center gap-4">
-                  {questions.map((_, idx) => (
-                    <div 
-                      key={idx} 
-                      onClick={() => setCurrentQ(idx)}
-                      className={cn(
-                        "h-2 w-2 rounded-full cursor-pointer transition-all duration-500",
-                        currentQ === idx ? "w-10 bg-primary ring-4 ring-primary/10" : 
-                        feedback[questions[idx]?._id] === "correct" ? "bg-emerald-400" :
-                        "bg-gray-300 hover:bg-primary/30"
-                      )} 
+            {/* Input Systems */}
+            <div className="w-full flex justify-center py-6">
+                {(!q?.type || q?.type === "quiz" || q?.type === "choice" || q?.type === "match" || q?.type === "identify" || q?.type === "reading" || q?.type === "fill") && (
+                    <QuestionCard
+                        question={q}
+                        feedback={feedback[q?._id]}
+                        selectedIndex={selected[q?._id]}
+                        credits={powers}
+                        onSelect={handleSelect}
                     />
-                  ))}
-               </div>
+                )}
 
-               {currentQ === questions.length - 1 ? (
-                 <Button
-                   onClick={handleSubmit}
-                   isLoading={submitting}
-                   size="lg"
-                   className={cn(
-                     "px-10 rounded-2xl shadow-xl shadow-primary/20",
-                     submitting ? "bg-primary/50" : "bg-primary"
-                   )}
-                 >
-                   Finalize Session
-                 </Button>
-               ) : (
-                 <button 
-                   onClick={handleManualNext}
-                   className="flex h-14 w-14 items-center justify-center rounded-2xl border border-gray-200 bg-white text-gray-500 hover:text-primary transition-all font-black shadow-sm"
-                 >
-                    <Play className="h-5 w-5 rotate-0" />
-                 </button>
-               )}
+                {q?.type === "speaking" && (
+                    <AudioRecorder
+                        lessonId={id as string}
+                        questionId={q._id}
+                        expectedAudioText={q.expectedAudioText}
+                        isCorrect={feedback[q._id] === "correct"}
+                        takeCredit={takePower}
+                        onResult={(passed, message) => handleAudioResult(q._id, passed, message)}
+                        backendMessage={backendMessage[q._id]}
+                    />
+                )}
+
+                {q?.type === "writing" && (
+                    <WritingCanvas 
+                        onResult={(passed) => handleWritingResult(q._id, passed)}
+                        expectedText={q.text.split(' ').pop()} 
+                        isCorrect={feedback[q._id] === "correct"}
+                    />
+                )}
             </div>
+
+            {/* Control System (Legacy fallback if needed, but we use footer) */}
+            {!feedback[q?._id] && (
+               <div className="flex items-center gap-6 pt-16 w-full max-w-4xl border-t border-gray-200">
+                 <button 
+                   onClick={handleManualPrev}
+                   disabled={currentQ === 0}
+                   className="flex h-14 w-14 items-center justify-center rounded-2xl border border-gray-200 bg-white text-gray-500 hover:text-primary disabled:opacity-20 transition-all font-black shadow-sm"
+                 >
+                    <ArrowLeft className="h-5 w-5" />
+                 </button>
+
+                 <div className="flex-1 flex justify-center items-center gap-4">
+                    {questions.map((_, idx) => (
+                      <div 
+                        key={idx} 
+                        onClick={() => setCurrentQ(idx)}
+                        className={cn(
+                          "h-2 w-2 rounded-full cursor-pointer transition-all duration-500",
+                          currentQ === idx ? "w-10 bg-primary ring-4 ring-primary/10" : 
+                          feedback[questions[idx]?._id] === "correct" ? "bg-emerald-400" :
+                          "bg-gray-300 hover:bg-primary/30"
+                        )} 
+                      />
+                    ))}
+                 </div>
+
+                 {currentQ === questions.length - 1 && Object.keys(feedback).length >= questions.length ? (
+                   <Button
+                     onClick={handleSubmit}
+                     isLoading={submitting}
+                     size="lg"
+                     className={cn(
+                       "px-10 rounded-2xl shadow-xl shadow-primary/20 bg-primary"
+                     )}
+                   >
+                     Finalize Session
+                   </Button>
+                 ) : (
+                   <button 
+                     onClick={handleManualNext}
+                     className="flex h-14 w-14 items-center justify-center rounded-2xl border border-gray-200 bg-white text-gray-500 hover:text-primary transition-all font-black shadow-sm"
+                   >
+                      <Play className="h-5 w-5 rotate-0" />
+                   </button>
+                 )}
+               </div>
+            )}
           </div>
         </div>
+
+        {/* Feedback Footer */}
+        {feedback[q?._id] && (
+          <div className={cn(
+            "fixed bottom-0 left-0 right-0 py-10 px-6 border-t animate-in slide-in-from-bottom-full duration-500 z-50",
+            feedback[q?._id] === "correct" ? "bg-emerald-50 border-emerald-200" : "bg-red-50 border-red-200"
+          )}>
+            <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-8">
+              <div className="flex items-center gap-8">
+                <div className={cn(
+                  "h-20 w-20 rounded-3xl flex items-center justify-center shadow-lg transform rotate-3",
+                  feedback[q?._id] === "correct" ? "bg-emerald-500 text-white" : "bg-red-500 text-white"
+                )}>
+                  {feedback[q?._id] === "correct" ? <CheckCircle2 className="h-10 w-10" /> : <XCircle className="h-10 w-10 animate-shake" />}
+                </div>
+                <div className="space-y-1">
+                  <h3 className={cn(
+                    "text-3xl font-black tracking-tight",
+                    feedback[q?._id] === "correct" ? "text-emerald-700" : "text-red-700"
+                  )}>
+                    {feedback[q?._id] === "correct" ? "Excellent Work!" : "Correct Answer:"}
+                  </h3>
+                  <p className={cn(
+                    "text-xl font-bold italic",
+                    feedback[q?._id] === "correct" ? "text-emerald-600/80" : "text-red-600"
+                  )}>
+                    {feedback[q?._id] === "correct" ? backendMessage[q?._id] || "You're getting better!" : q?.correctAnswer || q?.expectedAudioText || "Don't give up!"}
+                  </p>
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-4 w-full sm:w-auto">
+                 {currentQ === questions.length - 1 ? (
+                    <Button 
+                      onClick={handleSubmit}
+                      isLoading={submitting}
+                      size="xl" 
+                      className={cn(
+                        "w-full sm:w-auto px-16 rounded-2xl shadow-xl transition-all hover:scale-105 active:scale-95 text-lg font-black uppercase tracking-widest",
+                        feedback[q?._id] === "correct" ? "bg-emerald-500 hover:bg-emerald-600" : "bg-red-500 hover:bg-red-600"
+                      )}
+                    >
+                      Finish Lesson
+                    </Button>
+                 ) : (
+                    <Button 
+                      onClick={handleManualNext}
+                      size="xl" 
+                      className={cn(
+                        "w-full sm:w-auto px-16 rounded-2xl shadow-xl transition-all hover:scale-105 active:scale-95 text-lg font-black uppercase tracking-widest",
+                        feedback[q?._id] === "correct" ? "bg-emerald-500 hover:bg-emerald-600" : "bg-red-500 hover:bg-red-600"
+                      )}
+                    >
+                      Continue
+                    </Button>
+                 )}
+              </div>
+            </div>
+          </div>
+        )}
       </main>
 
       {/* Legacy Footer Support Information */}

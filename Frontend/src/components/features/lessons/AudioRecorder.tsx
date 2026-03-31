@@ -63,8 +63,15 @@ export function AudioRecorder({
 
     setIsProcessingAudio(true);
     try {
-      const res = await evaluateSpeaking(lessonId, questionId, audioBlob as any);
-      onResult(res.passed, res.message);
+      const base64data = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(audioBlob);
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.onerror = reject;
+      });
+      
+      const res = await evaluateSpeaking(lessonId, questionId, base64data);
+      onResult(res.isCorrect, res.feedback);
     } catch (e) {
       console.error(e);
       onResult(false, "Recognition failed. Try again.");

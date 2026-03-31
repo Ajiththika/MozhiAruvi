@@ -68,21 +68,27 @@ export async function getStudentDashboardData(req, res, next) {
             blogService.getUserBlogs(userId),
             tutorService.getStudentRequests(userId)
         ]);
-        const lessonsList = Array.isArray(lessonsData) ? lessonsData : (lessonsData.lessons || []);
-        
-        // Backend-driven metric computation
+
+        const allLessons = Array.isArray(lessonsData) ? lessonsData : (lessonsData.lessons || []);
+
+        // Filter lessons by exact user level so dashboard stats are level-scoped
+        const userLevel = user.level || 'Basic';
+        const lessonsList = allLessons.filter(l => (l.level || 'Basic') === userLevel);
+
+        // Backend-driven metric computation (level-filtered)
         const totalLessons = lessonsList.length;
         const completedCount = progress.filter(p => p.isCompleted).length;
         const progressPercentage = totalLessons > 0 ? Math.round((completedCount / totalLessons) * 100) : 0;
-        
+
+        // Next lesson: first uncompleted lesson that matches the user's level
         const nextLesson = lessonsList.find(l => {
             const p = progress.find(pr => String(pr.lessonId) === String(l._id));
             return !p || !p.isCompleted;
-        }) || (totalLessons > 0 ? lessonsList[0] : null);
+        }) || (lessonsList.length > 0 ? lessonsList[0] : null);
 
         res.json({
             user: user.toSafeObject(),
-            lessons: lessonsList,
+            lessons: lessonsList,  // only send level-matched lessons
             progress,
             joinRequests,
             blogs,

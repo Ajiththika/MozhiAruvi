@@ -13,6 +13,7 @@ import tutorRoutes from './routes/tutorRoutes.js';
 import teacherApplicationRoutes from './routes/teacherApplicationRoutes.js';
 import blogRoutes from './routes/blogRoutes.js';
 import uploadRoutes from './routes/uploadRoutes.js';
+import categoryRoutes from './routes/categoryRoutes.js';
 import { testSmtpConnection } from './services/mailService.js';
 import { errorHandler } from './middleware/error.js';
 
@@ -62,6 +63,7 @@ app.use('/api/tutors', tutorRoutes);
 app.use('/api/teachers', teacherApplicationRoutes);
 app.use('/api/blogs', blogRoutes);
 app.use('/api/upload', uploadRoutes);
+app.use('/api/categories', categoryRoutes);
 
 app.get('/health', (_req, res) => res.json({ status: 'ok' }));
 

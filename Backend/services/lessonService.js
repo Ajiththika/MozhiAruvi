@@ -27,9 +27,15 @@ export async function getUserProgressList(userId) {
 
 // ── Questions (Public/User) ───────────────────────────────────────────────────
 export async function getQuestionsForLesson(lessonId) {
-    // For Duolingo style immediate feedback, we return answers. Secure mode can be added later.
     try {
-        return await Question.find({ lessonId }).select('_id type text options scoreValue correctOptionIndex correctAnswer expectedAudioText');
+        const allQuestions = await Question.find({ lessonId }).select('_id type text options scoreValue correctOptionIndex correctAnswer expectedAudioText');
+        
+        // Return up to 10 random questions per session as requested
+        if (allQuestions.length <= 10) return allQuestions;
+        
+        return allQuestions
+            .sort(() => 0.5 - Math.random())
+            .slice(0, 10);
     } catch (e) {
         if (e.name === 'MongooseError' || e.message.includes('timeout') || e.message.includes('buffering')) return [];
         throw e;
@@ -38,13 +44,19 @@ export async function getQuestionsForLesson(lessonId) {
 
 // ── Submission and Progress (Phase 4 & 5) ─────────────────────────────────────
 export async function evaluateAnswersAndSaveProgress(userId, lessonId, answers) {
+    if (!answers || !answers.length) {
+        const err = new Error('No answers provided'); err.status = 400; throw err;
+    }
+
     // 1. Validate lesson
     const lesson = await getLessonById(lessonId);
 
-    // 2. Fetch all correct questions mapping
-    const questions = await Question.find({ lessonId });
+    // 2. Fetch only the questions that were answered
+    const questionIds = answers.map(a => a.questionId);
+    const questions = await Question.find({ _id: { $in: questionIds } });
+    
     if (!questions.length) {
-        const err = new Error('No questions found for this lesson.'); err.status = 400; err.code = 'NO_QUESTIONS'; throw err;
+        const err = new Error('Questions not found.'); err.status = 400; throw err;
     }
 
     // 3. Evaluate score
@@ -54,29 +66,32 @@ export async function evaluateAnswersAndSaveProgress(userId, lessonId, answers) 
     const questionMap = new Map();
     questions.forEach(q => {
         questionMap.set(q._id.toString(), q);
-        totalPossibleScore += q.scoreValue;
+        totalPossibleScore += q.scoreValue || 10;
     });
 
     for (const ans of answers) {
         const q = questionMap.get(ans.questionId.toString());
         if (q) {
-            if (q.type === 'speaking' && ans.isSpeakingCompleted) {
-                 score += q.scoreValue;
-            } else if (q.correctOptionIndex === ans.selectedOptionIndex) {
-                 score += q.scoreValue;
+            const isChoiceType = ['quiz', 'identify', 'choice', 'match', 'fill', 'reading'].includes(q.type);
+            const isCorrectChoice = isChoiceType && ans.selectedOptionIndex === q.correctOptionIndex;
+            const isCorrectSpeaking = q.type === 'speaking' && ans.isSpeakingCompleted;
+            const isCorrectWriting = q.type === 'writing' && ans.selectedOptionIndex === 0;
+
+            if (isCorrectChoice || isCorrectSpeaking || isCorrectWriting) {
+                score += q.scoreValue || 10;
             }
         }
     }
 
-    const passThreshold = totalPossibleScore * 0.7; // Example: 70% to pass
-    const passed = score >= passThreshold;
-    const powerCost = questions.length;
+    const passPercentage = (score / totalPossibleScore) * 100;
+    const passed = passPercentage >= 70; // 70% to pass
     const isPerfect = score === totalPossibleScore;
-    const pointsAwarded = isPerfect ? 50 : (passed ? 30 : 0);
+    
+    // Calculate points: 50 for perfect, proportional for pass, minimum 10 for taking it
+    const pointsAwarded = isPerfect ? 50 : (passed ? 30 : 5);
 
     let progress = await Progress.findOne({ userId, lessonId });
 
-    // If they haven't completed it, or they're retaking to improve score, we update.
     if (!progress) {
         progress = await Progress.create({
             userId,
@@ -86,36 +101,48 @@ export async function evaluateAnswersAndSaveProgress(userId, lessonId, answers) 
             completedAt: passed ? new Date() : undefined
         });
 
-        // Award points for passing, deduct power, save to User model array
         if (passed) {
             await User.findByIdAndUpdate(userId, { 
-                $inc: { points: pointsAwarded, xp: pointsAwarded, power: -powerCost },
+                $inc: { points: pointsAwarded, xp: pointsAwarded },
                 $addToSet: { 'progress.completedLessons': lessonId }
             }); 
-        } else {
-            // Deduct power even if failed
-            await User.findByIdAndUpdate(userId, { $inc: { power: -powerCost } });
         }
     } else {
-        // Update if the score was higher but avoid re-triggering first time events blindly
+        // High score improvement
         if (score > progress.score) {
             progress.score = score;
         }
+        
         if (!progress.isCompleted && passed) {
             progress.isCompleted = true;
             progress.completedAt = new Date();
             await User.findByIdAndUpdate(userId, { 
-                $inc: { points: pointsAwarded, xp: pointsAwarded, power: -powerCost },
+                $inc: { points: pointsAwarded, xp: pointsAwarded },
                 $addToSet: { 'progress.completedLessons': lessonId }
             });
         } else {
-            const retakePoints = passed ? 10 : 0; // Much smaller points for retake
-            await User.findByIdAndUpdate(userId, { $inc: { points: retakePoints, power: -powerCost } });
+            // Smaller points for retaking (engagement reward)
+            const retakePoints = passed ? 10 : 5; 
+            await User.findByIdAndUpdate(userId, { $inc: { points: retakePoints, xp: 5 } });
         }
         await progress.save();
     }
 
-    return { score, totalPossibleScore, passed, progress };
+    // Find next lesson to suggest
+    const nextLesson = await Lesson.findOne({
+        $or: [
+            { moduleNumber: lesson.moduleNumber, orderIndex: { $gt: lesson.orderIndex } },
+            { moduleNumber: { $gt: lesson.moduleNumber } }
+        ]
+    }).sort({ moduleNumber: 1, orderIndex: 1 });
+
+    return { 
+        score, 
+        totalPossibleScore, 
+        passed, 
+        progress, 
+        nextLessonId: nextLesson ? nextLesson._id : null 
+    };
 }
 
 // ── Admin specific ────────────────────────────────────────────────────────────

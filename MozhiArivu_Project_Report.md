@@ -73,8 +73,20 @@ The codebase employs strong error boundaries and try-catch blocks. Below is the 
 * **Global Router (`middleware/error.js`):**
   * Catch-all middleware `"[ERROR HANDLER]"` that stops server crashes and cleanly passes JSON formatted errors back to the frontend.
 
-## 6. Project Quality Summary
-The project operates as a standard high-quality SaaS pattern. 
-- You have avoided redundant code (Spaghetti Code) by creating centralized utility components (e.g., `api.ts` for fetch, `tokenService.js` for secrets handling).
-- Next.js and React 19 ensure rendering efficiency on the frontend, whilst Node/Express ensures non-blocking API processing. 
-- The implementation of Cloudinary simplifies local storage burdens, and OpenAI integrations push it to an advanced gamification platform standard.
+## 7. UI/UX Design Philosophy & Roadmap
+
+The **Mozhi Aruvi** platform has been refined to meet high-fidelity SaaS standards, focusing on a robust light-themed aesthetic and gamification.
+
+### **Core Design Principles**
+* **Interactivity First:** Every lesson interaction utilizes immediate feedback loops (Red/Green validation) paired with micro-animations.
+* **Gamified Retention:** Implementation of a 25-point Power/Energy system creates a sustainable study cycle.
+* **Premium Data Visualization:** Admin management has been overhauled from static tables to interactive, shadowed cards with high-impact typography.
+* **Accessibility:** Large, readable fonts and generous white space ensure the platform remains "breathable" and easy to navigate for all age groups.
+
+### **Strategic UX Roadmap**
+* **Phase 1 (Tactile):** Sound integration and micro-celebrations for streaks.
+* **Phase 2 (Discovery):** Redesign of the student dashboard into a progressive "Skill Tree."
+* **Phase 3 (Efficiency):** Drag-and-drop admin builder and personalized mistake-review lessons.
+
+---
+*Report Generated: 2026-03-30*
