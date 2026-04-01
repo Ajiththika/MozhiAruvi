@@ -5,6 +5,7 @@ import { authenticate, authenticateOptional } from '../middleware/auth.js';
 import { authorizeRoles } from '../middleware/authorizeRoles.js';
 import { ROLES } from '../utils/roles.js';
 import { validate } from '../middleware/validate.js';
+import { checkEventAccess } from '../middleware/accessControl.js';
 
 import upload from '../middleware/upload.js';
 
@@ -96,7 +97,8 @@ router.get('/:id', authenticateOptional, eventController.getEvent);
 // POST /api/events/:id/join-request — submit a join request
 router.post(
     '/:id/join-request',
-    authenticateOptional,
+    authenticate,
+    checkEventAccess,
     validate(joinRequestSchema),
     eventController.submitJoinRequest
 );

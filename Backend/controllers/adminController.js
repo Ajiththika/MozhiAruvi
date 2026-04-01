@@ -1,4 +1,20 @@
 import * as adminService from '../services/adminService.js';
+import PlanSettings from '../models/PlanSettings.js';
+
+export async function getPlanSettings(req, res, next) {
+    try {
+        const settings = await PlanSettings.find();
+        res.json(settings);
+    } catch (e) { next(e); }
+}
+
+export async function updatePlanSettings(req, res, next) {
+    try {
+        const { planId } = req.params;
+        const updated = await PlanSettings.findOneAndUpdate({ plan: planId }, req.body, { new: true, upsert: true });
+        res.json(updated);
+    } catch (e) { next(e); }
+}
 
 export async function getUsers(req, res, next) {
     try {
@@ -58,5 +74,13 @@ export async function getStats(req, res, next) {
     try {
         const stats = await adminService.getDashboardStats();
         res.json(stats);
+    } catch (e) { next(e); }
+}
+
+export async function getPremiumUsers(req, res, next) {
+    try {
+        const { page = 1, limit = 10 } = req.query;
+        const result = await adminService.getPremiumUsers(parseInt(page), parseInt(limit));
+        res.json(result);
     } catch (e) { next(e); }
 }

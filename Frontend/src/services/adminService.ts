@@ -69,8 +69,53 @@ export interface AdminStats {
   totalEvents: number;
 }
 
+export interface PlanSettings {
+  _id: string;
+  plan: 'FREE' | 'PRO' | 'PREMIUM' | 'BUSINESS_30' | 'BUSINESS_60';
+  monthlyPrice: number;
+  yearlyPrice: number;
+  levelLimit: string[];
+  categoryLimit?: number | null;
+  tutorSupportLimit?: number;
+  eventLimit?: number;
+  isEnabled: boolean;
+  stripeMonthlyPriceId?: string;
+  stripeYearlyPriceId?: string;
+}
+
+export interface PremiumUser {
+  _id: string;
+  name: string;
+  email: string;
+  role: string;
+  isActive: boolean;
+  country?: string;
+  subscription: {
+    plan: 'FREE' | 'PRO' | 'PREMIUM' | 'BUSINESS';
+    billingCycle: 'monthly' | 'yearly' | 'none';
+    currentPeriodEnd?: string;
+    stripeCustomerId?: string;
+  };
+  createdAt: string;
+}
+
+export async function getPlanSettings(): Promise<PlanSettings[]> {
+  const res = await api.get<PlanSettings[]>("/admin/plan-settings");
+  return res.data;
+}
+
+export async function updatePlanSettings(planId: string, data: Partial<PlanSettings>): Promise<PlanSettings> {
+  const res = await api.patch<PlanSettings>(`/admin/plan-settings/${planId}`, data);
+  return res.data;
+}
+
 export async function getAdminStats(): Promise<AdminStats> {
   const res = await api.get<AdminStats>("/admin/stats");
+  return res.data;
+}
+
+export async function getPremiumUsers(page = 1, limit = 10): Promise<PaginatedResponse<PremiumUser> & { users: PremiumUser[] }> {
+  const res = await api.get<PaginatedResponse<PremiumUser> & { users: PremiumUser[] }>(`/admin/premium-users?page=${page}&limit=${limit}`);
   return res.data;
 }
 

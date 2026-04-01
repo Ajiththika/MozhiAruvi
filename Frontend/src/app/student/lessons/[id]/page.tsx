@@ -3,16 +3,17 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Play, HelpCircle, Loader2, AlertCircle, Zap, BookOpen, User, CheckCircle2, XCircle } from "lucide-react";
+import { ArrowLeft, Play, HelpCircle, Loader2, AlertCircle, Zap, BookOpen, User, CheckCircle2, XCircle, Volume2, Trophy } from "lucide-react";
 import { getLessonById, getLessonQuestions, submitAnswers, generateSpeech, Lesson, Question, SubmitAnswerItem } from "@/services/lessonService";
 import { getMe, SafeUser } from "@/services/authService";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
+import { MatchingPairs } from "@/components/features/lessons/MatchingPairs";
 import { Card } from "@/components/ui/Card";
-import { Trophy } from "lucide-react";
 import { QuestionCard } from "@/components/features/lessons/QuestionCard";
 import { AudioRecorder } from "@/components/features/lessons/AudioRecorder";
 import { AskTutorModal } from "@/components/features/lessons/AskTutorModal";
+import { EnergyStatus } from "@/components/features/lessons/EnergyStatus";
 import { LessonProgress } from "@/components/features/lessons/LessonProgress";
 import { WritingCanvas } from "@/components/features/lessons/WritingCanvas";
 
@@ -35,10 +36,12 @@ export default function LessonInteractiveSession() {
 
   const [score, setScore] = useState<{ score: number; total: number; passed: boolean; nextLessonId?: string } | null>(null);
   const [submitting, setSubmitting] = useState(false);
-  const [powers, setPowers] = useState(25);
+  const [typingValue, setTypingValue] = useState("");
 
   const [showAskPanel, setShowAskPanel] = useState(false);
   const [playingAudioId, setPlayingAudioId] = useState<string | null>(null);
+
+  const [energy, setEnergy] = useState<{currentEnergy: number; maxEnergy: number; nextRecoveryIn: number; isPremium: boolean} | null>(null);
 
   const handlePlayAudio = async (text: string, qId: string) => {
     if (!text) return;
@@ -62,14 +65,6 @@ export default function LessonInteractiveSession() {
            return;
         }
         setUser(userData);
-        const energy = userData.progress?.energy ?? 25;
-        setPowers(energy);
-
-        if (energy <= 0 && !userData.isPremium) {
-          setPhase("out_of_power");
-          return;
-        }
-
         return Promise.all([getLessonById(id as string), getLessonQuestions(id as string)]);
       })
       .then((res) => {
@@ -78,10 +73,19 @@ export default function LessonInteractiveSession() {
         setLesson(l);
         setQuestions(qsData.questions);
         if (qsData.user) setUser(qsData.user);
-        setPhase("preview");
+        if (qsData.energy) setEnergy(qsData.energy);
+        setPhase("ready");
       })
       .catch((err) => {
-          console.error(err);
+          if (err.response?.status === 403 && err.response?.data?.error === 'NO_ENERGY') {
+            setPhase("out_of_power");
+            return;
+          }
+          if (err.response?.data?.redirect) {
+            router.push(err.response.data.redirect);
+            return;
+          }
+          console.error("Lesson initialization error:", err);
           setPhase("error");
       });
   }, [id, router]);
@@ -90,8 +94,7 @@ export default function LessonInteractiveSession() {
   const progress = questions.length > 0 ? Math.round((correctAnswersCount / questions.length) * 100) : 0;
 
   const takePower = async (): Promise<boolean> => {
-    // Rely on backend for actual deduction
-    if (powers <= 0 && !user?.isPremium) {
+    if (energy && energy.currentEnergy <= 0 && !energy.isPremium) {
         setPhase("out_of_power");
         return false;
     }
@@ -100,12 +103,9 @@ export default function LessonInteractiveSession() {
 
   const handleSelect = async (qId: string, idx: number, correctIdx?: number) => {
     if (feedback[qId] === "correct") return;
-    
     const hasPower = await takePower();
     if (!hasPower) return;
-
     setSelected((prev) => ({ ...prev, [qId]: idx }));
-
     if (idx === correctIdx) {
       setFeedback((prev) => ({ ...prev, [qId]: "correct" }));
     } else {
@@ -114,11 +114,10 @@ export default function LessonInteractiveSession() {
   };
 
   const handleManualNext = () => {
-    if (currentQ < questions.length - 1) setCurrentQ((c) => c + 1);
-  };
-
-  const handleManualPrev = () => {
-    if (currentQ > 0) setCurrentQ((c) => c - 1);
+    if (currentQ < questions.length - 1) {
+        setTypingValue("");
+        setCurrentQ((c) => c + 1);
+    }
   };
 
   const handleSubmit = async () => {
@@ -128,29 +127,14 @@ export default function LessonInteractiveSession() {
         questionId: qId,
         selectedOptionIndex: idx,
       }));
-      Object.entries(feedback).forEach(([qId, status]) => {
-        const q = questions.find(qu => qu._id === qId);
-        if (q && q.type === "speaking" && status === "correct") {
-          answers.push({ questionId: qId, selectedOptionIndex: -1, isSpeakingCompleted: true });
-        }
-      });
       const res = await submitAnswers(id as string, answers);
-      
-      if (res.user) {
-        setUser(res.user);
-        setPowers(res.user.progress?.energy ?? 0);
-      }
-      
-      if (res.redirect === "/subscription") {
-        router.push("/subscription");
-        return;
-      }
-
+      if (res.user) setUser(res.user);
+      if (res.energy) setEnergy(res.energy);
       setScore(res);
       setPhase("completed");
     } catch (e: any) {
-      if (e.response?.data?.redirect) {
-        router.push(e.response.data.redirect);
+      if (e.response?.status === 403 && e.response?.data?.error === 'NO_ENERGY') {
+        setPhase("out_of_power");
         return;
       }
       console.error(e);
@@ -171,12 +155,8 @@ export default function LessonInteractiveSession() {
   };
 
   const handleWritingResult = (qId: string, passed: boolean) => {
-      const hasPower = takePower();
-      if (!hasPower) return;
-
       if (passed) {
           setFeedback(prev => ({ ...prev, [qId]: "correct" }));
-          // We mark selecting an option just to have an entry for submit
           setSelected((prev) => ({ ...prev, [qId]: 0 })); 
       } else {
           setFeedback(prev => ({ ...prev, [qId]: "incorrect" }));
@@ -186,138 +166,62 @@ export default function LessonInteractiveSession() {
   if (phase === "loading") {
     return (
       <div className="flex h-screen items-center justify-center bg-background">
-        <div className="flex flex-col items-center gap-6 animate-in fade-in zoom-in duration-700">
-           <div className="relative h-20 w-20">
-              <Loader2 className="h-20 w-20 animate-spin text-primary/30" strokeWidth={1.5} />
-              <div className="absolute inset-0 flex items-center justify-center">
-                 <Zap className="h-8 w-8 text-primary animate-pulse" />
-              </div>
-           </div>
-           <p className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-500 animate-pulse">Initializing Neural Link...</p>
-        </div>
+        <Loader2 className="h-20 w-20 animate-spin text-primary/30" />
       </div>
     );
   }
 
   if (phase === "error") {
-    return (
-      <div className="flex h-screen items-center justify-center bg-background p-6">
-        <Card variant="outline" className="max-w-md text-center border-red-500/20 bg-red-500/5">
-          <AlertCircle className="h-16 w-16 text-red-500 mx-auto mb-6" />
-          <h2 className="text-2xl font-black text-gray-800 mb-2">Sync Interrupted</h2>
-          <p className="text-gray-500 mb-8 font-medium italic">We couldn't connect to this learning module. Please verify your connection.</p>
-          <Button onClick={() => window.location.reload()} variant="danger" size="lg" className="w-full">Re-establish Uplink</Button>
-        </Card>
-      </div>
-    );
-  }
-
-  if (phase === "out_of_power") {
-    return (
+      return (
         <div className="flex h-screen items-center justify-center bg-background p-6">
-          <Card variant="elevated" className="max-w-md text-center border-amber-500/20 bg-amber-500/5">
-             <div className="relative h-24 w-24 mx-auto mb-8">
-                <Zap className="h-24 w-24 text-amber-500 opacity-20" />
-                <div className="absolute inset-0 flex items-center justify-center">
-                   <AlertCircle className="h-12 w-12 text-amber-500" />
-                </div>
-             </div>
-            <h2 className="text-3xl font-black text-gray-800 mb-4 tracking-tight">Energy Depleted</h2>
-            <p className="text-gray-500 mb-10 font-medium leading-relaxed italic px-4">
-              Your learning energy has reached critical levels. 1 Power regenerates every hour.
-            </p>
-            <div className="space-y-4">
-                <Button href="/subscription" variant="primary" size="lg" className="w-full">Level Up to Premium</Button>
-                <Button href="/student/dashboard" variant="ghost" size="md" className="w-full font-black uppercase tracking-widest text-[10px]">Return To Dashboard</Button>
-            </div>
+          <Card className="max-w-md text-center p-8">
+            <AlertCircle className="h-16 w-16 text-red-500 mx-auto mb-6" />
+            <h2 className="text-2xl font-black mb-4">Connection Failed</h2>
+            <Button onClick={() => window.location.reload()} className="w-full">Retry</Button>
           </Card>
         </div>
       );
   }
 
-  if (phase === "preview") {
+  if (phase === "out_of_power") {
       return (
-         <div className="flex flex-col h-screen bg-background items-center justify-center p-6 sm:p-12 animate-in fade-in zoom-in-95 duration-700">
-             <Card variant="elevated" padding="xl" className="max-w-2xl w-full text-center space-y-8">
-                <div className="mx-auto w-24 h-24 bg-primary/10 rounded-full flex items-center justify-center mb-6 ring-8 ring-primary/5">
-                    <BookOpen className="w-12 h-12 text-primary" />
-                </div>
-                <div>
-                   <h2 className="text-sm font-black text-secondary tracking-[0.3em] uppercase mb-2">
-                       Module {lesson?.moduleNumber || "X"} — {lesson?.category}
-                   </h2>
-                   <h1 className="text-4xl sm:text-5xl font-black text-gray-800 tracking-tight leading-tight">
-                       {lesson?.title}
-                   </h1>
-                </div>
-
-                <p className="text-lg text-gray-600 font-medium px-4">
-                   {lesson?.description || "In this module, you will practice your listening, speaking, reading, and writing skills."}
-                </p>
-
-                {lesson?.examples && lesson.examples.length > 0 && (
-                    <div className="bg-gray-50 p-6 rounded-3xl border border-gray-100 mt-8 mb-8 text-left">
-                        <h3 className="text-xs font-black uppercase tracking-widest text-gray-400 mb-4 text-center">Preview & Learn</h3>
-                        <div className="flex flex-wrap gap-4 justify-center">
-                            {lesson.examples.map((ex, i) => (
-                                <span key={i} className="px-4 py-2 bg-white border border-gray-200 shadow-sm rounded-xl font-bold text-xl text-primary">
-                                    {ex}
-                                </span>
-                            ))}
-                        </div>
-                    </div>
-                )}
-
-                <div className="pt-8">
-                    <Button onClick={() => setPhase("ready")} size="xl" className="w-full max-w-sm mx-auto shadow-xl shadow-primary/20 bg-primary hover:bg-primary/90 text-lg rounded-full">
-                        Start Lesson
-                    </Button>
-                </div>
-             </Card>
-         </div>
+          <div className="flex h-screen items-center justify-center bg-background p-6">
+            <Card className="max-w-md text-center p-12">
+              <Zap className="h-24 w-24 text-amber-500 mx-auto mb-8 animate-pulse" />
+              <h2 className="text-3xl font-black mb-4">Energy Depleted</h2>
+              <p className="text-gray-500 mb-8">Wait for regeneration or upgrade to premium.</p>
+              <Button href="/subscription" className="w-full">Upgrade Now</Button>
+            </Card>
+          </div>
       );
+  }
+
+  if (phase === "preview") {
+    return (
+       <div className="flex flex-col h-screen bg-background items-center justify-center p-6 sm:p-12">
+           <Card className="max-w-2xl w-full text-center p-12 space-y-8">
+              <BookOpen className="w-16 h-16 text-primary mx-auto" />
+              <h1 className="text-4xl font-black">{lesson?.title}</h1>
+              <p className="text-lg text-gray-500">{lesson?.description}</p>
+              <Button onClick={() => setPhase("ready")} size="xl" className="w-full rounded-2xl">Start Lesson</Button>
+           </Card>
+       </div>
+    );
   }
 
   if (phase === "completed") {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-6 sm:p-12">
-        <Card variant="elevated" padding="xl" className="max-w-3xl w-full border-none shadow-3xl animate-in zoom-in-95 duration-700">
-           <div className="flex flex-col items-center text-center space-y-10">
-              <div className="h-32 w-32 rounded-full bg-emerald-50 flex items-center justify-center border-4 border-emerald-100 shadow-xl animate-bounce">
-                 <Trophy className="h-16 w-16 text-emerald-500" />
-              </div>
-
-              <div className="space-y-4">
-                <h1 className="text-5xl font-black text-gray-800 tracking-tight">Focus Achieved</h1>
-                <p className="text-xl text-gray-500 font-medium italic">Linguistic sync completed with high fidelity.</p>
-              </div>
-
-              <div className="grid grid-cols-2 gap-8 w-full max-w-sm">
-                 <div className="bg-gray-50 p-6 rounded-3xl border border-gray-200">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2">Score</p>
-                    <p className={cn("text-4xl font-black", score?.passed ? "text-emerald-500" : "text-red-500")}>
-                        {score?.score}/{score?.total}
-                    </p>
-                 </div>
-                 <div className="bg-gray-50 p-6 rounded-3xl border border-gray-200">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2">Status</p>
-                    <p className={cn("text-xl font-black uppercase tracking-widest leading-none mt-2", score?.passed ? "text-emerald-500" : "text-red-500")}>
-                        {score?.passed ? "Passed" : "Try Again"}
-                    </p>
-                 </div>
-              </div>
-
-              <div className="flex flex-col sm:flex-row items-center gap-6 w-full pt-4">
-                <Button 
-                    href={score?.nextLessonId ? `/student/lessons/${score.nextLessonId}` : "/student/lessons"} 
-                    size="xl" 
-                    className="w-full rounded-2xl shadow-xl shadow-primary/20"
-                >
-                    {score?.nextLessonId ? "Next Lesson" : "Back to Course"}
-                </Button>
-                <Button href="/student/dashboard" variant="outline" size="xl" className="w-full rounded-2xl">Dashboard Hub</Button>
+      <div className="min-h-screen bg-background flex items-center justify-center p-6">
+        <Card className="max-w-2xl w-full text-center p-12 space-y-10">
+           <Trophy className="h-24 w-24 text-emerald-500 mx-auto animate-bounce" />
+           <h1 className="text-5xl font-black">Level Complete!</h1>
+           <div className="flex justify-center gap-8">
+              <div className="p-6 bg-gray-50 rounded-2xl">
+                 <p className="text-sm font-bold text-gray-400">Score</p>
+                 <p className="text-4xl font-black text-primary">{score?.score}/{score?.total}</p>
               </div>
            </div>
+           <Button href="/student/dashboard" size="xl" className="w-full rounded-2xl">Back to Course</Button>
         </Card>
       </div>
     );
@@ -327,268 +231,143 @@ export default function LessonInteractiveSession() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col font-sans overflow-x-hidden">
-      {/* Dynamic Header */}
-      <header className="sticky top-0 z-40 w-full border-b border-gray-200 bg-white/80 backdrop-blur-md px-6 py-5">
-        <div className="max-w-7xl mx-auto flex items-center justify-between gap-8">
-          <div className="flex items-center gap-6">
-            <Link 
-              href="/student/lessons" 
-              className="flex items-center justify-center h-12 w-12 rounded-2xl bg-white border border-gray-200 text-gray-500 hover:text-primary transition-all hover:scale-105 active:scale-95 shadow-sm"
-            >
-              <ArrowLeft className="h-5 w-5" />
-            </Link>
-            <div className="hidden sm:block space-y-1">
-               <div className="flex items-center gap-2">
-                  <div className="h-1.5 w-6 rounded-full bg-primary" />
-                  <span className="text-[10px] font-black uppercase tracking-widest text-gray-500">Module {lesson?.moduleNumber}</span>
-               </div>
-               <h1 className="text-xl font-black text-gray-800 tracking-tight leading-none">{lesson?.title}</h1>
-            </div>
+      <header className="sticky top-0 z-40 w-full border-b bg-white/80 backdrop-blur-md px-6 py-4">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          <Link href="/student/lessons" className="h-10 w-10 flex items-center justify-center rounded-xl bg-gray-50 border"><ArrowLeft size={20}/></Link>
+          <div className="flex items-center gap-8 flex-1 justify-center max-w-2xl">
+            <LessonProgress progress={progress} />
+            {energy && (
+              <EnergyStatus 
+                currentEnergy={energy.currentEnergy}
+                maxEnergy={energy.maxEnergy}
+                nextRecoveryIn={energy.nextRecoveryIn}
+                isPremium={energy.isPremium}
+              />
+            )}
           </div>
-
-          <LessonProgress progress={progress} credits={powers} />
-
-          {/* Action Hub */}
-          <div className="flex items-center gap-4">
-             <button
-               onClick={() => setShowAskPanel(true)}
-               className="group flex items-center gap-3 px-5 py-3 rounded-2xl bg-secondary/10 text-secondary font-black text-[10px] uppercase tracking-widest hover:bg-secondary hover:text-white transition-all shadow-sm border border-secondary/20"
-             >
-                <HelpCircle className="h-4 w-4" />
-                <span className="hidden lg:inline">Ask AI Tutor</span>
-             </button>
-          </div>
+          <div className="w-10" />
         </div>
       </header>
 
-      <main className="flex-1 flex flex-col items-center justify-center p-6 md:p-12 lg:p-16 max-w-7xl mx-auto w-full">
-        <div className="w-full flex-col flex items-center gap-12 h-full">
+      <main className="flex-1 flex flex-col items-center justify-center p-6 md:p-12 max-w-7xl mx-auto w-full">
+        <div className="w-full flex-col flex items-center gap-12">
           
-          <div className="w-full flex flex-col items-center space-y-12 animate-in slide-in-from-bottom-6 duration-700">
-            
-            <div className="text-center space-y-10 max-w-4xl">
-               <div className="inline-flex items-center gap-3 px-4 py-1.5 rounded-full border border-primary/20 bg-primary/5 text-primary text-[10px] font-black uppercase tracking-[0.2em]">
-                  Mission Segment {currentQ + 1} • {questions.length - currentQ - 1} Remaining
-               </div>
-               
-               {/* Read and Respond: Paragraph Area */}
+          <div className="w-full flex flex-col items-center space-y-12 animate-in fade-in duration-700">
+            <div className="text-center space-y-8 w-full max-w-4xl">
                {q?.type === 'reading' && q?.paragraph && (
-                  <div className="bg-white/50 p-10 rounded-[2.5rem] border-2 border-gray-100 shadow-2xl shadow-gray-200/20 text-left max-w-3xl mx-auto backdrop-blur-sm relative overflow-hidden group hover:border-primary/20 transition-all duration-500">
-                     <div className="absolute top-0 right-0 p-8 opacity-5">
-                         <BookOpen size={120} className="text-primary transform rotate-12" />
-                     </div>
-                     <div className="flex items-start gap-6 relative z-10">
-                        <div className="h-12 w-12 rounded-2xl bg-primary text-white flex items-center justify-center shrink-0 shadow-lg shadow-primary/30">
-                           <BookOpen className="h-6 w-6" />
-                        </div>
-                        <p className="text-2xl md:text-3xl font-bold leading-snug text-gray-700 tracking-tight">
-                           {q.paragraph}
-                        </p>
-                     </div>
+                  <div className="bg-gray-50 p-8 rounded-[2rem] border-2 text-left mb-12">
+                      <p className="text-2xl font-bold text-gray-700 leading-relaxed text-center">{q.paragraph}</p>
                   </div>
                )}
 
-                <div className="flex flex-col items-center gap-8">
-                  <div className="flex items-center justify-center gap-6">
-                    <h2 className="text-4xl md:text-5xl lg:text-6xl font-black text-gray-800 tracking-tight leading-tight max-w-4xl">
-                        {q?.type === 'fill' ? (
-                            q.text.split('_____').map((part: string, i: number, arr: string[]) => (
-                                <React.Fragment key={i}>
-                                    {part}
-                                    {i < arr.length - 1 && (
-                                        <span className={cn(
-                                            "inline-block mx-3 min-w-[140px] px-2 text-center border-b-8 border-gray-200 transition-all duration-500",
-                                            feedback[q._id] === 'correct' ? "border-emerald-500 text-emerald-600 scale-110" : 
-                                            feedback[q._id] === 'incorrect' ? "border-red-500 text-red-600 animate-shake" : "animate-pulse"
-                                        )}>
-                                            {feedback[q._id] ? (q.options?.[q.correctOptionIndex ?? 0] || q.correctAnswer) : "..."}
-                                        </span>
-                                    )}
-                                </React.Fragment>
-                            ))
-                        ) : q?.text}
-                    </h2>
-                    {/* Speaker/TTS Button - Only shown for speaking activities to avoid clutter */}
-                    {(q?.type === 'speaking') && (
+               <div className="flex flex-col items-center gap-8 w-full">
+                  <div className="flex items-center justify-center gap-8 w-full">
+                    {(q?.type === 'speaking' || q?.type === 'quiz') && (
                       <button
                           onClick={() => handlePlayAudio(q?.text || "", q?._id)}
                           disabled={playingAudioId === q?._id}
                           className={cn(
-                          "flex items-center justify-center h-16 w-16 rounded-[2rem] border-2 transition-all shadow-xl hover:scale-110 active:scale-95 shrink-0",
-                          playingAudioId === q?._id ? "bg-primary/20 border-primary animate-pulse" : "bg-white border-primary/20 text-primary hover:bg-primary/5"
+                          "flex items-center justify-center h-20 w-20 rounded-[2rem] border-2 transition-all shadow-lg active:scale-95 shrink-0",
+                          playingAudioId === q?._id ? "bg-primary/10 animate-pulse" : "bg-white hover:bg-primary/5"
                           )}
-                          title="Listen to pronunciation"
                       >
-                          {playingAudioId === q?._id ? <Loader2 className="h-8 w-8 animate-spin" /> : <Play className="h-8 w-8 fill-primary" />}
+                          {playingAudioId === q?._id ? <Loader2 size={32} className="animate-spin text-primary" /> : <Volume2 size={40} className="text-primary" />}
                       </button>
                     )}
+
+                    {q?.type !== 'match' && (
+                        <h2 className="text-4xl md:text-5xl font-black text-gray-800 tracking-tight leading-tight grow text-left max-w-3xl">
+                            {q?.type === 'fill' ? (
+                                q.text.split('_____').map((part: string, i: number, arr: string[]) => (
+                                    <React.Fragment key={i}>
+                                        {part}
+                                        {i < arr.length - 1 && (
+                                            <span className={cn(
+                                                "inline-block mx-3 min-w-[180px] border-b-8 transition-all",
+                                                feedback[q._id] === 'correct' ? "border-emerald-500 text-emerald-600" : "border-gray-200"
+                                            )}>
+                                                {feedback[q._id] ? (q.options?.find((o: string, idx: number) => idx === q.correctOptionIndex) || q.correctAnswer) : (typingValue || "...")}
+                                            </span>
+                                        )}
+                                    </React.Fragment>
+                                ))
+                            ) : q?.text}
+                        </h2>
+                    )}
                   </div>
-                  
-                  {q?.type === 'reading' && (
-                      <p className="text-xs font-black uppercase tracking-widest text-primary/40 bg-primary/5 px-4 py-1.5 rounded-full">Comprehension Task</p>
-                  )}
-                </div>
+               </div>
             </div>
 
-            {/* Input Systems */}
             <div className="w-full flex justify-center py-6">
-                {(!q?.type || q?.type === "quiz" || q?.type === "choice" || q?.type === "match" || q?.type === "identify" || q?.type === "reading" || q?.type === "fill") && (
-                    <QuestionCard
-                        question={q}
-                        feedback={feedback[q?._id]}
-                        selectedIndex={selected[q?._id]}
-                        credits={powers}
-                        onSelect={handleSelect}
-                    />
+                {(q?.type === "quiz" || q?.type === "choice" || q?.type === "identify") && (
+                    <QuestionCard question={q} feedback={feedback[q?._id]} selectedIndex={selected[q?._id]} credits={energy?.currentEnergy ?? 25} onSelect={handleSelect} />
+                )}
+
+                {q?.type === "match" && (
+                    <MatchingPairs question={q as any} isCorrect={feedback[q._id] === "correct"} onResult={(passed) => passed ? setFeedback(prev => ({ ...prev, [q._id]: "correct" })) : null} />
+                )}
+
+                {q?.type === "fill" && (
+                    <div className="w-full max-w-xl space-y-6">
+                        <input
+                            type="text"
+                            placeholder="Type the missing word..."
+                            value={typingValue}
+                            onChange={(e) => setTypingValue(e.target.value)}
+                            disabled={!!feedback[q._id]}
+                            className="w-full p-8 text-3xl font-black text-center rounded-[2rem] border-4 border-gray-100 focus:border-primary/30 outline-none shadow-inner"
+                        />
+                        {!feedback[q._id] && (
+                            <Button 
+                                onClick={() => {
+                                    const correct = (q.correctAnswer || q.options?.[q.correctOptionIndex ?? 0]).toLowerCase().trim();
+                                    const isCorrect = typingValue.toLowerCase().trim() === correct;
+                                    handleSelect(q._id, isCorrect ? (q.correctOptionIndex ?? 0) : -1, q.correctOptionIndex);
+                                }}
+                                disabled={!typingValue}
+                                size="xl"
+                                className="w-full rounded-2xl bg-secondary hover:bg-secondary/90"
+                            >Check Answer</Button>
+                        )}
+                    </div>
                 )}
 
                 {q?.type === "speaking" && (
-                    <AudioRecorder
-                        lessonId={id as string}
-                        questionId={q._id}
-                        expectedAudioText={q.expectedAudioText}
-                        isCorrect={feedback[q._id] === "correct"}
-                        takeCredit={takePower}
-                        onResult={(passed, message) => handleAudioResult(q._id, passed, message)}
-                        backendMessage={backendMessage[q._id]}
-                    />
+                    <AudioRecorder lessonId={id as string} questionId={q._id} expectedAudioText={q.expectedAudioText} isCorrect={feedback[q._id] === "correct"} takeCredit={takePower} onResult={(passed, message) => handleAudioResult(q._id, passed, message)} backendMessage={backendMessage[q._id]} />
                 )}
 
                 {q?.type === "writing" && (
-                    <WritingCanvas 
-                        onResult={(passed) => handleWritingResult(q._id, passed)}
-                        expectedText={q.text.split(' ').pop()} 
-                        isCorrect={feedback[q._id] === "correct"}
-                    />
+                    <WritingCanvas onResult={(passed) => handleWritingResult(q._id, passed)} expectedText={q.text.split(' ').pop()} isCorrect={feedback[q._id] === "correct"} />
                 )}
             </div>
-
-            {/* Control System (Legacy fallback if needed, but we use footer) */}
-            {!feedback[q?._id] && (
-               <div className="flex items-center gap-6 pt-16 w-full max-w-4xl border-t border-gray-200">
-                 <button 
-                   onClick={handleManualPrev}
-                   disabled={currentQ === 0}
-                   className="flex h-14 w-14 items-center justify-center rounded-2xl border border-gray-200 bg-white text-gray-500 hover:text-primary disabled:opacity-20 transition-all font-black shadow-sm"
-                 >
-                    <ArrowLeft className="h-5 w-5" />
-                 </button>
-
-                 <div className="flex-1 flex justify-center items-center gap-4">
-                    {questions.map((_, idx) => (
-                      <div 
-                        key={idx} 
-                        onClick={() => setCurrentQ(idx)}
-                        className={cn(
-                          "h-2 w-2 rounded-full cursor-pointer transition-all duration-500",
-                          currentQ === idx ? "w-10 bg-primary ring-4 ring-primary/10" : 
-                          feedback[questions[idx]?._id] === "correct" ? "bg-emerald-400" :
-                          "bg-gray-300 hover:bg-primary/30"
-                        )} 
-                      />
-                    ))}
-                 </div>
-
-                 {currentQ === questions.length - 1 && Object.keys(feedback).length >= questions.length ? (
-                   <Button
-                     onClick={handleSubmit}
-                     isLoading={submitting}
-                     size="lg"
-                     className={cn(
-                       "px-10 rounded-2xl shadow-xl shadow-primary/20 bg-primary"
-                     )}
-                   >
-                     Finalize Session
-                   </Button>
-                 ) : (
-                   <button 
-                     onClick={handleManualNext}
-                     className="flex h-14 w-14 items-center justify-center rounded-2xl border border-gray-200 bg-white text-gray-500 hover:text-primary transition-all font-black shadow-sm"
-                   >
-                      <Play className="h-5 w-5 rotate-0" />
-                   </button>
-                 )}
-               </div>
-            )}
           </div>
         </div>
 
-        {/* Feedback Footer */}
         {feedback[q?._id] && (
           <div className={cn(
-            "fixed bottom-0 left-0 right-0 py-10 px-6 border-t animate-in slide-in-from-bottom-full duration-500 z-50",
+            "fixed bottom-0 left-0 right-0 py-10 px-6 border-t animate-in slide-in-from-bottom-full duration-500 z-50 shadow-2xl",
             feedback[q?._id] === "correct" ? "bg-emerald-50 border-emerald-200" : "bg-red-50 border-red-200"
           )}>
             <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-8">
               <div className="flex items-center gap-8">
-                <div className={cn(
-                  "h-20 w-20 rounded-3xl flex items-center justify-center shadow-lg transform rotate-3",
-                  feedback[q?._id] === "correct" ? "bg-emerald-500 text-white" : "bg-red-500 text-white"
-                )}>
-                  {feedback[q?._id] === "correct" ? <CheckCircle2 className="h-10 w-10" /> : <XCircle className="h-10 w-10 animate-shake" />}
+                <div className={cn("h-20 w-20 rounded-3xl flex items-center justify-center shadow-lg", feedback[q?._id] === "correct" ? "bg-emerald-500 text-white" : "bg-red-500 text-white")}>
+                  {feedback[q?._id] === "correct" ? <CheckCircle2 size={40} /> : <XCircle size={40} />}
                 </div>
                 <div className="space-y-1">
-                  <h3 className={cn(
-                    "text-3xl font-black tracking-tight",
-                    feedback[q?._id] === "correct" ? "text-emerald-700" : "text-red-700"
-                  )}>
-                    {feedback[q?._id] === "correct" ? "Excellent Work!" : "Correct Answer:"}
+                  <h3 className={cn("text-3xl font-black", feedback[q?._id] === "correct" ? "text-emerald-700" : "text-red-700")}>
+                    {feedback[q?._id] === "correct" ? "Great!" : "The answer was:"}
                   </h3>
-                  <p className={cn(
-                    "text-xl font-bold italic",
-                    feedback[q?._id] === "correct" ? "text-emerald-600/80" : "text-red-600"
-                  )}>
-                    {feedback[q?._id] === "correct" ? backendMessage[q?._id] || "You're getting better!" : q?.correctAnswer || q?.expectedAudioText || "Don't give up!"}
-                  </p>
+                  <p className="text-xl font-bold opacity-80">{feedback[q?._id] === "correct" ? backendMessage[q?._id] : q.correctAnswer || q.options?.[q.correctOptionIndex ?? 0]}</p>
                 </div>
               </div>
-              
-              <div className="flex items-center gap-4 w-full sm:w-auto">
-                 {currentQ === questions.length - 1 ? (
-                    <Button 
-                      onClick={handleSubmit}
-                      isLoading={submitting}
-                      size="xl" 
-                      className={cn(
-                        "w-full sm:w-auto px-16 rounded-2xl shadow-xl transition-all hover:scale-105 active:scale-95 text-lg font-black uppercase tracking-widest",
-                        feedback[q?._id] === "correct" ? "bg-emerald-500 hover:bg-emerald-600" : "bg-red-500 hover:bg-red-600"
-                      )}
-                    >
-                      Finish Lesson
-                    </Button>
-                 ) : (
-                    <Button 
-                      onClick={handleManualNext}
-                      size="xl" 
-                      className={cn(
-                        "w-full sm:w-auto px-16 rounded-2xl shadow-xl transition-all hover:scale-105 active:scale-95 text-lg font-black uppercase tracking-widest",
-                        feedback[q?._id] === "correct" ? "bg-emerald-500 hover:bg-emerald-600" : "bg-red-500 hover:bg-red-600"
-                      )}
-                    >
-                      Continue
-                    </Button>
-                 )}
-              </div>
+              <Button onClick={currentQ === questions.length - 1 ? handleSubmit : handleManualNext} size="xl" className={cn("w-full sm:w-auto px-16 rounded-2xl shadow-xl", feedback[q?._id] === "correct" ? "bg-emerald-500" : "bg-red-500")}>
+                {currentQ === questions.length - 1 ? "Finish" : "Continue"}
+              </Button>
             </div>
           </div>
         )}
       </main>
-
-      {/* Legacy Footer Support Information */}
-      <footer className="w-full bg-gray-50 border-t border-gray-200 py-8 px-6 text-center mt-auto">
-         <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">
-            Secure Learning Environment • End-to-End Encryption Enabled
-         </p>
-      </footer>
-
-      {/* Ask the Tutor Portal */}
-      <AskTutorModal
-        isOpen={showAskPanel}
-        onClose={() => setShowAskPanel(false)}
-        lessonId={id as string}
-        lessonTitle={lesson?.title}
-        lessonModule={lesson?.moduleNumber}
-      />
+      <AskTutorModal isOpen={showAskPanel} onClose={() => setShowAskPanel(false)} lessonId={id as string} lessonTitle={lesson?.title} lessonModule={lesson?.moduleNumber} />
     </div>
   );
 }

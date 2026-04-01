@@ -13,7 +13,7 @@ const lessonSchema = new mongoose.Schema({
     content: { type: String },  // textual lesson material (HTML or Markdown)
     isPremiumOnly: { type: Boolean, default: false }, // pay-gated lesson
     orderIndex: { type: Number, default: 0 },
-    level: { type: String, enum: ['Basic', 'Beginner', 'Intermediate', 'Advanced'], default: 'Basic' },
+    level: { type: String, enum: ['Basic', 'Beginner', 'Elementary', 'Intermediate', 'Advanced'], default: 'Basic' },
 }, { timestamps: true });
 
 export default mongoose.model('Lesson', lessonSchema);

@@ -85,10 +85,38 @@ export async function evaluateAnswersAndSaveProgress(userId, lessonId, answers) 
 
     const passPercentage = (score / totalPossibleScore) * 100;
     const passed = passPercentage >= 70; // 70% to pass
-    const isPerfect = score === totalPossibleScore;
     
-    // Calculate points: 50 for perfect, proportional for pass, minimum 10 for taking it
-    const pointsAwarded = isPerfect ? 50 : (passed ? 30 : 5);
+    const user = await User.findById(userId);
+    if (passed && user) {
+        // Streak Maintenance
+        const now = new Date();
+        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        const lastDate = user.progress.lastLessonDate ? new Date(user.progress.lastLessonDate) : null;
+        const lastMidnight = lastDate ? new Date(lastDate.getFullYear(), lastDate.getMonth(), lastDate.getDate()) : null;
+
+        if (!lastMidnight) {
+            user.progress.currentStreak = 1;
+            user.progress.lastLessonDate = now;
+        } else {
+            const diffTime = today.getTime() - lastMidnight.getTime();
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+            if (diffDays === 1) {
+                user.progress.currentStreak += 1;
+                user.progress.lastLessonDate = now;
+            } else if (diffDays > 1) {
+                user.progress.currentStreak = 1;
+                user.progress.lastLessonDate = now;
+            }
+        }
+
+        if (user.progress.currentStreak > (user.progress.highStreak || 0)) {
+            user.progress.highStreak = user.progress.currentStreak;
+        }
+
+        user.progress.completedLessons.addToSet(lessonId);
+        await user.save();
+    }
 
     let progress = await Progress.findOne({ userId, lessonId });
 
@@ -97,34 +125,23 @@ export async function evaluateAnswersAndSaveProgress(userId, lessonId, answers) 
             userId,
             lessonId,
             score,
+            totalPossibleScore,
+            accuracy: Math.round(passPercentage),
             isCompleted: passed,
             completedAt: passed ? new Date() : undefined
         });
-
-        if (passed) {
-            await User.findByIdAndUpdate(userId, { 
-                $inc: { points: pointsAwarded, xp: pointsAwarded },
-                $addToSet: { 'progress.completedLessons': lessonId }
-            }); 
-        }
     } else {
         // High score improvement
         if (score > progress.score) {
             progress.score = score;
+            progress.accuracy = Math.round(passPercentage);
         }
         
         if (!progress.isCompleted && passed) {
             progress.isCompleted = true;
             progress.completedAt = new Date();
-            await User.findByIdAndUpdate(userId, { 
-                $inc: { points: pointsAwarded, xp: pointsAwarded },
-                $addToSet: { 'progress.completedLessons': lessonId }
-            });
-        } else {
-            // Smaller points for retaking (engagement reward)
-            const retakePoints = passed ? 10 : 5; 
-            await User.findByIdAndUpdate(userId, { $inc: { points: retakePoints, xp: 5 } });
         }
+        progress.totalPossibleScore = totalPossibleScore; // ensure its always set correctly
         await progress.save();
     }
 
@@ -141,6 +158,7 @@ export async function evaluateAnswersAndSaveProgress(userId, lessonId, answers) 
         totalPossibleScore, 
         passed, 
         progress, 
+        user: user?.toSafeObject(),
         nextLessonId: nextLesson ? nextLesson._id : null 
     };
 }

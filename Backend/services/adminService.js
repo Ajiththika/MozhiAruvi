@@ -108,3 +108,22 @@ export async function getDashboardStats() {
         totalEvents
     };
 }
+
+export async function getPremiumUsers(page = 1, limit = 10) {
+    const skip = (page - 1) * limit;
+    const query = { 'subscription.plan': { $in: ['PRO', 'PREMIUM'] } };
+    const [users, totalItems] = await Promise.all([
+        User.find(query)
+            .select('-password -resetPasswordToken -resetPasswordExpires')
+            .sort({ 'subscription.currentPeriodEnd': -1 })
+            .skip(skip)
+            .limit(limit),
+        User.countDocuments(query)
+    ]);
+    return {
+        users,
+        totalItems,
+        totalPages: Math.ceil(totalItems / limit),
+        currentPage: parseInt(page)
+    };
+}

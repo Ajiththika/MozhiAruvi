@@ -20,7 +20,9 @@ import {
   UserCircle,
   GraduationCap,
   Shield,
+  Crown,
 } from "lucide-react";
+
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 
@@ -39,7 +41,9 @@ export const iconMap = {
   "user-circle": UserCircle,
   "graduation-cap": GraduationCap,
   shield: Shield,
+  crown: Crown,
 } as const;
+
 
 export type IconName = keyof typeof iconMap;
 

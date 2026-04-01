@@ -5,6 +5,7 @@ import { authorizeRoles } from '../middleware/authorizeRoles.js';
 import { ROLES } from '../utils/roles.js';
 import { validate } from '../middleware/validate.js';
 import { z } from 'zod';
+import { checkLessonAccess } from '../middleware/accessControl.js';
 
 const router = Router();
 
@@ -54,10 +55,10 @@ const evaluateSpeakingSchema = z.object({
 // ── User Endpoints ────────────────────────────────────────────────────────────
 // Phase 3: List and View Lessons
 router.get('/', authenticateOptional, lessonController.listLessons);
-router.get('/:id', authenticate, lessonController.getLessonDetails);
+router.get('/:id', authenticate, checkLessonAccess, lessonController.getLessonDetails);
 
 // Phase 4: View Questions & Submit Answers
-router.get('/:id/questions', authenticate, lessonController.getLessonQuestions);
+router.get('/:id/questions', authenticate, checkLessonAccess, lessonController.getLessonQuestions);
 router.post('/:id/submit', authenticate, validate(submitAnswersSchema), lessonController.submitAnswers);
 router.post('/:id/evaluate-speaking', authenticate, validate(evaluateSpeakingSchema), lessonController.evaluateSpeaking);
 router.post('/:id/generate-speech', authenticate, lessonController.generateSpeech);

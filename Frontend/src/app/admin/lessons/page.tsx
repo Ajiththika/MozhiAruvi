@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import {
   BookOpen, Plus, Loader2, Trash2, X, ChevronDown, ChevronUp,
-  Mic, AlertCircle
+  Mic, AlertCircle, Settings, ArrowRight
 } from "lucide-react";
 import { getLessons, Lesson, getLessonQuestions, Question } from "@/services/lessonService";
 import { getCategories, Category as DBCategory } from "@/services/categoryService";
@@ -337,94 +337,89 @@ function AdminLessonCard({ lesson, onManageQuestions, onEdit, onDelete }: AdminL
 
   const levelColor: Record<string, string> = {
     Basic: "text-sky-600 bg-sky-50 border-sky-100",
+    Beginner: "text-indigo-600 bg-indigo-50 border-indigo-100",
+    Elementary: "text-emerald-600 bg-emerald-50 border-emerald-100",
     Intermediate: "text-amber-600 bg-amber-50 border-amber-100",
     Advanced: "text-rose-600 bg-rose-50 border-rose-100",
   };
 
   return (
-    <div className={`bg-white rounded-[2rem] border transition-all duration-300 shadow-sm overflow-hidden ${expanded ? "border-primary/20 shadow-xl shadow-primary/5" : "border-gray-100 hover:border-gray-200 hover:shadow-md"}`}>
+    <div className={`bg-white rounded-[2.5rem] border transition-all duration-500 shadow-sm group/card overflow-hidden ${expanded ? "ring-2 ring-primary/20 border-primary shadow-2xl shadow-primary/5" : "border-gray-100 hover:border-primary/20 hover:shadow-xl hover:shadow-gray-200/50"}`}>
       {/* Card Header */}
       <div
-        className="flex items-center gap-4 p-5 cursor-pointer group"
+        className="flex flex-col sm:flex-row sm:items-center gap-6 p-8 cursor-pointer relative"
         onClick={handleExpand}
       >
-        <div className={`h-12 w-12 rounded-2xl flex items-center justify-center shrink-0 transition-all duration-300 ${expanded ? "bg-primary text-white" : "bg-gray-50 text-primary group-hover:bg-primary/10"}`}>
-          <BookOpen className="w-6 h-6" />
+        <div className={`h-16 w-16 rounded-[1.5rem] border flex items-center justify-center shrink-0 transition-all duration-500 ${expanded ? "bg-primary text-white border-white/20 rotate-12 scale-110" : "bg-gray-50 text-primary border-gray-100 group-hover/card:bg-primary group-hover/card:text-white"}`}>
+          <BookOpen className="w-8 h-8" />
         </div>
 
         <div className="flex-1 min-w-0">
-          <p className="font-black text-gray-800 text-sm truncate">{lesson.title}</p>
-          <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+          <p className="font-black text-gray-800 text-xl tracking-tighter uppercase whitespace-nowrap overflow-hidden text-ellipsis mb-2">{lesson.title}</p>
+          <div className="flex items-center gap-3 flex-wrap">
             {/* Level badge */}
-            <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full border ${levelColor[lesson.level || "Basic"] || levelColor["Basic"]}`}>
-              {lesson.level || "Basic"} • L{lesson.orderIndex}
+            <span className={`text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full border ${levelColor[lesson.level || "Basic"] || levelColor["Basic"]}`}>
+              {lesson.level || "Basic"} • Stage {lesson.orderIndex}
             </span>
             {/* Published / Premium tag */}
-            <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full border ${lesson.isPremiumOnly ? "text-amber-600 bg-amber-50 border-amber-100" : "text-emerald-600 bg-emerald-50 border-emerald-100"}`}>
+            <span className={`text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full border ${lesson.isPremiumOnly ? "text-amber-600 bg-amber-50 border-amber-100" : "text-emerald-600 bg-emerald-50 border-emerald-100"}`}>
               {lesson.isPremiumOnly ? "★ Premium" : "✓ Free"}
             </span>
-            {/* Question count (once loaded) */}
-            {fetched && (
-              <span className="text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full border text-gray-400 bg-gray-50 border-gray-100">
-                {cardQuestions.length} Questions
-              </span>
-            )}
           </div>
         </div>
 
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex items-center gap-2 shrink-0 md:opacity-0 group-hover/card:opacity-100 transition-opacity duration-300">
           <button
             onClick={e => { e.stopPropagation(); onManageQuestions(); }}
-            className="flex items-center gap-1.5 px-4 py-2 text-[10px] font-black uppercase tracking-widest text-white bg-secondary rounded-xl hover:scale-105 active:scale-95 shadow-md shadow-secondary/20 transition-all"
+            className="flex items-center gap-2 px-6 py-3 text-[10px] font-black uppercase tracking-[0.2em] text-white bg-primary rounded-xl hover:scale-105 active:scale-95 shadow-xl shadow-primary/20 transition-all"
           >
-            <Plus className="w-3.5 h-3.5" /> Questions
+            <Plus className="w-4 h-4 ml-[-4px]" /> Questions
           </button>
           <button
             onClick={e => { e.stopPropagation(); onEdit(); }}
-            className="p-2.5 text-gray-300 hover:text-primary hover:bg-primary/5 rounded-xl transition-all"
-            title="Edit lesson details"
+            className="p-3 bg-white border border-gray-100 text-gray-400 hover:text-primary hover:border-primary/20 hover:bg-primary/5 rounded-xl transition-all"
+            title="Lesson Config"
           >
-            <Plus className="w-4 h-4 rotate-45" /> {/* This is a stand-in for edit if I don't want to import more */}
+            <Settings className="w-4 h-4" />
           </button>
           <button
             onClick={e => { e.stopPropagation(); onDelete(); }}
-            className="p-2.5 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
+            className="p-3 bg-white border border-gray-100 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
+            title="Purge Node"
           >
             <Trash2 className="w-4 h-4" />
           </button>
-          <div className="p-2 text-gray-300">
-            {expanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-          </div>
         </div>
       </div>
 
       {/* Expanded question list */}
       {expanded && (
-        <div className="border-t border-gray-50 bg-gray-50/40 px-5 pb-5 pt-4">
+        <div className="border-t border-gray-50 bg-gray-50/40 px-8 pb-8 pt-6">
           {cardQLoading ? (
             <div className="flex items-center gap-3 py-4 text-gray-400">
               <Loader2 className="w-4 h-4 animate-spin" />
-              <span className="text-xs font-bold">Loading questions...</span>
+              <span className="text-xs font-bold uppercase tracking-widest">Accessing Question Nodes...</span>
             </div>
           ) : cardQuestions.length === 0 ? (
-            <div className="py-6 text-center border-2 border-dashed border-gray-100 rounded-2xl">
-              <p className="text-xs font-bold text-gray-400">No questions yet.</p>
+            <div className="py-10 text-center border-2 border-dashed border-gray-200 rounded-[2rem] bg-white">
+              <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">No activities found in this module.</p>
               <button
                 onClick={onManageQuestions}
-                className="mt-2 text-[10px] font-black uppercase tracking-widest text-primary hover:underline"
+                className="mt-3 text-[10px] font-black uppercase tracking-[0.2em] text-primary hover:scale-105 transition-transform"
               >
-                + Add Question
+                + Initialize Questions
               </button>
             </div>
           ) : (
-            <div className="space-y-2">
+            <div className="grid grid-cols-1 gap-3">
               {cardQuestions.map((q, idx) => (
-                <div key={q._id} className="flex items-center gap-3 bg-white px-4 py-3 rounded-xl border border-gray-100">
-                  <span className="text-[9px] font-black uppercase tracking-widest text-gray-300 shrink-0 w-5">{idx + 1}</span>
-                  <span className="text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full bg-gray-50 border border-gray-100 text-gray-400 shrink-0">
+                <div key={q._id} className="flex items-center gap-4 bg-white px-6 py-4 rounded-2xl border border-gray-100 shadow-sm hover:border-primary/20 transition-all group/q">
+                  <span className="text-[10px] font-black uppercase tracking-widest text-gray-300 shrink-0 w-6 group-hover/q:text-primary transition-colors">{idx + 1}</span>
+                  <span className="text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg bg-gray-50 border border-gray-100 text-gray-400 shrink-0">
                     {q.type}
                   </span>
                   <p className="text-sm font-bold text-gray-700 truncate flex-1">{q.text}</p>
+                  <ArrowRight className="w-4 h-4 text-gray-200 group-hover/q:text-primary group-hover/q:translate-x-1 transition-all" />
                 </div>
               ))}
             </div>
@@ -461,6 +456,12 @@ export default function AdminLessonsPage() {
   const [qLoading, setQLoading] = useState(false);
   const [savingQ, setSavingQ] = useState(false);
 
+  const [activeLevel, setActiveLevel] = useState("Beginner");
+  const [currentPage, setCurrentPage] = useState(1);
+
+  // Reset page when level changes
+  useEffect(() => { setCurrentPage(1); }, [activeLevel]);
+
   useEffect(() => { 
     fetchLessons(); 
   }, []);
@@ -482,15 +483,16 @@ export default function AdminLessonsPage() {
     if (!formData.title.trim()) { setLessonError("Category name is required."); return; }
     setLessonError("");
     setCreating(true);
-    try {
-      await api.post("/lessons", {
-        ...formData,
-        type: "mixed",
-        moduleName: formData.level, 
-        category: formData.level,  
-        moduleNumber: Number(formData.moduleNumber),
-        orderIndex: Number(formData.orderIndex),
-      });
+      try {
+        await api.post("/lessons", {
+          ...formData,
+          type: "mixed",
+          moduleName: formData.level, 
+          category: formData.title,  // Map input name to Category
+          sectionName: formData.title, // Map input name to Section
+          moduleNumber: Number(formData.moduleNumber),
+          orderIndex: Number(formData.orderIndex),
+        });
       setShowCreate(false);
       setFormData({ 
         title: "", 
@@ -743,6 +745,25 @@ export default function AdminLessonsPage() {
 
       {/* Lesson List */}
 
+      {/* Level Filter Tabs */}
+      {!loading && lessons.length > 0 && (
+        <div className="flex flex-wrap items-center gap-3 bg-white p-3 rounded-[2rem] border border-gray-100 shadow-sm">
+          {["Beginner", "Elementary", "Intermediate", "Advanced"].map((lv) => (
+            <button
+              key={lv}
+              onClick={() => setActiveLevel(lv)}
+              className={`flex-1 min-w-[140px] py-4 rounded-[1.5rem] text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-300 border-2 ${
+                activeLevel === lv 
+                ? "bg-primary text-white border-primary shadow-lg shadow-primary/20 scale-[1.02]" 
+                : "bg-gray-50 text-gray-400 border-transparent hover:bg-gray-100 hover:text-gray-600"
+              }`}
+            >
+              {lv}
+            </button>
+          ))}
+        </div>
+      )}
+
       {/* Lesson List */}
       {loading ? (
         <div className="flex flex-col items-center justify-center p-20 gap-4">
@@ -758,49 +779,92 @@ export default function AdminLessonsPage() {
             </div>
           )}
 
-          {Object.entries(
-            lessons.reduce((acc: Record<string, Record<string, Lesson[]>>, lesson) => {
-              const level = lesson.level || "Basic";
-              const category = lesson.category || "Uncategorized";
-              if (!acc[level]) acc[level] = {};
-              if (!acc[level][category]) acc[level][category] = [];
-              acc[level][category].push(lesson);
-              return acc;
-            }, {})
-          ).map(([level, categories]) => (
-            <div key={level} className="animate-in slide-in-from-bottom-4 duration-700">
-              <div className="flex items-center gap-4 mb-10 overflow-hidden">
-                <div className="h-[2px] w-12 bg-primary/10 shrink-0" />
-                <h2 className="text-xs font-black text-primary uppercase tracking-[0.4em] whitespace-nowrap bg-white px-2">Level: {level}</h2>
-                <div className="h-[2px] w-full bg-gradient-to-r from-primary/10 to-transparent" />
-              </div>
+          {(() => {
+            const levelFiltered = lessons.filter(l => {
+              const lvl = l.level || "Beginner";
+              if (lvl === "Basic") return activeLevel === "Beginner";
+              return lvl === activeLevel;
+            });
+            const totalPages = Math.ceil(levelFiltered.length / 6);
+            const paginated = levelFiltered
+              .sort((a, b) => (a.orderIndex || 0) - (b.orderIndex || 0))
+              .slice((currentPage - 1) * 6, currentPage * 6);
 
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-12 gap-y-16 pl-6">
-                {Object.entries(categories).map(([category, catLessons]) => (
-                  <div key={category} className="space-y-4 relative border-l-2 border-gray-50 pl-10">
-                    <div className="absolute -left-[11px] top-0 h-5 w-5 rounded-full border-4 border-white bg-secondary shadow-md" />
-                    <h3 className="text-2xl font-black text-gray-800 tracking-tight flex items-center gap-4">
-                      {category}
-                      <span className="text-[10px] font-bold text-gray-300 bg-gray-50 px-3 py-1 rounded-full">{catLessons.length} Lessons</span>
-                    </h3>
-                    <div className="grid grid-cols-1 gap-3">
-                      {catLessons
-                        .sort((a, b) => (a.orderIndex || 0) - (b.orderIndex || 0))
-                        .map(lesson => (
-                          <AdminLessonCard
-                            key={lesson._id}
-                            lesson={lesson}
-                            onManageQuestions={() => openQuestions(lesson)}
-                            onEdit={() => openEdit(lesson)}
-                            onDelete={() => handleDelete(lesson._id)}
-                          />
-                        ))}
+            const categoriesOnPage = paginated.reduce((acc: Record<string, Lesson[]>, lesson) => {
+              const category = lesson.category || "Uncategorized";
+              if (!acc[category]) acc[category] = [];
+              acc[category].push(lesson);
+              return acc;
+            }, {});
+
+            return (
+              <>
+                <div className="space-y-16">
+                  {paginated.length === 0 ? (
+                    <div className="p-20 text-center bg-white rounded-[3rem] border border-dashed border-gray-200">
+                      <BookOpen className="w-16 h-16 text-gray-200 mx-auto mb-4" />
+                      <p className="text-gray-400 font-bold italic">This level is currently empty.</p>
                     </div>
+                  ) : (
+                    Object.entries(categoriesOnPage).map(([category, catLessons]) => (
+                      <div key={category} className="space-y-8 relative border-l-2 border-gray-50 pl-10">
+                        <div className="absolute -left-[11px] top-0 h-5 w-5 rounded-full border-4 border-white bg-secondary shadow-md ring-4 ring-secondary/10" />
+                        <h3 className="text-3xl font-black text-gray-800 tracking-tight flex items-center gap-4">
+                          {category}
+                        </h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          {catLessons.map(lesson => (
+                            <AdminLessonCard
+                              key={lesson._id}
+                              lesson={lesson}
+                              onManageQuestions={() => openQuestions(lesson)}
+                              onEdit={() => openEdit(lesson)}
+                              onDelete={() => handleDelete(lesson._id)}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+
+                {/* Pagination Controls */}
+                {totalPages > 1 && (
+                  <div className="mt-16 flex items-center justify-center gap-4">
+                    <button
+                      disabled={currentPage === 1}
+                      onClick={() => setCurrentPage(p => p - 1)}
+                      className="px-6 py-3 rounded-xl border border-gray-100 font-black text-[10px] uppercase tracking-widest text-gray-400 hover:bg-gray-50 disabled:opacity-30 disabled:pointer-events-none transition-all"
+                    >
+                      Prev
+                    </button>
+                    <div className="flex items-center gap-2">
+                      {Array.from({ length: totalPages }).map((_, i) => (
+                        <button
+                          key={i}
+                          onClick={() => setCurrentPage(i + 1)}
+                          className={`w-10 h-10 rounded-xl font-black text-[10px] transition-all ${
+                            currentPage === i + 1 
+                            ? "bg-primary text-white shadow-lg shadow-primary/20" 
+                            : "bg-white border border-gray-100 text-gray-400 hover:bg-gray-50"
+                          }`}
+                        >
+                          {i + 1}
+                        </button>
+                      ))}
+                    </div>
+                    <button
+                      disabled={currentPage === totalPages}
+                      onClick={() => setCurrentPage(p => p + 1)}
+                      className="px-6 py-3 rounded-xl border border-gray-100 font-black text-[10px] uppercase tracking-widest text-gray-400 hover:bg-gray-50 disabled:opacity-30 disabled:pointer-events-none transition-all"
+                    >
+                      Next
+                    </button>
                   </div>
-                ))}
-              </div>
-            </div>
-          ))}
+                )}
+              </>
+            );
+          })()}
         </div>
       )}
 

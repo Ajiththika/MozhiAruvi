@@ -64,10 +64,12 @@ export default function StudentProgressPage() {
         {/* Top Metrics Row */}
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
             <StatCard 
-               title="Current Experience" 
-               value={String(user?.xp || 0)} 
-               description="Total XP earned" 
-               icon={Trophy} 
+               title="Daily Streak" 
+               value={`${user?.progress?.currentStreak || 0} Days`} 
+               description={`Personal Best: ${user?.progress?.highStreak || 0} days`} 
+               icon={Flame} 
+               trend={(user?.progress?.currentStreak || 0) > 0 ? "up" : "neutral"}
+               trendValue={(user?.progress?.currentStreak || 0) > 0 ? "Active" : "New"}
                className="border-primary/10 bg-primary/5" 
             />
             <StatCard 

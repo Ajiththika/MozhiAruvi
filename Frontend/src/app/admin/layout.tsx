@@ -11,7 +11,8 @@ const adminLinks: SidebarItem[] = [
   { name: "Categories",  href: "/admin/categories",icon: "library-big" },
   { name: "Blogs",       href: "/admin/blogs",     icon: "message-square" },
   { name: "Events",      href: "/admin/events",    icon: "calendar" },
-  { name: "Settings",    href: "/admin/profile",   icon: "settings" },
+  { name: "Premium Elite", href: "/admin/dashboard", icon: "crown" },
+
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {

@@ -23,7 +23,7 @@ export function AuthInput({ label, error, id, ...props }: AuthInputProps) {
         )}
         {...props}
       />
-      {error && <p className="text-[10px] font-bold text-error mt-0.5 ml-1 animate-in fade-in duration-300 select-none flex items-center gap-1.5"><div className="w-1.5 h-1.5 rounded-full bg-error" /> {error}</p>}
+      {error && <p className="text-[10px] font-bold text-error mt-0.5 ml-1 animate-in fade-in duration-300 select-none flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-error" /> {error}</p>}
     </div>
   );
 }

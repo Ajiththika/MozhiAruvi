@@ -9,7 +9,8 @@ const studentLinks: SidebarItem[] = [
   { name: "Lessons",       href: "/student/lessons",    icon: "book-open" },
   { name: "Tutors",        href: "/tutors",             icon: "graduation-cap" },
   { name: "My Progress",   href: "/student/progress",   icon: "line-chart" },
-  { name: "Settings",      href: "/student/profile",    icon: "settings" },
+  { name: "Elite Access", href: "/student/premium",    icon: "crown" },
+
 ];
 
 export default function StudentLayout({ children }: { children: React.ReactNode }) {

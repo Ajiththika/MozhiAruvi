@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { StatCard } from "@/components/features/dashboard/StatCard";
-import { BookOpen, Trophy, AlertCircle, ArrowRight, Clock, BookMarked, Star, Zap } from "lucide-react";
+import { BookOpen, Trophy, AlertCircle, ArrowRight, Clock, BookMarked, Flame, Zap, Crown, Calendar, Headphones } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { getDashboardData } from "@/services/authService";
@@ -26,7 +26,46 @@ export default function StudentDashboard() {
   const nextLesson = data?.statistics?.nextLesson || (lessons.length > 0 ? lessons[0] : null);
   const completedCount = data?.statistics?.completedCount ?? progress.filter(p => p.isCompleted).length;
   const progressPercentage = data?.statistics?.progressPercentage ?? (lessons.length > 0 ? Math.round((completedCount / lessons.length) * 100) : 0);
-  const totalLessons = data?.statistics?.totalLessons ?? lessons.length;
+  
+  // Subscription stats
+  const plan = user?.subscription?.plan || "FREE";
+  const tutorUsed = user?.subscription?.tutorSupportUsed || 0;
+  const eventsUsed = user?.subscription?.freeEventsUsedThisCycle || 0;
+  
+  let tutorLimit = 0;
+  let eventLimit = 0;
+  if (plan === 'PRO') { tutorLimit = 2; eventLimit = 1; }
+  else if (plan === 'PREMIUM' || plan === 'BUSINESS') { tutorLimit = 8; eventLimit = 5; }
+
+  // Energy Timer logic
+  const EnergyTimer = ({ initialMs, isPremium, energy, max }: { initialMs: number, isPremium: boolean, energy: number, max: number }) => {
+    const [timeLeft, setTimeLeft] = React.useState(initialMs);
+
+    React.useEffect(() => {
+      if (timeLeft <= 0 || isPremium || energy >= max) return;
+      const interval = setInterval(() => {
+        setTimeLeft((prev) => Math.max(0, prev - 1000));
+      }, 1000);
+      return () => clearInterval(interval);
+    }, [timeLeft, isPremium, energy, max]);
+
+    if (isPremium) return <span className="text-amber-500">Unlimited power</span>;
+    if (energy >= max) return <span>Full energy</span>;
+    
+    const minutes = Math.floor(timeLeft / 60000);
+    const seconds = Math.floor((timeLeft % 60000) / 1000);
+    return (
+      <span className="flex items-center gap-1">
+        <Clock className="w-3 h-3" />
+        Next energy in {minutes}:{seconds.toString().padStart(2, '0')}
+      </span>
+    );
+  };
+
+  const REGEN_RATE_MS = 60 * 60 * 1000;
+  const lastUpdate = user?.progress?.lastEnergyUpdate ? new Date(user.progress.lastEnergyUpdate).getTime() : Date.now();
+  const nextRecoveryIn = Math.max(0, REGEN_RATE_MS - (Date.now() - lastUpdate));
+  const isPremium = plan !== 'FREE';
 
   if (isLoading) {
     return <DashboardSkeleton />;
@@ -70,30 +109,33 @@ export default function StudentDashboard() {
       )}
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
         <StatCard
-          title="Points Earned"
-          value={user?.points || user?.xp || 0}
-          description="Total learning points"
-          icon={Star}
+          title="Daily Streak"
+          value={`${user?.progress?.currentStreak || 0} Days`}
+          description={`Personal Best: ${user?.progress?.highStreak || 0} days`}
+          icon={Flame}
+          trend={(user?.progress?.currentStreak || 0) > 0 ? "up" : "neutral"}
+          trendValue={(user?.progress?.currentStreak || 0) > 0 ? "Active" : "New"}
         />
         <StatCard
-          title="Powers"
-          value={`${user?.power ?? 30}/30`}
-          description="Daily energy"
+          title="Daily Energy"
+          value={isPremium ? "∞" : `${user?.progress?.energy ?? 25}/25`}
+          description={
+            <EnergyTimer 
+              initialMs={nextRecoveryIn} 
+              isPremium={isPremium} 
+              energy={user?.progress?.energy ?? 25} 
+              max={25} 
+            />
+          }
           icon={Zap}
         />
         <StatCard
-          title="Current Level"
-          value={user?.level || "Beginner"}
-          description="Learning stage"
-          icon={Trophy}
-        />
-        <StatCard
-          title="Completed"
-          value={completedCount.toString()}
-          description={`${progressPercentage}% Path done`}
-          icon={BookOpen}
+          title="Current Plan"
+          value={plan}
+          description={user?.subscription?.billingCycle !== 'none' ? `${user?.subscription?.billingCycle} billing` : "Basic access"}
+          icon={Crown}
         />
       </div>
 

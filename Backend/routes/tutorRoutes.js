@@ -4,6 +4,7 @@ import { ROLES } from '../utils/roles.js';
 import * as tutorController from '../controllers/tutorController.js';
 import { authenticate, authenticateOptional } from '../middleware/auth.js';
 import { validate } from '../middleware/validate.js';
+import { checkTutorAccess } from '../middleware/accessControl.js';
 import upload from '../middleware/upload.js';
 import { z } from 'zod';
 
@@ -60,7 +61,7 @@ router.get('/', authenticateOptional, tutorController.listAvailableTutors);
 router.get('/my-requests', authenticate, tutorController.getLearnerRequests);
 
 // Request a tutor's help
-router.post('/request', authenticate, validate(requestTutorSchema), tutorController.requestTutor);
+router.post('/request', authenticate, checkTutorAccess, validate(requestTutorSchema), tutorController.requestTutor);
 
 // ── Tutor Specific ───────────────────────────────────────────────────────────
 

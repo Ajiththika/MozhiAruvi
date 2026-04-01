@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from "react";
-import { Eraser, Check } from "lucide-react";
+import { Eraser, Check, Paintbrush } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 
 interface WritingCanvasProps {
@@ -85,18 +85,23 @@ export function WritingCanvas({ onResult, expectedText, isCorrect }: WritingCanv
   };
 
   return (
-    <div className="w-full flex flex-col items-center gap-4 animate-in fade-in duration-500">
-      <div className="relative border-4 border-gray-200 rounded-3xl bg-white shadow-inner overflow-hidden flex items-center justify-center dark:border-gray-700">
-         {/* Background Guide / Expected Text Hint (Optional) */}
+    <div className="w-full flex flex-col items-center gap-8 animate-in fade-in duration-500">
+      <div className="relative border-[12px] border-gray-100 rounded-[3rem] bg-white shadow-2xl overflow-hidden flex items-center justify-center dark:border-gray-800 ring-4 ring-gray-50">
+         {/* Whiteboard Label */}
+         <div className="absolute top-6 left-1/2 -translate-x-1/2 text-[10px] font-black uppercase tracking-[0.4em] text-gray-300 pointer-events-none select-none">
+            Whiteboard Canvas
+         </div>
+
+         {/* Background Guide / Expected Text Hint */}
          {expectedText && (
             <div className="absolute inset-0 flex items-center justify-center opacity-5 pointer-events-none select-none">
-                <span className="text-[150px] font-black">{expectedText}</span>
+                <span className="text-[180px] font-black text-primary">{expectedText}</span>
             </div>
          )}
         <canvas
           ref={canvasRef}
-          width={300}
-          height={300}
+          width={400}
+          height={400}
           className="touch-none cursor-crosshair relative z-10"
           onMouseDown={startDrawing}
           onMouseUp={stopDrawing}
@@ -107,21 +112,21 @@ export function WritingCanvas({ onResult, expectedText, isCorrect }: WritingCanv
           onTouchMove={draw}
         />
         {isCorrect && (
-          <div className="absolute inset-0 flex items-center justify-center bg-white/60 z-20">
-            <div className="h-16 w-16 bg-success rounded-full flex items-center justify-center animate-bounce shadow-xl">
-               <Check className="h-8 w-8 text-white" />
+          <div className="absolute inset-0 flex items-center justify-center bg-white/70 z-20 backdrop-blur-sm">
+            <div className="h-24 w-24 bg-emerald-500 rounded-full flex items-center justify-center animate-bounce shadow-2xl border-4 border-white">
+               <Check className="h-12 w-12 text-white" />
             </div>
           </div>
         )}
       </div>
 
       {!isCorrect && (
-          <div className="flex gap-4">
-            <Button onClick={clearCanvas} variant="outline" className="rounded-full shadow-sm" aria-label="Clear Canvas">
-                <Eraser className="w-5 h-5 mr-2" /> Clear
+          <div className="flex gap-6">
+            <Button onClick={clearCanvas} variant="outline" size="xl" className="rounded-2xl shadow-sm border-2 border-gray-100 font-black uppercase tracking-widest text-[10px] h-16 w-32" aria-label="Clear Canvas">
+                <Eraser className="w-5 h-5 mr-3" /> Clear
             </Button>
-            <Button onClick={submitDrawing} disabled={!hasDrawn} className="rounded-full shadow-md bg-secondary hover:bg-secondary/90">
-                <Check className="w-5 h-5 mr-2" /> Submit Drawing
+            <Button onClick={submitDrawing} disabled={!hasDrawn} size="xl" className="rounded-2xl shadow-xl bg-primary hover:bg-primary/90 font-black uppercase tracking-widest text-[10px] h-16 w-60">
+                <Paintbrush className="w-5 h-5 mr-3" /> Analyze Drawing
             </Button>
           </div>
       )}

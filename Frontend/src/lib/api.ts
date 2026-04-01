@@ -36,7 +36,7 @@ api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
 
 // ── Dedicated client for token refresh (no interceptors, avoids ∞ loop) ──────
 const refreshClient = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5000/api",
+  baseURL: apiBaseUrl,
   withCredentials: true,
   headers: { "Content-Type": "application/json" },
 });
@@ -48,7 +48,9 @@ refreshClient.interceptors.response.use((response) => {
   return response;
 });
 
-// ── 3. Response interceptor ──────────────────────────────────────────────
+interface ExtendedRequestConfig extends InternalAxiosRequestConfig {
+  _retry?: boolean;
+}
 
 let refreshingPromise: Promise<string> | null = null;
 
@@ -60,7 +62,9 @@ api.interceptors.response.use(
     return response;
   },
   async (error: AxiosError) => {
-    const originalRequest = error.config as any;
+    const originalRequest = error.config as ExtendedRequestConfig;
+
+    if (!originalRequest) return Promise.reject(error);
 
     // 1. If it's a 401 (token expired) and not already retrying
     if (
@@ -73,7 +77,6 @@ api.interceptors.response.use(
       originalRequest._retry = true;
 
       try {
-        // Singleton pattern: if a refresh is already in progress, wait for it
         if (!refreshingPromise) {
           refreshingPromise = refreshClient
             .post<{ accessToken: string }>("/auth/refresh", {})
@@ -100,7 +103,6 @@ api.interceptors.response.use(
       }
     }
 
-    // 2. Logging and Final reject
     // 2. Logging and Final reject
     console.error("[API ERROR]:", error.response?.data || error.message);
 

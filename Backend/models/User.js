@@ -39,20 +39,40 @@ const userSchema = new mongoose.Schema({
   premiumExpiresAt: { type: Date },
 
   // Learning Progression & Duolingo features
-  level: { type: String, enum: ['Basic', 'Beginner', 'Intermediate', 'Advanced', 'Not Set'], default: 'Not Set' },
+  level: { type: String, default: 'Not Set' },
   learningCredits: { type: Number, default: 25 },
   lastCreditUpdate: { type: Date, default: Date.now },
   xp: { type: Number, default: 0 },
   points: { type: Number, default: 0 },
-  power: { type: Number, default: 30 },
+  power: { type: Number, default: 25 },
   lastPowerUpdate: { type: Date, default: Date.now },
   badges: [{ type: String }],
   progress: {
     energy: { type: Number, default: 25 },
     lastEnergyUpdate: { type: Date, default: Date.now },
     completedLessons: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Lesson' }],
-    level: { type: String, enum: ['basic', 'intermediate', 'advanced'], default: 'basic' }
+    level: { type: String, default: 'Basic' },
+    currentStreak: { type: Number, default: 0 },
+    highStreak: { type: Number, default: 0 },
+    lastLessonDate: { type: Date }
   },
+  // Subscription & Access Control (Stripe)
+  subscription: {
+    plan: { type: String, enum: ['FREE', 'PRO', 'PREMIUM', 'BUSINESS'], default: 'FREE' },
+    billingCycle: { type: String, enum: ['monthly', 'yearly', 'none'], default: 'none' },
+    stripeCustomerId: { type: String },
+    stripeSubscriptionId: { type: String },
+    currentPeriodEnd: { type: Date },
+    paidEvents: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Event' }],
+    paidTutors: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }], // purchased tutor sessions
+    freeEventsUsedThisCycle: { type: Number, default: 0 },
+    tutorSupportUsed: { type: Number, default: 0 },
+    eventUsageCount: { type: Number, default: 0 }
+  },
+
+  organizationId: { type: mongoose.Schema.Types.ObjectId, ref: 'Organization' },
+  roleInOrg: { type: String, enum: ['owner', 'member'] },
+
   hasCompletedOnboarding: { type: Boolean, default: false },
 
   // Auth internals
@@ -73,8 +93,16 @@ userSchema.methods.comparePassword = function (plain) {
 };
 
 userSchema.methods.toSafeObject = function () {
-  const { _id, name, email, role, isActive, warnings, adminNotes, isTutorAvailable, isPremium, progress, credits, createdAt, teachingMode, profilePhoto, level, learningCredits, xp, points, power, lastPowerUpdate, badges, hasCompletedOnboarding, lastCreditUpdate, phoneNumber, country, age, gender, bio, experience, specialization, languages } = this;
-  return { _id, name, email, role, isActive, warnings, adminNotes, isTutorAvailable, isPremium, progress, credits, createdAt, teachingMode, profilePhoto, level, learningCredits, xp, points, power, lastPowerUpdate, badges, hasCompletedOnboarding, lastCreditUpdate, phoneNumber, country, age, gender, bio, experience, specialization, languages };
+  const { _id, name, email, role, isActive, warnings, adminNotes, isTutorAvailable, isPremium, progress, credits, createdAt, teachingMode, profilePhoto, level, learningCredits, xp, points, power, lastPowerUpdate, badges, hasCompletedOnboarding, lastCreditUpdate, phoneNumber, country, age, gender, bio, experience, specialization, languages, subscription, organizationId, roleInOrg } = this;
+  return { _id, name, email, role, isActive, warnings, adminNotes, isTutorAvailable, isPremium, progress, credits, createdAt, teachingMode, profilePhoto, level, learningCredits, xp, points, power, lastPowerUpdate, badges, hasCompletedOnboarding, lastCreditUpdate, phoneNumber, country, age, gender, bio, experience, specialization, languages, subscription, organizationId, roleInOrg };
 };
+
+// Indexes for high-performance lookups
+// NOTE: email index is already created via unique:true on the field definition
+userSchema.index({ role: 1, isActive: 1 });
+userSchema.index({ googleId: 1 }, { sparse: true });
+userSchema.index({ 'subscription.stripeCustomerId': 1 }, { sparse: true });
+userSchema.index({ 'subscription.stripeSubscriptionId': 1 }, { sparse: true });
+userSchema.index({ 'progress.completedLessons': 1 });
 
 export default mongoose.model('User', userSchema);

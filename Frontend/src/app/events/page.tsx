@@ -88,7 +88,24 @@ export default function EventsPage() {
 
   const handleRegistrationSubmit = async (data: JoinRequestPayload) => {
     if (!selectedEvent) return;
-    await submitJoinRequest(selectedEvent._id, data);
+    try {
+      await submitJoinRequest(selectedEvent._id, data);
+    } catch (err: any) {
+      const data = err?.response?.data;
+      if (data?.redirect) {
+        if (data.requiresPayment) {
+          if (window.confirm("You've reached your free event limit. Would you like to join this event for $5?")) {
+            const { createEventPayment } = await import("@/services/paymentService");
+            const { url } = await createEventPayment(selectedEvent._id);
+            window.location.href = url;
+            return;
+          }
+        }
+        router.push(data.redirect);
+        throw err; // propagates to modal for error state
+      }
+      throw err;
+    }
   };
 
   return (

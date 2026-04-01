@@ -60,20 +60,44 @@ export async function consumeCredit(req, res, next) {
 export async function getStudentDashboardData(req, res, next) {
     try {
         const userId = req.user.sub;
+        
+        // Wrap individual promises to handle partial failures
+        const saferFetch = async (promise, fallback = []) => {
+            try { return await promise; } catch (e) { 
+                console.error("Dashboard sub-fetch failed:", e.message);
+                return fallback; 
+            }
+        };
+
         const [user, lessonsData, progress, joinRequests, blogs, questions] = await Promise.all([
             userService.getUserInfo(userId),
-            lessonService.getAllLessons(),
-            lessonService.getUserProgressList(userId),
-            eventService.getMyJoinRequests(userId),
-            blogService.getUserBlogs(userId),
-            tutorService.getStudentRequests(userId)
+            saferFetch(lessonService.getAllLessons()),
+            saferFetch(lessonService.getUserProgressList(userId)),
+            saferFetch(eventService.getMyJoinRequests(userId)),
+            saferFetch(blogService.getUserBlogs(userId)),
+            saferFetch(tutorService.getStudentRequests(userId))
         ]);
 
         const allLessons = Array.isArray(lessonsData) ? lessonsData : (lessonsData.lessons || []);
 
-        // Filter lessons by exact user level so dashboard stats are level-scoped
-        const userLevel = user.level || 'Basic';
-        const lessonsList = allLessons.filter(l => (l.level || 'Basic') === userLevel);
+        // Normalize the user's current level for curriculum matching. 
+        // If not set, we default to the starting path ('Beginner' or 'Basic').
+        let userLevel = user.level || 'Beginner';
+        if (userLevel === 'Not Set' || !userLevel) userLevel = 'Beginner';
+
+        // Filter lessons by level (with Beginner/Basic equivalence)
+        let lessonsList = allLessons.filter(l => {
+            const lessonLevel = l.level || 'Basic';
+            return lessonLevel.toLowerCase() === userLevel.toLowerCase() || 
+                   (userLevel === 'Beginner' && lessonLevel === 'Basic') ||
+                   (userLevel === 'Basic' && lessonLevel === 'Beginner');
+        });
+
+        // Fallback: If no lessons exist for the assigned level, show first available to avoid empty dashboard
+        if (lessonsList.length === 0 && allLessons.length > 0) {
+            const firstLevelFound = allLessons[0].level || 'Basic';
+            lessonsList = allLessons.filter(l => (l.level || 'Basic') === firstLevelFound);
+        }
 
         // Backend-driven metric computation (level-filtered)
         const totalLessons = lessonsList.length;

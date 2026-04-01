@@ -19,7 +19,7 @@ export interface UserProfile {
   profilePhoto?: string | null;
   isTutorAvailable?: boolean;
   credits?: number;
-  level?: "Beginner" | "Intermediate" | "Advanced" | "Not Set";
+  level?: "Basic" | "Beginner" | "Elementary" | "Intermediate" | "Advanced" | "Not Set";
   learningCredits?: number;
   xp?: number;
 }
@@ -68,7 +68,7 @@ export async function deactivateAccount(): Promise<{ message: string }> {
 
 import { SafeUser } from "./authService";
 
-export async function setLevel(level: "Beginner" | "Intermediate" | "Advanced" | "Not Set"): Promise<SafeUser> {
+export async function setLevel(level: "Basic" | "Beginner" | "Elementary" | "Intermediate" | "Advanced" | "Not Set"): Promise<SafeUser> {
   const res = await api.patch<{ message: string; user: SafeUser }>("/users/me/level", { level });
   return res.data.user;
 }

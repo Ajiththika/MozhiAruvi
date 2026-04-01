@@ -36,12 +36,33 @@ export default function PublicTutorProfilePage() {
     open: false, type: "question"
   });
 
-  const handleProtectedBooking = (type: "question" | "live_class" | "multi_class") => {
+  const [isPaying, setIsPaying] = useState(false);
+
+  const handleProtectedBooking = async (type: "question" | "live_class" | "multi_class") => {
     if (!user) {
       const currentPath = window.location.pathname;
       router.push(`/auth/signin?redirect=${encodeURIComponent(currentPath)}`);
       return;
     }
+
+    // Check if user has premium plan or has already paid for this tutor
+    const plan = user.subscription?.plan || 'FREE';
+    const hasPaid = user.subscription?.paidTutors?.includes(id);
+
+    if (plan === 'FREE' && !hasPaid) {
+      try {
+        setIsPaying(true);
+        const { url } = await import("@/services/paymentService").then(m => m.createTutorPayment(id));
+        window.location.href = url;
+        return;
+      } catch (err) {
+        console.error(err);
+        alert("Failed to initiate payment. Please try again.");
+      } finally {
+        setIsPaying(false);
+      }
+    }
+
     setModalState({ open: true, type });
   };
 

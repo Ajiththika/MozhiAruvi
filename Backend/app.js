@@ -14,6 +14,9 @@ import teacherApplicationRoutes from './routes/teacherApplicationRoutes.js';
 import blogRoutes from './routes/blogRoutes.js';
 import uploadRoutes from './routes/uploadRoutes.js';
 import categoryRoutes from './routes/categoryRoutes.js';
+import paymentRoutes from './routes/paymentRoutes.js';
+import organizationRoutes from './routes/organizationRoutes.js';
+import { stripeWebhook } from './controllers/paymentController.js';
 import { testSmtpConnection } from './services/mailService.js';
 import { errorHandler } from './middleware/error.js';
 
@@ -40,6 +43,9 @@ app.use(cors({
 }));
 
 // ── Body / Cookie ─────────────────────────────────────────────────────────────
+// Stripe webhook needs raw body for signature verification
+app.post('/api/payments/webhook', express.raw({ type: 'application/json' }), stripeWebhook);
+
 app.use(express.json());
 app.use(cookieParser());
 
@@ -64,6 +70,8 @@ app.use('/api/teachers', teacherApplicationRoutes);
 app.use('/api/blogs', blogRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/categories', categoryRoutes);
+app.use('/api/payments', paymentRoutes);
+app.use('/api/organizations', organizationRoutes);
 
 app.get('/health', (_req, res) => res.json({ status: 'ok' }));
 

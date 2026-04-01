@@ -11,6 +11,9 @@ const router = Router();
 // Retrieve all users (admins can view)
 router.get('/stats', authenticate, authorizeRoles(ROLES.ADMIN), adminController.getStats);
 router.get('/users', authenticate, authorizeRoles(ROLES.ADMIN), adminController.getUsers);
+router.get('/premium-users', authenticate, authorizeRoles(ROLES.ADMIN), adminController.getPremiumUsers);
+router.get('/plan-settings', authenticate, authorizeRoles(ROLES.ADMIN), adminController.getPlanSettings);
+router.patch('/plan-settings/:planId', authenticate, authorizeRoles(ROLES.ADMIN), adminController.updatePlanSettings);
 
 // Retrieve all tutors (admins can view)
 router.get('/tutors', authenticate, authorizeRoles(ROLES.ADMIN), adminController.getTutors);

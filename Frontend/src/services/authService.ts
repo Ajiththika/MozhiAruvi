@@ -42,7 +42,24 @@ export interface SafeUser {
     lastEnergyUpdate: string;
     completedLessons: string[];
     level: string;
+    currentStreak: number;
+    highStreak: number;
+    lastLessonDate?: string;
   };
+  subscription?: {
+    plan: "FREE" | "PRO" | "PREMIUM" | "BUSINESS";
+    billingCycle: "monthly" | "yearly" | "none";
+    stripeCustomerId?: string;
+    stripeSubscriptionId?: string;
+    currentPeriodEnd?: string;
+    paidEvents?: string[];
+    paidTutors?: string[];
+    freeEventsUsedThisCycle?: number;
+    tutorSupportUsed?: number;
+    eventUsageCount?: number;
+  };
+  organizationId?: string;
+  roleInOrg?: "owner" | "member";
   createdAt?: string;
   updatedAt?: string;
 }

@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import {
-  BookOpen, Loader2, AlertCircle, Lock, Star, Zap, CheckCircle2,
+  BookOpen, Loader2, AlertCircle, Lock, Star, Flame, Zap, CheckCircle2,
   ArrowRight, Clock, ListChecks, Play
 } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -176,11 +176,17 @@ export default function StudentLessonsPage() {
     }} />;
   }
 
-  const powers = user?.power ?? 30;
+  const powers = user?.progress?.energy ?? user?.power ?? 25;
   const isOutOfEnergy = powers <= 0;
-  const userLevel = user?.level || "Basic";
+  const userLevel = (user?.level === "Not Set" || !user?.level) ? "Beginner" : user?.level;
 
-  const filteredLessons = lessons.filter(l => (l.level || "Basic") === userLevel);
+  const filteredLessons = lessons.filter(l => {
+    const lessonLevel = (l.level || "Basic").toLowerCase();
+    const target = userLevel.toLowerCase();
+    return lessonLevel === target || 
+           (target === "beginner" && lessonLevel === "basic") ||
+           (target === "basic" && lessonLevel === "beginner");
+  });
   const sortedLessons = [...filteredLessons].sort((a, b) => {
     if (a.moduleNumber !== b.moduleNumber) return (a.moduleNumber || 1) - (b.moduleNumber || 1);
     return (a.orderIndex || 0) - (b.orderIndex || 0);
@@ -216,7 +222,7 @@ export default function StudentLessonsPage() {
 
   function navigateToLesson(lesson: Lesson) {
     if (!user) { router.push("/login"); return; }
-    if ((user.power ?? 30) <= 0) {
+    if (powers <= 0) {
       alert("No energy left. Please wait for power to regenerate.");
       return;
     }
@@ -248,8 +254,8 @@ export default function StudentLessonsPage() {
           <span className="hidden sm:inline">Learning Path</span>
         </div>
         <div className="flex items-center gap-6 font-bold text-lg">
-          <div className="flex items-center gap-1.5 text-amber-500" title="Points Earned">
-            <Star className="w-6 h-6 fill-current" /> {user?.points || user?.xp || 0}
+          <div className="flex items-center gap-1.5 text-orange-500" title="Current Daily Streak">
+            <Flame className="w-6 h-6 fill-current" /> {user?.progress?.currentStreak || 0}
           </div>
           <div
             className={cn(
@@ -258,7 +264,7 @@ export default function StudentLessonsPage() {
             )}
             title="Daily Power"
           >
-            <Zap className="w-6 h-6 fill-current" /> {powers}/30
+            <Zap className="w-6 h-6 fill-current" /> {powers}/25
           </div>
         </div>
       </div>
@@ -355,8 +361,13 @@ export default function StudentLessonsPage() {
 
               {categoryLessons.map((lesson) => {
                 const status = lessonStatus.get(lesson._id) || "locked";
-                const isLocked = status === "locked" || lesson.isPremiumOnly;
-                const isCurrent = status === "unlocked";
+                const isPaidPlan = user?.subscription?.plan && ['PRO', 'PREMIUM', 'BUSINESS'].includes(user.subscription.plan);
+                const isPremiumUser = user?.isPremium || isPaidPlan;
+                
+                // Lock if naturally locked by sequence OR if premium-only and user is not premium
+                const isLocked = status === "locked" || (lesson.isPremiumOnly && !isPremiumUser);
+                
+                const isCurrent = status === "unlocked" && !isLocked;
                 const isDone = status === "completed";
 
                 return (

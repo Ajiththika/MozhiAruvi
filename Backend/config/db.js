@@ -1,11 +1,52 @@
+/**
+ * config/db.js
+ *
+ * Mongoose connection management with retry logic and standardized options.
+ */
 import mongoose from 'mongoose';
 
 export async function connectDB() {
     const options = {
-        serverSelectionTimeoutMS: 5000, // Timeout after 5s instead of 30s
+        serverSelectionTimeoutMS: 15000, // Wait 15s before saying DB is gone
         connectTimeoutMS: 10000,
-        // bufferCommands: false, // Disable buffering so it fails immediately
+        maxPoolSize: 10, // Maintain pool size
+        socketTimeoutMS: 45000, // Close sockets after 45s if no activity
+        family: 4, // Force IPv4 to avoid resolution issues (Atlas common pitfall)
+        retryWrites: true,
+        w: 'majority',
     };
-    await mongoose.connect(process.env.MONGODB_URI, options);
-    console.log('MongoDB connected');
+
+    const mongoUri = process.env.MONGODB_URI;
+
+    try {
+        await mongoose.connect(mongoUri, options);
+        console.log('✅ [DATABASE] MongoDB Atlas connected successfully.');
+    } catch (err) {
+        console.error('❌ [DATABASE] Initial Connection Failure:', err.message);
+        
+        // If initial connection fails, we don't exit process if we want to run in degraded mode.
+        // But for production, failing early is often better.
+        if (process.env.NODE_ENV === 'production') {
+            console.error('[CRITICAL] Exiting in production node due to DB failure.');
+            process.exit(1);
+        }
+
+        console.warn('⚠️ [DATABASE] Running in degraded mode (Database Offline). Check IP whitelist.');
+    }
+
+    // Set up listeners for runtime connection issues
+    mongoose.connection.on('error', (err) => {
+        console.error('⚠️ [DATABASE] Runtime Connection Error:', err.message);
+    });
+
+    mongoose.connection.on('disconnected', () => {
+        console.warn('⚠️ [DATABASE] Connection lost, Mongoose will auto-retry in the background.');
+    });
+}
+
+/** 
+ * Gracefully close DB if process terminates 
+ */
+export async function closeDB() {
+    await mongoose.connection.close();
 }

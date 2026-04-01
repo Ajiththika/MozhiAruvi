@@ -1,5 +1,7 @@
 import * as authService from '../services/authService.js';
 import * as tokenService from '../services/tokenService.js';
+import { regenerateEnergy } from '../utils/energyManager.js';
+import User from '../models/User.js';
 
 // ── Register ──────────────────────────────────────────────────────────────────
 export async function register(req, res, next) {
@@ -52,7 +54,12 @@ export async function logout(req, res) {
 // ── Me ────────────────────────────────────────────────────────────────────────
 export async function me(req, res, next) {
     try {
-        const user = await authService.getMe(req.user.sub);
+        const user = await User.findById(req.user.sub);
+        if (!user) return res.status(404).json({ message: 'User not found' });
+        
+        const modified = regenerateEnergy(user);
+        if (modified) await user.save();
+        
         res.json({ user: user.toSafeObject() });
     } catch (e) { next(e); }
 }

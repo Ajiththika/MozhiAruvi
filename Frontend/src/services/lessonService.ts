@@ -51,6 +51,13 @@ export interface Progress {
   completedAt: string;
 }
 
+export interface EnergyState {
+  currentEnergy: number;
+  maxEnergy: number;
+  nextRecoveryIn: number;
+  isPremium: boolean;
+}
+
 export interface SubmitResult {
   score: number;
   total: number;
@@ -58,6 +65,7 @@ export interface SubmitResult {
   results: Array<{ questionId: string; correct: boolean }>;
   nextLessonId?: string;
   user?: any;
+  energy?: EnergyState;
   redirect?: string;
 }
 
@@ -77,8 +85,8 @@ export async function getLessonById(id: string): Promise<Lesson> {
 
 // ── Get lesson questions ──────────────────────────────────────────────────────
 
-export async function getLessonQuestions(id: string): Promise<{ questions: Question[], user: any }> {
-  const res = await api.get<{ questions: Question[], user: any }>(`/lessons/${id}/questions`);
+export async function getLessonQuestions(id: string): Promise<{ questions: Question[], user: any, energy?: EnergyState }> {
+  const res = await api.get<{ questions: Question[], user: any, energy?: EnergyState }>(`/lessons/${id}/questions`);
   return res.data;
 }
 

@@ -1,18 +1,48 @@
-import 'dotenv/config';
+/**
+ * server.js
+ *
+ * App Entry Point.
+ */
+import './config/env.js'; // MUST BE FIRST: Load and validate env
 import app from './app.js';
-import { connectDB } from './config/db.js';
+import { connectDB, closeDB } from './config/db.js';
+import { seedPlans } from './utils/seedPlans.js';
 
-import mongoose from 'mongoose';
-mongoose.set('bufferCommands', false); 
+const PORT = 5000;
 
-const PORT = process.env.PORT || 5000;
+// Catch unhandled rejections globally to prevent server crashes
+process.on('unhandledRejection', (reason) => {
+    console.error('❌ [CRITICAL] Unhandled Rejection at:', reason.stack || reason);
+    // Don't crash immediately, but exit in prod if critical
+});
 
 const server = app.listen(PORT, async () => {
-    console.log(`Server running on port ${PORT}`);
+    console.log(`✅ [SERVER] Listening on http://localhost:${PORT}`);
     try {
         await connectDB();
+        await seedPlans();
     } catch (err) {
-        console.error('Critical Database Failure:', err.message);
-        console.warn('Backend is running in degraded mode (Offline). Check MongoDB Atlas IP whitelist.');
+        console.error('❌ [SERVER] Start Failure during DB connection:', err.message);
     }
 });
+
+/** 
+ * Proper Shutdown Handling
+ */
+const shutdown = async (signal) => {
+    console.log(`\n🛑 [SHUTDOWN] ${signal} signal received.`);
+    server.close(async () => {
+        console.log('🛑 [SHUTDOWN] HTTP server closed.');
+        try {
+            await closeDB();
+            console.log('🛑 [SHUTDOWN] Database connections closed.');
+            process.exit(0);
+        } catch (e) {
+            console.error('❌ Error closing DB:', e);
+            process.exit(1);
+        }
+    });
+};
+
+process.on('SIGTERM', () => shutdown('SIGTERM'));
+process.on('SIGINT', () => shutdown('SIGINT'));
