@@ -51,12 +51,16 @@ export async function stripeWebhook(req, res, next) {
                 const { userId, type, plan, billingCycle, eventId, tutorId, seats } = session.metadata;
 
                 if (session.mode === 'subscription') {
+                    // Fetch full subscription to get trial_end or current_period_end
+                    const subscription = await stripeService.stripe.subscriptions.retrieve(session.subscription);
+
                     // Update User subscription
                     const updateData = {
                         'subscription.plan': plan,
                         'subscription.billingCycle': billingCycle,
                         'subscription.stripeSubscriptionId': session.subscription,
-                        'subscription.currentPeriodEnd': new Date(session.expires_at * 1000), // temp, invoice will update it
+                        'subscription.currentPeriodEnd': new Date(subscription.current_period_end * 1000),
+                        'subscription.hasUsedTrial': true,
                     };
 
                     if (plan === 'BUSINESS') {

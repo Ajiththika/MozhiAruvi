@@ -21,7 +21,7 @@ export default function ErrorBoundary({
           <AlertCircle className="w-8 h-8 text-red-500" />
         </div>
         <h2 className="text-2xl font-black text-slate-800 mb-2">System Interruption</h2>
-        <p className="text-slate-500 mb-8 font-medium italic">
+        <p className="text-primary/70 mb-8 font-medium italic">
           We encountered an unexpected error processing this view. Our diagnostic systems have logged the anomaly.
         </p>
         <button
@@ -40,6 +40,19 @@ export default function ErrorBoundary({
     </div>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

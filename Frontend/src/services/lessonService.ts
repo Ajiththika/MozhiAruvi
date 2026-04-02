@@ -4,7 +4,8 @@
  * All calls to /api/lessons/*
  */
 
-import api from "@/lib/api";
+import { api } from "@/lib/api";
+import { SafeUser } from "./authService";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -39,6 +40,10 @@ export interface Question {
   phoneticHint?: string;
 }
 
+export interface QuestionInput extends Partial<Omit<Question, '_id'>> {
+  lessonId?: string;
+}
+
 export interface SubmitAnswerItem {
   questionId: string;
   selectedOptionIndex: number;
@@ -66,7 +71,7 @@ export interface SubmitResult {
   passed: boolean;
   results: Array<{ questionId: string; correct: boolean }>;
   nextLessonId?: string;
-  user?: any;
+  user?: SafeUser;
   energy?: EnergyState;
   redirect?: string;
 }
@@ -87,8 +92,8 @@ export async function getLessonById(id: string): Promise<Lesson> {
 
 // ── Get lesson questions ──────────────────────────────────────────────────────
 
-export async function getLessonQuestions(id: string): Promise<{ questions: Question[], user: any, energy?: EnergyState }> {
-  const res = await api.get<{ questions: Question[], user: any, energy?: EnergyState }>(`/lessons/${id}/questions`);
+export async function getLessonQuestions(id: string): Promise<{ questions: Question[], user: SafeUser, energy?: EnergyState }> {
+  const res = await api.get<{ questions: Question[], user: SafeUser, energy?: EnergyState }>(`/lessons/${id}/questions`);
   return res.data;
 }
 
@@ -128,12 +133,12 @@ export async function deleteLesson(id: string): Promise<{ message: string }> {
   return res.data;
 }
 
-export async function createQuestion(lessonId: string, data: any): Promise<{ question: Question }> {
+export async function createQuestion(lessonId: string, data: QuestionInput): Promise<{ question: Question }> {
   const res = await api.post<{ question: Question }>(`/lessons/${lessonId}/questions`, data);
   return res.data;
 }
 
-export async function updateQuestion(lessonId: string, questionId: string, data: any): Promise<{ question: Question }> {
+export async function updateQuestion(lessonId: string, questionId: string, data: QuestionInput): Promise<{ question: Question }> {
   const res = await api.patch<{ question: Question }>(`/lessons/${lessonId}/questions/${questionId}`, data);
   return res.data;
 }
@@ -146,3 +151,4 @@ export async function deleteQuestion(lessonId: string, questionId: string): Prom
 export async function reorderQuestions(lessonId: string, orderedIds: string[]): Promise<void> {
   await api.patch(`/lessons/${lessonId}/questions/reorder`, { orderedIds });
 }
+

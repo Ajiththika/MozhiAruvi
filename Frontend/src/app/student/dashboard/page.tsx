@@ -1,10 +1,10 @@
 "use client";
 
 import React, { useState } from "react";
-import { StatCard } from "@/components/features/dashboard/StatCard";
+import StatCard from "@/components/features/dashboard/StatCard";
 import { BookOpen, Trophy, AlertCircle, ArrowRight, Clock, BookMarked, Flame, Zap, Crown, Calendar, Headphones } from "lucide-react";
-import { Button } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
+import Button from "@/components/ui/Button";
+import Card from "@/components/ui/Card";
 import { getDashboardData } from "@/services/authService";
 import { useQuery } from "@tanstack/react-query";
 import { DashboardSkeleton } from "./DashboardSkeleton";
@@ -92,7 +92,7 @@ export default function StudentDashboard() {
           <span className="text-xs font-bold text-primary tracking-widest uppercase">Learning Hub</span>
         </div>
         <div className="max-w-3xl">
-          <h1 className="text-3xl md:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-tight">
+          <h1 className="text-3xl md:text-4xl lg:text-4xl font-black text-primary tracking-tight leading-tight">
             Vanakkam, {user?.name?.split(" ")[0]}!
           </h1>
           <p className="text-base md:text-lg text-slate-600 font-semibold leading-relaxed mt-4">
@@ -133,9 +133,15 @@ export default function StudentDashboard() {
         />
         <StatCard
           title="Current Plan"
-          value={plan}
-          description={user?.subscription?.billingCycle !== 'none' ? `${user?.subscription?.billingCycle} billing` : "Basic access"}
+          value={user?.subscription?.plan !== 'FREE' && (new Date(user?.subscription?.currentPeriodEnd || 0) > new Date(Date.now() + 2 * 24 * 60 * 60 * 1000)) ? `${plan} (Trial)` : plan}
+          description={
+            user?.subscription?.plan !== 'FREE' 
+              ? `Ends on ${new Date(user?.subscription?.currentPeriodEnd || 0).toLocaleDateString("en-GB", { day: 'numeric', month: 'short' })}`
+              : "Basic access"
+          }
           icon={Crown}
+          trend={user?.subscription?.plan !== 'FREE' ? "up" : "neutral"}
+          trendValue={user?.subscription?.plan !== 'FREE' ? "Premium" : "Free"}
         />
       </div>
 
@@ -153,7 +159,7 @@ export default function StudentDashboard() {
       {/* Section: Learning Roadmap */}
       <div className="space-y-8">
           <div className="flex items-center justify-between border-b border-slate-100 pb-6">
-            <h3 className="text-2xl font-black text-slate-900 tracking-tight">Active Learning Path</h3>
+            <h3 className="text-2xl font-black text-primary tracking-tight">Active Learning Path</h3>
             <Button href="/student/lessons" variant="ghost" size="sm" className="text-primary uppercase tracking-widest text-xs font-bold">
               Full Curriculum <ArrowRight className="ml-2 w-4 h-4" />
             </Button>
@@ -173,7 +179,7 @@ export default function StudentDashboard() {
                     <span className="inline-flex items-center gap-2 rounded-full bg-white/15 px-4 py-2 text-xs font-bold uppercase tracking-wider border border-white/20 shadow-sm">
                       <Clock className="w-4 h-4" /> Resume Activity
                     </span>
-                    <h4 className="text-3xl lg:text-5xl font-black tracking-tight drop-shadow-sm leading-tight">
+                    <h4 className="text-3xl lg:text-4xl font-black tracking-tight drop-shadow-sm leading-tight">
                       {nextLesson.title}
                     </h4>
                     <p className="text-lg text-white/80 font-semibold leading-relaxed line-clamp-2">
@@ -207,7 +213,7 @@ export default function StudentDashboard() {
           ) : (
             <Card variant="outline" padding="xl" className="flex flex-col items-center justify-center text-center border-dashed bg-slate-50/50">
               <div className="h-20 w-20 rounded-full bg-white shadow-2xl flex items-center justify-center text-4xl mb-6">📚</div>
-              <p className="text-xl font-bold text-slate-900 uppercase tracking-widest">Awaiting Knowledge</p>
+              <p className="text-xl font-bold text-primary uppercase tracking-widest">Awaiting Knowledge</p>
               <p className="text-slate-600 font-semibold my-4 max-w-sm">You haven't begun any modules yet. Embark on your linguistic journey today.</p>
               <Button href="/student/lessons" variant="primary" size="lg" className="rounded-2xl shadow-xl shadow-primary/25 mt-4">Explore the Curriculum <ArrowRight className="ml-2 h-4 w-4" /></Button>
             </Card>
@@ -217,3 +223,16 @@ export default function StudentDashboard() {
     </div>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -63,7 +63,7 @@ function LessonPreviewModal({ lesson, status, onClose, onStart }: PreviewModalPr
             )}>
               {status === "completed" ? "Completed" : "Available Activity"}
             </span>
-            <h2 className="mt-5 text-3xl font-black text-slate-900 tracking-tight leading-tight">{lesson.title}</h2>
+            <h2 className="mt-5 text-3xl font-black text-primary tracking-tight leading-tight">{lesson.title}</h2>
             {lesson.category && (
               <p className="text-xs font-bold text-slate-600 uppercase tracking-widest mt-2">{lesson.category}</p>
             )}
@@ -97,7 +97,7 @@ function LessonPreviewModal({ lesson, status, onClose, onStart }: PreviewModalPr
             </button>
             <button
               onClick={onClose}
-              className="w-full py-4 rounded-2xl border-2 border-slate-100 text-xs font-bold uppercase tracking-widest text-slate-500 hover:bg-slate-50 transition-all"
+              className="w-full py-4 rounded-2xl border-2 border-slate-100 text-xs font-bold uppercase tracking-widest text-primary/70 hover:bg-slate-50 transition-all"
             >
               Back to Path
             </button>
@@ -141,7 +141,7 @@ export default function StudentLessonsPage() {
     return (
       <div className="flex flex-col items-center justify-center min-h-[50vh] gap-3">
         <Loader2 className="h-10 w-10 animate-spin text-primary" />
-        <p className="text-lg font-bold text-slate-500">Building your path...</p>
+        <p className="text-lg font-bold text-primary/70">Building your path...</p>
       </div>
     );
   }
@@ -269,7 +269,7 @@ export default function StudentLessonsPage() {
 
       {/* Page Header */}
       <div className="px-4 py-6">
-        <h2 className="text-3xl md:text-4xl lg:text-5xl font-black tracking-tight text-slate-900 flex items-center gap-3 uppercase">
+        <h2 className="text-3xl md:text-4xl lg:text-4xl font-black tracking-tight text-primary flex items-center gap-3 uppercase">
           <BookOpen className="h-8 w-8 text-indigo-500" /> Path Overview
         </h2>
         <p className="mt-4 text-base md:text-lg font-semibold text-slate-700 leading-relaxed">
@@ -290,7 +290,7 @@ export default function StudentLessonsPage() {
       )}
 
       {orderedGroups.length === 0 && !isOutOfEnergy && (
-        <div className="py-20 text-center text-slate-400 font-bold uppercase tracking-widest text-sm">
+        <div className="py-20 text-center text-primary/60 font-bold uppercase tracking-widest text-sm">
           No lessons are ready yet.
         </div>
       )}
@@ -318,7 +318,7 @@ export default function StudentLessonsPage() {
                 }
               </div>
               <div className="flex-1 min-w-0">
-                <h3 className="text-2xl font-black text-slate-900 uppercase tracking-tight flex items-center gap-3 flex-wrap">
+                <h3 className="text-2xl font-black text-primary uppercase tracking-tight flex items-center gap-3 flex-wrap">
                   {category}
                   {badgeEarned && (
                     <span className="bg-success/15 text-success text-xs font-bold tracking-wider px-3 py-1 rounded-full flex items-center gap-2 border border-success/20">
@@ -386,10 +386,10 @@ export default function StudentLessonsPage() {
                     {isLocked ? (
                       <div className="flex items-center gap-4 rounded-2xl border border-slate-100 bg-slate-50/80 p-4 opacity-55 grayscale select-none cursor-not-allowed">
                         <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-slate-200">
-                          <Lock className="h-5 w-5 text-slate-400" />
+                          <Lock className="h-5 w-5 text-primary/60" />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="font-bold text-slate-400 truncate text-sm">{lesson.title}</p>
+                          <p className="font-bold text-primary/60 truncate text-sm">{lesson.title}</p>
                           {lesson.isPremiumOnly && (
                             <span className="mt-1 inline-block rounded-full bg-amber-100 px-2 py-0.5 text-[9px] font-black uppercase text-amber-700 tracking-tighter">
                               Premium Path
@@ -431,7 +431,7 @@ export default function StudentLessonsPage() {
                         <div className="flex-1 min-w-0">
                           <p className={cn(
                             "font-bold truncate text-base uppercase tracking-tight",
-                            isDone ? "text-slate-500" : "text-slate-900"
+                            isDone ? "text-primary/70" : "text-primary"
                           )}>
                             {lesson.title}
                           </p>
@@ -466,6 +466,19 @@ export default function StudentLessonsPage() {
     </div>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

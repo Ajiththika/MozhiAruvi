@@ -92,7 +92,7 @@ export function TutorCard({ tutor }: { tutor: Tutor }) {
               <div className="text-right shrink-0">
                 <div className="flex flex-col items-end">
                    <span className="text-lg font-black text-slate-800 leading-none">${hourlyRate}</span>
-                   <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest mt-1">per class</span>
+                   <span className="text-[8px] font-black text-primary/60 uppercase tracking-widest mt-1">per class</span>
                 </div>
               </div>
             )}
@@ -131,7 +131,7 @@ export function TutorCard({ tutor }: { tutor: Tutor }) {
                  <Globe className="h-3.5 w-3.5 text-primary" />
               </div>
               <div className="min-w-0">
-                 <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Speaks</p>
+                 <p className="text-[8px] font-black text-primary/60 uppercase tracking-widest">Speaks</p>
                  <p className="text-[10px] font-bold text-slate-700 truncate">{languages?.join(", ") || "Tamil, English"}</p>
               </div>
            </div>
@@ -140,7 +140,7 @@ export function TutorCard({ tutor }: { tutor: Tutor }) {
                  <Clock className="h-3.5 w-3.5 text-secondary" />
               </div>
               <div className="min-w-0">
-                 <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Response</p>
+                 <p className="text-[8px] font-black text-primary/60 uppercase tracking-widest">Response</p>
                  <p className="text-[10px] font-bold text-slate-700 truncate">~{responseTime || "24 hrs"}</p>
               </div>
            </div>
@@ -158,6 +158,19 @@ export function TutorCard({ tutor }: { tutor: Tutor }) {
     </div>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

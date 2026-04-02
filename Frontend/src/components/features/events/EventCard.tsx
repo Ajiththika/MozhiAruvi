@@ -1,7 +1,7 @@
 import React from "react";
 import { Calendar, Clock, MapPin, Users, Trash2 } from "lucide-react";
-import { Card, CardBody, CardFooter } from "@/components/ui/Card";
-import { Button } from "@/components/ui/Button";
+import Card, { CardBody, CardFooter } from "@/components/ui/Card";
+import Button from "@/components/ui/Button";
 
 export interface EventCardProps {
   id: string;
@@ -80,26 +80,26 @@ export function EventCard({
         </h3>
         
         <div className="space-y-3 mt-auto">
-          <div className="flex items-center gap-3 text-xs font-bold text-slate-500 tracking-tight">
+          <div className="flex items-center gap-3 text-xs font-bold text-primary/70 tracking-tight">
             <div className="w-8 h-8 rounded-lg bg-secondary/10 flex items-center justify-center text-secondary">
               <Calendar className="h-4 w-4" />
             </div>
             <span>{date}</span>
           </div>
-          <div className="flex items-center gap-3 text-xs font-bold text-slate-500 tracking-tight">
+          <div className="flex items-center gap-3 text-xs font-bold text-primary/70 tracking-tight">
             <div className="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-500">
               <Clock className="h-4 w-4" />
             </div>
             <span>{time}</span>
           </div>
-          <div className="flex items-center gap-3 text-xs font-bold text-slate-500 tracking-tight">
+          <div className="flex items-center gap-3 text-xs font-bold text-primary/70 tracking-tight">
             <div className="w-8 h-8 rounded-lg bg-orange-50 flex items-center justify-center text-orange-400">
               <Users className="h-4 w-4" />
             </div>
             <span className={isFull ? "text-red-500" : ""}>{joined} / {max} joined</span>
           </div>
-          <div className="flex items-center gap-3 text-xs font-bold text-slate-400 tracking-tight">
-            <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400">
+          <div className="flex items-center gap-3 text-xs font-bold text-primary/60 tracking-tight">
+            <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-primary/60">
               <MapPin className="h-4 w-4" />
             </div>
             <span className="truncate">{location ? location : `Hosted by ${hName}`}</span>
@@ -116,7 +116,7 @@ export function EventCard({
                 Already Registered ✓
               </div>
             ) : isFull ? (
-              <div className="w-full rounded-responsive bg-slate-50 py-3 text-center text-xs font-black uppercase tracking-widest text-slate-400 border border-slate-100">
+              <div className="w-full rounded-responsive bg-slate-50 py-3 text-center text-xs font-black uppercase tracking-widest text-primary/60 border border-slate-100">
                 Capacity Reached
               </div>
             ) : (
@@ -154,6 +154,21 @@ export function EventCard({
     </Card>
   );
 }
+
+
+
+
+export default EventCard;
+
+
+
+
+
+
+
+
+
+
 
 
 

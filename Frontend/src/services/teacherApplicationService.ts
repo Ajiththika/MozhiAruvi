@@ -4,7 +4,7 @@
  * All calls to /api/teachers/*
  */
 
-import api from "@/lib/api";
+import { api } from "@/lib/api";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -58,3 +58,4 @@ export async function updateMyApplication(
   );
   return res.data.application;
 }
+

@@ -2,7 +2,7 @@
 
 import React, { useEffect } from "react";
 import { CheckCircle2, ArrowRight, Award } from "lucide-react";
-import { Button } from "@/components/ui/Button";
+import Button from "@/components/ui/Button";
 import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 
@@ -22,8 +22,8 @@ export default function SubscriptionSuccess() {
       </div>
       
       <div className="space-y-4 mb-12">
-        <h1 className="text-4xl md:text-5xl font-black text-slate-800 tracking-tight">Access Unlocked!</h1>
-        <p className="text-xl text-slate-500 font-medium max-w-xl mx-auto">
+        <h1 className="text-4xl md:text-4xl font-black text-slate-800 tracking-tight">Access Unlocked!</h1>
+        <p className="text-xl text-primary/70 font-medium max-w-xl mx-auto">
           Welcome to your new membership. Your subscription has been activated successfully.
         </p>
       </div>
@@ -34,7 +34,7 @@ export default function SubscriptionSuccess() {
            </div>
            <div className="text-left">
              <p className="font-black text-slate-800 uppercase tracking-widest text-xs">New Achievement</p>
-             <p className="text-lg font-bold text-slate-900">Pathfinder Subscriber</p>
+             <p className="text-lg font-bold text-primary">Pathfinder Subscriber</p>
            </div>
       </div>
 
@@ -56,6 +56,19 @@ export default function SubscriptionSuccess() {
     </div>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

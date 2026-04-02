@@ -5,7 +5,7 @@
  * Access token is stored via authStore after login/register/refresh.
  */
 
-import api from "@/lib/api";
+import { api } from "@/lib/api";
 import { authStore } from "@/lib/authStore";
 import { Lesson, Progress } from "./lessonService";
 import { JoinRequest } from "./eventService";
@@ -62,6 +62,7 @@ export interface SafeUser {
   roleInOrg?: "owner" | "member";
   createdAt?: string;
   updatedAt?: string;
+  hasUsedTrial?: boolean;
 }
 
 export interface AuthResponse {
@@ -158,3 +159,4 @@ export async function resetPassword(data: {
   const res = await api.post<{ message: string }>("/auth/reset-password", data);
   return res.data;
 }
+

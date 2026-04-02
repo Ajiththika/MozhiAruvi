@@ -4,7 +4,7 @@
  * All calls to /api/users/*
  */
 
-import api from "@/lib/api";
+import { api } from "@/lib/api";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -77,3 +77,4 @@ export async function consumeCredit(): Promise<{ learningCredits: number }> {
   const res = await api.post<{ message: string; learningCredits: number }>("/users/me/consume-credit");
   return res.data;
 }
+

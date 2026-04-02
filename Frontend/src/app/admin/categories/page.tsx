@@ -5,8 +5,8 @@ import {
   Plus, Loader2, Trash2, X, AlertCircle, LayoutGrid, Tag, AlignLeft, ArrowUpDown 
 } from "lucide-react";
 import { getCategories, createCategory, deleteCategory, Category } from "@/services/categoryService";
-import { Card } from "@/components/ui/Card";
-import { Button } from "@/components/ui/Button";
+import Card from "@/components/ui/Card";
+import Button from "@/components/ui/Button";
 
 export default function AdminCategoriesPage() {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -64,8 +64,8 @@ export default function AdminCategoriesPage() {
     }
   }
 
-  const inputCls = "w-full p-4 bg-white border-2 border-slate-100 rounded-2xl focus:border-primary focus:bg-white outline-none transition-all font-bold text-slate-700 placeholder:font-medium placeholder:text-slate-300";
-  const labelCls = "block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1.5 ml-1";
+  const inputCls = "w-full p-4 bg-white border-2 border-slate-100 rounded-2xl focus:border-primary focus:bg-white outline-none transition-all font-bold text-slate-700 placeholder:font-medium placeholder:text-primary/40";
+  const labelCls = "block text-[10px] font-black uppercase tracking-widest text-primary/60 mb-1.5 ml-1";
 
   return (
     <div className="space-y-8 animate-in fade-in pb-20 max-w-6xl mx-auto">
@@ -77,8 +77,8 @@ export default function AdminCategoriesPage() {
             <span className="h-2 w-10 rounded-full bg-primary/20" />
             <span className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">Taxonomy Manager</span>
           </div>
-          <h1 className="text-4xl font-black text-slate-900 tracking-tight">Categories</h1>
-          <p className="text-slate-500 font-medium mt-1">Organize your lessons by topic and difficulty.</p>
+          <h1 className="text-4xl font-black text-primary tracking-tight">Categories</h1>
+          <p className="text-primary/70 font-medium mt-1">Organize your lessons by topic and difficulty.</p>
         </div>
         <Button
           onClick={() => setShowCreate(true)}
@@ -95,7 +95,7 @@ export default function AdminCategoriesPage() {
           <div className="flex items-center justify-between mb-8">
             <h3 className="text-2xl font-black text-slate-800">Create Topic</h3>
             <button onClick={() => setShowCreate(false)} className="p-2 hover:bg-slate-100 rounded-full transition-colors">
-              <X className="w-6 h-6 text-slate-400" />
+              <X className="w-6 h-6 text-primary/60" />
             </button>
           </div>
 
@@ -110,7 +110,7 @@ export default function AdminCategoriesPage() {
               <div>
                 <label className={labelCls}>Category Name</label>
                 <div className="relative">
-                  <Tag className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300" />
+                  <Tag className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-primary/40" />
                   <input
                     required
                     className={inputCls + " pl-12"}
@@ -123,7 +123,7 @@ export default function AdminCategoriesPage() {
               <div>
                 <label className={labelCls}>Order Index</label>
                 <div className="relative">
-                  <ArrowUpDown className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300" />
+                  <ArrowUpDown className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-primary/40" />
                   <input
                     type="number"
                     className={inputCls + " pl-12"}
@@ -137,7 +137,7 @@ export default function AdminCategoriesPage() {
             <div>
               <label className={labelCls}>Description</label>
               <div className="relative">
-                <AlignLeft className="absolute left-4 top-5 w-4 h-4 text-slate-300" />
+                <AlignLeft className="absolute left-4 top-5 w-4 h-4 text-primary/40" />
                 <textarea
                   className={inputCls + " pl-12 min-h-[100px]"}
                   placeholder="What will students learn here?"
@@ -148,7 +148,7 @@ export default function AdminCategoriesPage() {
             </div>
 
             <div className="flex justify-end gap-4 pt-2">
-              <button type="button" onClick={() => setShowCreate(false)} className="px-8 py-4 font-black uppercase tracking-widest text-[10px] text-slate-400">
+              <button type="button" onClick={() => setShowCreate(false)} className="px-8 py-4 font-black uppercase tracking-widest text-[10px] text-primary/60">
                 Cancel
               </button>
               <Button type="submit" isLoading={submitting} size="lg" className="px-12 rounded-2xl">
@@ -163,7 +163,7 @@ export default function AdminCategoriesPage() {
       {loading ? (
         <div className="flex flex-col items-center justify-center p-20 gap-4">
           <Loader2 className="w-12 h-12 animate-spin text-primary/30" />
-          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">Loading taxonomy...</p>
+          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-primary/60">Loading taxonomy...</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -173,16 +173,16 @@ export default function AdminCategoriesPage() {
                   <div className="h-12 w-12 rounded-2xl bg-primary/5 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-all">
                       <LayoutGrid className="w-6 h-6" />
                   </div>
-                  <button onClick={() => handleDelete(cat._id)} className="p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all opacity-0 group-hover:opacity-100">
+                  <button onClick={() => handleDelete(cat._id)} className="p-2 text-primary/40 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all opacity-0 group-hover:opacity-100">
                     <Trash2 className="w-4 h-4" />
                   </button>
                 </div>
                 <h3 className="text-xl font-black text-slate-800 tracking-tight mb-2 uppercase">{cat.name}</h3>
-                <p className="text-sm font-medium text-slate-500 leading-relaxed italic mb-6">
+                <p className="text-sm font-medium text-primary/70 leading-relaxed italic mb-6">
                    {cat.description || "No description provided."}
                 </p>
                 <div className="flex items-center justify-between pt-6 border-t border-slate-50">
-                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-300">Order: {cat.orderIndex}</span>
+                    <span className="text-[10px] font-black uppercase tracking-widest text-primary/40">Order: {cat.orderIndex}</span>
                     <span className="inline-flex h-2 w-8 rounded-full bg-primary/10" />
                 </div>
              </Card>
@@ -191,7 +191,7 @@ export default function AdminCategoriesPage() {
           {categories.length === 0 && !showCreate && (
             <div className="col-span-full py-20 text-center border-2 border-dashed border-slate-100 rounded-[3rem]">
                <Tag className="w-16 h-16 text-slate-100 mx-auto mb-4" />
-               <p className="text-slate-400 font-bold italic">No specialized topics created yet.</p>
+               <p className="text-primary/60 font-bold italic">No specialized topics created yet.</p>
             </div>
           )}
         </div>
@@ -199,6 +199,19 @@ export default function AdminCategoriesPage() {
     </div>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

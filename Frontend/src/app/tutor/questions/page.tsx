@@ -78,7 +78,7 @@ export default function TeacherRequestsPage() {
   if (loading) return (
     <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4">
       <Loader2 className="h-10 w-10 animate-spin text-primary" />
-      <p className="text-sm font-bold text-slate-500 animate-pulse uppercase tracking-widest">Loading Incoming Requests...</p>
+      <p className="text-sm font-bold text-primary/70 animate-pulse uppercase tracking-widest">Loading Incoming Requests...</p>
     </div>
   );
 
@@ -91,7 +91,7 @@ export default function TeacherRequestsPage() {
               <span className="h-1.5 w-10 rounded-full bg-primary" />
               <span className="text-[10px] font-bold text-primary uppercase tracking-[0.2em]">Interaction Hub</span>
            </div>
-           <h1 className="text-4xl md:text-5xl font-bold text-slate-800 tracking-tight leading-tight">Incoming Sessions</h1>
+           <h1 className="text-4xl md:text-4xl font-bold text-slate-800 tracking-tight leading-tight">Incoming Sessions</h1>
            <p className="text-lg text-slate-600 font-medium leading-relaxed max-w-xl">Efficiently manage your student questions, live bookings, and teaching packages from a single dashboard.</p>
         </div>
         <div className="flex items-center gap-2">
@@ -102,7 +102,7 @@ export default function TeacherRequestsPage() {
                   onClick={() => setFilter(t)}
                   className={cn(
                     "px-6 py-2.5 rounded-xl text-xs font-bold capitalize transition-all duration-300",
-                    filter === t ? "bg-white text-primary shadow-xl shadow-slate-200/40 border border-slate-100" : "text-slate-400 hover:text-slate-600"
+                    filter === t ? "bg-white text-primary shadow-xl shadow-slate-200/40 border border-slate-100" : "text-primary/60 hover:text-slate-600"
                   )}
                  >
                     {t}
@@ -123,8 +123,8 @@ export default function TeacherRequestsPage() {
             <div className="h-20 w-20 rounded-full bg-slate-50 flex items-center justify-center mb-6">
                <CheckCircle2 className="h-10 w-10 text-slate-200" />
             </div>
-            <h3 className="text-xl font-bold text-slate-400 uppercase tracking-widest">No matching requests</h3>
-            <p className="text-sm text-slate-400 mt-2">Try adjusting your filters or search terms.</p>
+            <h3 className="text-xl font-bold text-primary/60 uppercase tracking-widest">No matching requests</h3>
+            <p className="text-sm text-primary/60 mt-2">Try adjusting your filters or search terms.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-6">
@@ -153,9 +153,9 @@ export default function TeacherRequestsPage() {
                         </div>
                        <div>
                            <div className="flex items-center gap-2 mb-1">
-                              <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Student: {typeof (r as any).studentId === 'object' ? (r as any).studentId?.name : "Verified Learner"}</span>
+                              <span className="text-[10px] font-black uppercase tracking-widest text-primary/60">Student: {typeof (r as any).studentId === 'object' ? (r as any).studentId?.name : "Verified Learner"}</span>
                               <span className="h-1 w-1 rounded-full bg-slate-200" />
-                              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{new Date(r.createdAt).toLocaleDateString()}</span>
+                              <span className="text-[10px] font-bold text-primary/60 uppercase tracking-widest">{new Date(r.createdAt).toLocaleDateString()}</span>
                            </div>
                            <h3 className="text-xl font-bold text-slate-800">{config.label} Request</h3>
                            {typeof (r as any).lessonId === 'object' && (r as any).lessonId?.title && (
@@ -192,11 +192,11 @@ export default function TeacherRequestsPage() {
                                    : "bg-white border-slate-100 mr-8 shadow-sm"
                              )}>
                                 <div className="flex items-center gap-2 mb-3">
-                                   <User className={cn("h-3 w-3", msg.senderRole === "teacher" ? "text-primary" : "text-slate-400")} />
-                                   <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                                   <User className={cn("h-3 w-3", msg.senderRole === "teacher" ? "text-primary" : "text-primary/60")} />
+                                   <span className="text-[10px] font-black uppercase tracking-widest text-primary/60">
                                       {msg.senderRole === "teacher" ? "Your Response" : "Follow-up Question"}
                                    </span>
-                                   <span className="text-[9px] text-slate-300 ml-auto">{new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                                   <span className="text-[9px] text-primary/40 ml-auto">{new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                                 </div>
                                 <p className="text-sm font-bold text-slate-700 leading-relaxed whitespace-pre-line">{msg.content}</p>
                              </div>
@@ -207,13 +207,13 @@ export default function TeacherRequestsPage() {
                     {r.metadata && (r.metadata.preferredTime || r.metadata.sessionsCount) && (
                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8 px-2">
                           {r.metadata.preferredTime && (
-                             <div className="flex items-center gap-4 text-xs font-bold text-slate-500">
+                             <div className="flex items-center gap-4 text-xs font-bold text-primary/70">
                                 <Clock className="h-4.5 w-4.5 text-primary" />
                                 <span>Requested Time: <span className="text-slate-800 bg-white px-3 py-1 rounded-lg border border-slate-100 ml-1">{r.metadata.preferredTime}</span></span>
                              </div>
                           )}
                           {r.metadata.sessionsCount && (
-                             <div className="flex items-center gap-4 text-xs font-bold text-slate-500">
+                             <div className="flex items-center gap-4 text-xs font-bold text-primary/70">
                                 <Layers className="h-4.5 w-4.5 text-secondary" />
                                 <span>Package Details: <span className="text-slate-800 bg-white px-3 py-1 rounded-lg border border-slate-100 ml-1">{r.metadata.sessionsCount} classes</span></span>
                              </div>
@@ -226,8 +226,8 @@ export default function TeacherRequestsPage() {
                   <div className="lg:w-96 bg-slate-50 border-t lg:border-t-0 lg:border-l border-slate-100 p-10 flex flex-col justify-center">
                     {r.status === "declined" ? (
                        <div className="flex flex-col items-center justify-center text-center py-10 opacity-50">
-                          <Ban className="h-8 w-8 text-slate-400 mb-4" />
-                          <h4 className="text-sm font-bold text-slate-500 uppercase tracking-widest">Declined</h4>
+                          <Ban className="h-8 w-8 text-primary/60 mb-4" />
+                          <h4 className="text-sm font-bold text-primary/70 uppercase tracking-widest">Declined</h4>
                        </div>
                     ) : r.status === "pending" ? (
                       <div className="flex flex-col gap-4">
@@ -242,12 +242,12 @@ export default function TeacherRequestsPage() {
                          <button
                            onClick={() => handleStatusUpdate(r._id, "decline")}
                            disabled={submitting === r._id}
-                           className="flex w-full items-center justify-center gap-3 rounded-[1.5rem] bg-white border border-slate-100 py-5 text-xs font-bold text-slate-400 transition-all hover:bg-red-50 hover:text-red-600 hover:border-red-200 active:scale-95 shadow-sm"
+                           className="flex w-full items-center justify-center gap-3 rounded-[1.5rem] bg-white border border-slate-100 py-5 text-xs font-bold text-primary/60 transition-all hover:bg-red-50 hover:text-red-600 hover:border-red-200 active:scale-95 shadow-sm"
                          >
                             <Ban className="h-5 w-5" />
                             Decline
                          </button>
-                         <p className="text-[11px] text-center text-slate-400 font-medium px-4 leading-relaxed">Accepting the session will notify the student and allow you to submit your response.</p>
+                         <p className="text-[11px] text-center text-primary/60 font-medium px-4 leading-relaxed">Accepting the session will notify the student and allow you to submit your response.</p>
                       </div>
                     ) : (
                       <div className="space-y-5 animate-in zoom-in-95 duration-300">
@@ -266,7 +266,7 @@ export default function TeacherRequestsPage() {
                            {submitting === r._id ? <Loader2 className="h-5 w-5 animate-spin" /> : <Send className="h-5 w-5" />}
                            {r.status === "replied" ? "Send Follow-up" : "Submit Interaction"}
                         </button>
-                         <p className="text-[11px] text-center text-slate-400 font-medium px-4 leading-relaxed">
+                         <p className="text-[11px] text-center text-primary/60 font-medium px-4 leading-relaxed">
                             {r.status === "replied" ? "Keep the communication going to solve the doubt." : `Completing this interaction will credit ${r.priceCredits} XP to your balance.`}
                          </p>
                       </div>
@@ -281,6 +281,19 @@ export default function TeacherRequestsPage() {
     </div>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

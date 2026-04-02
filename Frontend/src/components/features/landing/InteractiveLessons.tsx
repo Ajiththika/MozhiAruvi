@@ -48,7 +48,7 @@ export default function InteractiveLessons() {
                 <svg className="w-6 h-6 text-primary mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
-                <span className="text-slate-700 font-medium">50 free credits to get started</span>
+                <span className="text-slate-700 font-medium">Free interactive lessons</span>
               </li>
             </ul>
 
@@ -63,7 +63,7 @@ export default function InteractiveLessons() {
           {/* Right Column (Mock UI Card) */}
           <div className="flex-1 w-full max-w-lg lg:scale-105">
             <div className="bg-white rounded-2xl p-6 md:p-8 shadow-sm border border-slate-100">
-              <div className="text-xs font-bold text-slate-500 tracking-tight mb-6">
+              <div className="text-xs font-bold text-primary/70 tracking-tight mb-6">
                 Pronunciation practice
               </div>
 
@@ -74,7 +74,7 @@ export default function InteractiveLessons() {
                   <div className="flex-1 h-2.5 rounded-full bg-soft/20 overflow-hidden border border-slate-100/50">
                     <div className="h-full bg-primary rounded-full w-[75%]"></div>
                   </div>
-                  <span className="text-sm font-bold text-slate-400">75%</span>
+                  <span className="text-sm font-bold text-primary/60">75%</span>
                 </div>
               </div>
 
@@ -87,7 +87,7 @@ export default function InteractiveLessons() {
                     </div>
                     <div>
                       <div className="font-bold text-slate-700">Listen & Repeat</div>
-                      <div className="text-sm text-slate-400">Hear the word, then say it aloud</div>
+                      <div className="text-sm text-primary/60">Hear the word, then say it aloud</div>
                     </div>
                   </div>
                   <div className="w-6 h-6 rounded-full border-2 border-primary flex items-center justify-center">
@@ -98,12 +98,12 @@ export default function InteractiveLessons() {
                 {/* Practice Block 2 */}
                 <div className="flex items-center justify-between p-4 rounded-2xl bg-white border border-slate-100 hover:border-primary/50 transition-colors cursor-pointer group shadow-sm">
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-full bg-soft/20 flex items-center justify-center text-slate-400 group-hover:text-primary transition-colors">
+                    <div className="w-12 h-12 rounded-full bg-soft/20 flex items-center justify-center text-primary/60 group-hover:text-primary transition-colors">
                       <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
                     </div>
                     <div>
                       <div className="font-bold text-slate-700">Spell It Out</div>
-                      <div className="text-sm text-slate-400">Practice spelling each letter</div>
+                      <div className="text-sm text-primary/60">Practice spelling each letter</div>
                     </div>
                   </div>
                   <div className="w-6 h-6 rounded-full border-2 border-slate-100"></div>
@@ -112,12 +112,12 @@ export default function InteractiveLessons() {
                 {/* Practice Block 3 */}
                 <div className="flex items-center justify-between p-4 rounded-2xl bg-white border border-slate-100 hover:border-primary/50 transition-colors cursor-pointer group shadow-sm">
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-full bg-soft/20 flex items-center justify-center text-slate-400 group-hover:text-primary transition-colors">
+                    <div className="w-12 h-12 rounded-full bg-soft/20 flex items-center justify-center text-primary/60 group-hover:text-primary transition-colors">
                       <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1.447.894L11 14h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z" /></svg>
                     </div>
                     <div>
                       <div className="font-bold text-slate-700">Quiz Time</div>
-                      <div className="text-sm text-slate-400">Test your knowledge</div>
+                      <div className="text-sm text-primary/60">Test your knowledge</div>
                     </div>
                   </div>
                   <div className="w-6 h-6 rounded-full border-2 border-slate-100"></div>
@@ -132,6 +132,19 @@ export default function InteractiveLessons() {
     </section>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -75,47 +75,46 @@ export function Sidebar({ items, basePath }: SidebarProps) {
   };
 
   return (
-    <aside className="hidden w-72 flex-col border-r border-border bg-background md:flex h-screen sticky top-0">
-      {/* Brand & Profile Section */}
-      <div className="flex flex-col border-b border-border/60">
-        <div className="flex h-20 items-center px-8">
-          <Link href="/" className="flex items-center gap-3 transition-all duration-300 hover:scale-[1.02]">
-            <div className="relative h-9 w-9 overflow-hidden rounded-xl bg-primary/5 flex items-center justify-center p-1.5 border border-primary/10 shadow-inner">
-              <Image src="/logo.png" alt="Mozhi Aruvi Logo" fill className="object-contain p-1" />
-            </div>
-            <span className="text-lg font-black tracking-tighter text-slate-900 flex items-center gap-1">
-              Mozhi<span className="text-primary">Aruvi</span>
-            </span>
-          </Link>
-        </div>
+    <aside className="hidden w-72 flex-col border-r border-border bg-white md:flex h-screen sticky top-0 overflow-hidden">
+      {/* Brand Section */}
+      <div className="flex h-16 items-center px-8 shrink-0">
+        <Link href="/" className="flex items-center gap-2.5 transition-all duration-300 hover:opacity-80">
+          <div className="relative h-7 w-7 md:h-10 md:w-10 overflow-hidden">
+            <Image src="/logo.png" alt="Mozhi Aruvi Logo" fill className="object-contain" />
+          </div>
+          <span className="text-base md:text-xl font-black tracking-tighter text-primary flex items-center gap-1">
+            Mozhi<span className="text-secondary">Aruvi</span>
+          </span>
+        </Link>
+      </div>
 
-        {/* User Profile Header */}
+      {/* User Profile Hook */}
+      <div className="px-5 mb-4 shrink-0">
         <Link 
           href={getProfileLink()}
-          className="mx-6 mb-6 p-4 rounded-2xl bg-surface-soft/40 border border-border/40 hover:bg-slate-50 transition-all duration-300 group"
+          className="flex items-center gap-3 p-2.5 rounded-2xl bg-slate-50 border border-slate-100/50 hover:bg-slate-100/50 transition-all duration-300 group"
         >
-          <div className="flex items-center gap-4">
-            <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-xl bg-white border border-border shadow-sm group-hover:border-primary/30 transition-colors">
-              {user?.profilePhoto ? (
-                <Image src={user.profilePhoto} alt={user.name} fill className="object-cover" />
-              ) : (
-                <div className="h-full w-full flex items-center justify-center bg-primary/5">
-                  <UserCircle className="h-8 w-8 text-primary/40" />
-                </div>
-              )}
-            </div>
-            <div className="min-w-0">
-              <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">Portal Access</p>
-              <h4 className="text-sm font-bold text-slate-900 truncate pr-2 group-hover:text-primary transition-colors">
-                {user?.name || "Member"}
-              </h4>
-            </div>
+          <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-xl bg-white border border-border shadow-sm group-hover:scale-105 transition-transform">
+            {user?.profilePhoto ? (
+              <Image src={user.profilePhoto} alt={user.name} fill className="object-cover" />
+            ) : (
+              <div className="h-full w-full flex items-center justify-center bg-primary/5">
+                <UserCircle className="h-6 w-6 text-primary/40" />
+              </div>
+            )}
+            <div className="absolute bottom-0 right-0 h-2.5 w-2.5 bg-emerald-500 border-2 border-white rounded-full" />
+          </div>
+          <div className="min-w-0">
+            <p className="text-[9px] font-black text-primary/60 uppercase tracking-widest leading-none mb-1">Student</p>
+            <h4 className="text-xs font-black text-slate-800 truncate pr-2">
+              {user?.name || "Member"}
+            </h4>
           </div>
         </Link>
       </div>
 
       {/* Navigation Space */}
-      <nav className="flex-1 space-y-2 overflow-y-auto p-6 scrollbar-hide py-6">
+      <nav className="flex-1 space-y-1.5 overflow-y-auto px-4 scrollbar-hide py-2">
         {items.map((item) => {
           const Icon = iconMap[item.icon];
           if (!Icon) return null;
@@ -129,41 +128,80 @@ export function Sidebar({ items, basePath }: SidebarProps) {
               key={item.name}
               href={item.href}
               className={cn(
-                "group flex items-center gap-4 px-5 py-4 text-sm font-bold transition-all duration-300 rounded-responsive shadow-sm border border-transparent",
+                "group flex items-center gap-3.5 px-4 py-3 text-sm font-bold transition-all duration-300 rounded-xl",
                 isActive
-                  ? "bg-primary text-white shadow-xl shadow-primary/25 border-primary"
-                  : "text-slate-600 hover:bg-slate-100 hover:text-primary hover:border-slate-200"
+                  ? "bg-slate-100/80 text-primary shadow-sm border border-slate-100/50"
+                  : "text-primary/70 hover:bg-slate-50 hover:text-primary"
               )}
             >
               <Icon
                 className={cn(
-                  "h-5 w-5 shrink-0 transition-all duration-300 group-hover:scale-110",
-                  isActive ? "text-white" : "text-slate-500 group-hover:text-primary"
+                  "h-4.5 w-4.5 shrink-0 transition-all duration-300",
+                  isActive ? "text-primary" : "text-primary/60 group-hover:text-primary"
                 )}
               />
-              <span className="font-bold uppercase text-[10px] tracking-widest">{item.name}</span>
+              <span className="font-black uppercase text-[10px] tracking-widest">{item.name}</span>
               {isActive && (
-                <div className="ml-auto w-1.5 h-1.5 rounded-full bg-white opacity-80 shadow-sm" />
+                <div className="ml-auto w-1 h-3 rounded-full bg-primary" />
               )}
             </Link>
           );
         })}
       </nav>
 
+      {/* Promo Section: 1-time Trial offer (Students Only) */}
+      {user?.role === 'student' && user?.subscription?.plan === 'FREE' && !user?.hasUsedTrial && (
+        <div className="px-5 py-6 shrink-0">
+          <div className="bg-slate-50 rounded-[2rem] p-5 relative overflow-hidden group/promo border border-indigo-100 shadow-xl shadow-indigo-100/20">
+             <div className="absolute -right-6 -top-6 opacity-20 rotate-12 group-hover/promo:scale-110 group-hover/promo:rotate-6 transition-all duration-700">
+                <Crown className="h-24 w-24 text-primary" />
+             </div>
+             
+             <div className="relative z-10">
+               <span className="inline-block px-2.5 py-0.5 rounded-full bg-primary/20 text-primary text-[8px] font-black uppercase tracking-tighter mb-2 border border-primary/20">
+                 Elite Pass
+               </span>
+               <h4 className="text-primary text-xs font-black leading-snug mb-3">
+                 Experience everything <br />7 days for free.
+               </h4>
+               <button 
+                 onClick={() => router.push('/student/subscription')}
+                 className="w-full h-10 rounded-xl bg-primary text-white text-[10px] font-black uppercase tracking-widest hover:bg-primary/90 transition-all shadow-xl shadow-primary/20"
+               >
+                 Go Premium
+               </button>
+             </div>
+          </div>
+        </div>
+      )}
+
       {/* Footer Actions */}
-      <div className="border-t border-border p-6 mt-auto">
+      <div className="p-5 mt-auto border-t border-slate-100 shrink-0">
         <button
           onClick={handleLogout}
-          className="group flex w-full items-center gap-4 rounded-responsive px-5 py-4 text-xs font-bold uppercase tracking-wider text-error transition-all duration-300 hover:bg-error/5 border border-transparent hover:border-error/10"
+          className="group flex w-full items-center gap-3 px-4 py-3 rounded-xl text-xs font-black text-red-500 hover:bg-red-50 transition-all duration-300"
         >
-          <div className="p-2.5 rounded-xl bg-error/10 text-error group-hover:bg-error group-hover:text-white group-hover:shadow-lg group-hover:shadow-error/30 transition-all">
-            <LogOut className="h-5 w-5" />
+          <div className="h-8 w-8 rounded-lg bg-red-50 flex items-center justify-center group-hover:bg-red-500 group-hover:text-white transition-all">
+             <LogOut className="h-4 w-4" />
           </div>
-          Exit Dashboard
+          <span className="uppercase text-[10px] tracking-widest">Logout Portal</span>
         </button>
       </div>
     </aside>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 

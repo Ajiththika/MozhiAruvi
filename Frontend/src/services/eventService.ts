@@ -4,7 +4,7 @@
  * All calls to /api/events/*
  */
 
-import api from "@/lib/api";
+import { api } from "@/lib/api";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -113,3 +113,4 @@ export async function deleteEvent(id: string): Promise<{ message: string }> {
   const res = await api.delete<{ message: string }>(`/events/${id}`);
   return res.data;
 }
+

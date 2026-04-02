@@ -15,7 +15,12 @@ import { authStore } from "./authStore";
 // ── 1. Create instance ────────────────────────────────────────────────────────
 
 const rawBaseUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5000/api";
-const apiBaseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl.slice(0, -1) : rawBaseUrl;
+let apiBaseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl.slice(0, -1) : rawBaseUrl;
+
+// Ensure the URL ends with /api if it's missing (helps prevent configuration errors)
+if (!apiBaseUrl.toLowerCase().endsWith('/api')) {
+  apiBaseUrl = `${apiBaseUrl}/api`;
+}
 
 const api = axios.create({
   baseURL: apiBaseUrl,
@@ -114,4 +119,6 @@ api.interceptors.response.use(
   }
 );
 
-export default api;
+
+export { api };
+

@@ -13,7 +13,9 @@ router.get('/stats', authenticate, authorizeRoles(ROLES.ADMIN), adminController.
 router.get('/users', authenticate, authorizeRoles(ROLES.ADMIN), adminController.getUsers);
 router.get('/premium-users', authenticate, authorizeRoles(ROLES.ADMIN), adminController.getPremiumUsers);
 router.get('/plan-settings', authenticate, authorizeRoles(ROLES.ADMIN), adminController.getPlanSettings);
+router.post('/plan-settings', authenticate, authorizeRoles(ROLES.ADMIN), adminController.createPlanSettings);
 router.patch('/plan-settings/:planId', authenticate, authorizeRoles(ROLES.ADMIN), adminController.updatePlanSettings);
+router.delete('/plan-settings/:planId', authenticate, authorizeRoles(ROLES.ADMIN), adminController.deletePlanSettings);
 
 // Retrieve all tutors (admins can view)
 router.get('/tutors', authenticate, authorizeRoles(ROLES.ADMIN), adminController.getTutors);

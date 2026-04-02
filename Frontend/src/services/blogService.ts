@@ -1,4 +1,4 @@
-import api from "@/lib/api";
+import { api } from "@/lib/api";
 import { UserProfile } from "./userService";
 
 export interface Blog {
@@ -101,3 +101,4 @@ export async function updateBlogStatusAdmin(id: string, status: string): Promise
 export async function adminDeleteBlog(id: string): Promise<void> {
   await api.delete(`/blogs/admin/${id}`);
 }
+

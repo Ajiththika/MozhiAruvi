@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
-import { DataTable, ColumnDef } from "@/components/ui/DataTable";
-import { Loader2, AlertCircle, ShieldCheck, ShieldAlert, CheckCircle2, XCircle, Edit2, User, Globe, Phone, Hash } from "lucide-react";
+import DataTable, { ColumnDef } from "@/components/ui/DataTable";
+import { Loader2, AlertCircle, ShieldCheck, ShieldAlert, CheckCircle2, XCircle, Edit2, User, Globe, Phone, Hash, Users, Calendar, Activity } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   getAllUsers,
@@ -11,11 +11,11 @@ import {
   updateUserAdmin,
   BaseUser,
 } from "@/services/adminService";
-import { Pagination } from "@/components/ui/Pagination";
-import { Button } from "@/components/ui/Button";
-import { Modal } from "@/components/ui/Modal";
-import { Input } from "@/components/ui/Input";
-import { Card } from "@/components/ui/Card";
+import Pagination from "@/components/ui/Pagination";
+import Button from "@/components/ui/Button";
+import Modal from "@/components/ui/Modal";
+import Input from "@/components/ui/Input";
+import Card from "@/components/ui/Card";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 function RoleBadge({ role }: { role: BaseUser["role"] }) {
@@ -75,10 +75,22 @@ export default function UsersClient() {
 
   const handleEditChange = (e: any) => {
     const { name, value } = e.target;
-    setEditFormData(prev => ({ 
-      ...prev, 
-      [name]: name === 'age' ? (value ? parseInt(value) : undefined) : value 
-    }));
+    // Handle nested subscription fields
+    if (name.startsWith('subscription.')) {
+      const field = name.split('.')[1];
+      setEditFormData(prev => ({
+        ...prev,
+        subscription: {
+          ...(prev.subscription || { plan: 'FREE', billingCycle: 'none' }),
+          [field]: (field === 'tutorSupportUsed' || field === 'eventUsageCount') ? parseInt(value) || 0 : value
+        }
+      }));
+    } else {
+      setEditFormData(prev => ({ 
+        ...prev, 
+        [name]: name === 'age' ? (value ? parseInt(value) : undefined) : value 
+      }));
+    }
   };
 
   const handleEditSubmit = async (e: React.FormEvent) => {
@@ -107,7 +119,7 @@ export default function UsersClient() {
           </div>
           <div>
             <p className="font-black text-slate-800 text-sm tracking-tight">{row.name}</p>
-            <p className="text-xs font-medium text-slate-400">{row.email}</p>
+            <p className="text-xs font-medium text-primary/60">{row.email}</p>
           </div>
         </div>
       ),
@@ -130,6 +142,18 @@ export default function UsersClient() {
             <ShieldAlert className="h-4 w-4" /> Suspended
           </span>
         ),
+    },
+    {
+      header: "Active Plan",
+      accessorKey: "subscription",
+      cell: (row) => (
+        <span className={cn(
+          "inline-flex text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full border",
+          row.subscription?.plan === 'FREE' ? "bg-slate-50 text-primary/60 border-slate-100" : "bg-amber-50 text-amber-600 border-amber-100"
+        )}>
+          {row.subscription?.plan || 'FREE'}
+        </span>
+      ),
     },
     {
       header: "Operations",
@@ -171,8 +195,8 @@ export default function UsersClient() {
               <span className="h-2 w-10 rounded-full bg-secondary" />
               <span className="text-[10px] font-black text-secondary uppercase tracking-[0.3em]">Administrator</span>
            </div>
-           <h1 className="text-4xl md:text-5xl font-black text-slate-800 tracking-tight">Access Control</h1>
-           <p className="text-lg text-slate-500 font-medium max-w-xl">Unified management system for student and mentor accounts across the MozhiAruvi network.</p>
+           <h1 className="text-4xl md:text-4xl font-black text-slate-800 tracking-tight">Access Control</h1>
+           <p className="text-lg text-primary/70 font-medium max-w-xl">Unified management system for student and mentor accounts across the MozhiAruvi network.</p>
         </div>
         <Button
           onClick={() => refetch()}
@@ -194,7 +218,7 @@ export default function UsersClient() {
       {isLoading ? (
         <div className="flex flex-col items-center justify-center py-40 gap-6">
           <Loader2 className="h-12 w-12 animate-spin text-primary/30" />
-           <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest">Querying database...</p>
+           <p className="text-[10px] font-black text-primary/40 uppercase tracking-widest">Querying database...</p>
         </div>
       ) : (
         <div className="space-y-8">
@@ -301,13 +325,71 @@ export default function UsersClient() {
                </div>
             </div>
           )}
+
+          {/* Subscriptions & Limits Section */}
+          <div className="pt-8 border-t border-dashed border-slate-100 grid grid-cols-1 md:grid-cols-2 gap-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <div className="space-y-6">
+               <h4 className="text-xs font-black uppercase tracking-widest text-primary flex items-center gap-2">
+                 <ShieldCheck className="h-4 w-4" /> Subscription Tiers
+               </h4>
+               <div className="grid grid-cols-2 gap-4">
+                  <Input 
+                    label="Active Plan" 
+                    name="subscription.plan" 
+                    value={editFormData.subscription?.plan || "FREE"} 
+                    onChange={handleEditChange}
+                    options={[
+                      { label: "Free", value: "FREE" },
+                      { label: "Pro", value: "PRO" },
+                      { label: "Premium", value: "PREMIUM" },
+                      { label: "Business", value: "BUSINESS" },
+                    ]}
+                  />
+                  <Input 
+                    label="Billing Cycle" 
+                    name="subscription.billingCycle" 
+                    value={editFormData.subscription?.billingCycle || "none"} 
+                    onChange={handleEditChange}
+                    options={[
+                      { label: "None / Not Paid", value: "none" },
+                      { label: "Monthly", value: "monthly" },
+                      { label: "Yearly", value: "yearly" },
+                    ]}
+                  />
+               </div>
+            </div>
+
+            <div className="space-y-6">
+               <h4 className="text-xs font-black uppercase tracking-widest text-secondary flex items-center gap-2">
+                 <Activity className="h-4 w-4" /> Usage Quotas
+               </h4>
+               <div className="grid grid-cols-2 gap-4">
+                  <Input 
+                    label="Mentors Met (Cycle)" 
+                    name="subscription.tutorSupportUsed" 
+                    type="number"
+                    value={editFormData.subscription?.tutorSupportUsed || 0} 
+                    onChange={handleEditChange}
+                    icon={<Users size={12} />}
+                  />
+                  <Input 
+                    label="Events Attended" 
+                    name="subscription.eventUsageCount" 
+                    type="number"
+                    value={editFormData.subscription?.eventUsageCount || 0} 
+                    onChange={handleEditChange}
+                    icon={<Calendar size={12} />}
+                  />
+               </div>
+            </div>
+          </div>
           
           <div className="pt-8 flex items-center justify-end gap-4">
             <Button variant="ghost" onClick={() => setEditingUser(null)} className="font-black uppercase tracking-widest text-xs">
               Dismiss
             </Button>
             <Button type="submit" isLoading={isSaving} size="lg" className="px-10 shadow-xl shadow-primary/20">
-              Update Profile Record
+              Sync Account Overrides
             </Button>
           </div>
         </form>
@@ -315,6 +397,16 @@ export default function UsersClient() {
     </div>
   );
 }
+
+
+
+
+
+
+
+
+
+
 
 
 

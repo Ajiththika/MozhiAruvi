@@ -67,7 +67,8 @@ const userSchema = new mongoose.Schema({
     paidTutors: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }], // purchased tutor sessions
     freeEventsUsedThisCycle: { type: Number, default: 0 },
     tutorSupportUsed: { type: Number, default: 0 },
-    eventUsageCount: { type: Number, default: 0 }
+    eventUsageCount: { type: Number, default: 0 },
+    hasUsedTrial: { type: Boolean, default: false }
   },
 
   organizationId: { type: mongoose.Schema.Types.ObjectId, ref: 'Organization' },
@@ -94,7 +95,7 @@ userSchema.methods.comparePassword = function (plain) {
 
 userSchema.methods.toSafeObject = function () {
   const { _id, name, email, role, isActive, warnings, adminNotes, isTutorAvailable, isPremium, progress, credits, createdAt, teachingMode, profilePhoto, level, learningCredits, xp, points, power, lastPowerUpdate, badges, hasCompletedOnboarding, lastCreditUpdate, phoneNumber, country, age, gender, bio, experience, specialization, languages, subscription, organizationId, roleInOrg } = this;
-  return { _id, name, email, role, isActive, warnings, adminNotes, isTutorAvailable, isPremium, progress, credits, createdAt, teachingMode, profilePhoto, level, learningCredits, xp, points, power, lastPowerUpdate, badges, hasCompletedOnboarding, lastCreditUpdate, phoneNumber, country, age, gender, bio, experience, specialization, languages, subscription, organizationId, roleInOrg };
+  return { _id, name, email, role, isActive, warnings, adminNotes, isTutorAvailable, isPremium, progress, credits, createdAt, teachingMode, profilePhoto, level, learningCredits, xp, points, power, lastPowerUpdate, badges, hasCompletedOnboarding, lastCreditUpdate, phoneNumber, country, age, gender, bio, experience, specialization, languages, subscription, organizationId, roleInOrg, hasUsedTrial: subscription?.hasUsedTrial };
 };
 
 // Indexes for high-performance lookups

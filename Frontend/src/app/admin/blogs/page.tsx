@@ -5,7 +5,7 @@ import { getAllBlogsForAdmin, updateBlogStatusAdmin, adminDeleteBlog, Blog } fro
 import { Trash2, CheckCircle, XCircle, Loader2, RefreshCw, AlertCircle, ExternalLink, Filter, Plus } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
-import { Pagination } from "@/components/ui/Pagination";
+import Pagination from "@/components/ui/Pagination";
 import Button from "@/components/ui/Button";
 
 const statusConfig: Record<string, { label: string; className: string }> = {
@@ -79,7 +79,7 @@ export default function AdminBlogsPage() {
               <div className="h-0.5 w-10 bg-primary/40 rounded-full" />
               <span className="text-[10px] font-black text-gray-400 uppercase tracking-[0.25em]">Central Archive Control</span>
            </div>
-           <h1 className="text-5xl font-black text-gray-900 tracking-tighter leading-none">Content Moderation</h1>
+           <h1 className="text-4xl font-black text-gray-900 tracking-tighter leading-none">Content Moderation</h1>
            <p className="text-gray-400 font-bold max-w-lg tracking-tight">Audit and orchestrate community contributions to maintain architectural and cultural excellence.</p>
         </div>
         
@@ -232,4 +232,17 @@ export default function AdminBlogsPage() {
     </div>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 

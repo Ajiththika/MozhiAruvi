@@ -45,7 +45,7 @@ export function Pagination({
       );
 
       if (currentPage > 3) {
-        pages.push(<span key="dots-1" className="px-2 text-slate-400 mt-2"><MoreHorizontal className="h-4 w-4" /></span>);
+        pages.push(<span key="dots-1" className="px-2 text-primary/60 mt-2"><MoreHorizontal className="h-4 w-4" /></span>);
       }
 
       const start = Math.max(2, currentPage - 1);
@@ -64,7 +64,7 @@ export function Pagination({
       }
 
       if (currentPage < totalPages - 2) {
-        pages.push(<span key="dots-2" className="px-2 text-slate-400 mt-2"><MoreHorizontal className="h-4 w-4" /></span>);
+        pages.push(<span key="dots-2" className="px-2 text-primary/60 mt-2"><MoreHorizontal className="h-4 w-4" /></span>);
       }
 
       pages.push(
@@ -134,6 +134,19 @@ function PageButton({
     </Button>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

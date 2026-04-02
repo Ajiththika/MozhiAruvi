@@ -85,7 +85,7 @@ export default function CulturalEvents() {
                 </div>
                 <div>
                   <h4 className="font-bold text-slate-800 text-lg mb-1 tracking-tight">{event.title}</h4>
-                  <div className="text-xs font-semibold text-slate-400 flex items-center gap-2">
+                  <div className="text-xs font-semibold text-primary/60 flex items-center gap-2">
                     <Calendar className="w-4 h-4 text-primary/60" />
                     {event.date}
                   </div>
@@ -115,6 +115,19 @@ export default function CulturalEvents() {
     </section>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

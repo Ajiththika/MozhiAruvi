@@ -123,7 +123,7 @@ export default function PublicLessonsClient({ initialLessons }: { initialLessons
         <h2 className="text-2xl font-black tracking-tight text-slate-800 flex items-center gap-3 uppercase">
           <BookOpen className="h-6 w-6 text-secondary" /> Learning Path
         </h2>
-        <p className="mt-1 text-sm font-medium text-slate-500">
+        <p className="mt-1 text-sm font-medium text-primary/70">
           Explore our structured Tamil curriculum. Authenticate to track progress.
         </p>
       </div>
@@ -139,7 +139,7 @@ export default function PublicLessonsClient({ initialLessons }: { initialLessons
       )}
 
       {Object.keys(grouped).length === 0 && !isOutOfEnergy && (
-        <div className="py-20 text-center text-slate-400 font-bold uppercase tracking-widest text-sm">
+        <div className="py-20 text-center text-primary/60 font-bold uppercase tracking-widest text-sm">
           No lessons are ready yet.
         </div>
       )}
@@ -160,7 +160,7 @@ export default function PublicLessonsClient({ initialLessons }: { initialLessons
               <h3 className="text-xl font-black text-slate-800 uppercase tracking-tight">
                 {category}
               </h3>
-              <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">
+              <span className="text-[10px] font-black text-primary/60 uppercase tracking-[0.2em]">
                 {categoryLessons.length} units available in this path
               </span>
             </div>
@@ -181,10 +181,10 @@ export default function PublicLessonsClient({ initialLessons }: { initialLessons
                   {isLocked ? (
                     <div className="flex items-center gap-4 rounded-2xl border border-slate-100 bg-slate-50 p-4 opacity-70 grayscale">
                       <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-slate-200">
-                        <Lock className="h-5 w-5 text-slate-500" />
+                        <Lock className="h-5 w-5 text-primary/70" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="font-bold text-slate-400 truncate">
+                        <p className="font-bold text-primary/60 truncate">
                           {lesson.title}
                         </p>
                         {lesson.isPremiumOnly && (
@@ -223,7 +223,7 @@ export default function PublicLessonsClient({ initialLessons }: { initialLessons
                           {lesson.title}
                         </p>
                         {lesson.description && (
-                          <p className="mt-0.5 text-xs text-slate-500 line-clamp-1 font-medium">
+                          <p className="mt-0.5 text-xs text-primary/70 line-clamp-1 font-medium">
                             {lesson.description}
                           </p>
                         )}
@@ -243,6 +243,19 @@ export default function PublicLessonsClient({ initialLessons }: { initialLessons
     </div>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { StatCard } from "@/components/features/dashboard/StatCard";
+import StatCard from "@/components/features/dashboard/StatCard";
 import { Users, MessageSquare, Star, ToggleRight, ToggleLeft, Loader2, AlertCircle, ArrowRight, Video, Layers, Sparkles, CheckCircle2, PenTool } from "lucide-react";
 import Link from "next/link";
 import { getMe, SafeUser } from "@/services/authService";
@@ -48,7 +48,7 @@ export default function TutorDashboard() {
     return (
       <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4">
         <Loader2 className="h-10 w-10 animate-spin text-primary" />
-        <p className="text-sm font-semibold text-slate-500 tracking-tight animate-pulse">Initializing Dashboard...</p>
+        <p className="text-sm font-semibold text-primary/70 tracking-tight animate-pulse">Initializing Dashboard...</p>
       </div>
     );
   }
@@ -63,7 +63,7 @@ export default function TutorDashboard() {
               <span className="h-1.5 w-10 rounded-full bg-secondary" />
                <span className="text-[10px] font-bold text-secondary uppercase tracking-[0.2em]">Tutor Operations</span>
            </div>
-           <h1 className="text-4xl md:text-5xl font-bold text-slate-800 tracking-tight">Welcome, {user?.name?.split(" ")[0]}</h1>
+           <h1 className="text-4xl md:text-4xl font-bold text-slate-800 tracking-tight">Welcome, {user?.name?.split(" ")[0]}</h1>
            <p className="text-lg text-slate-600 font-medium leading-relaxed max-w-xl">
              You have <span className="text-primary font-bold">{activeRequests} active requests</span> awaiting your expert guidance today.
            </p>
@@ -77,7 +77,7 @@ export default function TutorDashboard() {
             "flex items-center gap-4 rounded-2xl border-2 px-8 py-4 text-xs font-bold transition-all shadow-xl shadow-slate-200/10 active:scale-95",
             isAvailable
               ? "border-emerald-100 bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
-              : "border-slate-100 bg-white text-slate-500 hover:border-secondary/30"
+              : "border-slate-100 bg-white text-primary/70 hover:border-secondary/30"
           )}
         >
           {isAvailable ? <ToggleRight className="h-5 w-5" /> : <ToggleLeft className="h-5 w-5" />}
@@ -153,7 +153,7 @@ export default function TutorDashboard() {
                     </div>
                     <div>
                       <h4 className="font-bold text-slate-800 text-lg tracking-tight">{action.label}</h4>
-                      <p className="text-sm text-slate-500 mt-1 font-medium">{action.desc}</p>
+                      <p className="text-sm text-primary/70 mt-1 font-medium">{action.desc}</p>
                     </div>
                   </div>
                   <ArrowRight className="h-6 w-6 text-slate-200 group-hover:text-primary group-hover:translate-x-2 transition-all duration-300" />
@@ -179,7 +179,7 @@ export default function TutorDashboard() {
                <div className="h-16 w-16 rounded-full bg-slate-50 flex items-center justify-center border border-slate-100 shadow-inner">
                   <CheckCircle2 className="h-8 w-8 text-slate-200" />
                </div>
-               <p className="text-sm font-bold text-slate-400">Everything resolved for now.</p>
+               <p className="text-sm font-bold text-primary/60">Everything resolved for now.</p>
             </div>
           ) : (
             <div className="space-y-6">
@@ -192,7 +192,7 @@ export default function TutorDashboard() {
                         )}>
                             {q.requestType || 'Request'}
                        </div>
-                       <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{new Date(q.createdAt).toLocaleDateString()}</span>
+                       <span className="text-[10px] text-primary/60 font-bold uppercase tracking-widest">{new Date(q.createdAt).toLocaleDateString()}</span>
                    </div>
                   <p className="text-sm font-semibold text-slate-800 line-clamp-2 leading-relaxed">
                     "{q.content}"
@@ -204,7 +204,7 @@ export default function TutorDashboard() {
                 </div>
               ))}
               {activeRequests > 3 && (
-                <Link href="/tutor/questions" className="block text-center text-xs font-bold text-slate-400 hover:text-primary mt-6 tracking-widest uppercase py-4 rounded-2xl border border-dashed border-slate-100 hover:border-primary/20 transition-all">
+                <Link href="/tutor/questions" className="block text-center text-xs font-bold text-primary/60 hover:text-primary mt-6 tracking-widest uppercase py-4 rounded-2xl border border-dashed border-slate-100 hover:border-primary/20 transition-all">
                    +{activeRequests - 3} more interactions
                 </Link>
               )}
@@ -215,6 +215,19 @@ export default function TutorDashboard() {
     </div>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

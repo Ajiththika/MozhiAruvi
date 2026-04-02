@@ -49,5 +49,17 @@ export function CardBody({ children, className }: { children: React.ReactNode; c
 export function CardFooter({ children, className }: { children: React.ReactNode; className?: string }) {
   return <div className={cn("mt-8 pt-6 border-t border-border/80", className)}>{children}</div>;
 }
-
 export default Card;
+
+
+
+
+
+
+
+
+
+
+
+
+

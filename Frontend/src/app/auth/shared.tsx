@@ -25,8 +25,8 @@ export function AuthInput({ label, error, id, type, ...props }: AuthInputProps) 
           id={inputId}
           type={currentType}
           className={cn(
-            "w-full px-5 py-4 rounded-responsive border bg-background text-text-primary font-bold placeholder:text-text-tertiary transition-all duration-300 outline-none focus:ring-4 focus:ring-primary/10 hover:border-primary/20 pr-12",
-            error ? 'border-error ring-error/5 hover:border-error/60' : 'border-border focus:border-primary/40'
+            "w-full px-6 py-5 rounded-[1.25rem] border bg-slate-50/50 text-slate-800 font-medium placeholder:text-slate-400 transition-all duration-300 outline-none focus:ring-4 focus:ring-primary/5 hover:border-primary/20 hover:bg-white focus:bg-white pr-14 shadow-sm",
+            error ? 'border-red-400 ring-red-500/5 hover:border-red-500/60' : 'border-slate-100 focus:border-primary/40'
           )}
           {...props}
         />
@@ -60,7 +60,7 @@ export function SocialLogin({ provider, onClick }: SocialLoginProps) {
     <button
       onClick={onClick}
       type="button"
-      className="w-full flex items-center justify-center gap-4 px-6 py-4.5 rounded-responsive border border-border bg-background text-text-primary font-black uppercase tracking-widest text-[10px] shadow-sm hover:bg-surface-soft hover:border-primary/30 focus:ring-4 focus:ring-primary/10 transition-all group active:scale-[0.98]"
+      className="w-full flex items-center justify-center gap-4 px-6 py-5 rounded-[1.25rem] border border-slate-100 bg-white text-slate-800 font-black uppercase tracking-widest text-[10px] shadow-sm hover:bg-slate-50 hover:border-primary/30 focus:ring-4 focus:ring-primary/5 transition-all group active:scale-[0.98]"
     >
       <svg className="w-5 h-5 group-hover:scale-110 transition-transform" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
         <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
@@ -68,10 +68,23 @@ export function SocialLogin({ provider, onClick }: SocialLoginProps) {
         <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
         <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
       </svg>
-      Link {provider} Identity
+      Secure Google Identity Sync
     </button>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

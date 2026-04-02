@@ -36,7 +36,7 @@ function CallbackHandler() {
   return (
     <div className="flex h-screen w-full flex-col items-center justify-center bg-white">
       <Loader2 className="h-10 w-10 animate-spin text-primary" />
-      <p className="mt-4 font-bold text-slate-500 uppercase tracking-widest text-sm">
+      <p className="mt-4 font-bold text-primary/70 uppercase tracking-widest text-sm">
         Completing your sign in...
       </p>
     </div>
@@ -54,6 +54,19 @@ export default function OAuthCallbackPage() {
     </Suspense>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -1,4 +1,4 @@
-import api from "@/lib/api";
+import { api } from "@/lib/api";
 
 export async function createSubscriptionSession(plan: 'PRO' | 'PREMIUM' | 'BUSINESS', cycle: 'monthly' | 'yearly', seats?: number) {
   const res = await api.post<{ url: string }>("/payments/create-subscription-session", { plan, cycle, seats });
@@ -14,3 +14,4 @@ export async function createTutorPayment(tutorId: string) {
   const res = await api.post<{ url: string }>("/payments/create-tutor-payment", { tutorId });
   return res.data;
 }
+

@@ -83,7 +83,7 @@ export function MatchingPairs({ question: q, onResult, isCorrect }: MatchingPair
               onClick={() => setSelectedLeft(item)}
               className={cn(
                 "w-full py-10 px-6 text-2xl font-semibold rounded-[2rem] border-2 transition-all duration-300 text-center shadow-sm",
-                matched.has(item) ? "bg-slate-100 border-transparent text-slate-300 opacity-30 scale-95" :
+                matched.has(item) ? "bg-slate-100 border-transparent text-primary/40 opacity-30 scale-95" :
                 wrongMatch?.[0] === item ? "bg-red-50 border-red-500 text-red-600 animate-shake" :
                 selectedLeft === item ? "bg-primary/5 border-primary text-primary shadow-xl scale-105" :
                 "bg-white border-slate-100 hover:border-slate-200 text-slate-700 active:scale-95"
@@ -102,7 +102,7 @@ export function MatchingPairs({ question: q, onResult, isCorrect }: MatchingPair
               onClick={() => setSelectedRight(item)}
               className={cn(
                 "w-full py-10 px-6 text-2xl font-semibold rounded-[2rem] border-2 transition-all duration-300 text-center shadow-sm",
-                matched.has(item) ? "bg-slate-100 border-transparent text-slate-300 opacity-30 scale-95" :
+                matched.has(item) ? "bg-slate-100 border-transparent text-primary/40 opacity-30 scale-95" :
                 wrongMatch?.[1] === item ? "bg-red-50 border-red-500 text-red-600 animate-shake" :
                 selectedRight === item ? "bg-primary/5 border-primary text-primary shadow-xl scale-105" :
                 "bg-white border-slate-100 hover:border-slate-200 text-slate-700 active:scale-95"
@@ -116,6 +116,21 @@ export function MatchingPairs({ question: q, onResult, isCorrect }: MatchingPair
     </div>
   );
 }
+
+
+
+
+export default MatchingPairs;
+
+
+
+
+
+
+
+
+
+
 
 
 

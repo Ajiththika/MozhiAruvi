@@ -1,13 +1,13 @@
 "use client";
 
 import React, { useEffect, useState, Suspense, useRef } from "react";
-import { DataTable, ColumnDef } from "@/components/ui/DataTable";
+import DataTable, { ColumnDef } from "@/components/ui/DataTable";
 import { Calendar as CalendarIcon, MapPin, Users, Globe2, Trash2, PlusCircle, AlertCircle, Loader2, Upload, Edit3 } from "lucide-react";
 import { getEvents, deleteEvent, createEvent, updateEvent, MozhiEvent, CreateEventPayload, getEventById } from "@/services/eventService";
 import { useSearchParams, useRouter } from "next/navigation";
-import { Pagination } from "@/components/ui/Pagination";
-import { Button } from "@/components/ui/Button";
-import ImageAdjuster from "@/components/ui/ImageAdjuster";
+import Pagination from "@/components/ui/Pagination";
+import Button from "@/components/ui/Button";
+import { ImageAdjuster } from "@/components/ui/ImageAdjuster";
 
 const EventStatusBadge = ({ isActive }: { isActive: boolean }) => {
    if (isActive) {
@@ -19,7 +19,7 @@ const EventStatusBadge = ({ isActive }: { isActive: boolean }) => {
 export default function AdminEventsPage() {
   return (
     <Suspense fallback={
-      <div className="flex items-center justify-center py-20 gap-3 text-slate-400 font-bold uppercase tracking-widest text-xs">
+      <div className="flex items-center justify-center py-20 gap-3 text-primary/60 font-bold uppercase tracking-widest text-xs">
         <Loader2 className="h-5 w-5 animate-spin" /> Loading Admin Dashboard...
       </div>
     }>
@@ -191,7 +191,7 @@ function AdminEventsClient() {
       cell: (row) => (
          <div className="flex flex-col text-left">
             <span className="font-bold text-slate-800">{row.title}</span>
-            <span className="flex items-center gap-1 text-xs text-slate-500 mt-0.5">
+            <span className="flex items-center gap-1 text-xs text-primary/70 mt-0.5">
                <Globe2 className="h-3 w-3" /> {row.eventCode}
             </span>
          </div>
@@ -226,7 +226,7 @@ function AdminEventsClient() {
          <div className="flex justify-end gap-3">
             <button
               onClick={() => handleEdit(row)}
-              className="text-sm font-bold text-slate-400 hover:text-primary transition inline-flex items-center gap-1 uppercase tracking-widest text-[10px]"
+              className="text-sm font-bold text-primary/60 hover:text-primary transition inline-flex items-center gap-1 uppercase tracking-widest text-[10px]"
             >
                Edit
             </button>
@@ -253,7 +253,7 @@ function AdminEventsClient() {
               <span className="text-[10px] font-black text-secondary uppercase tracking-[0.3em]">Administrator</span>
            </div>
            <h1 className="text-3xl md:text-4xl font-black text-slate-800 uppercase tracking-tight">Events Moderation</h1>
-           <p className="mt-2 text-slate-500 font-medium">Monitor and create community events.</p>
+           <p className="mt-2 text-primary/70 font-medium">Monitor and create community events.</p>
         </div>
         <button
           onClick={() => {
@@ -283,26 +283,26 @@ function AdminEventsClient() {
             
             <div className="flex flex-col space-y-1">
               <h3 className="text-xl font-black text-slate-800 tracking-tight">{editingId ? 'Edit Event' : 'New Event'}</h3>
-              <p className="text-xs font-medium text-slate-500">Fill in the details to update the community.</p>
+              <p className="text-xs font-medium text-primary/70">Fill in the details to update the community.</p>
             </div>
 
             <div className="space-y-5">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Event Code</label>
+                  <label className="text-[10px] font-bold text-primary/60 uppercase tracking-widest px-1">Event Code</label>
                   <input required value={form.eventCode} onChange={e => setForm(f => ({ ...f, eventCode: e.target.value.toUpperCase() }))}
                     placeholder="E.g., ADM-01"
                     className="w-full rounded-xl border border-slate-100 bg-slate-50/50 px-4 py-2.5 text-sm font-medium outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all focus:bg-white" />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Capacity</label>
+                  <label className="text-[10px] font-bold text-primary/60 uppercase tracking-widest px-1">Capacity</label>
                   <input required type="number" min={1} value={form.capacity} onChange={e => setForm(f => ({ ...f, capacity: Number(e.target.value) }))}
                     className="w-full rounded-xl border border-slate-100 bg-slate-50/50 px-4 py-2.5 text-sm font-medium outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all focus:bg-white" />
                 </div>
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Event Title</label>
+                <label className="text-[10px] font-bold text-primary/60 uppercase tracking-widest px-1">Event Title</label>
                 <input required value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
                   placeholder="Enter a catchy title..."
                   className="w-full rounded-xl border border-slate-100 bg-slate-50/50 px-4 py-2.5 text-sm font-semibold text-slate-800 outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all focus:bg-white" />
@@ -310,33 +310,33 @@ function AdminEventsClient() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Date</label>
+                  <label className="text-[10px] font-bold text-primary/60 uppercase tracking-widest px-1">Date</label>
                   <input required type="date" min={today} value={form.date} onChange={e => setForm(f => ({ ...f, date: e.target.value }))}
                     className="w-full rounded-xl border border-slate-100 bg-slate-50/50 px-4 py-2.5 text-sm font-medium outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all focus:bg-white" />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Time</label>
+                  <label className="text-[10px] font-bold text-primary/60 uppercase tracking-widest px-1">Time</label>
                   <input required type="time" value={form.time} onChange={e => setForm(f => ({ ...f, time: e.target.value }))}
                     className="w-full rounded-xl border border-slate-100 bg-slate-50/50 px-4 py-2.5 text-sm font-medium outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all focus:bg-white" />
                 </div>
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Location</label>
+                <label className="text-[10px] font-bold text-primary/60 uppercase tracking-widest px-1">Location</label>
                 <input required value={form.location} onChange={e => setForm(f => ({ ...f, location: e.target.value }))}
                   placeholder="Online (Google Meet) or venue"
                   className="w-full rounded-xl border border-slate-100 bg-slate-50/50 px-4 py-2.5 text-sm font-medium outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all focus:bg-white" />
               </div>
 
               <div className="space-y-3">
-                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Event Banner</label>
+                <label className="text-[10px] font-bold text-primary/60 uppercase tracking-widest px-1">Event Banner</label>
                 <div className="relative group overflow-hidden rounded-xl bg-slate-50 border border-slate-100 hover:border-primary/30 transition-all p-3">
                   <div className="flex items-center justify-between gap-3">
                     <div className="flex items-center gap-3">
                       <div className="h-10 w-10 flex items-center justify-center rounded-lg bg-white border border-slate-100 shadow-sm">
-                        {previewUrl || (form as any).image ? <CalendarIcon size={16} className="text-primary" /> : <PlusCircle className="w-5 h-5 text-slate-300" />}
+                        {previewUrl || (form as any).image ? <CalendarIcon size={16} className="text-primary" /> : <PlusCircle className="w-5 h-5 text-primary/40" />}
                       </div>
-                      <span className="text-[10px] font-black uppercase text-slate-500 tracking-widest truncate max-w-[150px]">
+                      <span className="text-[10px] font-black uppercase text-primary/70 tracking-widest truncate max-w-[150px]">
                         {selectedFile ? selectedFile.name : (previewUrl || (form as any).image ? "Active Poster" : "Select cover image")}
                       </span>
                     </div>
@@ -345,7 +345,7 @@ function AdminEventsClient() {
                        <button 
                         type="button"
                         onClick={() => fileInputRef.current?.click()}
-                        className="p-2.5 rounded-lg bg-white border border-slate-100 shadow-sm text-slate-400 hover:text-primary transition-all"
+                        className="p-2.5 rounded-lg bg-white border border-slate-100 shadow-sm text-primary/60 hover:text-primary transition-all"
                         title="Upload New"
                        >
                           <Upload size={14} />
@@ -381,7 +381,7 @@ function AdminEventsClient() {
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Description</label>
+                <label className="text-[10px] font-bold text-primary/60 uppercase tracking-widest px-1">Description</label>
                 <textarea required rows={3} value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
                   placeholder="Tell us about the event..."
                   className="w-full resize-none rounded-xl border border-slate-100 bg-slate-50/50 px-4 py-3 text-sm font-medium outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all focus:bg-white" />
@@ -390,7 +390,7 @@ function AdminEventsClient() {
 
             <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-50">
               <button type="button" onClick={() => { setShowCreate(false); setEditingId(null); resetForm(); }} 
-                 className="rounded-xl px-5 py-2.5 text-xs font-bold text-slate-400 hover:text-slate-600 transition-colors">
+                 className="rounded-xl px-5 py-2.5 text-xs font-bold text-primary/60 hover:text-slate-600 transition-colors">
                 Cancel
               </button>
               <button type="submit" disabled={creating} 
@@ -403,7 +403,7 @@ function AdminEventsClient() {
 
           {/* Right Side: Live Preview Card (Matching Model UI) */}
           <div className="hidden lg:sticky lg:top-8 lg:flex flex-col items-center">
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.3em] mb-4">Live Preview</span>
+            <span className="text-[10px] font-bold text-primary/60 uppercase tracking-[0.3em] mb-4">Live Preview</span>
             
             <div className="w-full max-w-[400px] overflow-hidden rounded-[40px] border border-slate-100 bg-white shadow-2xl shadow-primary/10 animate-in fade-in zoom-in-95 duration-700">
               {/* Card Header (Image/Banner) */}
@@ -412,7 +412,7 @@ function AdminEventsClient() {
                   <img src={previewUrl || (form as any).image} className="absolute inset-0 w-full h-full object-cover" alt="Preview" />
                 ) : (
                   <div className="flex flex-col items-center gap-2 opacity-10">
-                    <h2 className="text-6xl font-black tracking-tighter text-slate-900">MOZHI</h2>
+                    <h2 className="text-6xl font-black tracking-tighter text-primary">MOZHI</h2>
                   </div>
                 )}
                 
@@ -466,7 +466,7 @@ function AdminEventsClient() {
                     <div className="h-12 w-12 flex items-center justify-center rounded-2xl bg-[#f5f7f9] text-[#78829d]">
                       <MapPin className="w-5 h-5" />
                     </div>
-                    <span className="text-lg font-bold text-slate-500 font-medium">
+                    <span className="text-lg font-bold text-primary/70 font-medium">
                       {form.location || "Online Zoom Session"}
                     </span>
                   </div>
@@ -474,13 +474,13 @@ function AdminEventsClient() {
               </div>
             </div>
             
-            <p className="mt-6 text-[10px] font-bold text-slate-300 uppercase tracking-widest italic">Preview updates in real-time</p>
+            <p className="mt-6 text-[10px] font-bold text-primary/40 uppercase tracking-widest italic">Preview updates in real-time</p>
           </div>
         </div>
       )}
       
       {loading ? (
-        <div className="flex items-center justify-center py-20 gap-3 text-slate-400 font-bold uppercase tracking-widest text-xs">
+        <div className="flex items-center justify-center py-20 gap-3 text-primary/60 font-bold uppercase tracking-widest text-xs">
           <Loader2 className="h-5 w-5 animate-spin" /> Loading records...
         </div>
       ) : (
@@ -506,6 +506,19 @@ function AdminEventsClient() {
     </div>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

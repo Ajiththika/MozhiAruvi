@@ -1,12 +1,12 @@
 "use client";
 
 import React, { useState } from "react";
-import { DataTable, ColumnDef } from "@/components/ui/DataTable";
+import DataTable, { ColumnDef } from "@/components/ui/DataTable";
 import { Loader2, AlertCircle, ShieldCheck, GraduationCap, Globe, Mail, IdCard, XCircle, AlertTriangle, Ban, CheckCircle2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getAllTutors, BaseUser, warnUser, activateUser, deactivateUser } from "@/services/adminService";
-import { Pagination } from "@/components/ui/Pagination";
-import { Button } from "@/components/ui/Button";
+import Pagination from "@/components/ui/Pagination";
+import Button from "@/components/ui/Button";
 import { useQuery } from "@tanstack/react-query";
 
 export default function AdminTutorsPage() {
@@ -62,7 +62,7 @@ export default function AdminTutorsPage() {
           </div>
           <div className="min-w-0">
             <p className="font-black text-slate-800 text-sm tracking-tight truncate">{row.name}</p>
-            <div className="flex items-center gap-1.5 text-[10px] text-slate-400 font-bold uppercase truncate">
+            <div className="flex items-center gap-1.5 text-[10px] text-primary/60 font-bold uppercase truncate">
                <Mail className="h-3 w-3 shrink-0" /> {row.email}
             </div>
           </div>
@@ -97,7 +97,7 @@ export default function AdminTutorsPage() {
       cell: (row) => (
         <div className="flex flex-col">
            <span className="text-xs font-bold text-slate-700">{row.specialization || "General Mentor"}</span>
-           <span className="text-[10px] text-slate-400 font-medium italic truncate max-w-[150px]">{row.experience || "Native Speaker"}</span>
+           <span className="text-[10px] text-primary/60 font-medium italic truncate max-w-[150px]">{row.experience || "Native Speaker"}</span>
         </div>
       )
     },
@@ -145,8 +145,8 @@ export default function AdminTutorsPage() {
               <span className="h-2 w-12 rounded-full bg-emerald-400" />
               <span className="text-[10px] font-black text-emerald-500 uppercase tracking-[0.3em]">Directory Control</span>
            </div>
-           <h1 className="text-4xl md:text-5xl font-black text-slate-900 tracking-tight leading-none uppercase">Verified Mentors</h1>
-           <p className="text-lg text-slate-500 font-medium max-w-xl">Comprehensive archive of authenticated teachers and language experts across the MozhiAruvi network.</p>
+           <h1 className="text-4xl md:text-4xl font-black text-primary tracking-tight leading-none uppercase">Verified Mentors</h1>
+           <p className="text-lg text-primary/70 font-medium max-w-xl">Comprehensive archive of authenticated teachers and language experts across the MozhiAruvi network.</p>
         </div>
         <Button
           onClick={() => refetch()}
@@ -168,7 +168,7 @@ export default function AdminTutorsPage() {
       {isLoading ? (
         <div className="flex flex-col items-center justify-center py-40 gap-8 bg-white rounded-[3rem] border border-dashed border-slate-100 shadow-sm">
           <div className="h-16 w-16 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin shadow-xl ring-4 ring-emerald-500/5" />
-          <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest animate-pulse">Requesting secure data from node...</p>
+          <p className="text-[10px] font-black text-primary/40 uppercase tracking-widest animate-pulse">Requesting secure data from node...</p>
         </div>
       ) : (
         <div className="space-y-12 animate-in slide-in-from-bottom-8 duration-700">
@@ -185,6 +185,19 @@ export default function AdminTutorsPage() {
     </div>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

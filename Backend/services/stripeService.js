@@ -51,6 +51,9 @@ export async function createSubscriptionSession(user, priceId, planName, cycle) 
       billingCycle: cycle,
       ...(arguments[4] ? { seats: arguments[4] } : {}) // passed as 5th argument if business
     },
+    subscription_data: {
+      trial_period_days: 7,
+    },
     success_url: `${process.env.FRONTEND_ORIGIN}/student/subscription/success?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${process.env.FRONTEND_ORIGIN}/student/subscription`,
   });

@@ -56,8 +56,8 @@ function ResetPasswordForm() {
             <CheckCircle2 size={64} />
           </div>
         </div>
-        <h2 className="text-3xl font-black text-slate-900 mb-4 tracking-tight">Password Reset!</h2>
-        <p className="text-slate-500 font-medium mb-10 leading-relaxed">
+        <h2 className="text-3xl font-black text-primary mb-4 tracking-tight">Password Reset!</h2>
+        <p className="text-primary/70 font-medium mb-10 leading-relaxed">
           Your credentials have been successfully updated. You can now securely sign in to your student account.
         </p>
         <Button href="/auth/signin" variant="primary" size="xl" className="w-full rounded-2xl shadow-xl shadow-primary/20 group">
@@ -70,13 +70,13 @@ function ResetPasswordForm() {
   return (
     <div className="w-full max-w-sm mx-auto xl:max-w-md">
       <div className="mb-10 text-center md:text-left">
-        <div className="inline-flex items-center gap-2 text-slate-400 font-black uppercase tracking-[0.2em] text-[10px] mb-6">
+        <div className="inline-flex items-center gap-2 text-primary/60 font-black uppercase tracking-[0.2em] text-[10px] mb-6">
           <ShieldCheck size={14} className="text-primary" /> Secure Reset
         </div>
-        <h2 className="text-4xl font-black text-slate-900 mb-3 tracking-tight">
+        <h2 className="text-4xl font-black text-primary mb-3 tracking-tight">
           New Password
         </h2>
-        <p className="text-slate-500 text-lg font-medium">
+        <p className="text-primary/70 text-lg font-medium">
           Create a new, strong password to secure your Tamil learning account.
         </p>
       </div>
@@ -129,6 +129,19 @@ export default function ResetPasswordPage() {
         </Suspense>
     );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

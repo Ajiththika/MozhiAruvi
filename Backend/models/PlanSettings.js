@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 
 const planSettingsSchema = new mongoose.Schema({
-  plan: { type: String, enum: ['FREE', 'PRO', 'PREMIUM', 'BUSINESS_30', 'BUSINESS_60'], required: true, unique: true },
+  plan: { type: String, required: true, unique: true },
   monthlyPrice: { type: Number, required: true },
   yearlyPrice: { type: Number, required: true },
   levelLimit: [{ type: String }], // levels user can access

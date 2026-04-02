@@ -4,7 +4,7 @@
  * All calls to /api/admin/*
  */
 
-import api from "@/lib/api";
+import { api } from "@/lib/api";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -24,6 +24,14 @@ export interface BaseUser {
   bio?: string;
   specialization?: string;
   experience?: string;
+  subscription?: {
+    plan: "FREE" | "PRO" | "PREMIUM" | "BUSINESS";
+    billingCycle: "monthly" | "yearly" | "none";
+    currentPeriodEnd?: string;
+    tutorSupportUsed?: number;
+    eventUsageCount?: number;
+    hasUsedTrial?: boolean;
+  };
 }
 
 export interface TeacherApplication {
@@ -71,7 +79,7 @@ export interface AdminStats {
 
 export interface PlanSettings {
   _id: string;
-  plan: 'FREE' | 'PRO' | 'PREMIUM' | 'BUSINESS_30' | 'BUSINESS_60';
+  plan: string;
   monthlyPrice: number;
   yearlyPrice: number;
   levelLimit: string[];
@@ -107,6 +115,15 @@ export async function getPlanSettings(): Promise<PlanSettings[]> {
 export async function updatePlanSettings(planId: string, data: Partial<PlanSettings>): Promise<PlanSettings> {
   const res = await api.patch<PlanSettings>(`/admin/plan-settings/${planId}`, data);
   return res.data;
+}
+
+export async function createPlanSettings(data: Partial<PlanSettings>): Promise<PlanSettings> {
+  const res = await api.post<PlanSettings>("/admin/plan-settings", data);
+  return res.data;
+}
+
+export async function deletePlanSettings(planId: string): Promise<void> {
+  await api.delete(`/admin/plan-settings/${planId}`);
 }
 
 export async function getAdminStats(): Promise<AdminStats> {
@@ -242,3 +259,4 @@ export async function uploadAudio(file: File): Promise<{ url: string; public_id:
   });
   return res.data;
 }
+

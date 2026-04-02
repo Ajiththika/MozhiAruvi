@@ -1,4 +1,4 @@
-import api from "@/lib/api";
+import { api } from "@/lib/api";
 
 export interface Category {
     _id: string;
@@ -21,3 +21,4 @@ export async function createCategory(data: Partial<Category>): Promise<Category>
 export async function deleteCategory(id: string): Promise<void> {
     await api.delete(`/categories/${id}`);
 }
+

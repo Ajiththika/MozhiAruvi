@@ -3,12 +3,12 @@
 import React, { useEffect, useState } from "react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
-import { Button } from "@/components/ui/Button";
-import { Card, CardBody } from "@/components/ui/Card";
+import Button from "@/components/ui/Button";
+import Card, { CardBody } from "@/components/ui/Card";
 import { getEvents, deleteEvent, MozhiEvent, submitJoinRequest, JoinRequestPayload } from "@/services/eventService";
-import { Pagination } from "@/components/ui/Pagination";
+import Pagination from "@/components/ui/Pagination";
 import { Loader2, Clock, MapPin, User, ChevronRight, Lock, Info, Calendar, Trash2 } from "lucide-react";
-import { EventCard } from "@/components/features/events/EventCard";
+import EventCard from "@/components/features/events/EventCard";
 import RegistrationModal from "@/components/features/events/RegistrationModal";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
@@ -125,7 +125,7 @@ export default function EventsPage() {
               ) : spotlightEvents.length === 0 ? (
                 <div className="w-full h-full bg-slate-50 flex flex-col items-center justify-center p-12 text-center space-y-4">
                   <Calendar size={48} className="text-slate-200" />
-                  <p className="text-sm font-bold text-slate-400 uppercase tracking-widest leading-loose">
+                  <p className="text-sm font-bold text-primary/60 uppercase tracking-widest leading-loose">
                     No community spotlights <br /> currently scheduled
                   </p>
                 </div>
@@ -226,7 +226,7 @@ export default function EventsPage() {
                   <span className="h-1.5 w-10 rounded-full bg-secondary shadow-sm" />
                   <span className="text-xs font-bold text-secondary tracking-widest uppercase">Live Sessions</span>
                 </div>
-                <h2 className="text-4xl md:text-6xl font-black text-slate-900 tracking-tight">Upcoming Events</h2>
+                <h2 className="text-4xl md:text-6xl font-black text-primary tracking-tight">Upcoming Events</h2>
                 <p className="text-xl text-slate-600 font-semibold max-w-xl leading-relaxed">Curated workshops, cultural meetups, and live sessions with native tutors.</p>
               </div>
             </div>
@@ -234,12 +234,12 @@ export default function EventsPage() {
             {loadingUpcoming ? (
               <div className="flex flex-col items-center justify-center py-32 gap-6">
                 <Loader2 className="h-12 w-12 animate-spin text-primary" />
-                <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Synchronizing Scrolls</p>
+                <p className="text-xs font-bold text-primary/60 uppercase tracking-widest">Synchronizing Scrolls</p>
               </div>
             ) : upcomingEvents.length === 0 ? (
               <div className="text-center py-20 bg-slate-50 rounded-3xl border-2 border-dashed border-slate-100">
-                <p className="text-xl font-bold text-slate-900">No upcoming events scheduled</p>
-                <p className="text-base text-slate-500 mt-2">Check back soon for new opportunities to connect.</p>
+                <p className="text-xl font-bold text-primary">No upcoming events scheduled</p>
+                <p className="text-base text-primary/70 mt-2">Check back soon for new opportunities to connect.</p>
               </div>
             ) : (
               <>
@@ -274,30 +274,30 @@ export default function EventsPage() {
         <section className="py-32 bg-slate-50 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
            <div className="max-w-7xl mx-auto relative z-10">
             <div className="text-center mb-16 space-y-6">
-              <div className="inline-flex items-center gap-3 px-6 py-2.5 rounded-full border border-primary/20 bg-white shadow-xl shadow-slate-200/50 text-xs font-bold text-slate-900 tracking-widest uppercase">
+              <div className="inline-flex items-center gap-3 px-6 py-2.5 rounded-full border border-primary/20 bg-white shadow-xl shadow-slate-200/50 text-xs font-bold text-primary tracking-widest uppercase">
                 Archives & Memories
               </div>
-              <h1 className="text-4xl md:text-6xl font-black text-slate-900 tracking-tight">
+              <h1 className="text-4xl md:text-6xl font-black text-primary tracking-tight">
                 Previous Gatherings
               </h1>
             </div>
 
             {loadingPast ? (
               <div className="flex justify-center py-12">
-                <Loader2 className="w-10 h-10 animate-spin text-slate-300" />
+                <Loader2 className="w-10 h-10 animate-spin text-primary/40" />
               </div>
             ) : pastEvents.length === 0 ? (
-              <p className="text-center text-slate-400 font-bold uppercase tracking-widest text-xs">The archives are currently empty</p>
+              <p className="text-center text-primary/60 font-bold uppercase tracking-widest text-xs">The archives are currently empty</p>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
                 {pastEvents.map((event) => (
                   <Card key={event._id} variant="outline" className="opacity-70 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-700 border border-slate-100 bg-white/80 shadow-sm hover:shadow-xl">
                     <div className="bg-slate-50 rounded-xl p-5 mb-5 flex justify-between items-start">
-                      <Calendar className="w-7 h-7 text-slate-300" />
-                      <span className="text-xs font-bold bg-slate-100 text-slate-500 px-3 py-1.5 rounded-lg uppercase tracking-widest">Closed</span>
+                      <Calendar className="w-7 h-7 text-primary/40" />
+                      <span className="text-xs font-bold bg-slate-100 text-primary/70 px-3 py-1.5 rounded-lg uppercase tracking-widest">Closed</span>
                     </div>
-                    <h4 className="font-bold text-slate-900 text-base truncate mb-1">{event.title}</h4>
-                    <p className="text-xs text-slate-500 font-bold uppercase tracking-tight">{new Date(event.date).toLocaleDateString()}</p>
+                    <h4 className="font-bold text-primary text-base truncate mb-1">{event.title}</h4>
+                    <p className="text-xs text-primary/70 font-bold uppercase tracking-tight">{new Date(event.date).toLocaleDateString()}</p>
                   </Card>
                 ))}
               </div>
@@ -321,7 +321,7 @@ export default function EventsPage() {
               Join the Global Community
             </div>
 
-            <h2 className="text-5xl md:text-7xl font-black text-white tracking-tight leading-tight">
+            <h2 className="text-4xl md:text-7xl font-black text-white tracking-tight leading-tight">
               Experience Tamil Culture <br /> Like Never Before
             </h2>
             
@@ -360,6 +360,19 @@ export default function EventsPage() {
     </div>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

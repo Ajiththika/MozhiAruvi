@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from "react";
 import { Eraser, Check, Paintbrush } from "lucide-react";
-import { Button } from "@/components/ui/Button";
+import Button from "@/components/ui/Button";
 
 interface WritingCanvasProps {
   onResult: (passed: boolean) => void;
@@ -88,7 +88,7 @@ export function WritingCanvas({ onResult, expectedText, isCorrect }: WritingCanv
     <div className="w-full flex flex-col items-center gap-8 animate-in fade-in duration-500">
       <div className="relative border-[12px] border-slate-100 rounded-[3rem] bg-white shadow-2xl overflow-hidden flex items-center justify-center ring-4 ring-slate-50">
          {/* Whiteboard Label */}
-         <div className="absolute top-6 left-1/2 -translate-x-1/2 text-[10px] font-black uppercase tracking-[0.4em] text-slate-300 pointer-events-none select-none">
+         <div className="absolute top-6 left-1/2 -translate-x-1/2 text-[10px] font-black uppercase tracking-[0.4em] text-primary/40 pointer-events-none select-none">
             Whiteboard Canvas
          </div>
 
@@ -133,6 +133,21 @@ export function WritingCanvas({ onResult, expectedText, isCorrect }: WritingCanv
     </div>
   );
 }
+
+
+
+
+export default WritingCanvas;
+
+
+
+
+
+
+
+
+
+
 
 
 

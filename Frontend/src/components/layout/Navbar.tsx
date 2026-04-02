@@ -52,8 +52,8 @@ export default function Navbar() {
                   priority
                 />
               </div>
-              <span className="text-xl md:text-2xl font-black text-slate-900 tracking-tighter flex items-center gap-1">
-                Mozhi<span className="text-primary">Aruvi</span>
+              <span className="text-xl md:text-2xl font-black text-primary tracking-tighter flex items-center gap-1">
+                Mozhi<span className="text-secondary">Aruvi</span>
               </span>
             </Link>
           </div>
@@ -113,7 +113,7 @@ export default function Navbar() {
                       <p className="text-sm font-bold text-slate-900 truncate">
                         {user.name}
                       </p>
-                      <p className="text-xs text-slate-500 font-medium truncate">
+                      <p className="text-xs text-primary/70 font-medium truncate">
                         {user.email}
                       </p>
                     </div>
@@ -124,7 +124,7 @@ export default function Navbar() {
                         onClick={() => setIsMenuOpen(false)}
                         className="flex items-center gap-3 px-5 py-3 text-sm text-slate-700 font-semibold hover:bg-slate-50 hover:text-primary transition-colors"
                       >
-                        <Settings size={20} className="text-slate-400 group-hover:text-primary" />
+                        <Settings size={20} className="text-primary/60 group-hover:text-primary" />
                         Account Settings
                       </Link>
 
@@ -133,7 +133,7 @@ export default function Navbar() {
                         onClick={() => setIsMenuOpen(false)}
                         className="flex items-center gap-3 px-5 py-3 text-sm text-slate-700 font-semibold hover:bg-slate-50 hover:text-primary transition-colors"
                       >
-                        <LayoutDashboard size={20} className="text-slate-400 group-hover:text-primary" />
+                        <LayoutDashboard size={20} className="text-primary/60 group-hover:text-primary" />
                         Dashboard
                       </Link>
 
@@ -177,5 +177,18 @@ export default function Navbar() {
     </nav>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 

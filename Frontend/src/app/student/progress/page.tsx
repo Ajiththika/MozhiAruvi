@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { Award, Flame, Target, Trophy, TrendingUp, Loader2, AlertCircle } from "lucide-react";
-import { StatCard } from "@/components/features/dashboard/StatCard";
+import StatCard from "@/components/features/dashboard/StatCard";
 import { useAuth } from "@/context/AuthContext";
 import { getLessons, Lesson, Progress } from "@/services/lessonService";
 
@@ -27,7 +27,7 @@ export default function StudentProgressPage() {
      return (
        <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4">
          <Loader2 className="h-10 w-10 animate-spin text-primary" />
-         <p className="text-sm font-semibold text-slate-500 tracking-tight animate-pulse">Calculating your achievements...</p>
+         <p className="text-sm font-semibold text-primary/70 tracking-tight animate-pulse">Calculating your achievements...</p>
        </div>
      );
    }
@@ -47,7 +47,7 @@ export default function StudentProgressPage() {
    return (
       <div className="space-y-10 animate-in fade-in zoom-in-95 duration-500 pb-12">
          <div className="py-6">
-            <h1 className="text-3xl md:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight uppercase">
+            <h1 className="text-3xl md:text-4xl lg:text-4xl font-black text-primary tracking-tight uppercase">
                Learning Progress
             </h1>
             <p className="mt-4 text-base md:text-lg text-slate-700 font-semibold leading-relaxed">
@@ -98,7 +98,7 @@ export default function StudentProgressPage() {
          {/* Learning History Preview */}
          <div className="rounded-3xl border border-slate-100 bg-white p-8 md:p-10 shadow-2xl shadow-slate-200/50">
              <div className="flex items-center justify-between border-b border-slate-100 pb-6">
-                <h3 className="text-xl font-bold text-slate-900 flex items-center gap-3">
+                <h3 className="text-xl font-bold text-primary flex items-center gap-3">
                    <TrendingUp className="h-6 w-6 text-primary" />
                    Your Journey Statistics
                 </h3>
@@ -114,7 +114,7 @@ export default function StudentProgressPage() {
                       <circle cx="88" cy="88" r="80" stroke="currentColor" strokeWidth="14" fill="transparent" strokeDasharray={502.6} strokeDashoffset={502.6 - (502.6 * progressPercentage) / 100} strokeLinecap="round" className="text-primary transition-all duration-1000 shadow-sm" />
                    </svg>
                    <div className="absolute inset-0 flex flex-col items-center justify-center">
-                      <span className="text-5xl font-black text-slate-900">{progressPercentage}%</span>
+                      <span className="text-4xl font-black text-primary">{progressPercentage}%</span>
                       <span className="text-xs font-bold text-slate-600 uppercase tracking-tight mt-1">Learned</span>
                    </div>
                 </div>
@@ -127,6 +127,19 @@ export default function StudentProgressPage() {
        </div>
     );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

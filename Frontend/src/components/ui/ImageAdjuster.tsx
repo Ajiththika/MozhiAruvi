@@ -13,7 +13,7 @@ interface ImageAdjusterProps {
   onCancel: () => void;
 }
 
-export default function ImageAdjuster({ image, aspect = 1, onConfirm, onCancel }: ImageAdjusterProps) {
+export function ImageAdjuster({ image, aspect = 1, onConfirm, onCancel }: ImageAdjusterProps) {
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<any>(null);
@@ -43,10 +43,10 @@ export default function ImageAdjuster({ image, aspect = 1, onConfirm, onCancel }
              </div>
              <div>
                 <h3 className="text-xl font-black text-slate-900 tracking-tight">Adjust Identity Photo</h3>
-                <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Crop and position your image perfectly</p>
+                <p className="text-[10px] font-black uppercase tracking-widest text-primary/60">Crop and position your image perfectly</p>
              </div>
           </div>
-          <button onClick={onCancel} className="p-2 rounded-xl hover:bg-slate-100 text-slate-400 transition-all">
+          <button onClick={onCancel} className="p-2 rounded-xl hover:bg-slate-100 text-primary/60 transition-all">
             <X size={24} />
           </button>
         </div>
@@ -74,11 +74,11 @@ export default function ImageAdjuster({ image, aspect = 1, onConfirm, onCancel }
           <div className="flex flex-col sm:flex-row items-center gap-8 justify-between">
             <div className="w-full flex-1 space-y-4">
                <div className="flex items-center justify-between">
-                  <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Precision Zoom</p>
+                  <p className="text-[10px] font-black uppercase text-primary/60 tracking-widest">Precision Zoom</p>
                   <span className="text-xs font-black text-primary bg-primary/5 px-2 py-1 rounded-lg">{(zoom * 100).toFixed(0)}%</span>
                </div>
                <div className="flex items-center gap-4">
-                  <ZoomOut size={16} className="text-slate-400" />
+                  <ZoomOut size={16} className="text-primary/60" />
                   <input
                     type="range"
                     value={zoom}
@@ -88,14 +88,14 @@ export default function ImageAdjuster({ image, aspect = 1, onConfirm, onCancel }
                     onChange={(e: any) => setZoom(e.target.value)}
                     className="w-full h-2 bg-slate-100 rounded-full appearance-none cursor-pointer accent-primary"
                   />
-                  <ZoomIn size={16} className="text-slate-400" />
+                  <ZoomIn size={16} className="text-primary/60" />
                </div>
             </div>
 
             <div className="flex items-center gap-4 w-full sm:w-auto">
                <button 
                   onClick={onCancel} 
-                  className="flex-1 sm:flex-none px-8 py-4 rounded-2xl bg-slate-100 text-slate-500 font-black uppercase text-[10px] tracking-widest hover:bg-slate-200 transition-all flex items-center justify-center gap-2"
+                  className="flex-1 sm:flex-none px-8 py-4 rounded-2xl bg-slate-100 text-primary/70 font-black uppercase text-[10px] tracking-widest hover:bg-slate-200 transition-all flex items-center justify-center gap-2"
                >
                   <Trash2 size={14} /> Discard
                </button>
@@ -115,6 +115,19 @@ export default function ImageAdjuster({ image, aspect = 1, onConfirm, onCancel }
     </div>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

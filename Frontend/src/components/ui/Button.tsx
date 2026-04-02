@@ -47,10 +47,10 @@ export function Button({
   };
 
   const sizes = {
-    sm: "text-xs px-4 py-2",
-    md: "text-sm px-6 py-4",
-    lg: "text-base px-8 py-5",
-    xl: "text-lg px-10 py-6",
+    sm: "text-[10px] px-4 py-2",
+    md: "text-xs px-6 py-3.5",
+    lg: "text-sm px-8 py-4",
+    xl: "text-base px-10 py-5",
   };
 
   const currentClasses = cn(
@@ -110,3 +110,16 @@ export function Button({
 }
 
 export default Button;
+
+
+
+
+
+
+
+
+
+
+
+
+

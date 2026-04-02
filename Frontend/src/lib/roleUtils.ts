@@ -10,3 +10,4 @@ export function getRoleDashboardRoute(role: "student" | "teacher" | "admin"): st
       return "/auth/signin";
   }
 }
+

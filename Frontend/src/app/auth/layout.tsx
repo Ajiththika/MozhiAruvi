@@ -7,9 +7,15 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
       {/* Left Side: Form Container */}
       <div className="w-full md:w-1/2 flex flex-col relative z-10 order-1 shadow-[4px_0_24px_rgba(0,0,0,0.02)] border-r border-border/40">
         {/* Simple Top Nav */}
-        <div className="p-6 md:p-8 lg:px-12 flex items-center justify-between">
-          <Link href="/" className="text-2xl font-black text-text-primary flex items-center gap-2 hover:opacity-80 transition-opacity">
-            <span className="text-primary ">Mozhi</span>Aruvi
+        {/* Simple Top Nav */}
+        <div className="p-8 lg:px-12 flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-2 group hover:opacity-90 transition-opacity">
+            <div className="relative w-9 h-9">
+              <img src="/logo.png" alt="Mozhi Aruvi" className="object-contain" />
+            </div>
+            <span className="text-xl md:text-2xl font-black text-primary tracking-tighter flex items-center gap-1">
+              Mozhi<span className="text-secondary">Aruvi</span>
+            </span>
           </Link>
         </div>
         
@@ -20,7 +26,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
       </div>
 
       {/* Right Side: Branding visual */}
-      <div className="w-full md:w-1/2 bg-surface-soft flex flex-col justify-center relative overflow-hidden order-2 hidden md:flex border-l border-border/40">
+      <div className="w-full md:w-1/2 bg-primary/[0.02] flex flex-col justify-center relative overflow-hidden order-2 hidden md:flex border-l border-slate-100">
         
         {/* Decorative elements */}
         <div className="absolute top-0 right-0 p-12 opacity-[0.03] font-black text-[15rem] text-primary transform rotate-12 select-none pointer-events-none leading-none">அ</div>
@@ -44,7 +50,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
             </div>
           </div>
 
-          <h1 className="text-4xl lg:text-5xl xl:text-7xl font-black text-text-primary tracking-tight mb-8 leading-tight">
+          <h1 className="text-4xl lg:text-4xl xl:text-7xl font-black text-text-primary tracking-tight mb-8 leading-tight">
             தமிழ் கற்கும் <br /><span className="text-primary italic">பயணம்</span>
           </h1>
           <p className="text-xl lg:text-2xl text-text-secondary font-medium leading-relaxed max-w-lg mx-auto italic">
@@ -75,5 +81,18 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
     </div>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 

@@ -54,7 +54,7 @@ export default function PlacementPage() {
         <h1 className="text-3xl font-extrabold text-slate-800 mb-4 tracking-tight">
           How much Tamil do you know?
         </h1>
-        <p className="text-lg text-slate-500">
+        <p className="text-lg text-primary/70">
           This helps us build a personalized lesson path for you.
         </p>
       </div>
@@ -77,7 +77,7 @@ export default function PlacementPage() {
               <h3 className={`text-xl font-bold ${selectedLevel === l.id ? "text-primary" : "text-slate-800"}`}>
                 {l.title}
               </h3>
-              <p className="text-slate-500">{l.description}</p>
+              <p className="text-primary/70">{l.description}</p>
             </div>
             <div className="shrink-0 ml-4">
               <div
@@ -107,6 +107,19 @@ export default function PlacementPage() {
     </div>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

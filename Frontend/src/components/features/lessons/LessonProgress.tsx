@@ -11,7 +11,7 @@ export function LessonProgress({ progress }: LessonProgressProps) {
   return (
     <div className="flex-1 max-w-xl hidden md:block">
       <div className="flex items-center justify-between mb-3 px-1">
-         <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">
+         <span className="text-[10px] font-black uppercase tracking-widest text-primary/70">
            Progress: <span className="text-primary">{progress}%</span>
          </span>
       </div>
@@ -24,6 +24,21 @@ export function LessonProgress({ progress }: LessonProgressProps) {
     </div>
   );
 }
+
+
+
+
+export default LessonProgress;
+
+
+
+
+
+
+
+
+
+
 
 
 

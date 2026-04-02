@@ -2,9 +2,9 @@
 
 import React, { useState } from "react";
 import { User, Phone, Globe, Hash, CheckCircle2 } from "lucide-react";
-import { Modal } from "@/components/ui/Modal";
-import { Input } from "@/components/ui/Input";
-import { Button } from "@/components/ui/Button";
+import Modal from "@/components/ui/Modal";
+import Input from "@/components/ui/Input";
+import Button from "@/components/ui/Button";
 import { JoinRequestPayload } from "@/services/eventService";
 
 interface RegistrationModalProps {
@@ -15,7 +15,7 @@ interface RegistrationModalProps {
   onSubmit: (data: JoinRequestPayload) => Promise<void>;
 }
 
-export default function RegistrationModal({
+export function RegistrationModal({
   isOpen,
   onClose,
   eventTitle,
@@ -180,6 +180,21 @@ export default function RegistrationModal({
     </Modal>
   );
 }
+
+
+
+
+export default RegistrationModal;
+
+
+
+
+
+
+
+
+
+
 
 
 

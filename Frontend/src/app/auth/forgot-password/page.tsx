@@ -38,9 +38,9 @@ export default function ForgotPasswordPage() {
             <CheckCircle2 size={64} />
           </div>
         </div>
-        <h2 className="text-3xl font-black text-slate-900 mb-4 tracking-tight">Check your email</h2>
-        <p className="text-slate-500 font-medium mb-10 leading-relaxed">
-          If an account exists for <span className="text-slate-900 font-black">{email}</span>, we've sent instructions to reset your password.
+        <h2 className="text-3xl font-black text-primary mb-4 tracking-tight">Check your email</h2>
+        <p className="text-primary/70 font-medium mb-10 leading-relaxed">
+          If an account exists for <span className="text-primary font-black">{email}</span>, we've sent instructions to reset your password.
         </p>
         <Link href="/auth/signin" className="inline-flex items-center gap-2 text-primary font-black uppercase tracking-widest text-[10px] hover:translate-x-1 transition-transform">
           <ArrowLeft size={16} /> Back to sign in
@@ -52,13 +52,13 @@ export default function ForgotPasswordPage() {
   return (
     <div className="w-full max-w-sm mx-auto xl:max-w-md">
       <div className="mb-10 text-center md:text-left">
-        <Link href="/auth/signin" className="inline-flex items-center gap-2 text-slate-400 font-black uppercase tracking-[0.2em] text-[10px] mb-6 hover:text-primary transition-colors group">
+        <Link href="/auth/signin" className="inline-flex items-center gap-2 text-primary/60 font-black uppercase tracking-[0.2em] text-[10px] mb-6 hover:text-primary transition-colors group">
           <ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform" /> Back
         </Link>
-        <h2 className="text-4xl font-black text-slate-900 mb-3 tracking-tight">
+        <h2 className="text-4xl font-black text-primary mb-3 tracking-tight">
           Forgot Password?
         </h2>
-        <p className="text-slate-500 text-lg font-medium">
+        <p className="text-primary/70 text-lg font-medium">
           No worries! Enter your email below and we'll send you a link to reset it.
         </p>
       </div>
@@ -91,7 +91,7 @@ export default function ForgotPasswordPage() {
         </Button>
       </form>
 
-      <p className="text-center mt-12 text-slate-400 font-bold text-[10px] uppercase tracking-widest">
+      <p className="text-center mt-12 text-primary/60 font-bold text-[10px] uppercase tracking-widest">
         Remembered it?{' '}
         <Link href="/auth/signin" className="text-primary hover:underline ml-2">
           Sign In
@@ -100,6 +100,19 @@ export default function ForgotPasswordPage() {
     </div>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

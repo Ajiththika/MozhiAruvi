@@ -60,7 +60,7 @@ export function LessonCard({
            )}>
                <PlayCircle className={cn(
                   "h-12 w-12",
-                  isLocked ? "text-slate-400" : "text-secondary"
+                  isLocked ? "text-primary/60" : "text-secondary"
                )} />
            </div>
         )}
@@ -68,7 +68,7 @@ export function LessonCard({
         {/* Status Overlay icon */}
         <div className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-white/90 shadow-sm backdrop-blur-sm">
           {isLocked ? (
-            <Lock className="h-4 w-4 text-slate-500" />
+            <Lock className="h-4 w-4 text-primary/70" />
           ) : isCompleted ? (
             <CheckCircle2 className="h-4 w-4 text-success" />
           ) : (
@@ -82,7 +82,7 @@ export function LessonCard({
         <h3
           className={cn(
             "text-lg font-bold leading-tight",
-            isLocked ? "text-slate-400" : "text-slate-800"
+            isLocked ? "text-primary/60" : "text-slate-800"
           )}
         >
           {title}
@@ -93,7 +93,7 @@ export function LessonCard({
 
         {/* Meta */}
         <div className="mt-4 flex items-center justify-between text-[11px] font-bold uppercase tracking-wider">
-           <span className="text-slate-400">
+           <span className="text-primary/60">
               {duration}
            </span>
            <span className="rounded-md bg-amber-50 px-2 py-0.5 text-amber-600 border border-amber-200/50">
@@ -104,7 +104,7 @@ export function LessonCard({
         {/* Action Button */}
         <div className="mt-5">
           {isLocked ? (
-             <button disabled className="w-full rounded-xl bg-slate-100 py-2 text-sm font-bold text-slate-400">
+             <button disabled className="w-full rounded-xl bg-slate-100 py-2 text-sm font-bold text-primary/60">
                 Locked
              </button>
           ) : (
@@ -132,6 +132,21 @@ export function LessonCard({
     </div>
   );
 }
+
+
+
+
+
+export default LessonCard;
+
+
+
+
+
+
+
+
+
 
 
 

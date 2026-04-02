@@ -73,14 +73,14 @@ export default function TutorSupport() {
                   <div className="w-3 h-3 rounded-full bg-yellow-400"></div>
                   <div className="w-3 h-3 rounded-full bg-green-400"></div>
                 </div>
-                <div className="text-xs font-bold text-slate-500 tracking-tight">Tutor support</div>
+                <div className="text-xs font-bold text-primary/70 tracking-tight">Tutor support</div>
               </div>
 
               <div className="p-6 space-y-6">
                 
                 {/* Student Question */}
                 <div className="space-y-2">
-                  <div className="text-xs font-bold text-slate-500 tracking-tight pl-1">Question</div>
+                  <div className="text-xs font-bold text-primary/70 tracking-tight pl-1">Question</div>
                   <div className="bg-accent/10 border border-primary/10 rounded-2xl rounded-tr-none p-4 text-slate-700 shadow-sm ml-8 relative">
                     <p className="font-medium text-[15px]">"How do I pronounce the 'zh' (ழ) sound in Tamil? I keep getting it wrong. Any tips?"</p>
                   </div>
@@ -98,7 +98,7 @@ export default function TutorSupport() {
                 <div className="space-y-2">
                   <div className="flex items-center gap-3 mb-1">
                     <div className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center font-bold text-sm shadow-sm ring-2 ring-white">KR</div>
-                    <div className="text-xs font-bold text-slate-500 tracking-tight">Tutor answer</div>
+                    <div className="text-xs font-bold text-primary/70 tracking-tight">Tutor answer</div>
                   </div>
                   <div className="bg-white border border-slate-100 rounded-2xl rounded-tl-none p-4 text-slate-700 shadow-sm relative mr-8">
                     <p className="text-[15px] leading-relaxed">
@@ -117,7 +117,7 @@ export default function TutorSupport() {
                        <div className="w-1/3 h-full bg-primary rounded-full"></div>
                     </div>
                   </div>
-                  <div className="text-xs font-medium text-slate-400">0:12</div>
+                  <div className="text-xs font-medium text-primary/60">0:12</div>
                 </div>
 
               </div>
@@ -129,6 +129,19 @@ export default function TutorSupport() {
     </section>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

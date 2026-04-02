@@ -14,7 +14,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 type ViewTab = "all" | "saved" | "drafts";
 
 import Button from "@/components/ui/Button";
-import { Pagination } from "@/components/ui/Pagination";
+import Pagination from "@/components/ui/Pagination";
 
 export default function BlogsPage() {
   const router = useRouter();
@@ -133,7 +133,7 @@ export default function BlogsPage() {
                   "whitespace-nowrap rounded-[1.5rem] px-8 py-4 text-[10px] font-black uppercase tracking-widest transition-all",
                   activeTab === "all"
                     ? "bg-slate-900 text-white shadow-xl"
-                    : "bg-white text-slate-500 hover:text-primary border border-border"
+                    : "bg-white text-primary/70 hover:text-primary border border-border"
                 )}
               >
                 The Feed
@@ -146,7 +146,7 @@ export default function BlogsPage() {
                       "whitespace-nowrap rounded-[1.5rem] px-8 py-4 text-[10px] font-black uppercase tracking-widest transition-all",
                       activeTab === "saved"
                         ? "bg-slate-900 text-white shadow-xl"
-                        : "bg-white text-slate-400 hover:text-primary border border-border"
+                        : "bg-white text-primary/60 hover:text-primary border border-border"
                     )}
                   >
                     Saved Gems
@@ -159,7 +159,7 @@ export default function BlogsPage() {
                         "whitespace-nowrap rounded-[1.5rem] px-8 py-4 text-[10px] font-black uppercase tracking-widest transition-all relative",
                         activeTab === "drafts"
                           ? "bg-slate-900 text-white shadow-xl"
-                          : "bg-white text-slate-400 hover:text-primary border border-border"
+                          : "bg-white text-primary/60 hover:text-primary border border-border"
                       )}
                     >
                       My Archives
@@ -176,13 +176,13 @@ export default function BlogsPage() {
           </div>
 
           <div className="relative w-full lg:max-w-md group">
-            <Search className="absolute left-6 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-primary transition-colors" />
+            <Search className="absolute left-6 top-1/2 -translate-y-1/2 h-4 w-4 text-primary/60 group-focus-within:text-primary transition-colors" />
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search heritage repository..."
-              className="w-full h-16 rounded-[2rem] border border-border bg-white px-14 text-sm font-bold text-slate-800 outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/5 placeholder:text-slate-300"
+              className="w-full h-16 rounded-[2rem] border border-border bg-white px-14 text-sm font-bold text-slate-800 outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/5 placeholder:text-primary/40"
             />
           </div>
         </section>
@@ -191,7 +191,7 @@ export default function BlogsPage() {
         {loading ? (
           <div className="flex flex-col items-center justify-center py-32 gap-4">
             <Loader2 className="h-10 w-10 animate-spin text-primary" />
-            <p className="text-xs font-bold text-slate-400 tracking-tight">Gathering the latest stories...</p>
+            <p className="text-xs font-bold text-primary/60 tracking-tight">Gathering the latest stories...</p>
           </div>
         ) : null}
 
@@ -204,7 +204,7 @@ export default function BlogsPage() {
               <p className="text-2xl font-bold text-slate-800 dark:text-white tracking-tight">
                 {activeTab === "drafts" ? "No drafts found" : activeTab === "saved" ? "Nothing bookmarked" : "No stories match your search"}
               </p>
-              <p className="text-slate-500 mt-2 text-base font-medium max-w-sm mx-auto">
+              <p className="text-primary/70 mt-2 text-base font-medium max-w-sm mx-auto">
                 {activeTab === "drafts" ? "Start something new and it will appear here." : "Try adjusting your filters or explore our main feed."}
               </p>
             </div>
@@ -238,30 +238,30 @@ export default function BlogsPage() {
                                 Draft
                               </span>
                            )}
-                           <span className="rounded-xl bg-white/90 backdrop-blur-md px-4 py-1.5 text-[8px] font-black uppercase tracking-widest text-slate-900 border border-border shadow-sm">
+                           <span className="rounded-xl bg-white/90 backdrop-blur-md px-4 py-1.5 text-[8px] font-black uppercase tracking-widest text-primary border border-border shadow-sm">
                               {post.category || "General"}
                            </span>
                         </div>
                       </div>
                       
                       <div className="flex flex-1 flex-col space-y-6">
-                        <h4 className="text-2xl font-black text-slate-900 group-hover:text-primary transition-colors line-clamp-2 leading-tight tracking-tighter">
+                        <h4 className="text-2xl font-black text-primary group-hover:text-primary transition-colors line-clamp-2 leading-tight tracking-tighter">
                           {post.title}
                         </h4>
-                        <p className="text-slate-400 text-sm leading-relaxed line-clamp-3 flex-1 font-bold tracking-tight">
+                        <p className="text-primary/60 text-sm leading-relaxed line-clamp-3 flex-1 font-bold tracking-tight">
                           {post.excerpt || post.content.substring(0, 100) + "..."}
                         </p>
                         
                         <div className="flex items-center justify-between pt-6 border-t border-border">
                            <div className="flex items-center gap-3">
-                              <span className="text-[10px] font-black text-slate-900 uppercase tracking-widest">
+                              <span className="text-[10px] font-black text-primary uppercase tracking-widest">
                                 {post.author?.name || "Member"}
                                 {post.author?.role === 'admin' && (
                                   <span className="ml-2 text-[8px] font-black text-secondary border border-secondary/20 bg-secondary/5 px-1.5 py-0.5 rounded-lg">Staff</span>
                                 )}
                               </span>
                            </div>
-                           <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">
+                           <span className="text-[10px] font-black text-primary/40 uppercase tracking-widest">
                               {new Date(post.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
                            </span>
                         </div>
@@ -271,7 +271,7 @@ export default function BlogsPage() {
                     <div className="flex items-center justify-between mt-8 pt-8 border-t border-border">
                        <button
                         onClick={(e) => handleShare(e, post)}
-                        className="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-primary transition-all"
+                        className="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-primary/60 hover:text-primary transition-all"
                        >
                          {copiedId === post._id ? <Check className="w-4 h-4 text-emerald-500" /> : <Share2 className="w-4 h-4" />}
                          {copiedId === post._id ? "Copied" : "Spread"}
@@ -281,7 +281,7 @@ export default function BlogsPage() {
                          <div className="flex items-center gap-8">
                            <Link
                              href={`/blogs/${post._id}/edit`}
-                             className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-secondary transition-all"
+                             className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-primary/60 hover:text-secondary transition-all"
                            >
                               <Edit2 className="w-4 h-4" /> Config
                            </Link>
@@ -317,6 +317,19 @@ export default function BlogsPage() {
     </div>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

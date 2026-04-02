@@ -3,7 +3,7 @@
 import React, { useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
-import { Card } from '@/components/ui/Card';
+import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import { createSubscriptionSession } from '@/services/paymentService';
 import { 
@@ -77,7 +77,7 @@ function CheckoutContent() {
   return (
     <div className="min-h-screen bg-slate-50/50 py-12 lg:py-20 px-4 sm:px-6">
       <div className="max-w-5xl mx-auto">
-        <div className="flex items-center gap-2 text-slate-400 font-black uppercase tracking-widest text-[10px] mb-8">
+        <div className="flex items-center gap-2 text-primary/60 font-black uppercase tracking-widest text-[10px] mb-8">
            <Lock size={12} className="text-emerald-500" /> Secure Checkout
         </div>
 
@@ -88,27 +88,27 @@ function CheckoutContent() {
             
             {/* Details Form UI (Simulation) */}
             <div className="space-y-6">
-              <h2 className="text-2xl font-black text-slate-900 tracking-tight">Checkout Basics</h2>
+              <h2 className="text-2xl font-black text-primary tracking-tight">Checkout Basics</h2>
               <Card variant="outline" className="p-8 border-slate-100 shadow-sm bg-white rounded-3xl space-y-8">
                  <div className="grid grid-cols-2 gap-6">
                     <div className="space-y-2">
-                       <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-1">First Name</p>
-                       <div className="px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-slate-900 font-bold">{user?.name?.split(' ')[0] || 'Member'}</div>
+                       <p className="text-[10px] font-black uppercase text-primary/60 tracking-widest ml-1">First Name</p>
+                       <div className="px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-primary font-bold">{user?.name?.split(' ')[0] || 'Member'}</div>
                     </div>
                     <div className="space-y-2">
-                       <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-1">Last Name</p>
-                       <div className="px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-slate-900 font-bold">{user?.name?.split(' ')[1] || 'User'}</div>
+                       <p className="text-[10px] font-black uppercase text-primary/60 tracking-widest ml-1">Last Name</p>
+                       <div className="px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-primary font-bold">{user?.name?.split(' ')[1] || 'User'}</div>
                     </div>
                  </div>
                  <div className="space-y-2">
-                    <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-1">Email Address</p>
-                    <div className="px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-slate-900 font-bold">{user?.email}</div>
+                    <p className="text-[10px] font-black uppercase text-primary/60 tracking-widest ml-1">Email Address</p>
+                    <div className="px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-primary font-bold">{user?.email}</div>
                  </div>
                  <div className="space-y-2">
-                    <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-1">Country</p>
-                    <div className="flex items-center justify-between px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-slate-900 font-bold">
+                    <p className="text-[10px] font-black uppercase text-primary/60 tracking-widest ml-1">Country</p>
+                    <div className="flex items-center justify-between px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-primary font-bold">
                        <span>United States</span>
-                       <Globe size={16} className="text-slate-300" />
+                       <Globe size={16} className="text-primary/40" />
                     </div>
                  </div>
               </Card>
@@ -116,12 +116,12 @@ function CheckoutContent() {
 
             {/* Payment Method UI (The Embedded Feel) */}
             <div className="space-y-6">
-               <h2 className="text-2xl font-black text-slate-900 tracking-tight">Payment Method</h2>
+               <h2 className="text-2xl font-black text-primary tracking-tight">Payment Method</h2>
                <Card variant="outline" className="p-8 border-slate-100 bg-white rounded-3xl shadow-sm space-y-8">
                   <div className="flex items-center justify-between">
                      <div className="flex items-center gap-3">
                         <CreditCard className="text-primary h-5 w-5" />
-                        <span className="text-[10px] font-black uppercase text-slate-900 tracking-widest">Credit / Debit Card</span>
+                        <span className="text-[10px] font-black uppercase text-primary tracking-widest">Credit / Debit Card</span>
                      </div>
                      <div className="flex items-center -space-x-1">
                         <div className="w-8 h-8 rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-center text-[7px] font-black opacity-60">VISA</div>
@@ -131,12 +131,12 @@ function CheckoutContent() {
 
                   <div className="space-y-6">
                      <div className="space-y-2">
-                        <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-1">Card Number</p>
+                        <p className="text-[10px] font-black uppercase text-primary/60 tracking-widest ml-1">Card Number</p>
                         <div className="relative group">
                            <input 
                               type="text" 
                               placeholder="1234 5678 1234 5678" 
-                              className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-slate-900 font-bold placeholder:text-slate-200 outline-none focus:border-primary/40 focus:ring-4 focus:ring-primary/5 transition-all" 
+                              className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-primary font-bold placeholder:text-slate-200 outline-none focus:border-primary/40 focus:ring-4 focus:ring-primary/5 transition-all" 
                            />
                            <div className="absolute right-5 top-1/2 -translate-y-1/2 flex gap-1">
                               <div className="w-5 h-3 bg-slate-200 rounded-sm" />
@@ -147,19 +147,19 @@ function CheckoutContent() {
 
                      <div className="grid grid-cols-2 gap-6">
                         <div className="space-y-2">
-                           <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-1">Expiration</p>
+                           <p className="text-[10px] font-black uppercase text-primary/60 tracking-widest ml-1">Expiration</p>
                            <input 
                               type="text" 
                               placeholder="MM / YY" 
-                              className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-slate-900 font-bold placeholder:text-slate-200 outline-none focus:border-primary/40 focus:ring-4 focus:ring-primary/5 transition-all" 
+                              className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-primary font-bold placeholder:text-slate-200 outline-none focus:border-primary/40 focus:ring-4 focus:ring-primary/5 transition-all" 
                            />
                         </div>
                         <div className="space-y-2">
-                           <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-1">CVC</p>
+                           <p className="text-[10px] font-black uppercase text-primary/60 tracking-widest ml-1">CVC</p>
                            <input 
                               type="text" 
                               placeholder="123" 
-                              className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-slate-900 font-bold placeholder:text-slate-200 outline-none focus:border-primary/40 focus:ring-4 focus:ring-primary/5 transition-all" 
+                              className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-primary font-bold placeholder:text-slate-200 outline-none focus:border-primary/40 focus:ring-4 focus:ring-primary/5 transition-all" 
                            />
                         </div>
                      </div>
@@ -175,7 +175,7 @@ function CheckoutContent() {
                      >
                         Complete Order ${price.toFixed(2)}
                      </Button>
-                     <p className="text-center text-[10px] font-bold text-slate-400 leading-relaxed max-w-sm mx-auto">
+                     <p className="text-center text-[10px] font-bold text-primary/60 leading-relaxed max-w-sm mx-auto">
                         Your transaction is secured with industry-standard 256-bit encryption. Payment processing is managed by <strong className="text-slate-600">Stripe</strong>.
                      </p>
                   </div>
@@ -195,7 +195,7 @@ function CheckoutContent() {
           {/* RIGHT SIDE: ORDER SUMMARY */}
           <div className="lg:col-span-5">
              <div className="sticky top-12 space-y-8">
-                <h2 className="text-2xl font-black text-slate-900 tracking-tight">Order Summary</h2>
+                <h2 className="text-2xl font-black text-primary tracking-tight">Order Summary</h2>
                 <Card variant="outline" className="p-10 rounded-[2.5rem] border-none shadow-[0_32px_64px_-16px_rgba(0,0,0,0.06)] bg-white overflow-hidden relative">
                    {/* Top Accent */}
                    <div className={cn("absolute top-0 left-0 right-0 h-2", plan.bg.replace('/5', ''))}></div>
@@ -205,28 +205,28 @@ function CheckoutContent() {
                          <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center mb-4 shadow-inner", plan.bg)}>
                             <plan.icon className={cn("w-6 h-6", plan.color)} />
                          </div>
-                         <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight">{plan.name}</h3>
-                         <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Membership Plan</p>
+                         <h3 className="text-xl font-black text-primary uppercase tracking-tight">{plan.name}</h3>
+                         <p className="text-[10px] font-black text-primary/60 uppercase tracking-widest">Membership Plan</p>
                       </div>
                       <div className="text-right">
-                         <p className="text-2xl font-black text-slate-900 tracking-tight">${price.toFixed(2)}</p>
-                         <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{cycle}</p>
+                         <p className="text-2xl font-black text-primary tracking-tight">${price.toFixed(2)}</p>
+                         <p className="text-[10px] font-black text-primary/60 uppercase tracking-widest">{cycle}</p>
                       </div>
                    </div>
 
                    <div className="space-y-6 pt-10 border-t border-slate-50 relative">
                       <div className="flex items-center justify-between text-sm font-bold">
-                         <span className="text-slate-500 uppercase tracking-widest text-[10px]">Subtotal</span>
-                         <span className="text-slate-900">${price.toFixed(2)}</span>
+                         <span className="text-primary/70 uppercase tracking-widest text-[10px]">Subtotal</span>
+                         <span className="text-primary">${price.toFixed(2)}</span>
                       </div>
                       <div className="flex items-center justify-between text-sm font-bold">
-                         <span className="text-slate-500 uppercase tracking-widest text-[10px]">Processing Fee</span>
+                         <span className="text-primary/70 uppercase tracking-widest text-[10px]">Processing Fee</span>
                          <span className="text-emerald-500 uppercase tracking-widest text-[11px]">Free</span>
                       </div>
                       
                       <div className="pt-6 border-t border-slate-100 flex items-center justify-between">
-                         <span className="text-sm font-black text-slate-900 uppercase tracking-widest">Total to Pay</span>
-                         <span className="text-3xl font-black text-slate-900 tracking-tighter">${price.toFixed(2)}</span>
+                         <span className="text-sm font-black text-primary uppercase tracking-widest">Total to Pay</span>
+                         <span className="text-3xl font-black text-primary tracking-tighter">${price.toFixed(2)}</span>
                       </div>
                    </div>
 
@@ -259,6 +259,19 @@ export default function CheckoutPage() {
     </Suspense>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

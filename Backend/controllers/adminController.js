@@ -11,8 +11,22 @@ export async function getPlanSettings(req, res, next) {
 export async function updatePlanSettings(req, res, next) {
     try {
         const { planId } = req.params;
-        const updated = await PlanSettings.findOneAndUpdate({ plan: planId }, req.body, { new: true, upsert: true });
+        const updated = await PlanSettings.findOneAndUpdate({ _id: planId }, req.body, { new: true });
         res.json(updated);
+    } catch (e) { next(e); }
+}
+
+export async function createPlanSettings(req, res, next) {
+    try {
+        const plan = await PlanSettings.create(req.body);
+        res.json(plan);
+    } catch (e) { next(e); }
+}
+
+export async function deletePlanSettings(req, res, next) {
+    try {
+        await PlanSettings.findByIdAndDelete(req.params.planId);
+        res.json({ message: 'Plan deleted.' });
     } catch (e) { next(e); }
 }
 

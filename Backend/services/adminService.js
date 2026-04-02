@@ -73,14 +73,29 @@ export async function editUser(userId, updateData) {
         'name', 'phoneNumber', 'country', 'age', 'gender', 
         'bio', 'experience', 'specialization', 'isTutorAvailable',
         'isPremium', 'credits', 'teachingMode', 'profilePhoto', 
-        'levelSupport', 'responseTime', 'role'
+        'levelSupport', 'responseTime', 'role', 'subscription'
     ];
 
     allowedFields.forEach(field => {
         if (updateData[field] !== undefined) {
-            user[field] = updateData[field];
+            // Special handling for nested objects like subscription
+            if (field === 'subscription' && typeof updateData[field] === 'object') {
+                user.subscription = { ...user.subscription, ...updateData[field] };
+            } else {
+                user[field] = updateData[field];
+            }
         }
     });
+
+    // Handle dot notation updates too if they come in (e.g. subscription.plan)
+    for (const key in updateData) {
+        if (key.startsWith('subscription.')) {
+            const subField = key.split('.')[1];
+            if (user.subscription) {
+                user.subscription[subField] = updateData[key];
+            }
+        }
+    }
 
     // Special logic: If role is upgraded to teacher by admin, make them available by default
     if (updateData.role === 'teacher' || updateData.role === 'tutor') {

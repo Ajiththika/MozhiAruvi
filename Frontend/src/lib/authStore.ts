@@ -10,6 +10,8 @@
  *  - The Axios interceptor reads it automatically on every request
  */
 
+import { SafeUser } from "@/services/authService";
+
 let accessToken: string | null = null;
 const SESSION_HINT_KEY = "mozhi_session_hint";
 const USER_CACHE_KEY = "mozhi_cached_user";
@@ -26,13 +28,13 @@ export const authStore = {
     }
   },
 
-  saveUser(user: any): void {
+  saveUser(user: SafeUser): void {
     if (typeof window !== "undefined") {
       localStorage.setItem(USER_CACHE_KEY, JSON.stringify(user));
     }
   },
 
-  getCachedUser(): any | null {
+  getCachedUser(): SafeUser | null {
     if (typeof window === "undefined") return null;
     const raw = localStorage.getItem(USER_CACHE_KEY);
     if (!raw) return null;
@@ -56,3 +58,4 @@ export const authStore = {
     return localStorage.getItem(SESSION_HINT_KEY) === "true";
   },
 };
+

@@ -85,7 +85,7 @@ export function LessonOnboarding({ onSuccess }: { onSuccess: () => void }) {
           <div className="flex flex-col items-center justify-center py-12 gap-4">
             <Loader2 className="h-12 w-12 animate-spin text-primary" />
             <h2 className="text-xl font-bold text-slate-800">Personalizing your path...</h2>
-            <p className="text-sm text-slate-400 font-medium">Just a moment.</p>
+            <p className="text-sm text-primary/60 font-medium">Just a moment.</p>
           </div>
         ) : (
           <div key={currentStep} className="animate-in slide-in-from-right-8 duration-300">
@@ -108,7 +108,7 @@ export function LessonOnboarding({ onSuccess }: { onSuccess: () => void }) {
                 {step.title}
               </h2>
               {step.subtitle && (
-                <p className="text-sm text-slate-400 font-medium">{step.subtitle}</p>
+                <p className="text-sm text-primary/60 font-medium">{step.subtitle}</p>
               )}
             </div>
 
@@ -134,7 +134,7 @@ export function LessonOnboarding({ onSuccess }: { onSuccess: () => void }) {
               ))}
             </div>
 
-            <p className="text-center text-[10px] font-black uppercase tracking-widest text-slate-300 mt-6">
+            <p className="text-center text-[10px] font-black uppercase tracking-widest text-primary/40 mt-6">
               Step {currentStep + 1} of {steps.length}
             </p>
           </div>
@@ -143,6 +143,19 @@ export function LessonOnboarding({ onSuccess }: { onSuccess: () => void }) {
     </div>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

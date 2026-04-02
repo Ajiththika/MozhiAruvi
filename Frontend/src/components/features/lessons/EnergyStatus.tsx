@@ -50,8 +50,8 @@ export function EnergyStatus({
         {/* Timer Component */}
         {!isPremium && currentEnergy < maxEnergy && timeLeft > 0 && (
           <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-50 border border-slate-100 animate-in fade-in slide-in-from-right-4">
-            <Clock className="w-3 h-3 text-slate-400" />
-            <span className="text-[10px] font-bold text-slate-500 tabular-nums">
+            <Clock className="w-3 h-3 text-primary/60" />
+            <span className="text-[10px] font-bold text-primary/70 tabular-nums">
               Next in {formatTime(timeLeft)}
             </span>
           </div>
@@ -98,6 +98,21 @@ export function EnergyStatus({
     </div>
   );
 }
+
+
+
+
+export default EnergyStatus;
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -33,7 +33,7 @@ function ToolbarBtn({
         "flex h-9 w-9 items-center justify-center rounded-xl text-sm font-bold transition-all",
         active
           ? "bg-primary text-white shadow-md shadow-primary/20"
-          : "text-slate-500 hover:bg-slate-100 hover:text-slate-900"
+          : "text-primary/70 hover:bg-slate-100 hover:text-slate-900"
       )}
     >
       {children}
@@ -53,7 +53,7 @@ interface Props {
   placeholder?: string;
 }
 
-export default function RichTextEditor({ value, onChange, placeholder }: Props) {
+export function RichTextEditor({ value, onChange, placeholder }: Props) {
   const [isMounted, setIsMounted] = React.useState(false);
 
   React.useEffect(() => {
@@ -146,7 +146,7 @@ export default function RichTextEditor({ value, onChange, placeholder }: Props) 
         <Divider />
 
         <ToolbarBtn title="Quote" active={editor.isActive("blockquote")} onClick={() => editor.chain().focus().toggleBlockquote().run()}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor text-slate-500"><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1zM15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z"/></svg>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor text-primary/70"><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1zM15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z"/></svg>
         </ToolbarBtn>
 
         <div className="ml-auto pl-4 border-l border-slate-100 flex items-center gap-4">
@@ -156,7 +156,7 @@ export default function RichTextEditor({ value, onChange, placeholder }: Props) 
           <button type="button" onClick={() => editor.chain().focus().redo().run()} className="p-1 hover:text-primary transition-colors">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 7v6h-6"/><path d="M3 17a9 9 0 019-9 9 9 0 016 2.3L21 13"/></svg>
           </button>
-          <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest hidden sm:inline">
+          <span className="text-[10px] font-black text-primary/40 uppercase tracking-widest hidden sm:inline">
             {editor.getText().trim() ? editor.getText().trim().split(/\s+/).length : 0} words
           </span>
         </div>
@@ -170,3 +170,18 @@ export default function RichTextEditor({ value, onChange, placeholder }: Props) 
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export default RichTextEditor;

@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Modal } from "@/components/ui/Modal";
-import { Input } from "@/components/ui/Input";
-import { Button } from "@/components/ui/Button";
+import Modal from "@/components/ui/Modal";
+import Input from "@/components/ui/Input";
+import Button from "@/components/ui/Button";
 import { Loader2, User, AlertCircle, CheckCircle2, Send } from "lucide-react";
 import { getAvailableTutors, requestTutor, Tutor } from "@/services/tutorService";
 import { cn } from "@/lib/utils";
@@ -89,7 +89,7 @@ export function AskTutorModal({ isOpen, onClose, lessonId, lessonTitle, lessonMo
             </div>
           ) : tutors.length === 0 ? (
              <div className="text-center bg-slate-50 border-dashed p-6 rounded-2xl border border-slate-200">
-                <p className="text-sm font-semibold text-slate-400 italic">No mentors currently connected for this domain.</p>
+                <p className="text-sm font-semibold text-primary/60 italic">No mentors currently connected for this domain.</p>
              </div>
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
@@ -106,7 +106,7 @@ export function AskTutorModal({ isOpen, onClose, lessonId, lessonTitle, lessonMo
                     {t.profilePhoto ? (
                       <img src={t.profilePhoto} alt={t.name} className="w-full h-full object-cover rounded-xl" />
                     ) : (
-                      <User className="h-8 w-8 text-slate-300" />
+                      <User className="h-8 w-8 text-primary/40" />
                     )}
                   </div>
                   <div className="text-center">
@@ -159,6 +159,21 @@ export function AskTutorModal({ isOpen, onClose, lessonId, lessonTitle, lessonMo
     </Modal>
   );
 }
+
+
+
+
+export default AskTutorModal;
+
+
+
+
+
+
+
+
+
+
 
 
 

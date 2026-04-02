@@ -58,21 +58,21 @@ export default function TutorBlogsPage() {
         <div className="space-y-6">
            <div className="flex items-center gap-3">
               <div className="h-0.5 w-8 bg-primary/40 rounded-full" />
-              <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Portfolio Management</span>
+              <span className="text-[10px] font-black text-primary/60 uppercase tracking-[0.2em]">Portfolio Management</span>
            </div>
-           <h1 className="text-5xl font-black text-slate-900 tracking-tighter leading-none">Creative Archives</h1>
-           <p className="text-slate-400 font-bold max-w-lg tracking-tight">Manage your contributions to the community library and track your thought leadership.</p>
+           <h1 className="text-4xl font-black text-primary tracking-tighter leading-none">Creative Archives</h1>
+           <p className="text-primary/60 font-bold max-w-lg tracking-tight">Manage your contributions to the community library and track your thought leadership.</p>
         </div>
         
         <div className="flex items-center gap-6">
           <div className="relative group hidden lg:block">
-            <Search className="absolute left-5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-primary transition-colors" />
+            <Search className="absolute left-5 top-1/2 -translate-y-1/2 h-4 w-4 text-primary/60 group-focus-within:text-primary transition-colors" />
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search your vault..."
-              className="w-80 h-14 rounded-2xl border border-border bg-white px-12 text-sm font-bold text-slate-800 outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/5 placeholder:text-slate-300"
+              className="w-80 h-14 rounded-2xl border border-border bg-white px-12 text-sm font-bold text-slate-800 outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/5 placeholder:text-primary/40"
             />
           </div>
           <Button
@@ -95,7 +95,7 @@ export default function TutorBlogsPage() {
       {loading ? (
         <div className="flex flex-col items-center justify-center py-40 gap-8">
           <Loader2 className="h-12 w-12 animate-spin text-primary" />
-          <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Opening vault...</p>
+          <p className="text-[10px] font-black uppercase text-primary/60 tracking-widest">Opening vault...</p>
         </div>
       ) : null}
 
@@ -105,8 +105,8 @@ export default function TutorBlogsPage() {
              <BookOpen className="h-10 w-10 text-slate-200" />
           </div>
           <div className="space-y-3">
-            <h3 className="text-2xl font-black text-slate-900 tracking-tight">Your repository is empty</h3>
-            <p className="text-slate-400 font-bold max-w-xs mx-auto">Start sharing your linguistic expertise and heritage stories today.</p>
+            <h3 className="text-2xl font-black text-primary tracking-tight">Your repository is empty</h3>
+            <p className="text-primary/60 font-bold max-w-xs mx-auto">Start sharing your linguistic expertise and heritage stories today.</p>
           </div>
           <Button href="/student/blogs/create" variant="secondary" className="rounded-2xl px-12 font-black">Begin Writing</Button>
         </div>
@@ -136,10 +136,10 @@ export default function TutorBlogsPage() {
 
                 <div className="flex flex-col flex-1 p-10 space-y-6">
                   <span className="text-[9px] font-black text-primary uppercase tracking-[0.2em]">{blog.category || "General"}</span>
-                  <h3 className="text-2xl font-black text-slate-900 group-hover:text-primary transition-colors line-clamp-2 leading-tight tracking-tighter">
+                  <h3 className="text-2xl font-black text-primary group-hover:text-primary transition-colors line-clamp-2 leading-tight tracking-tighter">
                     {blog.title}
                   </h3>
-                  <p className="text-slate-400 text-sm font-bold line-clamp-2 tracking-tight leading-relaxed flex-1">
+                  <p className="text-primary/60 text-sm font-bold line-clamp-2 tracking-tight leading-relaxed flex-1">
                     {blog.excerpt || "No summary provided for this archive entry."}
                   </p>
 
@@ -147,7 +147,7 @@ export default function TutorBlogsPage() {
                     <div className="flex items-center gap-6">
                       <Link
                         href={`/tutor/blogs/${blog._id}/edit`}
-                        className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-secondary transition-all"
+                        className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-primary/60 hover:text-secondary transition-all"
                       >
                         <Edit2 className="w-4 h-4" /> Config
                       </Link>
@@ -161,7 +161,7 @@ export default function TutorBlogsPage() {
                     <Link
                       href={`/blogs/${blog.slug || blog._id}`}
                       target="_blank"
-                      className="h-10 w-10 rounded-full bg-surface-soft border border-border flex items-center justify-center text-slate-400 hover:bg-slate-900 hover:text-white transition-all shadow-sm"
+                      className="h-10 w-10 rounded-full bg-surface-soft border border-border flex items-center justify-center text-primary/60 hover:bg-slate-900 hover:text-white transition-all shadow-sm"
                     >
                       <Plus className="w-4 h-4 rotate-45" />
                     </Link>
@@ -175,6 +175,19 @@ export default function TutorBlogsPage() {
     </div>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

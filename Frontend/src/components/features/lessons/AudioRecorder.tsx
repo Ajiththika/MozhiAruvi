@@ -3,7 +3,7 @@
 import React, { useRef, useState } from "react";
 import { Mic, CheckCircle2, Loader2 } from "lucide-react";
 import { evaluateSpeaking } from "@/services/lessonService";
-import { Card } from "@/components/ui/Card";
+import Card from "@/components/ui/Card";
 import { cn } from "@/lib/utils";
 
 interface AudioRecorderProps {
@@ -96,7 +96,7 @@ export function AudioRecorder({
               isRecording ? "bg-red-500 text-white border-red-500/20 scale-125 animate-pulse" :
               isProcessingAudio ? "bg-primary/10 text-primary border-primary/20 animate-spin" :
               isCorrect ? "bg-emerald-500 text-white border-emerald-200 cursor-default" :
-              "bg-white border-slate-100 text-slate-400 hover:border-primary/40 hover:text-primary active:scale-95"
+              "bg-white border-slate-100 text-primary/60 hover:border-primary/40 hover:text-primary active:scale-95"
             )}
           >
              {isProcessingAudio ? <Loader2 className="h-14 w-14 animate-spin" /> :
@@ -110,7 +110,7 @@ export function AudioRecorder({
           </button>
           
           <div className="mt-8 text-center bg-slate-50 px-8 py-3 rounded-full border border-slate-100 shadow-sm">
-             <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 select-none">
+             <span className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/70 select-none">
                {isRecording ? "Transcribing Pulse..." : isProcessingAudio ? "Analyzing Frequency..." : "Press and Hold to Speak"}
              </span>
           </div>
@@ -132,6 +132,21 @@ export function AudioRecorder({
     </div>
   );
 }
+
+
+
+
+export default AudioRecorder;
+
+
+
+
+
+
+
+
+
+
 
 
 

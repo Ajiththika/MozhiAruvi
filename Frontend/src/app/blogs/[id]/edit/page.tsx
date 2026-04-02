@@ -7,8 +7,8 @@ import { ArrowLeft, Loader2, CheckCircle2, AlertCircle, UserCircle, Sparkles, Up
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import Button from "@/components/ui/Button";
-import api from "@/lib/api";
-import ImageAdjuster from "@/components/ui/ImageAdjuster";
+import { api } from "@/lib/api";
+import { ImageAdjuster } from "@/components/ui/ImageAdjuster";
 import dynamic from "next/dynamic";
 
 const RichTextEditor = dynamic(() => import("@/components/ui/RichTextEditor"), { ssr: false });

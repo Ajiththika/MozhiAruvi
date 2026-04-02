@@ -11,3 +11,4 @@ export function hasPermission(userRole: string | undefined, allowedRoles: UserRo
   
   return allowedRoles.includes(userRole as UserRole);
 }
+

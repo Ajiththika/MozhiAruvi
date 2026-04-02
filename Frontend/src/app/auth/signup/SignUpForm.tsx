@@ -48,13 +48,10 @@ export default function SignUpForm() {
 
   return (
     <div className="w-full max-w-sm mx-auto xl:max-w-md">
-      <div className="mb-8 md:mb-10 text-center md:text-left">
-        <h2 className="text-3xl md:text-4xl font-extrabold text-slate-700 mb-3 tracking-tight">
-          Create your account
+      <div className="mb-10 text-center md:text-left">
+        <h2 className="text-3xl md:text-5xl font-black text-primary tracking-tight leading-tight">
+          Join with our <br /> tamil community
         </h2>
-        <p className="text-slate-400 text-lg md:text-xl font-medium">
-          Start learning Tamil today with 50 free credits.
-        </p>
       </div>
 
       <form className="space-y-4" onSubmit={handleSubmit}>
@@ -113,21 +110,21 @@ export default function SignUpForm() {
           isLoading={loading}
           variant="primary"
           size="xl"
-          className="w-full mt-6"
+          className="w-full mt-6 shadow-xl shadow-primary/20"
         >
-          Create Free Account
+          Begin Heritage Journey
         </Button>
       </form>
 
       <div className="mt-8 mb-8 flex items-center">
         <div className="flex-1 border-t border-slate-100/60"></div>
-        <div className="px-5 text-sm text-slate-400 font-bold tracking-wide uppercase">or continue with</div>
+        <div className="px-5 text-sm text-primary/60 font-bold tracking-wide uppercase">or continue with</div>
         <div className="flex-1 border-t border-slate-100/60"></div>
       </div>
 
       <SocialLogin provider="Google" onClick={() => window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/google`} />
 
-      <p className="text-center mt-12 text-slate-400 font-medium text-base">
+      <p className="text-center mt-12 text-primary/60 font-medium text-base">
         Already have an account?{' '}
         <Link href="/auth/signin" className="text-primary hover:text-primary-dark font-extrabold transition-colors">
           Sign in
@@ -136,6 +133,19 @@ export default function SignUpForm() {
     </div>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

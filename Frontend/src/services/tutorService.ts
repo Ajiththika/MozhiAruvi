@@ -4,7 +4,7 @@
  * All calls to /api/tutors/*
  */
 
-import api from "@/lib/api";
+import { api } from "@/lib/api";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -175,3 +175,4 @@ export async function addRequestMessage(
   );
   return res.data.request;
 }
+

@@ -39,7 +39,7 @@ export function QuestionCard({ question: q, feedback, credits, selectedIndex, on
                 isCorrect ? "bg-emerald-500 text-white border-emerald-400" :
                 isIncorrect ? "bg-red-500 text-white border-red-400" :
                 isSelected ? "bg-primary text-white border-primary/40" :
-                "bg-slate-50 text-slate-400 border-slate-100 group-hover:bg-primary/5 group-hover:text-primary group-hover:border-primary/20"
+                "bg-slate-50 text-primary/60 border-slate-100 group-hover:bg-primary/5 group-hover:text-primary group-hover:border-primary/20"
               )}>
                 {idx + 1}
               </div>
@@ -63,6 +63,21 @@ export function QuestionCard({ question: q, feedback, credits, selectedIndex, on
     </div>
   );
 }
+
+
+
+
+export default QuestionCard;
+
+
+
+
+
+
+
+
+
+
 
 
 

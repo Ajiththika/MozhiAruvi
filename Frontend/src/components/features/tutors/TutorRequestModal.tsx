@@ -91,7 +91,7 @@ export function TutorRequestModal({ tutor, onClose, initialType = "question" }: 
             </div>
             <div className="space-y-2">
               <h3 className="text-3xl font-bold text-slate-800">Request Sent!</h3>
-              <p className="text-slate-500 font-medium leading-relaxed">
+              <p className="text-primary/70 font-medium leading-relaxed">
                 Your <strong>{info.label}</strong> has been successfully beamed to <strong>{tutor.name}</strong>. 
                 Keep an eye on your Inbox for their expert response.
               </p>
@@ -113,14 +113,14 @@ export function TutorRequestModal({ tutor, onClose, initialType = "question" }: 
                 </div>
                 <div>
                   <h3 className="text-xl font-bold text-slate-800">New Request</h3>
-                  <p className="text-xs text-slate-500 font-medium tracking-tight">Direct session with {tutor.name}</p>
+                  <p className="text-xs text-primary/70 font-medium tracking-tight">Direct session with {tutor.name}</p>
                 </div>
               </div>
               <button 
                 onClick={onClose} 
                 className="h-10 w-10 rounded-full hover:bg-slate-200/50 flex items-center justify-center transition-colors border border-transparent hover:border-slate-100"
               >
-                <X className="h-5 w-5 text-slate-400" />
+                <X className="h-5 w-5 text-primary/60" />
               </button>
             </div>
 
@@ -142,8 +142,8 @@ export function TutorRequestModal({ tutor, onClose, initialType = "question" }: 
                           : "border-slate-50 hover:border-slate-100 hover:bg-slate-50/50"
                       )}
                     >
-                      <Icon className={cn("h-5 w-5 transition-transform group-hover/type:scale-110", active ? "text-primary" : "text-slate-400")} />
-                      <span className={cn("text-[10px] font-bold uppercase tracking-wider", active ? "text-primary" : "text-slate-500")}>
+                      <Icon className={cn("h-5 w-5 transition-transform group-hover/type:scale-110", active ? "text-primary" : "text-primary/60")} />
+                      <span className={cn("text-[10px] font-bold uppercase tracking-wider", active ? "text-primary" : "text-primary/70")}>
                         {key.replace("_", " ")}
                       </span>
                     </button>
@@ -154,7 +154,7 @@ export function TutorRequestModal({ tutor, onClose, initialType = "question" }: 
               {/* Main Content Area */}
               <div className="space-y-4">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-widest flex items-center gap-1.5">
+                  <label className="text-xs font-bold text-primary/70 uppercase tracking-widest flex items-center gap-1.5">
                     <MessageSquare className="h-3 w-3" /> Description
                   </label>
                   <textarea
@@ -168,7 +168,7 @@ export function TutorRequestModal({ tutor, onClose, initialType = "question" }: 
 
                 {type === "live_class" && (
                    <div className="space-y-1.5 animate-in slide-in-from-top-2 duration-300">
-                    <label className="text-xs font-bold text-slate-500 uppercase tracking-widest flex items-center gap-1.5">
+                    <label className="text-xs font-bold text-primary/70 uppercase tracking-widest flex items-center gap-1.5">
                       <Clock className="h-3 w-3" /> Preferred Time & Day
                     </label>
                     <input
@@ -184,14 +184,14 @@ export function TutorRequestModal({ tutor, onClose, initialType = "question" }: 
                 {type === "multi_class" && (
                    <div className="grid grid-cols-2 gap-4 animate-in slide-in-from-top-2 duration-300">
                       <div className="space-y-1.5">
-                        <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">Sessions</label>
-                        <div className="w-full rounded-xl bg-slate-100 dark:bg-slate-800 px-4 py-2.5 text-sm font-bold text-slate-600 dark:text-slate-300">
+                        <label className="text-xs font-bold text-primary/70 uppercase tracking-widest">Sessions</label>
+                        <div className="w-full rounded-xl bg-slate-100 dark:bg-slate-800 px-4 py-2.5 text-sm font-bold text-slate-600 dark:text-primary/40">
                           5 Sessions
                         </div>
                       </div>
                       <div className="space-y-1.5">
-                        <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">Duration</label>
-                        <div className="w-full rounded-xl bg-slate-100 dark:bg-slate-800 px-4 py-2.5 text-sm font-bold text-slate-600 dark:text-slate-300">
+                        <label className="text-xs font-bold text-primary/70 uppercase tracking-widest">Duration</label>
+                        <div className="w-full rounded-xl bg-slate-100 dark:bg-slate-800 px-4 py-2.5 text-sm font-bold text-slate-600 dark:text-primary/40">
                           45m per session
                         </div>
                       </div>
@@ -225,7 +225,7 @@ export function TutorRequestModal({ tutor, onClose, initialType = "question" }: 
               <div className="flex gap-4 pt-4">
                 <button 
                   onClick={onClose} 
-                  className="flex-1 rounded-[1.5rem] border border-slate-100 py-4 text-sm font-bold text-slate-500 hover:bg-slate-50 hover:text-slate-700 transition-all"
+                  className="flex-1 rounded-[1.5rem] border border-slate-100 py-4 text-sm font-bold text-primary/70 hover:bg-slate-50 hover:text-slate-700 transition-all"
                 >
                   Cancel
                 </button>
@@ -245,6 +245,19 @@ export function TutorRequestModal({ tutor, onClose, initialType = "question" }: 
     </div>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

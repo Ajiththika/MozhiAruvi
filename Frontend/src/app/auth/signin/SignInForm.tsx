@@ -66,13 +66,10 @@ export default function SignInForm() {
 
   return (
     <div className="w-full max-w-sm mx-auto xl:max-w-md">
-      <div className="mb-8 md:mb-10 text-center md:text-left">
-        <h2 className="text-3xl md:text-4xl font-extrabold text-slate-700 mb-3 tracking-tight">
+      <div className="mb-10 text-center md:text-left">
+        <h2 className="text-3xl md:text-5xl font-black text-primary tracking-tight leading-tight">
           Welcome back
         </h2>
-        <p className="text-slate-400 text-lg md:text-xl font-medium">
-          Sign in to continue your Tamil learning journey.
-        </p>
       </div>
 
       <form className="space-y-6" onSubmit={handleSubmit}>
@@ -124,21 +121,34 @@ export default function SignInForm() {
 
       <div className="mt-8 mb-8 flex items-center">
         <div className="flex-1 border-t border-slate-100/60"></div>
-        <div className="px-5 text-sm text-slate-400 font-bold tracking-wide uppercase">or continue with</div>
+        <div className="px-5 text-sm text-primary/60 font-bold tracking-wide uppercase">or continue with</div>
         <div className="flex-1 border-t border-slate-100/60"></div>
       </div>
 
       <SocialLogin provider="Google" onClick={() => window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/google`} />
 
-      <p className="text-center mt-12 text-slate-400 font-medium text-base">
-        Don't have an account?{' '}
+      <p className="text-center mt-12 text-primary/60 font-medium text-base">
+        New to the heritage?{' '}
         <Link href="/auth/signup" className="text-primary hover:text-primary-dark font-extrabold transition-colors">
-          Sign up
+          Join Flow
         </Link>
       </p>
     </div>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
