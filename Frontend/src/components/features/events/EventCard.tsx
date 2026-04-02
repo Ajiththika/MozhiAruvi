@@ -62,12 +62,12 @@ export function EventCard({
             className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110" 
           />
         ) : (
-          <div className="flex h-full w-full items-center justify-center bg-gray-50 text-4xl font-black text-gray-200 tracking-tighter opacity-50">
+          <div className="flex h-full w-full items-center justify-center bg-slate-50 text-4xl font-black text-slate-200 tracking-tighter opacity-50">
             MOZHI
           </div>
         )}
         <div className="absolute left-4 top-4">
-          <span className="rounded-full bg-white/90 px-4 py-1.5 text-[10px] uppercase font-black tracking-widest text-gray-700 shadow-xl backdrop-blur-md border border-white/20">
+          <span className="rounded-full bg-white/90 px-4 py-1.5 text-[10px] uppercase font-black tracking-widest text-slate-700 shadow-xl backdrop-blur-md border border-white/20">
             {type}
           </span>
         </div>
@@ -75,31 +75,31 @@ export function EventCard({
 
       {/* Content Section */}
       <CardBody className="p-6 sm:p-7 flex flex-col flex-1">
-        <h3 className="line-clamp-2 text-xl font-bold text-gray-800 mb-4 group-hover:text-primary transition-colors tracking-tight">
+        <h3 className="line-clamp-2 text-xl font-bold text-slate-800 mb-4 group-hover:text-primary transition-colors tracking-tight">
           {title}
         </h3>
         
         <div className="space-y-3 mt-auto">
-          <div className="flex items-center gap-3 text-xs font-bold text-gray-500 tracking-tight">
+          <div className="flex items-center gap-3 text-xs font-bold text-slate-500 tracking-tight">
             <div className="w-8 h-8 rounded-lg bg-secondary/10 flex items-center justify-center text-secondary">
               <Calendar className="h-4 w-4" />
             </div>
             <span>{date}</span>
           </div>
-          <div className="flex items-center gap-3 text-xs font-bold text-gray-500 tracking-tight">
+          <div className="flex items-center gap-3 text-xs font-bold text-slate-500 tracking-tight">
             <div className="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-500">
               <Clock className="h-4 w-4" />
             </div>
             <span>{time}</span>
           </div>
-          <div className="flex items-center gap-3 text-xs font-bold text-gray-500 tracking-tight">
+          <div className="flex items-center gap-3 text-xs font-bold text-slate-500 tracking-tight">
             <div className="w-8 h-8 rounded-lg bg-orange-50 flex items-center justify-center text-orange-400">
               <Users className="h-4 w-4" />
             </div>
             <span className={isFull ? "text-red-500" : ""}>{joined} / {max} joined</span>
           </div>
-          <div className="flex items-center gap-3 text-xs font-bold text-gray-400 tracking-tight">
-            <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center text-gray-400">
+          <div className="flex items-center gap-3 text-xs font-bold text-slate-400 tracking-tight">
+            <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400">
               <MapPin className="h-4 w-4" />
             </div>
             <span className="truncate">{location ? location : `Hosted by ${hName}`}</span>
@@ -116,7 +116,7 @@ export function EventCard({
                 Already Registered ✓
               </div>
             ) : isFull ? (
-              <div className="w-full rounded-responsive bg-gray-50 py-3 text-center text-xs font-black uppercase tracking-widest text-gray-400 border border-gray-100">
+              <div className="w-full rounded-responsive bg-slate-50 py-3 text-center text-xs font-black uppercase tracking-widest text-slate-400 border border-slate-100">
                 Capacity Reached
               </div>
             ) : (
@@ -133,7 +133,7 @@ export function EventCard({
         )}
 
         {isAdminView && (
-          <div className="flex items-center gap-3 pt-2 border-t border-gray-50">
+          <div className="flex items-center gap-3 pt-2 border-t border-slate-50">
             <Button
               onClick={onEdit}
               variant="outline"
@@ -154,3 +154,6 @@ export function EventCard({
     </Card>
   );
 }
+
+
+

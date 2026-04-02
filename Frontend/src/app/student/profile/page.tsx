@@ -6,6 +6,7 @@ import { UserCircle, Mail, MapPin, Phone, Hash, Save, AlertCircle, CheckCircle, 
 import { useAuth } from "@/context/AuthContext";
 import api from "@/lib/api";
 import Button from "@/components/ui/Button";
+import ImageAdjuster from "@/components/ui/ImageAdjuster";
 
 export default function StudentProfile() {
   const { user, setUser, isLoading: authLoading } = useAuth();
@@ -23,6 +24,7 @@ export default function StudentProfile() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [adjustImage, setAdjustImage] = useState<string | null>(null);
 
   useEffect(() => {
     if (user) {
@@ -44,14 +46,21 @@ export default function StudentProfile() {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (file.size > 2 * 1024 * 1024) {
-        alert("Image must be smaller than 2MB");
+      if (file.size > 5 * 1024 * 1024) {
+        alert("Image must be smaller than 5MB");
         return;
       }
-      setSelectedFile(file);
       const url = URL.createObjectURL(file);
-      setPreviewUrl(url);
+      setAdjustImage(url);
     }
+  };
+
+  const handleAdjustConfirm = (croppedBlob: Blob) => {
+    const file = new File([croppedBlob], "profile.jpg", { type: "image/jpeg" });
+    setSelectedFile(file);
+    const url = URL.createObjectURL(croppedBlob);
+    setPreviewUrl(url);
+    setAdjustImage(null);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -89,14 +98,14 @@ export default function StudentProfile() {
   if (authLoading) return (
     <div className="flex flex-col items-center justify-center min-h-[400px] gap-3">
       <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-      <p className="text-gray-500 font-bold uppercase tracking-widest text-[10px]">Synchronizing Profile...</p>
+      <p className="text-slate-500 font-bold uppercase tracking-widest text-[10px]">Synchronizing Profile...</p>
     </div>
   );
 
   if (!user) return (
     <div className="p-8 text-center flex flex-col items-center gap-4">
       <AlertCircle className="h-12 w-12 text-error" />
-      <p className="text-gray-600 font-bold">Session identity required.</p>
+      <p className="text-slate-600 font-bold">Session identity required.</p>
       <button onClick={() => window.location.href = "/auth/signin"} className="bg-primary text-white px-8 py-3 rounded-2xl font-black uppercase text-[10px] tracking-widest">Sign In Portal</button>
     </div>
   );
@@ -126,22 +135,22 @@ export default function StudentProfile() {
 
             <div className="text-center md:text-left space-y-3">
               <div className="flex flex-wrap items-center justify-center md:justify-start gap-4">
-                <h2 className="text-4xl font-black tracking-tighter text-gray-900">{user.name}</h2>
+                <h2 className="text-4xl font-black tracking-tighter text-slate-900">{user.name}</h2>
                 <span className="px-4 py-1.5 rounded-full bg-primary/5 border border-primary/10 text-[10px] font-black uppercase tracking-widest text-primary">
                   Student Learner
                 </span>
               </div>
-              <p className="flex items-center justify-center md:justify-start gap-2 text-gray-500 font-bold text-sm tracking-tight">
+              <p className="flex items-center justify-center md:justify-start gap-2 text-slate-500 font-bold text-sm tracking-tight">
                 <Mail className="h-4 w-4 text-primary" /> {user.email}
               </p>
               <div className="flex items-center justify-center md:justify-start gap-6 pt-2">
                 <div>
-                   <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Enrolled since</p>
-                   <p className="text-sm font-bold text-gray-800">{new Date(user.createdAt || "").toLocaleDateString("en-GB", { month: 'long', year: 'numeric' })}</p>
+                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Enrolled since</p>
+                   <p className="text-sm font-bold text-slate-800">{new Date(user.createdAt || "").toLocaleDateString("en-GB", { month: 'long', year: 'numeric' })}</p>
                 </div>
                 <div className="h-8 w-px bg-border/60" />
                 <div>
-                   <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Level</p>
+                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Level</p>
                    <p className="text-sm font-black text-secondary">{user.level || "Beginner"}</p>
                 </div>
               </div>
@@ -163,7 +172,7 @@ export default function StudentProfile() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* ── LEARNING STATS ───────────────────────────────────────────────────── */}
         <div className="lg:col-span-1 space-y-8">
-           <div className="rounded-2xl bg-gray-900 p-8 text-white shadow-2xl relative overflow-hidden">
+           <div className="rounded-2xl bg-slate-900 p-8 text-white shadow-2xl relative overflow-hidden">
               <div className="absolute top-0 right-0 h-32 w-32 bg-primary/10 rounded-full blur-2xl -mr-16 -mt-16" />
               <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-white/50 mb-8">Performance Engine</h4>
               
@@ -201,15 +210,15 @@ export default function StudentProfile() {
            </div>
 
            <div className="rounded-2xl bg-white p-8 border border-border shadow-sm">
-              <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-6">Quick Connectivity</h4>
+              <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-6">Quick Connectivity</h4>
               <div className="space-y-5">
                  <div className="flex items-center gap-4">
                     <div className="h-10 w-10 rounded-xl bg-surface-soft flex items-center justify-center text-primary">
                        <Phone className="h-4 w-4" />
                     </div>
                     <div>
-                       <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1">Mobile</p>
-                       <p className="text-sm font-bold text-gray-800">{user.phoneNumber || "Not provided"}</p>
+                       <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Mobile</p>
+                       <p className="text-sm font-bold text-slate-800">{user.phoneNumber || "Not provided"}</p>
                     </div>
                  </div>
                  <div className="flex items-center gap-4">
@@ -217,8 +226,8 @@ export default function StudentProfile() {
                        <MapPin className="h-4 w-4" />
                     </div>
                     <div>
-                       <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1">Current Country</p>
-                       <p className="text-sm font-bold text-gray-800">{user.country || "Earth"}</p>
+                       <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Current Country</p>
+                       <p className="text-sm font-bold text-slate-800">{user.country || "Earth"}</p>
                     </div>
                  </div>
               </div>
@@ -232,7 +241,7 @@ export default function StudentProfile() {
                 <div className="h-12 w-12 rounded-2xl bg-secondary/5 flex items-center justify-center text-secondary">
                    <Edit3 className="h-5 w-5" />
                 </div>
-                <h3 className="text-2xl font-black tracking-tight text-gray-900">Personal Background</h3>
+                <h3 className="text-2xl font-black tracking-tight text-slate-900">Personal Background</h3>
               </div>
               
               <div className="space-y-8">
@@ -240,19 +249,19 @@ export default function StudentProfile() {
                     <div className="absolute top-4 left-4 h-8 w-8 text-primary opacity-10">
                        <Zap className="h-full w-full" />
                     </div>
-                    <p className="text-gray-600 font-medium leading-relaxed italic">
+                    <p className="text-slate-600 font-medium leading-relaxed italic">
                        {user.bio || "No biography provided yet. Tell us about your passion for Tamil culture!"}
                     </p>
                  </div>
 
                  <div className="grid grid-cols-2 gap-8">
                     <div className="p-6 rounded-3xl border border-border/60 bg-white">
-                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.15em] mb-2">Age Identity</p>
-                        <p className="text-lg font-bold text-gray-800">{user.age ? `${user.age} Years Old` : "Confidential"}</p>
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] mb-2">Age Identity</p>
+                        <p className="text-lg font-bold text-slate-800">{user.age ? `${user.age} Years Old` : "Confidential"}</p>
                     </div>
                     <div className="p-6 rounded-3xl border border-border/60 bg-white">
-                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.15em] mb-2">Gender Perspective</p>
-                        <p className="text-lg font-bold text-gray-800 capitalize">{user.gender || "Not specified"}</p>
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] mb-2">Gender Perspective</p>
+                        <p className="text-lg font-bold text-slate-800 capitalize">{user.gender || "Not specified"}</p>
                     </div>
                  </div>
               </div>
@@ -262,7 +271,7 @@ export default function StudentProfile() {
 
       {/* ── EDIT PROFILE MODAL ────────────────────────────────────────────────── */}
       {isEditing && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-md animate-in fade-in duration-300">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md animate-in fade-in duration-300">
            <div className="w-full max-w-2xl bg-white rounded-2xl shadow-2xl border border-border overflow-hidden animate-in zoom-in-95 duration-500">
               <div className="flex items-center justify-between p-8 border-b border-border bg-surface-soft/30">
                  <div className="flex items-center gap-4">
@@ -270,18 +279,18 @@ export default function StudentProfile() {
                        <Camera className="h-6 w-6" />
                     </div>
                     <div>
-                       <h3 className="text-xl font-black text-gray-900 tracking-tight">Profile Architecture</h3>
-                       <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Update your digital identity</p>
+                       <h3 className="text-xl font-black text-slate-900 tracking-tight">Profile Architecture</h3>
+                       <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Update your digital identity</p>
                     </div>
                  </div>
-                 <button onClick={() => setIsEditing(false)} className="p-3 rounded-2xl hover:bg-error/10 text-gray-400 hover:text-error transition-all">
+                 <button onClick={() => setIsEditing(false)} className="p-3 rounded-2xl hover:bg-error/10 text-slate-400 hover:text-error transition-all">
                     <X className="h-6 w-6" />
                  </button>
               </div>
 
               <form onSubmit={handleSubmit} className="p-10 space-y-8 max-h-[70vh] overflow-y-auto scrollbar-hide">
-                 <div className="flex flex-col items-center gap-6 mb-4">
-                    <div className="relative group cursor-pointer" onClick={() => fileInputRef.current?.click()}>
+                  <div className="flex flex-col items-center gap-6 mb-4">
+                    <div className="relative group">
                        <div className="h-32 w-32 rounded-[2rem] overflow-hidden bg-surface-soft border-2 border-dashed border-primary/20 group-hover:border-primary transition-all">
                           {(previewUrl || user.profilePhoto) ? (
                             <img src={previewUrl || user.profilePhoto || ""} alt="Preview" className="w-full h-full object-cover" />
@@ -291,41 +300,77 @@ export default function StudentProfile() {
                             </div>
                           )}
                        </div>
-                       <div className="absolute inset-0 bg-primary/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all rounded-[2rem]">
-                          <Camera className="h-6 w-6 text-white" />
+                       
+                       <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-all rounded-[2rem] flex items-center justify-center gap-3">
+                          <button 
+                            type="button"
+                            onClick={() => fileInputRef.current?.click()} 
+                            title="Upload New"
+                            className="p-3 bg-white rounded-xl text-slate-900 hover:scale-110 transition-transform shadow-xl"
+                          >
+                             <Camera size={18} />
+                          </button>
+                          {(previewUrl || user.profilePhoto) && (
+                            <>
+                              <button 
+                                type="button"
+                                onClick={() => {
+                                   if (previewUrl || user.profilePhoto) {
+                                      setAdjustImage(previewUrl || user.profilePhoto || "");
+                                   }
+                                }} 
+                                title="Re-adjust Crop"
+                                className="p-3 bg-white rounded-xl text-primary hover:scale-110 transition-transform shadow-xl"
+                              >
+                                 <Edit3 size={18} />
+                              </button>
+                              <button 
+                                type="button"
+                                onClick={() => {
+                                   setSelectedFile(null);
+                                   setPreviewUrl(null);
+                                   if (fileInputRef.current) fileInputRef.current.value = "";
+                                }} 
+                                title="Remove Photo"
+                                className="p-3 bg-white rounded-xl text-red-500 hover:scale-110 transition-transform shadow-xl"
+                              >
+                                 <Trash2 size={18} />
+                              </button>
+                            </>
+                          )}
                        </div>
                     </div>
                     <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*" className="hidden" />
-                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Tap to change avatar</p>
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest italic outline-none">Hover to Manage Identity Avatar</p>
                  </div>
 
                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
-                       <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-1">Full Name</label>
-                       <input name="name" value={formData.name} onChange={handleChange} required className="w-full h-14 rounded-2xl bg-surface-soft border border-border px-6 text-sm font-bold text-gray-800 focus:bg-white focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all outline-none" />
+                       <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Full Name</label>
+                       <input name="name" value={formData.name} onChange={handleChange} required className="w-full h-14 rounded-2xl bg-surface-soft border border-border px-6 text-sm font-bold text-slate-800 focus:bg-white focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all outline-none" />
                     </div>
                     <div className="space-y-2">
-                       <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-1">Contact Number</label>
+                       <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Contact Number</label>
                        <div className="relative">
-                          <Phone className="absolute left-6 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                          <input name="phoneNumber" value={formData.phoneNumber} onChange={handleChange} className="w-full h-14 rounded-2xl bg-surface-soft border border-border pl-14 pr-6 text-sm font-bold text-gray-800 focus:bg-white focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all outline-none" />
+                          <Phone className="absolute left-6 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                          <input name="phoneNumber" value={formData.phoneNumber} onChange={handleChange} className="w-full h-14 rounded-2xl bg-surface-soft border border-border pl-14 pr-6 text-sm font-bold text-slate-800 focus:bg-white focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all outline-none" />
                        </div>
                     </div>
                     <div className="space-y-2">
-                       <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-1">Current Country</label>
+                       <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Current Country</label>
                        <div className="relative">
-                          <Globe className="absolute left-6 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                          <input name="country" value={formData.country} onChange={handleChange} className="w-full h-14 rounded-2xl bg-surface-soft border border-border pl-14 pr-6 text-sm font-bold text-gray-800 focus:bg-white focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all outline-none" />
+                          <Globe className="absolute left-6 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                          <input name="country" value={formData.country} onChange={handleChange} className="w-full h-14 rounded-2xl bg-surface-soft border border-border pl-14 pr-6 text-sm font-bold text-slate-800 focus:bg-white focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all outline-none" />
                        </div>
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                        <div className="space-y-2">
-                          <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-1">Age</label>
-                          <input type="number" name="age" value={formData.age} onChange={handleChange} className="w-full h-14 rounded-2xl bg-surface-soft border border-border px-6 text-sm font-bold text-gray-800 focus:bg-white focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all outline-none" />
+                          <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Age</label>
+                          <input type="number" name="age" value={formData.age} onChange={handleChange} className="w-full h-14 rounded-2xl bg-surface-soft border border-border px-6 text-sm font-bold text-slate-800 focus:bg-white focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all outline-none" />
                        </div>
                        <div className="space-y-2">
-                          <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-1">Gender</label>
-                          <select name="gender" value={formData.gender} onChange={handleChange} className="w-full h-14 rounded-2xl bg-surface-soft border border-border px-6 text-sm font-bold text-gray-800 focus:bg-white focus:border-primary transition-all outline-none">
+                          <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Gender</label>
+                          <select name="gender" value={formData.gender} onChange={handleChange} className="w-full h-14 rounded-2xl bg-surface-soft border border-border px-6 text-sm font-bold text-slate-800 focus:bg-white focus:border-primary transition-all outline-none">
                              <option value="">Select</option>
                              <option value="male">Male</option>
                              <option value="female">Female</option>
@@ -336,21 +381,30 @@ export default function StudentProfile() {
                  </div>
 
                  <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-1">Short Biography</label>
-                    <textarea name="bio" rows={4} value={formData.bio} onChange={handleChange} className="w-full rounded-3xl bg-surface-soft border border-border p-6 text-sm font-medium text-gray-700 focus:bg-white focus:border-primary transition-all outline-none resize-none" />
+                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Short Biography</label>
+                    <textarea name="bio" rows={4} value={formData.bio} onChange={handleChange} className="w-full rounded-3xl bg-surface-soft border border-border p-6 text-sm font-medium text-slate-700 focus:bg-white focus:border-primary transition-all outline-none resize-none" />
                  </div>
 
                  <div className="flex items-center gap-4 pt-4">
                     <Button type="submit" isLoading={loading} variant="primary" size="xl" className="flex-1 rounded-2xl shadow-xl shadow-primary/20">
                        Deploy Identity
                     </Button>
-                    <button type="button" onClick={() => setIsEditing(false)} className="px-10 h-[60px] rounded-2xl bg-gray-100 text-gray-500 font-black uppercase text-[10px] tracking-widest hover:bg-gray-200 transition-all">
+                    <button type="button" onClick={() => setIsEditing(false)} className="px-10 h-[60px] rounded-2xl bg-slate-100 text-slate-500 font-black uppercase text-[10px] tracking-widest hover:bg-slate-200 transition-all">
                        Abort Changes
                     </button>
                  </div>
               </form>
            </div>
         </div>
+      )}
+
+      {adjustImage && (
+        <ImageAdjuster 
+          image={adjustImage} 
+          aspect={1} 
+          onConfirm={handleAdjustConfirm} 
+          onCancel={() => setAdjustImage(null)} 
+        />
       )}
 
       {message.text && (
@@ -362,4 +416,6 @@ export default function StudentProfile() {
     </div>
   );
 }
+
+
 

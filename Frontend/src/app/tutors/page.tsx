@@ -47,21 +47,21 @@ export default function PublicTutorsPage() {
           {/* --- Header Section (Clean) --- */}
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-l-4 border-primary pl-6 py-2">
             <div>
-              <h2 className="text-3xl font-black text-gray-800 tracking-tight uppercase">Professional Tutors</h2>
-              <p className="text-sm text-gray-400 font-bold uppercase tracking-widest mt-1">Found {totalTutors} experts ready to help</p>
+              <h2 className="text-3xl font-black text-slate-800 tracking-tight uppercase">Professional Tutors</h2>
+              <p className="text-sm text-slate-400 font-bold uppercase tracking-widest mt-1">Found {totalTutors} experts ready to help</p>
             </div>
           </div>
 
           {/* --- Search Bar --- */}
-          <div className="bg-gray-50/50 rounded-2xl p-8 md:p-10 border border-gray-100">
+          <div className="bg-slate-50/50 rounded-2xl p-8 md:p-10 border border-slate-100">
             <div className="relative w-full">
-              <Search className="absolute left-5 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+              <Search className="absolute left-5 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
               <input
                 type="text"
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
                 placeholder="Search by name, skill, or language…"
-                className="w-full rounded-[2rem] border border-gray-100 bg-white py-4 pl-14 pr-6 text-sm font-semibold text-gray-700 outline-none transition-all placeholder:text-gray-400 focus:border-primary focus:ring-4 focus:ring-primary/5 shadow-xl shadow-gray-200/5"
+                className="w-full rounded-[2rem] border border-slate-100 bg-white py-4 pl-14 pr-6 text-sm font-semibold text-slate-700 outline-none transition-all placeholder:text-slate-400 focus:border-primary focus:ring-4 focus:ring-primary/5 shadow-xl shadow-slate-200/5"
               />
             </div>
           </div>
@@ -70,7 +70,7 @@ export default function PublicTutorsPage() {
             {isLoading ? (
               <div className="flex flex-col items-center justify-center py-32 gap-6">
                 <div className="h-12 w-12 border-4 border-primary border-t-transparent rounded-full animate-spin shadow-xl ring-4 ring-primary/5" />
-                <p className="text-sm font-bold text-gray-400 uppercase tracking-widest animate-pulse">Syncing with our global network…</p>
+                <p className="text-sm font-bold text-slate-400 uppercase tracking-widest animate-pulse">Syncing with our global network…</p>
               </div>
             ) : isError ? (
               <div className="flex items-center justify-between rounded-3xl border border-red-100 bg-red-50/50 px-8 py-6 text-sm text-red-600 font-bold">
@@ -83,12 +83,12 @@ export default function PublicTutorsPage() {
             ) : (
               <>
                 {tutors.length === 0 ? (
-                  <div className="py-24 text-center bg-white rounded-2xl border border-dashed border-gray-100">
-                    <div className="h-24 w-24 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-8">
-                      <GraduationCap className="h-12 w-12 text-gray-200" />
+                  <div className="py-24 text-center bg-white rounded-2xl border border-dashed border-slate-100">
+                    <div className="h-24 w-24 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-8">
+                      <GraduationCap className="h-12 w-12 text-slate-200" />
                     </div>
-                    <h3 className="text-2xl font-black text-gray-800 mb-3 uppercase tracking-tight">No teachers found</h3>
-                    <p className="text-gray-500 max-w-sm mx-auto font-medium">
+                    <h3 className="text-2xl font-black text-slate-800 mb-3 uppercase tracking-tight">No teachers found</h3>
+                    <p className="text-slate-500 max-w-sm mx-auto font-medium">
                       {searchInput ? <>We couldn't find matches for <strong>"{searchInput}"</strong>. Try broadening your criteria.</> : "Check back later for more tutors."}
                     </p>
                     <Button onClick={() => setSearchInput("")} variant="secondary" className="mt-8 px-10">Clear search</Button>
@@ -96,7 +96,7 @@ export default function PublicTutorsPage() {
                 ) : (
                   <div className="space-y-12">
                     <div className="flex items-center justify-between">
-                      <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] px-2">
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] px-2">
                          Explored {totalTutors} native Tamil experts
                       </p>
                     </div>
@@ -107,7 +107,7 @@ export default function PublicTutorsPage() {
                       ))}
                     </div>
                     
-                    <div className="pt-12 border-t border-gray-100">
+                    <div className="pt-12 border-t border-slate-100">
                       <Pagination 
                         currentPage={currentPage}
                         totalPages={totalPages}
@@ -126,3 +126,6 @@ export default function PublicTutorsPage() {
     </div>
   );
 }
+
+
+

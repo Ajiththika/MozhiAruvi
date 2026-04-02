@@ -107,19 +107,19 @@ export default function SubscriptionPage() {
   return (
     <div className="max-w-7xl mx-auto py-12 px-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <div className="text-center mb-16 space-y-4">
-        <h1 className="text-4xl md:text-5xl font-black text-gray-800 tracking-tight leading-tight">Empower Your Learning Journey</h1>
-        <p className="text-lg text-gray-500 max-w-2xl mx-auto font-medium">From individual growth to team mastery, choose the path that unlocks full potential.</p>
+        <h1 className="text-4xl md:text-5xl font-black text-slate-800 tracking-tight leading-tight">Empower Your Learning Journey</h1>
+        <p className="text-lg text-slate-500 max-w-2xl mx-auto font-medium">From individual growth to team mastery, choose the path that unlocks full potential.</p>
         
         {/* Toggle */}
         <div className="flex items-center justify-center gap-4 pt-6">
-          <span className={`text-sm font-bold ${billingCycle === 'monthly' ? 'text-gray-900' : 'text-gray-400'}`}>Monthly</span>
+          <span className={`text-sm font-bold ${billingCycle === 'monthly' ? 'text-slate-900' : 'text-slate-400'}`}>Monthly</span>
           <button 
             onClick={() => setBillingCycle(c => c === 'monthly' ? 'yearly' : 'monthly')}
-            className="w-14 h-8 bg-gray-100 rounded-full p-1 transition-colors relative"
+            className="w-14 h-8 bg-slate-100 rounded-full p-1 transition-colors relative"
           >
             <div className={`h-6 w-6 bg-primary rounded-full shadow-md transition-all ${billingCycle === 'yearly' ? 'translate-x-[24px]' : ''}`} />
           </button>
-          <span className={`text-sm font-bold ${billingCycle === 'yearly' ? 'text-gray-900' : 'text-gray-400'}`}>
+          <span className={`text-sm font-bold ${billingCycle === 'yearly' ? 'text-slate-900' : 'text-slate-400'}`}>
             Yearly <span className="text-emerald-500 font-extrabold text-[10px] uppercase ml-1">Save 15%</span>
           </span>
         </div>
@@ -153,20 +153,20 @@ export default function SubscriptionPage() {
               
               <div className="mb-6">
                 <div className="flex items-center gap-2 mb-3">
-                  <div className="p-2 bg-gray-50 rounded-xl">{plan.icon}</div>
+                  <div className="p-2 bg-slate-50 rounded-xl">{plan.icon}</div>
                   <h3 className="text-xl font-black tracking-tight">{plan.name}</h3>
                 </div>
                 <div className="flex items-baseline gap-1">
-                    <span className="text-3xl font-black text-gray-900">${displayPrice}</span>
-                    <span className="text-gray-400 font-bold text-[10px]">/{billingCycle === 'monthly' ? 'mo' : 'yr'}</span>
+                    <span className="text-3xl font-black text-slate-900">${displayPrice}</span>
+                    <span className="text-slate-400 font-bold text-[10px]">/{billingCycle === 'monthly' ? 'mo' : 'yr'}</span>
                 </div>
                 {plan.id === 'BUSINESS' && (
-                    <div className="mt-4 p-1 bg-gray-50 rounded-lg flex gap-1">
+                    <div className="mt-4 p-1 bg-slate-50 rounded-lg flex gap-1">
                         {[30, 60].map(s => (
                             <button
                                 key={s}
                                 onClick={() => setBusinessSeats(s as any)}
-                                className={`flex-1 py-1 rounded-md text-[10px] font-black transition-all ${businessSeats === s ? 'bg-white shadow-sm text-primary' : 'text-gray-400'}`}
+                                className={`flex-1 py-1 rounded-md text-[10px] font-black transition-all ${businessSeats === s ? 'bg-white shadow-sm text-primary' : 'text-slate-400'}`}
                             >
                                 {s} Seats
                             </button>
@@ -181,14 +181,14 @@ export default function SubscriptionPage() {
                     <div className="h-4 w-4 rounded-full bg-emerald-50 text-emerald-500 flex items-center justify-center shrink-0 mt-0.5">
                       <Check className="w-2.5 h-2.5 stroke-[4]" />
                     </div>
-                    <span className="text-gray-600 font-medium text-[11px] leading-tight">{feature}</span>
+                    <span className="text-slate-600 font-medium text-[11px] leading-tight">{feature}</span>
                   </div>
                 ))}
               </div>
 
               <Button
                 variant={isActive ? 'ghost' : (plan.highlight ? 'primary' : 'outline')}
-                className={`w-full h-12 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${isActive ? 'bg-gray-100' : (plan.highlight ? 'shadow-lg shadow-primary/20' : '')}`}
+                className={`w-full h-12 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${isActive ? 'bg-slate-100' : (plan.highlight ? 'shadow-lg shadow-primary/20' : '')}`}
                 disabled={isActive || plan.disabled || !!loadingPlan}
                 onClick={() => handleSubscribe(plan.id as any)}
               >
@@ -203,13 +203,13 @@ export default function SubscriptionPage() {
         })}
       </div>
 
-      <div className="mt-20 border-t border-gray-100 pt-16 text-center">
-        <h4 className="text-lg font-black text-gray-800 uppercase tracking-widest mb-4">Trust & Security</h4>
+      <div className="mt-20 border-t border-slate-100 pt-16 text-center">
+        <h4 className="text-lg font-black text-slate-800 uppercase tracking-widest mb-4">Trust & Security</h4>
         <div className="flex flex-wrap items-center justify-center gap-8 md:gap-16 opacity-50">
-             <div className="flex items-center gap-2 font-bold text-gray-500">
+             <div className="flex items-center gap-2 font-bold text-slate-500">
                <ShieldCheck className="w-5 h-5" /> SSL SHA-256 Verified
              </div>
-             <div className="flex items-center gap-2 font-bold text-gray-500 uppercase tracking-tighter text-xl italic">
+             <div className="flex items-center gap-2 font-bold text-slate-500 uppercase tracking-tighter text-xl italic">
                Stripe Payment
              </div>
         </div>
@@ -217,3 +217,6 @@ export default function SubscriptionPage() {
     </div>
   );
 }
+
+
+

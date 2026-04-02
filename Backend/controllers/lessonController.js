@@ -55,6 +55,23 @@ export async function getLessonQuestions(req, res, next) {
                 });
             }
         }
+        const lesson = await lessonService.getLessonById(req.params.id);
+        
+        // Strict Level Gating: Student level must match Lesson level
+        if (user && lesson.level) {
+            const userLevel = user.level || 'Beginner';
+            const sameLevel = userLevel.toLowerCase() === lesson.level.toLowerCase();
+            const isBegEq = (userLevel === 'Beginner' && lesson.level === 'Basic') || (userLevel === 'Basic' && lesson.level === 'Beginner');
+            
+            if (!sameLevel && !isBegEq && user.role !== 'admin') {
+                return res.status(403).json({ 
+                    success: false,
+                    message: `This lesson is for ${lesson.level} students. Your level is ${userLevel}.`,
+                    redirect: "/student/dashboard"
+                });
+            }
+        }
+
         const questions = await lessonService.getQuestionsForLesson(req.params.id);
         res.json({ 
             questions, 
@@ -99,21 +116,41 @@ export async function submitAnswers(req, res, next) {
     } catch (e) { next(e); }
 }
 
-import OpenAI from 'openai';
+import speech from '@google-cloud/speech';
+import tts from '@google-cloud/text-to-speech';
 import { stringSimilarity } from 'string-similarity-js';
 import Question from '../models/Question.js';
 import fs from 'fs';
 import path from 'path';
-import os from 'os';
 
-// OpenAI client setup
-let openaiClient = null;
-if (process.env.OPENAI_API_KEY) {
-    openaiClient = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+function logGoogleError(type, err) {
+    try {
+        const logFile = path.resolve('logs', 'google.log');
+        const msg = `[${new Date().toISOString()}] [${type}] ${err.message}\n` + (err.stack ? `${err.stack}\n` : '');
+        if (!fs.existsSync('logs')) fs.mkdirSync('logs');
+        fs.appendFileSync(logFile, msg);
+    } catch(e) { }
+}
+
+function getSpeechClient() {
+    try { return new speech.SpeechClient(); }
+    catch (e) { 
+        console.warn('[Google STT] Client unavailable:', e.message); 
+        logGoogleError("Google STT Client Initialization", e);
+        return null; 
+    }
+}
+
+function getTtsClient() {
+    try { return new tts.TextToSpeechClient(); }
+    catch (e) { 
+        console.warn('[Google TTS] Client unavailable:', e.message); 
+        logGoogleError("Google TTS Client Initialization", e);
+        return null; 
+    }
 }
 
 export async function evaluateSpeaking(req, res, next) {
-    let tempFile = null;
     try {
         const { questionId, audioBase64 } = req.body;
         if (!audioBase64) return res.status(400).json({ message: "Audio data is required" });
@@ -124,25 +161,28 @@ export async function evaluateSpeaking(req, res, next) {
         const expectedText = question.expectedAudioText || question.text;
         const cleanBase64 = audioBase64.replace(/^data:audio\/\w+;base64,/, '');
         
-        const buffer = Buffer.from(cleanBase64, 'base64');
-        
         let transcription = "";
+        const speechClient = getSpeechClient();
         
-        // ── 1. Attempt AI Processing (OpenAI Whisper) ───────────────────────
-        if (openaiClient) {
+        // ── 1. Attempt AI Processing (Google Speech API) ───────────────────────
+        if (speechClient) {
             try {
-                // Create temporary file for Whisper consumption
-                tempFile = path.join(os.tmpdir(), `speech_${Date.now()}.webm`);
-                fs.writeFileSync(tempFile, buffer);
+                const request = {
+                    audio: { content: cleanBase64 },
+                    config: {
+                        encoding: 'WEBM_OPUS', // Usually web audio comes in this format
+                        sampleRateHertz: 48000,
+                        languageCode: 'ta-IN',
+                    },
+                };
 
-                const response = await openaiClient.audio.transcriptions.create({
-                    file: fs.createReadStream(tempFile),
-                    model: "whisper-1",
-                    language: "ta", // Explicitly lock to Tamil for higher accuracy
-                });
-                transcription = response.text;
-            } catch (aiErr) {
-                console.error("⚠️ [WHISPER API FAILURE]:", aiErr.message);
+                const [response] = await speechClient.recognize(request);
+                transcription = response.results
+                    .map(r => r.alternatives[0].transcript)
+                    .join(' ');
+            } catch (googleErr) {
+                console.error("⚠️ [Google STT API FAILURE]:", googleErr.message);
+                logGoogleError("Google STT API FAILURE", googleErr);
                 // Fall through to simulation if API fails
             }
         }
@@ -176,11 +216,6 @@ export async function evaluateSpeaking(req, res, next) {
         });
     } catch (e) { 
         next(e); 
-    } finally {
-        // Cleanup temp file
-        if (tempFile && fs.existsSync(tempFile)) {
-            try { fs.unlinkSync(tempFile); } catch (err) { /* ignore cleanup error */ }
-        }
     }
 }
 
@@ -193,19 +228,22 @@ export async function generateSpeech(req, res, next) {
             return res.status(400).json({ message: "Text is required" });
         }
 
-        // Use OpenAI TTS if available
-        if (openaiClient) {
+        const ttsClient = getTtsClient();
+        if (ttsClient) {
             try {
-                const mp3Response = await openaiClient.audio.speech.create({
-                    model: 'tts-1',
-                    voice: 'alloy', // closest neutral voice
-                    input: text,
-                });
-                const buffer = Buffer.from(await mp3Response.arrayBuffer());
-                const audioBase64 = buffer.toString('base64');
+                const request = {
+                    input: { text },
+                    // Using ta-IN (Tamil - India)
+                    voice: { languageCode: 'ta-IN', name: 'ta-IN-Standard-A' },
+                    audioConfig: { audioEncoding: 'MP3' },
+                };
+
+                const [response] = await ttsClient.synthesizeSpeech(request);
+                const audioBase64 = response.audioContent.toString('base64');
                 return res.json({ audioUrl: `data:audio/mp3;base64,${audioBase64}` });
-            } catch (aiErr) {
-                console.error('[OpenAI TTS Error]:', aiErr.message);
+            } catch (googleErr) {
+                console.error('[Google TTS Error]:', googleErr.message);
+                logGoogleError("Google TTS Error", googleErr);
                 // Fall through to 503 below
             }
         }
@@ -237,10 +275,25 @@ export async function deleteLesson(req, res, next) {
     } catch (e) { next(e); }
 }
 
+export async function reorderQuestions(req, res, next) {
+    try {
+        const { orderedIds } = req.body;
+        await lessonService.reorderQuestions(orderedIds);
+        res.json({ message: 'Questions reordered successfully.' });
+    } catch (e) { next(e); }
+}
+
 export async function createQuestion(req, res, next) {
     try {
         const question = await lessonService.createQuestion(req.params.id, req.body);
         res.status(201).json({ question });
+    } catch (e) { next(e); }
+}
+
+export async function updateQuestion(req, res, next) {
+    try {
+        const question = await lessonService.updateQuestion(req.params.qId, req.body);
+        res.json({ question });
     } catch (e) { next(e); }
 }
 

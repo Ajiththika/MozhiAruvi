@@ -71,8 +71,8 @@ export function RoleProtectedRoute({ children, allowedRoles }: RoleProtectedRout
       <div className="flex min-h-screen w-full flex-col items-center justify-center bg-white gap-4">
         <Loader2 className="h-10 w-10 animate-spin text-primary" />
         <div className="space-y-1 text-center">
-          <p className="text-base font-bold tracking-tight text-gray-800 dark:text-white">Mozhi Aruvi</p>
-          <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest">Verifying your session...</p>
+          <p className="text-base font-bold tracking-tight text-slate-800">MozhiAruvi</p>
+          <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest">Verifying your session...</p>
         </div>
       </div>
     );
@@ -82,4 +82,7 @@ export function RoleProtectedRoute({ children, allowedRoles }: RoleProtectedRout
 
   return <>{children}</>;
 }
+
+
+
 

@@ -29,28 +29,28 @@ export function Button({
   ...props
 }: ButtonProps) {
   const baseClasses =
-    "inline-flex items-center justify-center font-black tracking-widest uppercase transition-all duration-300 rounded-responsive focus:outline-none focus:ring-4 focus:ring-primary/20 disabled:opacity-50 disabled:cursor-not-allowed select-none";
+    "inline-flex items-center justify-center font-bold tracking-wider uppercase transition-all duration-300 rounded-responsive focus:outline-none focus:ring-4 focus:ring-primary/20 disabled:opacity-50 disabled:cursor-not-allowed select-none active:scale-[0.98]";
 
   const variants = {
     primary:
-      "bg-primary text-white shadow-xl shadow-primary/20 hover:bg-primary/90 hover:scale-[1.02] active:scale-[0.98]",
+      "bg-primary text-white shadow-xl shadow-primary/25 hover:bg-primary/90 hover:scale-[1.02] hover:translate-y-[-2px] hover:shadow-2xl hover:shadow-primary/30",
     secondary:
-      "bg-primary-soft text-primary border-2 border-primary/20 hover:bg-primary/10 transition-colors active:scale-[0.98]",
+      "bg-primary-soft text-primary border-2 border-primary/20 hover:bg-primary/10 hover:translate-y-[-1px] transition-all",
     outline:
-      "bg-transparent text-text-primary border-2 border-border hover:border-primary/40 hover:bg-primary/5 active:scale-[0.98]",
+      "bg-transparent text-text-primary border-2 border-border hover:border-primary/40 hover:bg-primary/5 hover:translate-y-[-1px]",
     ghost:
-      "text-text-secondary hover:text-primary hover:bg-primary/5 active:scale-[0.98] outline-none",
+      "text-text-secondary font-semibold hover:text-primary hover:bg-primary/5 outline-none",
     danger:
-      "bg-error text-white shadow-xl shadow-error/20 hover:bg-error/90 hover:scale-[1.02] active:scale-[0.98]",
+      "bg-error text-white shadow-xl shadow-error/25 hover:bg-error/90 hover:scale-[1.02] hover:translate-y-[-2px]",
     accent:
-      "bg-accent text-white shadow-xl shadow-accent/20 hover:bg-accent/90 hover:scale-[1.02] active:scale-[0.98]",
+      "bg-accent text-white shadow-xl shadow-accent/25 hover:bg-accent/90 hover:scale-[1.02] hover:translate-y-[-2px]",
   };
 
   const sizes = {
-    sm: "text-[9px] px-4 py-2",
-    md: "text-[10px] px-6 py-3.5",
-    lg: "text-[12px] px-8 py-5",
-    xl: "text-[14px] px-10 py-6",
+    sm: "text-xs px-4 py-2",
+    md: "text-sm px-6 py-4",
+    lg: "text-base px-8 py-5",
+    xl: "text-lg px-10 py-6",
   };
 
   const currentClasses = cn(

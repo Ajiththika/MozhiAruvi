@@ -35,6 +35,8 @@ export interface Question {
   correctAnswer?: string;
   scoreValue: number;
   expectedAudioText?: string;
+  audioUrl?: string;
+  phoneticHint?: string;
 }
 
 export interface SubmitAnswerItem {
@@ -124,4 +126,23 @@ export async function generateSpeech(lessonId: string, text: string): Promise<{ 
 export async function deleteLesson(id: string): Promise<{ message: string }> {
   const res = await api.delete<{ message: string }>(`/lessons/${id}`);
   return res.data;
+}
+
+export async function createQuestion(lessonId: string, data: any): Promise<{ question: Question }> {
+  const res = await api.post<{ question: Question }>(`/lessons/${lessonId}/questions`, data);
+  return res.data;
+}
+
+export async function updateQuestion(lessonId: string, questionId: string, data: any): Promise<{ question: Question }> {
+  const res = await api.patch<{ question: Question }>(`/lessons/${lessonId}/questions/${questionId}`, data);
+  return res.data;
+}
+
+export async function deleteQuestion(lessonId: string, questionId: string): Promise<{ message: string }> {
+  const res = await api.delete<{ message: string }>(`/lessons/${lessonId}/questions/${questionId}`);
+  return res.data;
+}
+
+export async function reorderQuestions(lessonId: string, orderedIds: string[]): Promise<void> {
+  await api.patch(`/lessons/${lessonId}/questions/reorder`, { orderedIds });
 }

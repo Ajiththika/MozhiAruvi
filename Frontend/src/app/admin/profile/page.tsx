@@ -85,14 +85,14 @@ export default function AdminProfile() {
   if (authLoading) return (
     <div className="flex flex-col items-center justify-center min-h-[400px] gap-3">
       <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-      <p className="text-gray-500 font-bold uppercase tracking-widest text-[10px]">Accessing Core Identity...</p>
+      <p className="text-slate-500 font-bold uppercase tracking-widest text-[10px]">Accessing Core Identity...</p>
     </div>
   );
 
   if (!user) return (
     <div className="p-8 text-center flex flex-col items-center gap-4">
       <AlertCircle className="h-12 w-12 text-error" />
-      <p className="text-gray-600 font-bold">Unauthorized System Access.</p>
+      <p className="text-slate-600 font-bold">Unauthorized System Access.</p>
     </div>
   );
 
@@ -109,8 +109,8 @@ export default function AdminProfile() {
                 {(previewUrl || user.profilePhoto) ? (
                   <img src={previewUrl || user.profilePhoto || ""} alt="Profile" className="w-full h-full object-cover" />
                 ) : (
-                  <div className="h-full w-full flex items-center justify-center bg-gray-50">
-                    <Shield className="h-20 w-20 text-gray-200" />
+                  <div className="h-full w-full flex items-center justify-center bg-slate-50">
+                    <Shield className="h-20 w-20 text-slate-200" />
                   </div>
                 )}
               </div>
@@ -121,23 +121,23 @@ export default function AdminProfile() {
 
             <div className="text-center md:text-left space-y-3">
               <div className="flex flex-wrap items-center justify-center md:justify-start gap-4">
-                <h2 className="text-4xl font-black tracking-tighter text-gray-900">{user.name}</h2>
+                <h2 className="text-4xl font-black tracking-tighter text-slate-900">{user.name}</h2>
                 <span className="px-4 py-1.5 rounded-full bg-red-50 border border-red-100 text-[10px] font-black uppercase tracking-widest text-red-600">
                   System Administrator
                 </span>
               </div>
-              <p className="flex items-center justify-center md:justify-start gap-2 text-gray-500 font-bold text-sm tracking-tight">
+              <p className="flex items-center justify-center md:justify-start gap-2 text-slate-500 font-bold text-sm tracking-tight">
                 <Mail className="h-4 w-4 text-red-500" /> {user.email}
               </p>
               <div className="flex items-center justify-center md:justify-start gap-6 pt-2">
                 <div>
-                   <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Access level</p>
-                   <p className="text-sm font-bold text-gray-800">Superuser / Foundation</p>
+                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Access level</p>
+                   <p className="text-sm font-bold text-slate-800">Superuser / Foundation</p>
                 </div>
                 <div className="h-8 w-px bg-border/60" />
                 <div>
-                   <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Active since</p>
-                   <p className="text-sm font-black text-gray-800">{new Date(user.createdAt || "").toLocaleDateString("en-GB", { month: 'short', year: 'numeric' })}</p>
+                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Active since</p>
+                   <p className="text-sm font-black text-slate-800">{new Date(user.createdAt || "").toLocaleDateString("en-GB", { month: 'short', year: 'numeric' })}</p>
                 </div>
               </div>
             </div>
@@ -147,7 +147,7 @@ export default function AdminProfile() {
             onClick={() => setIsEditing(true)}
             variant="primary" 
             size="xl" 
-            className="bg-gray-900 text-white hover:bg-black rounded-2xl px-10 shadow-lg group translate-y-[-10px]"
+            className="bg-slate-900 text-white hover:bg-black rounded-2xl px-10 shadow-lg group translate-y-[-10px]"
           >
             <Edit3 className="h-4 w-4 mr-3 group-hover:rotate-12 transition-transform" />
             Control Hub
@@ -165,10 +165,10 @@ export default function AdminProfile() {
         <div className="lg:col-span-2 space-y-8">
            <div className="rounded-2xl bg-white p-10 border border-border shadow-sm min-h-[400px]">
               <div className="flex items-center gap-4 mb-8">
-                <div className="h-12 w-12 rounded-2xl bg-gray-900/5 flex items-center justify-center text-gray-900">
+                <div className="h-12 w-12 rounded-2xl bg-slate-900/5 flex items-center justify-center text-slate-900">
                    <Shield className="h-5 w-5" />
                 </div>
-                <h3 className="text-2xl font-black tracking-tight text-gray-900">Administrative Mandate</h3>
+                <h3 className="text-2xl font-black tracking-tight text-slate-900">Administrative Mandate</h3>
               </div>
               
               <div className="space-y-8">
@@ -176,19 +176,19 @@ export default function AdminProfile() {
                     <div className="absolute top-4 left-4 h-8 w-8 text-red-500 opacity-10">
                        <Shield className="h-full w-full" />
                     </div>
-                    <p className="text-gray-600 font-medium leading-relaxed italic">
-                       {user.bio || "No mandate specified. Manage the Mozhi Aruvi ecosystem with precision and dedication."}
+                    <p className="text-slate-600 font-medium leading-relaxed italic">
+                       {user.bio || "No mandate specified. Manage the MozhiAruvi ecosystem with precision and dedication."}
                     </p>
                  </div>
 
                  <div className="grid grid-cols-2 gap-8">
                     <div className="p-6 rounded-3xl border border-border/60 bg-white">
-                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.15em] mb-2">Location Origin</p>
-                        <p className="text-lg font-bold text-gray-800">{user.country || "Global Headquarters"}</p>
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] mb-2">Location Origin</p>
+                        <p className="text-lg font-bold text-slate-800">{user.country || "Global Headquarters"}</p>
                     </div>
                     <div className="p-6 rounded-3xl border border-border/60 bg-white">
-                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.15em] mb-2">Internal Contact</p>
-                        <p className="text-lg font-bold text-gray-800">{user.phoneNumber || "Encrypted"}</p>
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] mb-2">Internal Contact</p>
+                        <p className="text-lg font-bold text-slate-800">{user.phoneNumber || "Encrypted"}</p>
                     </div>
                  </div>
               </div>
@@ -198,19 +198,19 @@ export default function AdminProfile() {
 
       {/* ── EDIT PROFILE MODAL ────────────────────────────────────────────────── */}
       {isEditing && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-md animate-in fade-in duration-300">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md animate-in fade-in duration-300">
            <div className="w-full max-w-2xl bg-white rounded-2xl shadow-2xl border border-border overflow-hidden animate-in zoom-in-95 duration-500">
               <div className="flex items-center justify-between p-8 border-b border-border bg-surface-soft/30">
                  <div className="flex items-center gap-4">
-                    <div className="h-12 w-12 rounded-2xl bg-gray-900 flex items-center justify-center text-white shadow-lg shadow-black/20">
+                    <div className="h-12 w-12 rounded-2xl bg-slate-900 flex items-center justify-center text-white shadow-lg shadow-black/20">
                        <Shield className="h-6 w-6" />
                     </div>
                     <div>
-                       <h3 className="text-xl font-black text-gray-900 tracking-tight">System Configuration</h3>
-                       <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Update administrative identity</p>
+                       <h3 className="text-xl font-black text-slate-900 tracking-tight">System Configuration</h3>
+                       <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Update administrative identity</p>
                     </div>
                  </div>
-                 <button onClick={() => setIsEditing(false)} className="p-3 rounded-2xl hover:bg-error/10 text-gray-400 hover:text-error transition-all">
+                 <button onClick={() => setIsEditing(false)} className="p-3 rounded-2xl hover:bg-error/10 text-slate-400 hover:text-error transition-all">
                     <X className="h-6 w-6" />
                  </button>
               </div>
@@ -236,25 +236,25 @@ export default function AdminProfile() {
 
                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
-                       <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-1">Admin Name</label>
-                       <input name="name" value={formData.name} onChange={handleChange} required className="w-full h-14 rounded-2xl bg-surface-soft border border-border px-6 text-sm font-bold text-gray-800 focus:bg-white focus:border-red-500 transition-all outline-none" />
+                       <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Admin Name</label>
+                       <input name="name" value={formData.name} onChange={handleChange} required className="w-full h-14 rounded-2xl bg-surface-soft border border-border px-6 text-sm font-bold text-slate-800 focus:bg-white focus:border-red-500 transition-all outline-none" />
                     </div>
                     <div className="space-y-2">
-                       <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-1">Contact Number</label>
-                       <input name="phoneNumber" value={formData.phoneNumber} onChange={handleChange} className="w-full h-14 rounded-2xl bg-surface-soft border border-border px-6 text-sm font-bold text-gray-800 focus:bg-white focus:border-red-500 transition-all outline-none" />
+                       <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Contact Number</label>
+                       <input name="phoneNumber" value={formData.phoneNumber} onChange={handleChange} className="w-full h-14 rounded-2xl bg-surface-soft border border-border px-6 text-sm font-bold text-slate-800 focus:bg-white focus:border-red-500 transition-all outline-none" />
                     </div>
                     <div className="space-y-2">
-                       <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-1">Headquarters</label>
-                       <input name="country" value={formData.country} onChange={handleChange} className="w-full h-14 rounded-2xl bg-surface-soft border border-border px-6 text-sm font-bold text-gray-800 focus:bg-white focus:border-red-500 transition-all outline-none" />
+                       <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Headquarters</label>
+                       <input name="country" value={formData.country} onChange={handleChange} className="w-full h-14 rounded-2xl bg-surface-soft border border-border px-6 text-sm font-bold text-slate-800 focus:bg-white focus:border-red-500 transition-all outline-none" />
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                        <div className="space-y-2">
-                          <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-1">Age</label>
-                          <input type="number" name="age" value={formData.age} onChange={handleChange} className="w-full h-14 rounded-2xl bg-surface-soft border border-border px-6 text-sm font-bold text-gray-800 focus:bg-white focus:border-red-500 transition-all outline-none" />
+                          <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Age</label>
+                          <input type="number" name="age" value={formData.age} onChange={handleChange} className="w-full h-14 rounded-2xl bg-surface-soft border border-border px-6 text-sm font-bold text-slate-800 focus:bg-white focus:border-red-500 transition-all outline-none" />
                        </div>
                        <div className="space-y-2">
-                          <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-1">Gender</label>
-                          <select name="gender" value={formData.gender} onChange={handleChange} className="w-full h-14 rounded-2xl bg-surface-soft border border-border px-6 text-sm font-bold text-gray-800 focus:bg-white focus:border-red-500 transition-all outline-none">
+                          <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Gender</label>
+                          <select name="gender" value={formData.gender} onChange={handleChange} className="w-full h-14 rounded-2xl bg-surface-soft border border-border px-6 text-sm font-bold text-slate-800 focus:bg-white focus:border-red-500 transition-all outline-none">
                              <option value="">Select</option>
                              <option value="male">Male</option>
                              <option value="female">Female</option>
@@ -265,15 +265,15 @@ export default function AdminProfile() {
                  </div>
 
                  <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-1">Administrative Bio</label>
-                    <textarea name="bio" rows={4} value={formData.bio} onChange={handleChange} className="w-full rounded-3xl bg-surface-soft border border-border p-6 text-sm font-medium text-gray-700 focus:bg-white focus:border-red-500 transition-all outline-none resize-none" />
+                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Administrative Bio</label>
+                    <textarea name="bio" rows={4} value={formData.bio} onChange={handleChange} className="w-full rounded-3xl bg-surface-soft border border-border p-6 text-sm font-medium text-slate-700 focus:bg-white focus:border-red-500 transition-all outline-none resize-none" />
                  </div>
 
                  <div className="flex items-center gap-4 pt-4">
-                    <Button type="submit" isLoading={loading} variant="primary" size="xl" className="flex-1 bg-gray-900 text-white rounded-2xl shadow-xl shadow-black/20">
+                    <Button type="submit" isLoading={loading} variant="primary" size="xl" className="flex-1 bg-slate-900 text-white rounded-2xl shadow-xl shadow-black/20">
                        Save Protocols
                     </Button>
-                    <button type="button" onClick={() => setIsEditing(false)} className="px-10 h-[60px] rounded-2xl bg-gray-100 text-gray-500 font-black uppercase text-[10px] tracking-widest hover:bg-gray-200 transition-all">
+                    <button type="button" onClick={() => setIsEditing(false)} className="px-10 h-[60px] rounded-2xl bg-slate-100 text-slate-500 font-black uppercase text-[10px] tracking-widest hover:bg-slate-200 transition-all">
                        Abort
                     </button>
                  </div>
@@ -291,3 +291,6 @@ export default function AdminProfile() {
     </div>
   );
 }
+
+
+

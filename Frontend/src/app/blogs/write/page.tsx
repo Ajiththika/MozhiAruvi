@@ -8,6 +8,10 @@ import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import Button from "@/components/ui/Button";
 import api from "@/lib/api";
+import ImageAdjuster from "@/components/ui/ImageAdjuster";
+import dynamic from "next/dynamic";
+
+const RichTextEditor = dynamic(() => import("@/components/ui/RichTextEditor"), { ssr: false });
 
 const CATEGORIES = ["Grammar", "Culture", "Pronunciation", "Tutor Tips", "Updates", "General"];
 
@@ -17,12 +21,16 @@ export default function CreateBlogPage() {
   const [submitting, setSubmitting] = useState(false);
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [adjustImage, setAdjustImage] = useState<string | null>(null);
   
-  // Protect page
+  // Protect page: Only Admins and Teachers can write blogs
   React.useEffect(() => {
     if (!isLoading) {
       if (!user) {
         router.push(`/auth/signin?redirect=${encodeURIComponent("/blogs/write")}`);
+      } else if (user.role !== 'admin' && user.role !== 'teacher') {
+        // Redirect students or unauthorized roles back to feed
+        router.push("/blogs");
       }
     }
   }, [user, isLoading, router]);
@@ -37,15 +45,21 @@ export default function CreateBlogPage() {
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file) return;
+    if (file) {
+      setAdjustImage(URL.createObjectURL(file));
+    }
+  };
 
+  const handleAdjustConfirm = async (croppedBlob: Blob) => {
+    const file = new File([croppedBlob], "blog_cover.jpg", { type: "image/jpeg" });
     const formData = new FormData();
     formData.append('image', file);
 
     setUploading(true);
     setBanner(null);
+    setAdjustImage(null);
     try {
       const res = await api.post('/upload/image', formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
@@ -67,9 +81,11 @@ export default function CreateBlogPage() {
     setBanner(null);
     try {
       const blog = await createBlog({ ...form, status: isDraft ? "draft" : "published" });
-      setBanner({ type: "success", message: isDraft ? "Story preserved as draft." : "Story published to the community!" });
+      const roleText = user?.role === 'teacher' && !isDraft ? "Story submitted for architectural review." : (isDraft ? "Story preserved as draft." : "Story published to the community!");
+      setBanner({ type: "success", message: roleText });
       setTimeout(() => {
         if (isDraft) router.push("/blogs");
+        else if (user?.role === 'teacher') router.push("/blogs"); // Tutors go to feed while pending
         else router.push(`/blogs/${blog.slug || blog._id}`);
       }, 1500);
     } catch (err: any) {
@@ -85,11 +101,11 @@ export default function CreateBlogPage() {
       <nav className="fixed top-0 z-50 w-full bg-white/90 backdrop-blur-xl border-b border-border h-20 px-8">
         <div className="max-w-7xl mx-auto h-full flex items-center justify-between">
           <div className="flex items-center gap-10">
-             <Link href="/blogs" className="group flex items-center gap-2 text-gray-400 hover:text-gray-900 transition-all font-black uppercase text-[10px] tracking-widest">
+             <Link href="/blogs" className="group flex items-center gap-2 text-slate-400 hover:text-slate-900 transition-all font-black uppercase text-[10px] tracking-widest">
                 <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" /> Back
              </Link>
              <Link href="/" className="flex items-center gap-2 group">
-               <span className="text-xl md:text-2xl font-black text-gray-900 tracking-tighter">
+               <span className="text-xl md:text-2xl font-black text-slate-900 tracking-tighter">
                  Mozhi<span className="text-primary italic">Aruvi</span>
                </span>
              </Link>
@@ -99,24 +115,24 @@ export default function CreateBlogPage() {
             <button
                onClick={() => handleSubmit(true)}
                disabled={submitting || uploading}
-               className="text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-gray-900 transition-all disabled:opacity-30"
+               className="text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-900 transition-all disabled:opacity-30"
             >
                Save Draft
             </button>
             <Button
               onClick={() => handleSubmit(false)}
               disabled={submitting || uploading}
-              className="h-12 px-10 rounded-2xl bg-gray-900 hover:bg-black text-white text-[10px] font-black uppercase tracking-widest shadow-2xl transition-all disabled:opacity-50 flex items-center gap-3"
+              className="h-12 px-10 rounded-2xl bg-slate-900 hover:bg-black text-white text-[10px] font-black uppercase tracking-widest shadow-2xl transition-all disabled:opacity-50 flex items-center gap-3"
             >
               {submitting && <Loader2 size={16} className="animate-spin" />}
-              Publish Story
+              {user?.role === 'teacher' ? 'Submit Request' : 'Publish Story'}
             </Button>
             
             <div className="h-10 w-10 rounded-full bg-surface-soft border border-border overflow-hidden ml-4">
               {user?.profilePhoto ? (
                 <img src={user.profilePhoto} alt="User" className="h-full w-full object-cover" />
               ) : (
-                <UserCircle className="h-6 w-6 text-gray-200 mt-2 ml-2" />
+                <UserCircle className="h-6 w-6 text-slate-200 mt-2 ml-2" />
               )}
             </div>
           </div>
@@ -146,7 +162,7 @@ export default function CreateBlogPage() {
                  <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4 backdrop-blur-sm">
                     <button 
                       onClick={() => fileInputRef.current?.click()}
-                      className="p-4 bg-white rounded-full text-gray-900 shadow-xl hover:scale-110 transition-transform"
+                      className="p-4 bg-white rounded-full text-slate-900 shadow-xl hover:scale-110 transition-transform"
                     >
                        <Upload size={20} />
                     </button>
@@ -165,11 +181,11 @@ export default function CreateBlogPage() {
                 className="flex flex-col items-center justify-center w-full aspect-[21/9] rounded-[2.8rem] bg-white hover:bg-surface-soft transition-all space-y-4 group"
               >
                  <div className="p-5 rounded-full bg-surface-soft group-hover:bg-white border border-border transition-all">
-                    {uploading ? <Loader2 size={24} className="animate-spin text-primary" /> : <Upload size={24} className="text-gray-400 group-hover:text-primary transition-colors" />}
+                    {uploading ? <Loader2 size={24} className="animate-spin text-primary" /> : <Upload size={24} className="text-slate-400 group-hover:text-primary transition-colors" />}
                  </div>
                  <div className="text-center">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-gray-900">Upload Visual Cover</p>
-                    <p className="text-[9px] font-bold text-gray-400 mt-1 uppercase tracking-widest">Landscape recommended (Base 2:1)</p>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-900">Upload Visual Cover</p>
+                    <p className="text-[9px] font-bold text-slate-400 mt-1 uppercase tracking-widest">Landscape recommended (Base 2:1)</p>
                  </div>
               </button>
             )}
@@ -186,12 +202,12 @@ export default function CreateBlogPage() {
             {/* Metadata Tier */}
             <div className="flex items-center gap-6 px-1">
                <div className="flex items-center gap-3 bg-white border border-border px-6 py-2 rounded-2xl shadow-sm">
-                  <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Category</span>
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Category</span>
                   <select 
                     name="category" 
                     value={form.category} 
                     onChange={handleChange} 
-                    className="text-[10px] font-black uppercase tracking-widest text-gray-900 outline-none cursor-pointer pr-4"
+                    className="text-[10px] font-black uppercase tracking-widest text-slate-900 outline-none cursor-pointer pr-4"
                   >
                     {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
                   </select>
@@ -199,7 +215,7 @@ export default function CreateBlogPage() {
                <div className="h-0.5 w-12 bg-border rounded-full" />
                <div className="flex items-center gap-2">
                   <Sparkles size={14} className="text-secondary" />
-                  <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Cultural Archive</span>
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Cultural Archive</span>
                </div>
             </div>
 
@@ -210,7 +226,7 @@ export default function CreateBlogPage() {
               onChange={handleChange}
               rows={1}
               placeholder="Title of your story..."
-              className="w-full text-5xl md:text-7xl font-black text-gray-900 placeholder:text-gray-100 border-none outline-none resize-none px-1 overflow-hidden h-auto tracking-tighter leading-[0.9]"
+              className="w-full text-5xl md:text-7xl font-black text-slate-900 placeholder:text-slate-100 border-none outline-none resize-none px-1 overflow-hidden h-auto tracking-tighter leading-[0.9]"
               onInput={(e) => {
                 const target = e.target as HTMLTextAreaElement;
                 target.style.height = "auto";
@@ -225,7 +241,7 @@ export default function CreateBlogPage() {
               onChange={handleChange}
               rows={1}
               placeholder="A brief preview for your audience..."
-              className="w-full text-2xl font-bold text-gray-400 placeholder:text-gray-100 border-none outline-none resize-none px-1 h-auto leading-relaxed tracking-tight"
+              className="w-full text-2xl font-bold text-slate-400 placeholder:text-slate-100 border-none outline-none resize-none px-1 h-auto leading-relaxed tracking-tight"
               onInput={(e) => {
                 const target = e.target as HTMLTextAreaElement;
                 target.style.height = "auto";
@@ -235,19 +251,11 @@ export default function CreateBlogPage() {
 
             <div className="h-px w-full bg-border opacity-50" />
 
-            {/* Body Content - Narrative Focused */}
-            <textarea
-              name="content"
+            {/* Body Content — Rich Text */}
+            <RichTextEditor
               value={form.content}
-              onChange={handleChange}
-              rows={15}
+              onChange={(html) => setForm((prev) => ({ ...prev, content: html }))}
               placeholder="Start sharing your linguistic journey..."
-              className="w-full text-xl md:text-2xl leading-[1.8] text-gray-700 placeholder:text-gray-100 border-none outline-none resize-none px-1 font-medium bg-transparent min-h-[500px] tracking-tight"
-              onInput={(e) => {
-                const target = e.target as HTMLTextAreaElement;
-                target.style.height = "auto";
-                target.style.height = target.scrollHeight + "px";
-              }}
             />
           </div>
         </div>
@@ -256,17 +264,27 @@ export default function CreateBlogPage() {
         <div className="fixed right-12 bottom-12 flex flex-col items-end gap-3 pointer-events-none">
            <div className="px-6 py-3 bg-white border border-border rounded-2xl shadow-2xl pointer-events-auto flex items-center gap-6">
               <div className="flex flex-col">
-                 <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Narrative Depth</span>
-                 <span className="text-sm font-black text-gray-900">{form.content.trim() ? form.content.trim().split(/\s+/).length : 0} Words</span>
+                 <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Narrative Depth</span>
+                 <span className="text-sm font-black text-slate-900">{form.content.trim() ? form.content.trim().split(/\s+/).length : 0} Words</span>
               </div>
               <div className="h-8 w-px bg-border" />
               <div className="flex flex-col">
-                 <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Time Spent</span>
-                 <span className="text-sm font-black text-gray-900">{Math.ceil((form.content.trim() ? form.content.trim().split(/\s+/).length : 0) / 200)} min</span>
+                 <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Time Spent</span>
+                 <span className="text-sm font-black text-slate-900">{Math.ceil((form.content.trim() ? form.content.trim().split(/\s+/).length : 0) / 200)} min</span>
               </div>
            </div>
         </div>
       </main>
+      {adjustImage && (
+        <ImageAdjuster 
+          image={adjustImage} 
+          aspect={21 / 9} 
+          onConfirm={handleAdjustConfirm} 
+          onCancel={() => setAdjustImage(null)} 
+        />
+      )}
     </div>
   );
 }
+
+

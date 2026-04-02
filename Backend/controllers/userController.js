@@ -93,11 +93,8 @@ export async function getStudentDashboardData(req, res, next) {
                    (userLevel === 'Basic' && lessonLevel === 'Beginner');
         });
 
-        // Fallback: If no lessons exist for the assigned level, show first available to avoid empty dashboard
-        if (lessonsList.length === 0 && allLessons.length > 0) {
-            const firstLevelFound = allLessons[0].level || 'Basic';
-            lessonsList = allLessons.filter(l => (l.level || 'Basic') === firstLevelFound);
-        }
+        // No fallback here to ensure students only see their authorized level.
+        // If lessonsList is empty, the student will see a 'No lessons' state on frontend.
 
         // Backend-driven metric computation (level-filtered)
         const totalLessons = lessonsList.length;

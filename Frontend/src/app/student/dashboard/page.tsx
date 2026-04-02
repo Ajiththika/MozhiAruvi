@@ -89,13 +89,13 @@ export default function StudentDashboard() {
           <div className="h-10 w-10 rounded-xl bg-primary/5 flex items-center justify-center p-2 border border-primary/10">
              <Trophy className="text-primary w-5 h-5" />
           </div>
-          <span className="text-[10px] font-black text-primary tracking-widest uppercase">Student Hub</span>
+          <span className="text-xs font-bold text-primary tracking-widest uppercase">Learning Hub</span>
         </div>
         <div className="max-w-3xl">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-gray-800 tracking-tight leading-tight">
+          <h1 className="text-3xl md:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-tight">
             Vanakkam, {user?.name?.split(" ")[0]}!
           </h1>
-          <p className="text-lg text-gray-500 font-medium leading-relaxed mt-4">
+          <p className="text-base md:text-lg text-slate-600 font-semibold leading-relaxed mt-4">
             Continuing your journey into the world's oldest living classical language. Here's your current progress and curriculum milestones.
           </p>
         </div>
@@ -140,27 +140,27 @@ export default function StudentDashboard() {
       </div>
 
       {/* Progress Bar */}
-      <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm mt-8">
-         <div className="flex justify-between items-center mb-3">
-            <span className="text-sm font-black uppercase tracking-widest text-primary">Path Progress</span>
-            <span className="text-sm font-bold text-gray-500">{progressPercentage}%</span>
+      <div className="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm mt-8">
+         <div className="flex justify-between items-center mb-4">
+            <span className="text-sm font-bold uppercase tracking-widest text-primary">Academy Progress</span>
+            <span className="text-sm font-bold text-slate-600">{progressPercentage}%</span>
          </div>
-         <div className="h-4 bg-gray-100 rounded-full overflow-hidden w-full">
-            <div className="h-full bg-primary transition-all duration-1000" style={{ width: `${progressPercentage}%` }} />
+         <div className="h-4 bg-slate-100 rounded-full overflow-hidden w-full">
+            <div className="h-full bg-primary transition-all duration-1000 shadow-lg" style={{ width: `${progressPercentage}%` }} />
          </div>
       </div>
 
       {/* Section: Learning Roadmap */}
       <div className="space-y-8">
-          <div className="flex items-center justify-between border-b border-gray-100 pb-6">
-            <h3 className="text-2xl font-black text-gray-800 tracking-tight">Active Learning Path</h3>
-            <Button href="/student/lessons" variant="ghost" size="sm" className="text-primary uppercase tracking-widest text-[10px] font-black">
-              Full Curriculum <ArrowRight className="ml-2 w-3 h-3" />
+          <div className="flex items-center justify-between border-b border-slate-100 pb-6">
+            <h3 className="text-2xl font-black text-slate-900 tracking-tight">Active Learning Path</h3>
+            <Button href="/student/lessons" variant="ghost" size="sm" className="text-primary uppercase tracking-widest text-xs font-bold">
+              Full Curriculum <ArrowRight className="ml-2 w-4 h-4" />
             </Button>
           </div>
 
           {nextLesson ? (
-            <Card variant="elevated" padding="lg" className="group relative overflow-hidden bg-primary shadow-2xl shadow-primary/20">
+            <Card variant="elevated" padding="lg" className="group relative overflow-hidden bg-primary shadow-2xl shadow-primary/25 hover:shadow-primary/40 transition-all duration-500">
               {/* Decorative Background */}
               <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-white opacity-[0.03] rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
               <div className="absolute top-1/2 left-0 opacity-[0.02] font-black text-[15rem] text-white select-none pointer-events-none -translate-x-1/4 -translate-y-1/2">
@@ -170,25 +170,30 @@ export default function StudentDashboard() {
               <div className="relative z-10 flex flex-col md:flex-row gap-10 items-center">
                 <div className="flex-1 space-y-6 text-white text-center md:text-left">
                   <div className="space-y-4">
-                    <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5 text-[10px] font-black uppercase tracking-[0.2em] border border-white/20">
-                      <Clock className="w-3.5 h-3.5" /> Resume Activity
+                    <span className="inline-flex items-center gap-2 rounded-full bg-white/15 px-4 py-2 text-xs font-bold uppercase tracking-wider border border-white/20 shadow-sm">
+                      <Clock className="w-4 h-4" /> Resume Activity
                     </span>
-                    <h4 className="text-3xl lg:text-4xl font-black tracking-tight drop-shadow-sm leading-tight">
+                    <h4 className="text-3xl lg:text-5xl font-black tracking-tight drop-shadow-sm leading-tight">
                       {nextLesson.title}
                     </h4>
-                    <p className="text-lg text-white/70 font-medium leading-relaxed line-clamp-2 italic">
-                      "{nextLesson.description || "Continue where you left off in the foundational modules."}"
+                    <p className="text-lg text-white/80 font-semibold leading-relaxed line-clamp-2">
+                       {nextLesson.description || "Continue where you left off in the foundational modules."}
                     </p>
+                    {progress.find(p => String(p.lessonId) === String(nextLesson._id))?.isCompleted && (
+                      <span className="inline-block mt-2 px-3 py-1 bg-white/20 border border-white/30 rounded-lg text-[10px] font-black uppercase tracking-widest text-white shadow-sm">
+                        Finished • Ready for Retake
+                      </span>
+                    )}
                   </div>
 
                   <div className="flex flex-col sm:flex-row items-center gap-4 pt-4">
                     <Button
-                      href={`/student/lessons/${nextLesson._id}`}
-                      className="bg-white text-primary hover:bg-white/90 border-none h-14 px-10 rounded-2xl shadow-xl shadow-black/10 w-full sm:w-auto"
+                      href="/student/lessons"
+                      className="bg-white text-primary hover:bg-slate-50 border-none h-14 px-10 rounded-2xl shadow-2xl shadow-primary/30 w-full sm:w-auto"
                     >
-                       Start Lesson <ArrowRight className="ml-3 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                       Start Learning <ArrowRight className="ml-3 h-5 w-5 group-hover:translate-x-1 transition-transform" />
                     </Button>
-                    <div className="flex items-center gap-2 text-white/50 text-[10px] font-bold uppercase tracking-widest border border-white/10 rounded-full px-4 py-3">
+                    <div className="flex items-center gap-3 text-white/70 text-xs font-bold uppercase tracking-widest border border-white/10 rounded-full px-5 py-3.5 bg-white/5 shadow-inner">
                        <span className="">Level: {user?.level || "Beginner"}</span>
                     </div>
                   </div>
@@ -200,11 +205,11 @@ export default function StudentDashboard() {
               </div>
             </Card>
           ) : (
-            <Card variant="outline" padding="xl" className="flex flex-col items-center justify-center text-center border-dashed bg-gray-50/50">
-              <div className="h-20 w-20 rounded-full bg-white shadow-xl flex items-center justify-center text-4xl mb-6">📚</div>
-              <p className="text-xl font-black text-gray-800 uppercase tracking-widest">Awaiting Knowledge</p>
-              <p className="text-gray-500 font-medium my-4 max-w-sm">You haven't begun any modules yet. Embark on your linguistic journey today.</p>
-              <Button href="/student/lessons" variant="primary" size="lg" className="rounded-2xl shadow-xl shadow-primary/20 mt-4">Explore the Curriculum <ArrowRight className="ml-2 h-4 w-4" /></Button>
+            <Card variant="outline" padding="xl" className="flex flex-col items-center justify-center text-center border-dashed bg-slate-50/50">
+              <div className="h-20 w-20 rounded-full bg-white shadow-2xl flex items-center justify-center text-4xl mb-6">📚</div>
+              <p className="text-xl font-bold text-slate-900 uppercase tracking-widest">Awaiting Knowledge</p>
+              <p className="text-slate-600 font-semibold my-4 max-w-sm">You haven't begun any modules yet. Embark on your linguistic journey today.</p>
+              <Button href="/student/lessons" variant="primary" size="lg" className="rounded-2xl shadow-xl shadow-primary/25 mt-4">Explore the Curriculum <ArrowRight className="ml-2 h-4 w-4" /></Button>
             </Card>
           )}
         </div>

@@ -21,12 +21,12 @@ export function Topbar({ onMenuClick, title = "Dashboard" }: TopbarProps) {
       <div className="flex items-center gap-4">
         <button
           onClick={onMenuClick}
-          className="inline-flex h-9 w-9 items-center justify-center rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 lg:hidden"
+          className="inline-flex h-9 w-9 items-center justify-center rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 lg:hidden"
         >
           <Menu className="h-5 w-5" />
           <span className="sr-only">Toggle menu</span>
         </button>
-        <h1 className="text-lg font-semibold tracking-tight text-gray-800 dark:text-slate-100">
+        <h1 className="text-lg font-semibold tracking-tight text-slate-800 dark:text-slate-100">
           {title}
         </h1>
       </div>
@@ -35,17 +35,17 @@ export function Topbar({ onMenuClick, title = "Dashboard" }: TopbarProps) {
         {user && (
           <Link 
             href={profileHref}
-            className="group flex items-center gap-3 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-all p-1.5"
+            className="group flex items-center gap-3 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-all p-1.5"
           >
             <div className="hidden text-right md:block">
-              <p className="text-xs font-bold text-gray-800 dark:text-white leading-none">{user.name}</p>
-              <p className="text-[10px] font-medium text-gray-500 capitalize">{user.role}</p>
+              <p className="text-xs font-bold text-slate-800 dark:text-white leading-none">{user.name}</p>
+              <p className="text-[10px] font-medium text-slate-500 capitalize">{user.role}</p>
             </div>
-            <div className="h-9 w-9 overflow-hidden rounded-full bg-gray-100 border border-gray-100 group-hover:border-primary transition-colors">
+            <div className="h-9 w-9 overflow-hidden rounded-full bg-slate-100 border border-slate-100 group-hover:border-primary transition-colors">
               {user.profilePhoto ? (
                 <img src={user.profilePhoto} alt="Avatar" className="h-full w-full object-cover" />
               ) : (
-                <UserCircle className="h-full w-full p-1.5 text-gray-300" />
+                <UserCircle className="h-full w-full p-1.5 text-slate-300" />
               )}
             </div>
           </Link>
@@ -54,4 +54,7 @@ export function Topbar({ onMenuClick, title = "Dashboard" }: TopbarProps) {
     </header>
   );
 }
+
+
+
 

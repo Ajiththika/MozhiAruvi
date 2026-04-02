@@ -26,10 +26,32 @@ const storage = new CloudinaryStorage({
 
 const upload = multer({ storage: storage });
 
-// ── Upload Route ─────────────────────────────────────────────────────────────
+// ── Upload Image Route ─────────────────────────────────────────────────────────────
 router.post('/image', authenticate, upload.single('image'), (req, res) => {
   if (!req.file) {
     return res.status(400).json({ message: 'No file provided' });
+  }
+  res.json({ 
+    url: req.file.path,
+    public_id: req.file.filename 
+  });
+});
+
+// ── Upload Audio Route ─────────────────────────────────────────────────────────────
+const audioStorage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'mozhiaruvi_audio',
+    resource_type: 'auto', // Important for audio files
+    allowed_formats: ['mp3', 'wav', 'ogg', 'mpeg', 'webm'],
+  },
+});
+
+const uploadAudio = multer({ storage: audioStorage });
+
+router.post('/audio', authenticate, uploadAudio.single('audio'), (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ message: 'No audio file provided' });
   }
   res.json({ 
     url: req.file.path,

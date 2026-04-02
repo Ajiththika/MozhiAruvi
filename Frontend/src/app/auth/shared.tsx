@@ -1,28 +1,50 @@
 "use client";
 
-import React, { InputHTMLAttributes } from 'react';
+import React, { InputHTMLAttributes, useState } from 'react';
 import { cn } from "@/lib/utils";
+import { Eye, EyeOff } from 'lucide-react';
 
 interface AuthInputProps extends InputHTMLAttributes<HTMLInputElement> {
   label: string;
   error?: string;
 }
 
-export function AuthInput({ label, error, id, ...props }: AuthInputProps) {
+export function AuthInput({ label, error, id, type, ...props }: AuthInputProps) {
+  const [showPassword, setShowPassword] = useState(false);
+  const isPassword = type === 'password';
+  const currentType = isPassword ? (showPassword ? 'text' : 'password') : type;
   const inputId = id || props.name;
+
   return (
     <div className="flex flex-col gap-2.5 w-full">
       <label htmlFor={inputId} className="text-[10px] font-black uppercase tracking-[0.2em] text-text-secondary ml-1 select-none">
         {label}
       </label>
-      <input
-        id={inputId}
-        className={cn(
-          "w-full px-5 py-4 rounded-responsive border bg-background text-text-primary font-bold placeholder:text-text-tertiary transition-all duration-300 outline-none focus:ring-4 focus:ring-primary/10 hover:border-primary/20",
-          error ? 'border-error ring-error/5 hover:border-error/60' : 'border-border focus:border-primary/40'
+      <div className="relative group">
+        <input
+          id={inputId}
+          type={currentType}
+          className={cn(
+            "w-full px-5 py-4 rounded-responsive border bg-background text-text-primary font-bold placeholder:text-text-tertiary transition-all duration-300 outline-none focus:ring-4 focus:ring-primary/10 hover:border-primary/20 pr-12",
+            error ? 'border-error ring-error/5 hover:border-error/60' : 'border-border focus:border-primary/40'
+          )}
+          {...props}
+        />
+        {isPassword && (
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute right-4 top-1/2 -translate-y-1/2 p-2 text-text-tertiary hover:text-primary transition-colors focus:outline-none"
+            aria-label={showPassword ? "Hide password" : "Show password"}
+          >
+            {showPassword ? (
+              <EyeOff size={18} className="animate-in fade-in zoom-in duration-200" />
+            ) : (
+              <Eye size={18} className="animate-in fade-in zoom-in duration-200" />
+            )}
+          </button>
         )}
-        {...props}
-      />
+      </div>
       {error && <p className="text-[10px] font-bold text-error mt-0.5 ml-1 animate-in fade-in duration-300 select-none flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-error" /> {error}</p>}
     </div>
   );
@@ -50,3 +72,6 @@ export function SocialLogin({ provider, onClick }: SocialLoginProps) {
     </button>
   );
 }
+
+
+

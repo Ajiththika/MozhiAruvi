@@ -78,14 +78,14 @@ export function LessonOnboarding({ onSuccess }: { onSuccess: () => void }) {
   const step = steps[currentStep];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-50/90 backdrop-blur-sm p-4 animate-in fade-in duration-300">
-      <div className="w-full max-w-lg bg-white rounded-3xl shadow-xl border border-gray-100 p-8">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-50/90 backdrop-blur-sm p-4 animate-in fade-in duration-300">
+      <div className="w-full max-w-lg bg-white rounded-3xl shadow-xl border border-slate-100 p-8">
 
         {submitting ? (
           <div className="flex flex-col items-center justify-center py-12 gap-4">
             <Loader2 className="h-12 w-12 animate-spin text-primary" />
-            <h2 className="text-xl font-bold text-gray-800">Personalizing your path...</h2>
-            <p className="text-sm text-gray-400 font-medium">Just a moment.</p>
+            <h2 className="text-xl font-bold text-slate-800">Personalizing your path...</h2>
+            <p className="text-sm text-slate-400 font-medium">Just a moment.</p>
           </div>
         ) : (
           <div key={currentStep} className="animate-in slide-in-from-right-8 duration-300">
@@ -96,7 +96,7 @@ export function LessonOnboarding({ onSuccess }: { onSuccess: () => void }) {
                 <div
                   key={i}
                   className={`flex-1 h-2.5 rounded-full transition-all duration-500 ${
-                    i <= currentStep ? "bg-primary" : "bg-gray-100"
+                    i <= currentStep ? "bg-primary" : "bg-slate-100"
                   }`}
                 />
               ))}
@@ -104,11 +104,11 @@ export function LessonOnboarding({ onSuccess }: { onSuccess: () => void }) {
 
             {/* Question */}
             <div className="mb-6">
-              <h2 className="text-3xl font-black tracking-tight text-gray-800 mb-1">
+              <h2 className="text-3xl font-black tracking-tight text-slate-800 mb-1">
                 {step.title}
               </h2>
               {step.subtitle && (
-                <p className="text-sm text-gray-400 font-medium">{step.subtitle}</p>
+                <p className="text-sm text-slate-400 font-medium">{step.subtitle}</p>
               )}
             </div>
 
@@ -126,7 +126,7 @@ export function LessonOnboarding({ onSuccess }: { onSuccess: () => void }) {
                 <button
                   key={opt}
                   onClick={() => handleSelect(opt)}
-                  className="w-full text-left px-6 py-4 rounded-2xl border-2 border-gray-100 font-bold text-gray-700 hover:border-primary/50 hover:bg-primary/5 transition-all text-base flex items-center justify-between group"
+                  className="w-full text-left px-6 py-4 rounded-2xl border-2 border-slate-100 font-bold text-slate-700 hover:border-primary/50 hover:bg-primary/5 transition-all text-base flex items-center justify-between group"
                 >
                   {opt}
                   <ArrowRight className="w-5 h-5 text-primary opacity-0 group-hover:opacity-100 transition-all -translate-x-2 group-hover:translate-x-0" />
@@ -134,7 +134,7 @@ export function LessonOnboarding({ onSuccess }: { onSuccess: () => void }) {
               ))}
             </div>
 
-            <p className="text-center text-[10px] font-black uppercase tracking-widest text-gray-300 mt-6">
+            <p className="text-center text-[10px] font-black uppercase tracking-widest text-slate-300 mt-6">
               Step {currentStep + 1} of {steps.length}
             </p>
           </div>
@@ -143,3 +143,6 @@ export function LessonOnboarding({ onSuccess }: { onSuccess: () => void }) {
     </div>
   );
 }
+
+
+

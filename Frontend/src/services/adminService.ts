@@ -228,9 +228,17 @@ export async function approveEventJoinRequest(id: string): Promise<JoinRequestAd
   return res.data.request;
 }
 
-export async function rejectEventJoinRequest(id: string): Promise<JoinRequestAdminView> {
-  const res = await api.patch<{ request: JoinRequestAdminView }>(
-    `/admin/events/join-requests/${id}/reject`
-  );
-  return res.data.request;
+export async function adminDeleteBlog(id: string): Promise<{ message: string }> {
+  const res = await api.delete<{ message: string }>(`/admin/blogs/${id}`);
+  return res.data;
+}
+
+// ── Generic Uploads ──────────────────────────────────────────────────────────
+export async function uploadAudio(file: File): Promise<{ url: string; public_id: string }> {
+  const formData = new FormData();
+  formData.append("audio", file);
+  const res = await api.post<{ url: string; public_id: string }>("/upload/audio", formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+  return res.data;
 }

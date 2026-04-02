@@ -110,23 +110,21 @@ export default function BlogsPage() {
         {/* --- Unified Management & Discovery Bar --- */}
         <section id="feed" className="flex flex-col lg:flex-row lg:items-center justify-between gap-10 mb-20">
           <div className="flex flex-wrap items-center gap-4">
-            {/* The Write Action - Elevated */}
-            <button
-               onClick={() => {
-                 const target = "/blogs/write";
-                 if (!user) {
-                   router.push(`/auth/signin?redirect=${encodeURIComponent(target)}`);
-                 } else {
+            {/* The Write Action - Elevated (Restricted to Tutors/Admins) */}
+            {(user?.role === 'admin' || user?.role === 'teacher') && (
+              <button
+                 onClick={() => {
+                   const target = "/blogs/write";
                    router.push(target);
-                 }
-               }}
-               className="h-16 px-10 rounded-[2rem] bg-primary text-white text-[10px] font-black uppercase tracking-widest shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center gap-3 group"
-            >
-              <Plus className="w-4 h-4 group-hover:rotate-90 transition-transform duration-500" />
-              Write a Story
-            </button>
+                 }}
+                 className="h-16 px-10 rounded-[2rem] bg-primary text-white text-[10px] font-black uppercase tracking-widest shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center gap-3 group"
+              >
+                <Plus className="w-4 h-4 group-hover:rotate-90 transition-transform duration-500" />
+                Write a Story
+              </button>
+            )}
 
-            <div className="hidden sm:block w-[1px] h-8 bg-gray-200 mx-2" />
+            <div className="hidden sm:block w-[1px] h-8 bg-slate-200 mx-2" />
 
             <div className="flex items-center gap-3 overflow-x-auto no-scrollbar py-1">
               <button
@@ -134,8 +132,8 @@ export default function BlogsPage() {
                 className={cn(
                   "whitespace-nowrap rounded-[1.5rem] px-8 py-4 text-[10px] font-black uppercase tracking-widest transition-all",
                   activeTab === "all"
-                    ? "bg-gray-900 text-white shadow-xl"
-                    : "bg-white text-gray-500 hover:text-primary border border-border"
+                    ? "bg-slate-900 text-white shadow-xl"
+                    : "bg-white text-slate-500 hover:text-primary border border-border"
                 )}
               >
                 The Feed
@@ -147,41 +145,44 @@ export default function BlogsPage() {
                     className={cn(
                       "whitespace-nowrap rounded-[1.5rem] px-8 py-4 text-[10px] font-black uppercase tracking-widest transition-all",
                       activeTab === "saved"
-                        ? "bg-gray-900 text-white shadow-xl"
-                        : "bg-white text-gray-400 hover:text-primary border border-border"
+                        ? "bg-slate-900 text-white shadow-xl"
+                        : "bg-white text-slate-400 hover:text-primary border border-border"
                     )}
                   >
                     Saved Gems
                   </button>
-                  <button
-                    onClick={() => setActiveTab("drafts")}
-                    className={cn(
-                      "whitespace-nowrap rounded-[1.5rem] px-8 py-4 text-[10px] font-black uppercase tracking-widest transition-all relative",
-                      activeTab === "drafts"
-                        ? "bg-gray-900 text-white shadow-xl"
-                        : "bg-white text-gray-400 hover:text-primary border border-border"
-                    )}
-                  >
-                    My Archives
-                    {myDrafts.length > 0 && (
-                      <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-secondary text-[10px] font-black text-white ring-4 ring-surface-soft">
-                        {myDrafts.length}
-                      </span>
-                    )}
-                  </button>
+                  {/* Hide Archives/Drafts for Students */}
+                  {(user?.role === 'admin' || user?.role === 'teacher') && (
+                    <button
+                      onClick={() => setActiveTab("drafts")}
+                      className={cn(
+                        "whitespace-nowrap rounded-[1.5rem] px-8 py-4 text-[10px] font-black uppercase tracking-widest transition-all relative",
+                        activeTab === "drafts"
+                          ? "bg-slate-900 text-white shadow-xl"
+                          : "bg-white text-slate-400 hover:text-primary border border-border"
+                      )}
+                    >
+                      My Archives
+                      {myDrafts.length > 0 && (
+                        <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-secondary text-[10px] font-black text-white ring-4 ring-surface-soft">
+                          {myDrafts.length}
+                        </span>
+                      )}
+                    </button>
+                  )}
                 </>
               )}
             </div>
           </div>
 
           <div className="relative w-full lg:max-w-md group">
-            <Search className="absolute left-6 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 group-focus-within:text-primary transition-colors" />
+            <Search className="absolute left-6 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-primary transition-colors" />
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search heritage repository..."
-              className="w-full h-16 rounded-[2rem] border border-border bg-white px-14 text-sm font-bold text-gray-800 outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/5 placeholder:text-gray-300"
+              className="w-full h-16 rounded-[2rem] border border-border bg-white px-14 text-sm font-bold text-slate-800 outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/5 placeholder:text-slate-300"
             />
           </div>
         </section>
@@ -190,20 +191,20 @@ export default function BlogsPage() {
         {loading ? (
           <div className="flex flex-col items-center justify-center py-32 gap-4">
             <Loader2 className="h-10 w-10 animate-spin text-primary" />
-            <p className="text-xs font-bold text-gray-400 tracking-tight">Gathering the latest stories...</p>
+            <p className="text-xs font-bold text-slate-400 tracking-tight">Gathering the latest stories...</p>
           </div>
         ) : null}
 
         {!loading && filtered.length === 0 && (
           <div className="flex flex-col items-center justify-center py-32 text-center gap-6 animate-in slide-in-from-bottom-4 duration-700">
-            <div className="w-24 h-24 bg-gray-50 rounded-full flex items-center justify-center">
-                <BookOpen className="h-10 w-10 text-gray-200" />
+            <div className="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center">
+                <BookOpen className="h-10 w-10 text-slate-200" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-800 dark:text-white tracking-tight">
+              <p className="text-2xl font-bold text-slate-800 dark:text-white tracking-tight">
                 {activeTab === "drafts" ? "No drafts found" : activeTab === "saved" ? "Nothing bookmarked" : "No stories match your search"}
               </p>
-              <p className="text-gray-500 mt-2 text-base font-medium max-w-sm mx-auto">
+              <p className="text-slate-500 mt-2 text-base font-medium max-w-sm mx-auto">
                 {activeTab === "drafts" ? "Start something new and it will appear here." : "Try adjusting your filters or explore our main feed."}
               </p>
             </div>
@@ -237,30 +238,30 @@ export default function BlogsPage() {
                                 Draft
                               </span>
                            )}
-                           <span className="rounded-xl bg-white/90 backdrop-blur-md px-4 py-1.5 text-[8px] font-black uppercase tracking-widest text-gray-900 border border-border shadow-sm">
+                           <span className="rounded-xl bg-white/90 backdrop-blur-md px-4 py-1.5 text-[8px] font-black uppercase tracking-widest text-slate-900 border border-border shadow-sm">
                               {post.category || "General"}
                            </span>
                         </div>
                       </div>
                       
                       <div className="flex flex-1 flex-col space-y-6">
-                        <h4 className="text-2xl font-black text-gray-900 group-hover:text-primary transition-colors line-clamp-2 leading-tight tracking-tighter">
+                        <h4 className="text-2xl font-black text-slate-900 group-hover:text-primary transition-colors line-clamp-2 leading-tight tracking-tighter">
                           {post.title}
                         </h4>
-                        <p className="text-gray-400 text-sm leading-relaxed line-clamp-3 flex-1 font-bold tracking-tight">
+                        <p className="text-slate-400 text-sm leading-relaxed line-clamp-3 flex-1 font-bold tracking-tight">
                           {post.excerpt || post.content.substring(0, 100) + "..."}
                         </p>
                         
                         <div className="flex items-center justify-between pt-6 border-t border-border">
                            <div className="flex items-center gap-3">
-                              <span className="text-[10px] font-black text-gray-900 uppercase tracking-widest">
+                              <span className="text-[10px] font-black text-slate-900 uppercase tracking-widest">
                                 {post.author?.name || "Member"}
                                 {post.author?.role === 'admin' && (
                                   <span className="ml-2 text-[8px] font-black text-secondary border border-secondary/20 bg-secondary/5 px-1.5 py-0.5 rounded-lg">Staff</span>
                                 )}
                               </span>
                            </div>
-                           <span className="text-[10px] font-black text-gray-300 uppercase tracking-widest">
+                           <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">
                               {new Date(post.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
                            </span>
                         </div>
@@ -270,7 +271,7 @@ export default function BlogsPage() {
                     <div className="flex items-center justify-between mt-8 pt-8 border-t border-border">
                        <button
                         onClick={(e) => handleShare(e, post)}
-                        className="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-primary transition-all"
+                        className="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-primary transition-all"
                        >
                          {copiedId === post._id ? <Check className="w-4 h-4 text-emerald-500" /> : <Share2 className="w-4 h-4" />}
                          {copiedId === post._id ? "Copied" : "Spread"}
@@ -279,14 +280,14 @@ export default function BlogsPage() {
                        {isOwner && (
                          <div className="flex items-center gap-8">
                            <Link
-                             href={`/${user.role === 'admin' ? 'admin' : (user.role === 'teacher' ? 'tutor' : 'student')}/blogs/${post._id}/edit`}
-                             className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-secondary transition-all"
+                             href={`/blogs/${post._id}/edit`}
+                             className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-secondary transition-all"
                            >
                               <Edit2 className="w-4 h-4" /> Config
                            </Link>
                            <button
                              onClick={(e) => handleDelete(e, post._id)}
-                             className="text-gray-200 hover:text-red-500 transition-all"
+                             className="text-slate-200 hover:text-red-500 transition-all"
                            >
                              <Trash2 className="w-4 h-4" />
                            </button>
@@ -316,4 +317,6 @@ export default function BlogsPage() {
     </div>
   );
 }
+
+
 

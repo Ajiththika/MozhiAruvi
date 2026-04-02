@@ -116,16 +116,16 @@ export default function EventsPage() {
         {/* ── 1. Modern Horizontal Event Showcase ──────────────────────── */}
         <section className="relative w-full bg-white pt-6 pb-12 px-4 sm:px-6 lg:px-8">
           <div className="max-w-7xl mx-auto">
-            <div className="relative w-full h-[350px] md:h-[450px] rounded-[2rem] overflow-hidden shadow-[0_32px_80px_-20px_rgba(0,0,0,0.15)] group border border-gray-100/30">
+            <div className="relative w-full h-[350px] md:h-[500px] rounded-[2.5rem] overflow-hidden shadow-2xl shadow-indigo-900/30 group border border-slate-100">
               
               {loadingUpcoming ? (
-                <div className="w-full h-full bg-gray-50 flex items-center justify-center">
+                <div className="w-full h-full bg-slate-50 flex items-center justify-center">
                   <Loader2 className="h-10 w-10 animate-spin text-primary/30" />
                 </div>
               ) : spotlightEvents.length === 0 ? (
-                <div className="w-full h-full bg-gray-50 flex flex-col items-center justify-center p-12 text-center space-y-4">
-                  <Calendar size={48} className="text-gray-200" />
-                  <p className="text-sm font-black text-gray-300 uppercase tracking-widest leading-loose">
+                <div className="w-full h-full bg-slate-50 flex flex-col items-center justify-center p-12 text-center space-y-4">
+                  <Calendar size={48} className="text-slate-200" />
+                  <p className="text-sm font-bold text-slate-400 uppercase tracking-widest leading-loose">
                     No community spotlights <br /> currently scheduled
                   </p>
                 </div>
@@ -143,11 +143,11 @@ export default function EventsPage() {
                           style={{
                             backgroundImage: event.image
                               ? `url(${event.image})`
-                              : `linear-gradient(to bottom right, #00C9FF, #92FE9D)`
+                              : `linear-gradient(to bottom right, #4f46e5, #0ea5e9)`
                           }}
                         />
                         {/* Optimized High-Contrast Overlay */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-indigo-950/95 via-indigo-950/40 to-transparent" />
                         
                         {/* Visual Decorative Layer */}
                         <div className="absolute top-0 right-0 p-12 opacity-[0.03] font-black text-[30rem] text-white leading-none select-none pointer-events-none rotate-12">
@@ -155,39 +155,39 @@ export default function EventsPage() {
                         </div>
 
                         {/* Content Overlay */}
-                        <div className="absolute inset-0 flex flex-col justify-end p-8 md:p-16 animate-in fade-in slide-in-from-bottom-8 duration-700 fill-mode-both">
-                          <div className="max-w-4xl space-y-6">
-                            <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-[10px] md:text-xs font-black text-white uppercase tracking-[0.2em]">
-                              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                              Spotlight Experience
+                        <div className="absolute inset-0 flex flex-col justify-end p-8 md:p-20 animate-in fade-in slide-in-from-bottom-8 duration-700 fill-mode-both">
+                          <div className="max-w-4xl space-y-8">
+                            <div className="inline-flex items-center gap-3 px-5 py-2.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-xs font-bold text-white uppercase tracking-wider shadow-sm">
+                              <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse border border-emerald-400/50 shadow-lg shadow-emerald-400/30" />
+                              Platform Spotlight
                             </div>
 
-                            <h2 className="text-4xl md:text-6xl lg:text-7xl font-black text-white tracking-tight leading-[1.05] drop-shadow-2xl">
+                            <h2 className="text-4xl md:text-7xl lg:text-8xl font-black text-white tracking-tight leading-[1] drop-shadow-2xl">
                               {event.title}
                             </h2>
 
-                            <div className="flex flex-wrap items-center gap-8 text-white/80 font-bold text-xs md:text-sm pt-2">
+                            <div className="flex flex-wrap items-center gap-10 text-white/90 font-bold text-xs md:text-base pt-2">
                               <span className="flex items-center gap-3">
-                                <Calendar className="w-4 h-4 text-emerald-400" />
+                                <Calendar className="w-5 h-5 text-emerald-400" />
                                 {new Date(event.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
                               </span>
                               <span className="flex items-center gap-3">
-                                <Clock className="w-4 h-4 text-emerald-400" />
+                                <Clock className="w-5 h-5 text-emerald-400" />
                                 {event.time}
                               </span>
                               <span className="flex items-center gap-3">
-                                <MapPin className="w-4 h-4 text-emerald-400" />
+                                <MapPin className="w-5 h-5 text-emerald-400" />
                                 {event.location}
                               </span>
                             </div>
 
-                            <div className="pt-8">
+                            <div className="pt-10">
                               <button
                                 onClick={() => handleOpenRegistration(event)}
-                                className="inline-flex items-center gap-6 bg-white text-black px-10 py-5 rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] hover:bg-emerald-400 hover:text-white transition-all shadow-2xl active:scale-95 group/btn"
+                                className="inline-flex items-center gap-8 bg-white text-indigo-900 px-12 py-6 rounded-2xl font-bold uppercase tracking-widest text-xs hover:bg-emerald-400 hover:text-white transition-all shadow-2xl shadow-indigo-900/50 active:scale-95 group/btn border-none"
                               >
-                                Reserve Your Spot
-                                <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                                Reserve Experience
+                                <ChevronRight className="w-5 h-5 group-hover:translate-x-1.5 transition-transform" />
                               </button>
                             </div>
                           </div>
@@ -198,14 +198,14 @@ export default function EventsPage() {
 
                   {/* Minimal Indicator Dots */}
                   {spotlightEvents.length > 1 && (
-                    <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex items-center gap-3 z-30">
+                    <div className="absolute bottom-12 left-1/2 -translate-x-1/2 flex items-center gap-4 z-30">
                       {spotlightEvents.map((_, i) => (
                         <button
                           key={i}
                           onClick={() => setActiveSlide(i)}
                           className={cn(
-                            "h-1.5 rounded-full transition-all duration-500",
-                            activeSlide === i ? "bg-white w-10" : "bg-white/30 w-2 hover:bg-white/50"
+                            "h-2 rounded-full transition-all duration-500 shadow-sm",
+                            activeSlide === i ? "bg-white w-14" : "bg-white/20 w-3 hover:bg-white/50"
                           )}
                         />
                       ))}
@@ -223,27 +223,27 @@ export default function EventsPage() {
             <div className="mb-16 flex flex-col md:flex-row md:items-end md:justify-between gap-8">
               <div className="space-y-4">
                 <div className="flex items-center gap-2">
-                  <span className="h-1.5 w-8 rounded-full bg-secondary" />
-                  <span className="text-[10px] font-black text-secondary tracking-widest uppercase">Register now</span>
+                  <span className="h-1.5 w-10 rounded-full bg-secondary shadow-sm" />
+                  <span className="text-xs font-bold text-secondary tracking-widest uppercase">Live Sessions</span>
                 </div>
-                <h2 className="text-4xl md:text-5xl font-black text-gray-800 tracking-tight">Upcoming Events</h2>
-                <p className="text-lg text-gray-500 font-medium max-w-xl">Curated workshops, cultural meetups, and live sessions.</p>
+                <h2 className="text-4xl md:text-6xl font-black text-slate-900 tracking-tight">Upcoming Events</h2>
+                <p className="text-xl text-slate-600 font-semibold max-w-xl leading-relaxed">Curated workshops, cultural meetups, and live sessions with native tutors.</p>
               </div>
             </div>
 
             {loadingUpcoming ? (
               <div className="flex flex-col items-center justify-center py-32 gap-6">
                 <Loader2 className="h-12 w-12 animate-spin text-primary" />
-                <p className="text-xs font-black text-gray-300 uppercase tracking-[0.2em]">Synchronizing Scrolls</p>
+                <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Synchronizing Scrolls</p>
               </div>
             ) : upcomingEvents.length === 0 ? (
-              <div className="text-center py-20 bg-gray-50 rounded-responsive border border-dashed border-gray-100">
-                <p className="text-lg font-bold text-gray-800">No upcoming events scheduled</p>
-                <p className="text-sm text-gray-400 mt-2">Check back soon for new opportunities to connect.</p>
+              <div className="text-center py-20 bg-slate-50 rounded-3xl border-2 border-dashed border-slate-100">
+                <p className="text-xl font-bold text-slate-900">No upcoming events scheduled</p>
+                <p className="text-base text-slate-500 mt-2">Check back soon for new opportunities to connect.</p>
               </div>
             ) : (
               <>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-12">
                   {upcomingEvents.map((event) => (
                     <EventCard
                       key={event._id}
@@ -271,33 +271,33 @@ export default function EventsPage() {
         </section>
 
         {/* ── 3. Past Events ──────────────────────────────────────── */}
-        <section className="py-32 bg-gray-50 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+        <section className="py-32 bg-slate-50 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
            <div className="max-w-7xl mx-auto relative z-10">
             <div className="text-center mb-16 space-y-6">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-primary/20 bg-white/60 backdrop-blur-sm text-[10px] font-black text-gray-800 tracking-widest uppercase">
+              <div className="inline-flex items-center gap-3 px-6 py-2.5 rounded-full border border-primary/20 bg-white shadow-xl shadow-slate-200/50 text-xs font-bold text-slate-900 tracking-widest uppercase">
                 Archives & Memories
               </div>
-              <h1 className="text-4xl md:text-5xl font-black text-gray-800 tracking-tight">
-                Previous <span className="text-primary italic">Gatherings</span>
+              <h1 className="text-4xl md:text-6xl font-black text-slate-900 tracking-tight">
+                Previous Gatherings
               </h1>
             </div>
 
             {loadingPast ? (
               <div className="flex justify-center py-12">
-                <Loader2 className="w-8 h-8 animate-spin text-gray-200" />
+                <Loader2 className="w-10 h-10 animate-spin text-slate-300" />
               </div>
             ) : pastEvents.length === 0 ? (
-              <p className="text-center text-gray-400 font-bold uppercase tracking-widest text-xs">The archives are currently empty</p>
+              <p className="text-center text-slate-400 font-bold uppercase tracking-widest text-xs">The archives are currently empty</p>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
                 {pastEvents.map((event) => (
-                  <Card key={event._id} variant="outline" className="opacity-70 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-500 border-none bg-white/50">
-                    <div className="bg-gray-50 rounded-xl p-4 mb-4 flex justify-between items-start">
-                      <Calendar className="w-6 h-6 text-gray-300" />
-                      <span className="text-[10px] font-black bg-gray-100 text-gray-400 px-3 py-1 rounded-md uppercase tracking-widest">Closed</span>
+                  <Card key={event._id} variant="outline" className="opacity-70 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-700 border border-slate-100 bg-white/80 shadow-sm hover:shadow-xl">
+                    <div className="bg-slate-50 rounded-xl p-5 mb-5 flex justify-between items-start">
+                      <Calendar className="w-7 h-7 text-slate-300" />
+                      <span className="text-xs font-bold bg-slate-100 text-slate-500 px-3 py-1.5 rounded-lg uppercase tracking-widest">Closed</span>
                     </div>
-                    <h4 className="font-bold text-gray-800 truncate mb-1">{event.title}</h4>
-                    <p className="text-[11px] text-gray-400 font-black uppercase tracking-tight">{new Date(event.date).toLocaleDateString()}</p>
+                    <h4 className="font-bold text-slate-900 text-base truncate mb-1">{event.title}</h4>
+                    <p className="text-xs text-slate-500 font-bold uppercase tracking-tight">{new Date(event.date).toLocaleDateString()}</p>
                   </Card>
                 ))}
               </div>
@@ -315,21 +315,21 @@ export default function EventsPage() {
             </div>
           </div>
 
-          <div className="max-w-3xl mx-auto text-center relative z-10 space-y-10">
-            <div className="inline-flex items-center gap-3 px-6 py-2.5 rounded-full bg-white/10 border border-white/20 text-white/90 text-[10px] font-black uppercase tracking-[0.2em]">
-              <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
-              Join the Movement
+          <div className="max-w-4xl mx-auto text-center relative z-10 space-y-12">
+            <div className="inline-flex items-center gap-4 px-8 py-3 rounded-full bg-white/15 border border-white/25 text-white text-xs font-bold uppercase tracking-widest shadow-lg shadow-black/10">
+              <span className="w-3 h-3 rounded-full bg-white animate-pulse shadow-sm" />
+              Join the Global Community
             </div>
 
-            <h2 className="text-4xl md:text-6xl font-black text-white tracking-tight leading-tight">
+            <h2 className="text-5xl md:text-7xl font-black text-white tracking-tight leading-tight">
               Experience Tamil Culture <br /> Like Never Before
             </h2>
             
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-6 pt-4">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-8 pt-6">
               <Button
                 href="/auth/signup"
                 size="xl"
-                className="bg-white text-primary hover:bg-white/90 border-none px-12 h-16"
+                className="bg-white text-indigo-900 hover:bg-slate-50 border-none px-16 h-20 rounded-2xl shadow-2xl shadow-indigo-950/40 text-sm font-bold uppercase tracking-widest"
               >
                 Sign Up Now
               </Button>
@@ -337,7 +337,7 @@ export default function EventsPage() {
                 href="/lessons"
                 variant="outline"
                 size="xl"
-                className="border-white/20 text-white hover:bg-white/10 px-12 h-16"
+                className="border-white/30 text-white hover:bg-white/10 px-16 h-20 rounded-2xl text-sm font-bold uppercase tracking-widest"
               >
                 Explore Lessons
               </Button>
@@ -360,3 +360,6 @@ export default function EventsPage() {
     </div>
   );
 }
+
+
+

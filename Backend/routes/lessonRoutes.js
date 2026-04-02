@@ -35,6 +35,8 @@ const createQuestionSchema = z.object({
     correctOptionIndex: z.number().int().nonnegative('Correct option index required').optional(),
     correctAnswer: z.string().optional(),
     expectedAudioText: z.string().optional(),
+    audioUrl: z.string().url('Invalid audio URL').optional().or(z.literal('')),
+    phoneticHint: z.string().optional(),
     scoreValue: z.number().int().positive().optional()
 }).strict();
 
@@ -69,6 +71,8 @@ router.patch('/:id', authenticate, authorizeRoles(ROLES.ADMIN), validate(updateL
 router.delete('/:id', authenticate, authorizeRoles(ROLES.ADMIN), lessonController.deleteLesson);
 
 router.post('/:id/questions', authenticate, authorizeRoles(ROLES.ADMIN), validate(createQuestionSchema), lessonController.createQuestion);
+router.patch('/:id/questions/reorder', authenticate, authorizeRoles(ROLES.ADMIN), lessonController.reorderQuestions);
+router.patch('/:id/questions/:qId', authenticate, authorizeRoles(ROLES.ADMIN), validate(createQuestionSchema.partial()), lessonController.updateQuestion);
 router.delete('/:id/questions/:qId', authenticate, authorizeRoles(ROLES.ADMIN), lessonController.deleteQuestion);
 
 export default router;

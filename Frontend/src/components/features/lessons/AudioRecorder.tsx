@@ -10,6 +10,7 @@ interface AudioRecorderProps {
   lessonId: string;
   questionId: string;
   expectedAudioText?: string;
+  audioUrl?: string;
   isCorrect: boolean;
   takeCredit: () => Promise<boolean>;
   onResult: (passed: boolean, message: string) => void;
@@ -22,7 +23,8 @@ export function AudioRecorder({
   isCorrect,
   takeCredit,
   onResult,
-  backendMessage
+  backendMessage,
+  audioUrl
 }: AudioRecorderProps) {
   const [isRecording, setIsRecording] = useState(false);
   const [isProcessingAudio, setIsProcessingAudio] = useState(false);
@@ -94,7 +96,7 @@ export function AudioRecorder({
               isRecording ? "bg-red-500 text-white border-red-500/20 scale-125 animate-pulse" :
               isProcessingAudio ? "bg-primary/10 text-primary border-primary/20 animate-spin" :
               isCorrect ? "bg-emerald-500 text-white border-emerald-200 cursor-default" :
-              "bg-white border-gray-100 text-gray-400 hover:border-primary/40 hover:text-primary active:scale-95"
+              "bg-white border-slate-100 text-slate-400 hover:border-primary/40 hover:text-primary active:scale-95"
             )}
           >
              {isProcessingAudio ? <Loader2 className="h-14 w-14 animate-spin" /> :
@@ -107,8 +109,8 @@ export function AudioRecorder({
              )}
           </button>
           
-          <div className="mt-8 text-center bg-gray-50 px-8 py-3 rounded-full border border-gray-100 shadow-sm">
-             <span className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 select-none">
+          <div className="mt-8 text-center bg-slate-50 px-8 py-3 rounded-full border border-slate-100 shadow-sm">
+             <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 select-none">
                {isRecording ? "Transcribing Pulse..." : isProcessingAudio ? "Analyzing Frequency..." : "Press and Hold to Speak"}
              </span>
           </div>
@@ -130,3 +132,6 @@ export function AudioRecorder({
     </div>
   );
 }
+
+
+

@@ -22,6 +22,6 @@ router.post('/reset-password', validate(resetSchema), auth.resetPassword);
 
 // Google OAuth
 router.get('/google', passport.authenticate('google', { session: false, scope: ['profile', 'email'] }));
-router.get('/google/callback', passport.authenticate('google', { session: false, failureRedirect: '/login' }), auth.googleCallback);
+router.get('/google/callback', passport.authenticate('google', { session: false, failureRedirect: `${process.env.FRONTEND_ORIGIN}/auth/signin?error=OAuth-failed` }), auth.googleCallback);
 
 export default router;

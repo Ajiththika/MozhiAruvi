@@ -51,10 +51,10 @@ export default function PlacementPage() {
   return (
     <div className="max-w-xl mx-auto py-20 px-4 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <div className="text-center mb-10">
-        <h1 className="text-3xl font-extrabold text-gray-800 mb-4 tracking-tight">
+        <h1 className="text-3xl font-extrabold text-slate-800 mb-4 tracking-tight">
           How much Tamil do you know?
         </h1>
-        <p className="text-lg text-gray-500">
+        <p className="text-lg text-slate-500">
           This helps us build a personalized lesson path for you.
         </p>
       </div>
@@ -67,17 +67,17 @@ export default function PlacementPage() {
             className={`w-full flex items-center p-6 border-2 rounded-2xl transition-all duration-300 text-left ${
               selectedLevel === l.id
                 ? "border-primary bg-blue-50 shadow-md scale-[1.02]"
-                : "border-gray-100 bg-white hover:border-primary/50 hover:bg-gray-50"
+                : "border-slate-100 bg-white hover:border-primary/50 hover:bg-slate-50"
             }`}
           >
             <div className="shrink-0 mr-4 bg-white p-2 rounded-full shadow-sm">
               {l.icon}
             </div>
             <div className="flex-1">
-              <h3 className={`text-xl font-bold ${selectedLevel === l.id ? "text-primary" : "text-gray-800"}`}>
+              <h3 className={`text-xl font-bold ${selectedLevel === l.id ? "text-primary" : "text-slate-800"}`}>
                 {l.title}
               </h3>
-              <p className="text-gray-500">{l.description}</p>
+              <p className="text-slate-500">{l.description}</p>
             </div>
             <div className="shrink-0 ml-4">
               <div
@@ -107,4 +107,7 @@ export default function PlacementPage() {
     </div>
   );
 }
+
+
+
 

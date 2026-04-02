@@ -88,8 +88,8 @@ export function AskTutorModal({ isOpen, onClose, lessonId, lessonTitle, lessonMo
               <Loader2 className="h-8 w-8 animate-spin text-primary/30" />
             </div>
           ) : tutors.length === 0 ? (
-             <div className="text-center bg-gray-50 border-dashed p-6 rounded-2xl border border-gray-200">
-                <p className="text-sm font-semibold text-gray-400 italic">No mentors currently connected for this domain.</p>
+             <div className="text-center bg-slate-50 border-dashed p-6 rounded-2xl border border-slate-200">
+                <p className="text-sm font-semibold text-slate-400 italic">No mentors currently connected for this domain.</p>
              </div>
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
@@ -99,18 +99,18 @@ export function AskTutorModal({ isOpen, onClose, lessonId, lessonTitle, lessonMo
                   onClick={() => setSelectedTutorId(t._id)}
                   className={cn(
                     "flex flex-col items-center gap-4 p-6 rounded-3xl border-2 transition-all duration-300 group",
-                    selectedTutorId === t._id ? "bg-primary/5 border-primary shadow-lg shadow-primary/10" : "bg-white border-gray-100 hover:border-primary/30"
+                    selectedTutorId === t._id ? "bg-primary/5 border-primary shadow-lg shadow-primary/10" : "bg-white border-slate-100 hover:border-primary/30"
                   )}
                 >
-                  <div className="h-16 w-16 rounded-2xl bg-gray-50 border border-gray-100 flex items-center justify-center p-1 group-hover:scale-110 transition-transform">
+                  <div className="h-16 w-16 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center p-1 group-hover:scale-110 transition-transform">
                     {t.profilePhoto ? (
                       <img src={t.profilePhoto} alt={t.name} className="w-full h-full object-cover rounded-xl" />
                     ) : (
-                      <User className="h-8 w-8 text-gray-300" />
+                      <User className="h-8 w-8 text-slate-300" />
                     )}
                   </div>
                   <div className="text-center">
-                     <p className="text-sm font-black text-gray-800 mb-1 uppercase tracking-tight">{t.name}</p>
+                     <p className="text-sm font-black text-slate-800 mb-1 uppercase tracking-tight">{t.name}</p>
                      <p className="text-[9px] font-black uppercase text-primary tracking-widest bg-primary/5 px-2 py-0.5 rounded-md">{t.specialization || "Tutor"}</p>
                   </div>
                 </button>
@@ -131,7 +131,7 @@ export function AskTutorModal({ isOpen, onClose, lessonId, lessonTitle, lessonMo
           />
         </div>
 
-        <div className="pt-8 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-6">
+        <div className="pt-8 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-6">
           {askError && (
             <p className="text-xs font-bold text-red-500 flex items-center gap-2">
               <AlertCircle size={14} /> {askError}
@@ -159,3 +159,6 @@ export function AskTutorModal({ isOpen, onClose, lessonId, lessonTitle, lessonMo
     </Modal>
   );
 }
+
+
+

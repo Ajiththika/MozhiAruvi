@@ -62,7 +62,7 @@ function validateQuestion(q: DraftQuestion): string | undefined {
     case "fill_blank": {
       const d = q.data as FillBlankData;
       if (!d.sentence.trim()) return "Sentence is required.";
-      if (!d.sentence.includes("___")) return 'Sentence must contain "___" to mark the blank.';
+      if (!/_{2,}/.test(d.sentence)) return 'Sentence must contain at least "__" to mark the blank.';
       if (!d.correctAnswer.trim()) return "Correct answer is required.";
       return;
     }
@@ -89,8 +89,8 @@ function validateQuestion(q: DraftQuestion): string | undefined {
 
 // ── Input primitives (consistent with existing design system) ─────────────────
 
-const inputCls = "w-full p-4 bg-white border-2 border-gray-100 rounded-2xl focus:border-primary focus:bg-white outline-none transition-all font-bold text-gray-700 placeholder:font-medium placeholder:text-gray-300";
-const labelCls = "block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1.5 ml-1";
+const inputCls = "w-full p-4 bg-white border-2 border-slate-100 rounded-2xl focus:border-primary focus:bg-white outline-none transition-all font-bold text-slate-700 placeholder:font-medium placeholder:text-slate-300";
+const labelCls = "block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1.5 ml-1";
 
 // ── Question-type-specific sub-forms ──────────────────────────────────────────
 
@@ -117,10 +117,10 @@ function MCQForm({ data, onChange }: { data: MCQData; onChange: (d: MCQData) => 
         <div className="space-y-3">
           {data.options.map((opt, idx) => (
             <div key={idx} className="flex items-center gap-3">
-              <span className="text-[10px] font-black text-gray-300 w-6 shrink-0">{idx + 1}.</span>
+              <span className="text-[10px] font-black text-slate-300 w-6 shrink-0">{idx + 1}.</span>
               <input className={inputCls} placeholder={`Option ${idx + 1}`} value={opt} onChange={e => setOption(idx, e.target.value)} />
               {data.options.length > 2 && (
-                <button type="button" onClick={() => removeOption(idx)} className="p-2 text-gray-300 hover:text-red-400 transition-colors shrink-0">
+                <button type="button" onClick={() => removeOption(idx)} className="p-2 text-slate-300 hover:text-red-400 transition-colors shrink-0">
                   <X className="w-4 h-4" />
                 </button>
               )}
@@ -148,9 +148,9 @@ function FillBlankForm({ data, onChange }: { data: FillBlankData; onChange: (d: 
   return (
     <div className="space-y-6">
       <div>
-        <label className={labelCls}>Sentence (use ___ for the blank)</label>
-        <input className={inputCls} placeholder='e.g. I ___ rice every day.' value={data.sentence} onChange={e => onChange({ ...data, sentence: e.target.value })} />
-        <p className="text-[10px] text-gray-400 font-medium mt-1.5 ml-1">Use three underscores <code className="bg-gray-100 px-1 rounded">___</code> to mark where the blank is.</p>
+        <label className={labelCls}>Sentence (use __ for the blank)</label>
+        <input className={inputCls} placeholder='e.g. Next letter of ஆ __' value={data.sentence} onChange={e => onChange({ ...data, sentence: e.target.value })} />
+        <p className="text-[10px] text-slate-400 font-medium mt-1.5 ml-1">Use at least two underscores <code className="bg-slate-100 px-1 rounded">__</code> to mark where the blank is.</p>
       </div>
       <div>
         <label className={labelCls}>Correct Answer</label>
@@ -174,10 +174,10 @@ function MatchingForm({ data, onChange }: { data: MatchingData; onChange: (d: Ma
       {data.pairs.map((pair, idx) => (
         <div key={idx} className="flex items-center gap-3">
           <input className={inputCls} placeholder="English / Word" value={pair.left} onChange={e => setPair(idx, "left", e.target.value)} />
-          <span className="text-gray-300 font-black shrink-0">↔</span>
+          <span className="text-slate-300 font-black shrink-0">↔</span>
           <input className={inputCls} placeholder="Tamil / Match" value={pair.right} onChange={e => setPair(idx, "right", e.target.value)} />
           {data.pairs.length > 1 && (
-            <button type="button" onClick={() => removePair(idx)} className="p-2 text-gray-300 hover:text-red-400 transition-colors shrink-0">
+            <button type="button" onClick={() => removePair(idx)} className="p-2 text-slate-300 hover:text-red-400 transition-colors shrink-0">
               <X className="w-4 h-4" />
             </button>
           )}
@@ -245,18 +245,18 @@ function QuestionCard({
   const changeType = (type: QuestionType) => onUpdate({ ...question, type, data: defaultData(type), error: undefined });
 
   return (
-    <div className={`bg-white border-2 rounded-[2rem] overflow-hidden transition-all duration-300 ${question.error ? "border-red-200" : "border-gray-100 hover:border-gray-200"}`}>
+    <div className={`bg-white border-2 rounded-[2rem] overflow-hidden transition-all duration-300 ${question.error ? "border-red-200" : "border-slate-100 hover:border-slate-200"}`}>
       {/* Card Header */}
       <div className="flex items-center gap-4 p-6 cursor-pointer" onClick={() => setExpanded(e => !e)}>
         <span className={`inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full border ${meta.color}`}>
           {meta.icon} {meta.label}
         </span>
-        <span className="text-[10px] font-black text-gray-300 uppercase tracking-widest">Question {index + 1}</span>
+        <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">Question {index + 1}</span>
         <div className="ml-auto flex items-center gap-2">
-          <button type="button" onClick={e => { e.stopPropagation(); onRemove(); }} className="p-2 text-gray-300 hover:text-red-400 hover:bg-red-50 rounded-xl transition-all">
+          <button type="button" onClick={e => { e.stopPropagation(); onRemove(); }} className="p-2 text-slate-300 hover:text-red-400 hover:bg-red-50 rounded-xl transition-all">
             <Trash2 className="w-4 h-4" />
           </button>
-          <div className="p-2 text-gray-300">
+          <div className="p-2 text-slate-300">
             {expanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
           </div>
         </div>
@@ -271,7 +271,7 @@ function QuestionCard({
 
       {/* Body */}
       {expanded && (
-        <div className="px-6 pb-8 space-y-6 border-t border-gray-50 pt-6">
+        <div className="px-6 pb-8 space-y-6 border-t border-slate-50 pt-6">
           {/* Type selector */}
           <div>
             <label className={labelCls}>Question Type</label>
@@ -282,7 +282,7 @@ function QuestionCard({
                   type="button"
                   onClick={() => changeType(t)}
                   className={`inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-widest px-4 py-2 rounded-xl border transition-all ${
-                    question.type === t ? TYPE_META[t].color + " scale-105 shadow-sm" : "border-gray-100 text-gray-400 hover:border-gray-200"
+                    question.type === t ? TYPE_META[t].color + " scale-105 shadow-sm" : "border-slate-100 text-slate-400 hover:border-slate-200"
                   }`}
                 >
                   {TYPE_META[t].icon} {TYPE_META[t].label}
@@ -344,18 +344,18 @@ function AdminLessonCard({ lesson, onManageQuestions, onEdit, onDelete }: AdminL
   };
 
   return (
-    <div className={`bg-white rounded-[2.5rem] border transition-all duration-500 shadow-sm group/card overflow-hidden ${expanded ? "ring-2 ring-primary/20 border-primary shadow-2xl shadow-primary/5" : "border-gray-100 hover:border-primary/20 hover:shadow-xl hover:shadow-gray-200/50"}`}>
+    <div className={`bg-white rounded-[2.5rem] border transition-all duration-500 shadow-sm group/card overflow-hidden ${expanded ? "ring-2 ring-primary/20 border-primary shadow-2xl shadow-primary/5" : "border-slate-100 hover:border-primary/20 hover:shadow-xl hover:shadow-slate-200/50"}`}>
       {/* Card Header */}
       <div
         className="flex flex-col sm:flex-row sm:items-center gap-6 p-8 cursor-pointer relative"
         onClick={handleExpand}
       >
-        <div className={`h-16 w-16 rounded-[1.5rem] border flex items-center justify-center shrink-0 transition-all duration-500 ${expanded ? "bg-primary text-white border-white/20 rotate-12 scale-110" : "bg-gray-50 text-primary border-gray-100 group-hover/card:bg-primary group-hover/card:text-white"}`}>
+        <div className={`h-16 w-16 rounded-[1.5rem] border flex items-center justify-center shrink-0 transition-all duration-500 ${expanded ? "bg-primary text-white border-white/20 rotate-12 scale-110" : "bg-slate-50 text-primary border-slate-100 group-hover/card:bg-primary group-hover/card:text-white"}`}>
           <BookOpen className="w-8 h-8" />
         </div>
 
         <div className="flex-1 min-w-0">
-          <p className="font-black text-gray-800 text-xl tracking-tighter uppercase whitespace-nowrap overflow-hidden text-ellipsis mb-2">{lesson.title}</p>
+          <p className="font-black text-slate-800 text-xl tracking-tighter uppercase whitespace-nowrap overflow-hidden text-ellipsis mb-2">{lesson.title}</p>
           <div className="flex items-center gap-3 flex-wrap">
             {/* Level badge */}
             <span className={`text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full border ${levelColor[lesson.level || "Basic"] || levelColor["Basic"]}`}>
@@ -377,14 +377,14 @@ function AdminLessonCard({ lesson, onManageQuestions, onEdit, onDelete }: AdminL
           </button>
           <button
             onClick={e => { e.stopPropagation(); onEdit(); }}
-            className="p-3 bg-white border border-gray-100 text-gray-400 hover:text-primary hover:border-primary/20 hover:bg-primary/5 rounded-xl transition-all"
+            className="p-3 bg-white border border-slate-100 text-slate-400 hover:text-primary hover:border-primary/20 hover:bg-primary/5 rounded-xl transition-all"
             title="Lesson Config"
           >
             <Settings className="w-4 h-4" />
           </button>
           <button
             onClick={e => { e.stopPropagation(); onDelete(); }}
-            className="p-3 bg-white border border-gray-100 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
+            className="p-3 bg-white border border-slate-100 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
             title="Purge Node"
           >
             <Trash2 className="w-4 h-4" />
@@ -394,15 +394,15 @@ function AdminLessonCard({ lesson, onManageQuestions, onEdit, onDelete }: AdminL
 
       {/* Expanded question list */}
       {expanded && (
-        <div className="border-t border-gray-50 bg-gray-50/40 px-8 pb-8 pt-6">
+        <div className="border-t border-slate-50 bg-slate-50/40 px-8 pb-8 pt-6">
           {cardQLoading ? (
-            <div className="flex items-center gap-3 py-4 text-gray-400">
+            <div className="flex items-center gap-3 py-4 text-slate-400">
               <Loader2 className="w-4 h-4 animate-spin" />
               <span className="text-xs font-bold uppercase tracking-widest">Accessing Question Nodes...</span>
             </div>
           ) : cardQuestions.length === 0 ? (
-            <div className="py-10 text-center border-2 border-dashed border-gray-200 rounded-[2rem] bg-white">
-              <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">No activities found in this module.</p>
+            <div className="py-10 text-center border-2 border-dashed border-slate-200 rounded-[2rem] bg-white">
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">No activities found in this module.</p>
               <button
                 onClick={onManageQuestions}
                 className="mt-3 text-[10px] font-black uppercase tracking-[0.2em] text-primary hover:scale-105 transition-transform"
@@ -413,13 +413,13 @@ function AdminLessonCard({ lesson, onManageQuestions, onEdit, onDelete }: AdminL
           ) : (
             <div className="grid grid-cols-1 gap-3">
               {cardQuestions.map((q, idx) => (
-                <div key={q._id} className="flex items-center gap-4 bg-white px-6 py-4 rounded-2xl border border-gray-100 shadow-sm hover:border-primary/20 transition-all group/q">
-                  <span className="text-[10px] font-black uppercase tracking-widest text-gray-300 shrink-0 w-6 group-hover/q:text-primary transition-colors">{idx + 1}</span>
-                  <span className="text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg bg-gray-50 border border-gray-100 text-gray-400 shrink-0">
+                <div key={q._id} className="flex items-center gap-4 bg-white px-6 py-4 rounded-2xl border border-slate-100 shadow-sm hover:border-primary/20 transition-all group/q">
+                  <span className="text-[10px] font-black uppercase tracking-widest text-slate-300 shrink-0 w-6 group-hover/q:text-primary transition-colors">{idx + 1}</span>
+                  <span className="text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg bg-slate-50 border border-slate-100 text-slate-400 shrink-0">
                     {q.type}
                   </span>
-                  <p className="text-sm font-bold text-gray-700 truncate flex-1">{q.text}</p>
-                  <ArrowRight className="w-4 h-4 text-gray-200 group-hover/q:text-primary group-hover/q:translate-x-1 transition-all" />
+                  <p className="text-sm font-bold text-slate-700 truncate flex-1">{q.text}</p>
+                  <ArrowRight className="w-4 h-4 text-slate-200 group-hover/q:text-primary group-hover/q:translate-x-1 transition-all" />
                 </div>
               ))}
             </div>
@@ -643,14 +643,14 @@ export default function AdminLessonsPage() {
     <div className="space-y-8 animate-in fade-in pb-20">
       
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-sm shadow-gray-200/50">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm shadow-slate-200/50">
         <div>
           <div className="flex items-center gap-2 mb-2">
             <span className="h-2 w-10 rounded-full bg-primary/20" />
             <span className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">Curriculum Master</span>
           </div>
-          <h1 className="text-4xl font-black text-gray-900 tracking-tight">Manage Categories</h1>
-          <p className="text-gray-500 font-medium mt-1">Organize your learning path and levels.</p>
+          <h1 className="text-4xl font-black text-slate-900 tracking-tight">Manage Categories</h1>
+          <p className="text-slate-500 font-medium mt-1">Organize your learning path and levels.</p>
         </div>
         <button
           onClick={() => { setShowCreate(s => !s); setLessonError(""); }}
@@ -662,11 +662,11 @@ export default function AdminLessonsPage() {
 
       {/* Unified Creation Form */}
       {showCreate && (
-        <div className="bg-white p-8 rounded-[2.5rem] shadow-2xl shadow-gray-200/40 border border-primary/10 max-w-4xl mx-auto animate-in zoom-in-95 duration-300">
+        <div className="bg-white p-8 rounded-[2.5rem] shadow-2xl shadow-slate-200/40 border border-primary/10 max-w-4xl mx-auto animate-in zoom-in-95 duration-300">
           <div className="flex items-center justify-between mb-8">
-            <h3 className="text-2xl font-black text-gray-800">New Category Item</h3>
-            <button onClick={() => setShowCreate(false)} className="p-2 hover:bg-gray-100 rounded-full transition-colors">
-              <X className="w-6 h-6 text-gray-400" />
+            <h3 className="text-2xl font-black text-slate-800">New Category Item</h3>
+            <button onClick={() => setShowCreate(false)} className="p-2 hover:bg-slate-100 rounded-full transition-colors">
+              <X className="w-6 h-6 text-slate-400" />
             </button>
           </div>
 
@@ -718,14 +718,14 @@ export default function AdminLessonsPage() {
                   <button 
                     type="button" 
                     onClick={() => setFormData({...formData, isPremiumOnly: false})}
-                    className={`flex-1 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest border-2 transition-all ${!formData.isPremiumOnly ? "bg-emerald-500 text-white border-emerald-500" : "bg-gray-50 text-gray-400 border-gray-100"}`}
+                    className={`flex-1 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest border-2 transition-all ${!formData.isPremiumOnly ? "bg-emerald-500 text-white border-emerald-500" : "bg-slate-50 text-slate-400 border-slate-100"}`}
                   >
                     ✓ Free
                   </button>
                   <button 
                     type="button" 
                     onClick={() => setFormData({...formData, isPremiumOnly: true})}
-                    className={`flex-1 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest border-2 transition-all ${formData.isPremiumOnly ? "bg-amber-500 text-white border-amber-500" : "bg-gray-50 text-gray-400 border-gray-100"}`}
+                    className={`flex-1 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest border-2 transition-all ${formData.isPremiumOnly ? "bg-amber-500 text-white border-amber-500" : "bg-slate-50 text-slate-400 border-slate-100"}`}
                   >
                     ★ Premium
                   </button>
@@ -734,7 +734,7 @@ export default function AdminLessonsPage() {
             </div>
 
             <div className="flex justify-end gap-4 pt-2">
-              <button type="button" onClick={() => setShowCreate(false)} className="px-8 py-4 font-black uppercase tracking-widest text-[10px] text-gray-400">Cancel</button>
+              <button type="button" onClick={() => setShowCreate(false)} className="px-8 py-4 font-black uppercase tracking-widest text-[10px] text-slate-400">Cancel</button>
               <button type="submit" disabled={creating} className="px-10 py-4 bg-primary text-white font-black uppercase tracking-widest text-[10px] rounded-2xl shadow-xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all">
                 {creating ? <Loader2 className="w-4 h-4 animate-spin" /> : "Register Category"}
               </button>
@@ -747,7 +747,7 @@ export default function AdminLessonsPage() {
 
       {/* Level Filter Tabs */}
       {!loading && lessons.length > 0 && (
-        <div className="flex flex-wrap items-center gap-3 bg-white p-3 rounded-[2rem] border border-gray-100 shadow-sm">
+        <div className="flex flex-wrap items-center gap-3 bg-white p-3 rounded-[2rem] border border-slate-100 shadow-sm">
           {["Beginner", "Elementary", "Intermediate", "Advanced"].map((lv) => (
             <button
               key={lv}
@@ -755,7 +755,7 @@ export default function AdminLessonsPage() {
               className={`flex-1 min-w-[140px] py-4 rounded-[1.5rem] text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-300 border-2 ${
                 activeLevel === lv 
                 ? "bg-primary text-white border-primary shadow-lg shadow-primary/20 scale-[1.02]" 
-                : "bg-gray-50 text-gray-400 border-transparent hover:bg-gray-100 hover:text-gray-600"
+                : "bg-slate-50 text-slate-400 border-transparent hover:bg-slate-100 hover:text-slate-600"
               }`}
             >
               {lv}
@@ -768,14 +768,14 @@ export default function AdminLessonsPage() {
       {loading ? (
         <div className="flex flex-col items-center justify-center p-20 gap-4">
           <Loader2 className="w-12 h-12 animate-spin text-primary/30" strokeWidth={1} />
-          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-400 animate-pulse">Loading lessons...</p>
+          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 animate-pulse">Loading lessons...</p>
         </div>
       ) : (
         <div className="space-y-16">
           {lessons.length === 0 && (
-            <div className="p-20 text-center bg-white rounded-[3rem] border border-dashed border-gray-200">
-              <BookOpen className="w-16 h-16 text-gray-200 mx-auto mb-4" />
-              <p className="text-gray-400 font-bold italic">No lessons yet. Create your first lesson above.</p>
+            <div className="p-20 text-center bg-white rounded-[3rem] border border-dashed border-slate-200">
+              <BookOpen className="w-16 h-16 text-slate-200 mx-auto mb-4" />
+              <p className="text-slate-400 font-bold italic">No lessons yet. Create your first lesson above.</p>
             </div>
           )}
 
@@ -801,15 +801,15 @@ export default function AdminLessonsPage() {
               <>
                 <div className="space-y-16">
                   {paginated.length === 0 ? (
-                    <div className="p-20 text-center bg-white rounded-[3rem] border border-dashed border-gray-200">
-                      <BookOpen className="w-16 h-16 text-gray-200 mx-auto mb-4" />
-                      <p className="text-gray-400 font-bold italic">This level is currently empty.</p>
+                    <div className="p-20 text-center bg-white rounded-[3rem] border border-dashed border-slate-200">
+                      <BookOpen className="w-16 h-16 text-slate-200 mx-auto mb-4" />
+                      <p className="text-slate-400 font-bold italic">This level is currently empty.</p>
                     </div>
                   ) : (
                     Object.entries(categoriesOnPage).map(([category, catLessons]) => (
-                      <div key={category} className="space-y-8 relative border-l-2 border-gray-50 pl-10">
+                      <div key={category} className="space-y-8 relative border-l-2 border-slate-50 pl-10">
                         <div className="absolute -left-[11px] top-0 h-5 w-5 rounded-full border-4 border-white bg-secondary shadow-md ring-4 ring-secondary/10" />
-                        <h3 className="text-3xl font-black text-gray-800 tracking-tight flex items-center gap-4">
+                        <h3 className="text-3xl font-black text-slate-800 tracking-tight flex items-center gap-4">
                           {category}
                         </h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -834,7 +834,7 @@ export default function AdminLessonsPage() {
                     <button
                       disabled={currentPage === 1}
                       onClick={() => setCurrentPage(p => p - 1)}
-                      className="px-6 py-3 rounded-xl border border-gray-100 font-black text-[10px] uppercase tracking-widest text-gray-400 hover:bg-gray-50 disabled:opacity-30 disabled:pointer-events-none transition-all"
+                      className="px-6 py-3 rounded-xl border border-slate-100 font-black text-[10px] uppercase tracking-widest text-slate-400 hover:bg-slate-50 disabled:opacity-30 disabled:pointer-events-none transition-all"
                     >
                       Prev
                     </button>
@@ -846,7 +846,7 @@ export default function AdminLessonsPage() {
                           className={`w-10 h-10 rounded-xl font-black text-[10px] transition-all ${
                             currentPage === i + 1 
                             ? "bg-primary text-white shadow-lg shadow-primary/20" 
-                            : "bg-white border border-gray-100 text-gray-400 hover:bg-gray-50"
+                            : "bg-white border border-slate-100 text-slate-400 hover:bg-slate-50"
                           }`}
                         >
                           {i + 1}
@@ -856,7 +856,7 @@ export default function AdminLessonsPage() {
                     <button
                       disabled={currentPage === totalPages}
                       onClick={() => setCurrentPage(p => p + 1)}
-                      className="px-6 py-3 rounded-xl border border-gray-100 font-black text-[10px] uppercase tracking-widest text-gray-400 hover:bg-gray-50 disabled:opacity-30 disabled:pointer-events-none transition-all"
+                      className="px-6 py-3 rounded-xl border border-slate-100 font-black text-[10px] uppercase tracking-widest text-slate-400 hover:bg-slate-50 disabled:opacity-30 disabled:pointer-events-none transition-all"
                     >
                       Next
                     </button>
@@ -871,11 +871,11 @@ export default function AdminLessonsPage() {
       {/* Edit Lesson Modal */}
       {editingLessonId && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-white/40 backdrop-blur-md animate-in fade-in duration-300">
-          <div className="bg-white p-8 rounded-[2.5rem] shadow-2xl shadow-gray-200/40 border border-primary/10 max-w-2xl w-full mx-auto animate-in zoom-in-95 duration-300">
+          <div className="bg-white p-8 rounded-[2.5rem] shadow-2xl shadow-slate-200/40 border border-primary/10 max-w-2xl w-full mx-auto animate-in zoom-in-95 duration-300">
             <div className="flex items-center justify-between mb-8">
-              <h3 className="text-2xl font-black text-gray-800">Edit Lesson</h3>
-              <button onClick={() => setEditingLessonId(null)} className="p-2 hover:bg-gray-100 rounded-full transition-colors">
-                <X className="w-6 h-6 text-gray-400" />
+              <h3 className="text-2xl font-black text-slate-800">Edit Lesson</h3>
+              <button onClick={() => setEditingLessonId(null)} className="p-2 hover:bg-slate-100 rounded-full transition-colors">
+                <X className="w-6 h-6 text-slate-400" />
               </button>
             </div>
 
@@ -916,7 +916,7 @@ export default function AdminLessonsPage() {
               </div>
 
               <div className="flex justify-end gap-4 pt-2">
-                <button type="button" onClick={() => setEditingLessonId(null)} className="px-8 py-4 font-black uppercase tracking-widest text-[10px] text-gray-400">
+                <button type="button" onClick={() => setEditingLessonId(null)} className="px-8 py-4 font-black uppercase tracking-widest text-[10px] text-slate-400">
                   Cancel
                 </button>
                 <button
@@ -934,17 +934,17 @@ export default function AdminLessonsPage() {
       {/* Question Builder Modal */}
       {activeLessonId && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-white/40 backdrop-blur-md animate-in fade-in duration-300">
-          <div className="bg-white rounded-[3rem] w-full max-w-5xl max-h-[92vh] overflow-hidden shadow-[0_32px_64px_-12px_rgba(0,0,0,0.14)] border border-gray-100 flex flex-col animate-in zoom-in-95 duration-300">
+          <div className="bg-white rounded-[3rem] w-full max-w-5xl max-h-[92vh] overflow-hidden shadow-[0_32px_64px_-12px_rgba(0,0,0,0.14)] border border-slate-100 flex flex-col animate-in zoom-in-95 duration-300">
 
             {/* Modal Header */}
-            <div className="p-8 border-b border-gray-50 flex items-center justify-between bg-gray-50/30 shrink-0">
+            <div className="p-8 border-b border-slate-50 flex items-center justify-between bg-slate-50/30 shrink-0">
               <div>
-                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Question Builder</p>
-                <h2 className="text-2xl font-black text-gray-800 tracking-tight">{activeLessonTitle}</h2>
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Question Builder</p>
+                <h2 className="text-2xl font-black text-slate-800 tracking-tight">{activeLessonTitle}</h2>
               </div>
               <button
                 onClick={() => { setActiveLessonId(null); setDraftQuestions([]); }}
-                className="h-12 w-12 flex items-center justify-center bg-white rounded-2xl hover:bg-red-50 hover:text-red-500 shadow-sm border border-gray-100 transition-all active:scale-90"
+                className="h-12 w-12 flex items-center justify-center bg-white rounded-2xl hover:bg-red-50 hover:text-red-500 shadow-sm border border-slate-100 transition-all active:scale-90"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -954,7 +954,7 @@ export default function AdminLessonsPage() {
               {qLoading ? (
                 <div className="flex flex-col items-center justify-center py-20 gap-4">
                   <Loader2 className="w-12 h-12 animate-spin text-primary/30" strokeWidth={1} />
-                  <p className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-400">Loading questions...</p>
+                  <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">Loading questions...</p>
                 </div>
               ) : (
                 <>
@@ -962,17 +962,17 @@ export default function AdminLessonsPage() {
                   {savedQuestions.length > 0 && (
                     <div>
                       <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-xs font-black uppercase tracking-[0.2em] text-gray-500">Saved Questions</h3>
-                        <span className="text-[10px] font-bold bg-gray-50 text-gray-400 px-3 py-1 rounded-full border border-gray-100">{savedQuestions.length} saved</span>
+                        <h3 className="text-xs font-black uppercase tracking-[0.2em] text-slate-500">Saved Questions</h3>
+                        <span className="text-[10px] font-bold bg-slate-50 text-slate-400 px-3 py-1 rounded-full border border-slate-100">{savedQuestions.length} saved</span>
                       </div>
                       <div className="space-y-3">
                         {savedQuestions.map((q, idx) => (
-                          <div key={q._id} className="flex items-center justify-between bg-gray-50 p-5 rounded-2xl border border-gray-100 group">
+                          <div key={q._id} className="flex items-center justify-between bg-slate-50 p-5 rounded-2xl border border-slate-100 group">
                             <div className="flex items-center gap-4 min-w-0">
-                              <span className="text-[9px] font-black uppercase tracking-widest px-3 py-1 bg-white text-gray-400 rounded-full border border-gray-100 shrink-0">{idx + 1} • {q.type}</span>
-                              <p className="text-sm font-bold text-gray-700 truncate">{q.text}</p>
+                              <span className="text-[9px] font-black uppercase tracking-widest px-3 py-1 bg-white text-slate-400 rounded-full border border-slate-100 shrink-0">{idx + 1} • {q.type}</span>
+                              <p className="text-sm font-bold text-slate-700 truncate">{q.text}</p>
                             </div>
-                            <button onClick={() => handleDeleteSaved(q._id)} className="p-2 text-gray-300 hover:text-red-400 hover:bg-red-50 rounded-xl transition-all opacity-0 group-hover:opacity-100 shrink-0 ml-3">
+                            <button onClick={() => handleDeleteSaved(q._id)} className="p-2 text-slate-300 hover:text-red-400 hover:bg-red-50 rounded-xl transition-all opacity-0 group-hover:opacity-100 shrink-0 ml-3">
                               <Trash2 className="w-4 h-4" />
                             </button>
                           </div>
@@ -991,10 +991,10 @@ export default function AdminLessonsPage() {
                     </div>
 
                     {draftQuestions.length === 0 && savedQuestions.length === 0 && (
-                      <div className="p-12 text-center border-2 border-dashed border-gray-100 rounded-[2rem] mb-4">
-                        <BookOpen className="w-10 h-10 text-gray-100 mx-auto mb-3" />
-                        <p className="text-gray-400 text-sm font-bold mb-1">No questions yet.</p>
-                        <p className="text-gray-300 text-xs font-medium">Click "+ Add Question" to get started.</p>
+                      <div className="p-12 text-center border-2 border-dashed border-slate-100 rounded-[2rem] mb-4">
+                        <BookOpen className="w-10 h-10 text-slate-100 mx-auto mb-3" />
+                        <p className="text-slate-400 text-sm font-bold mb-1">No questions yet.</p>
+                        <p className="text-slate-300 text-xs font-medium">Click "+ Add Question" to get started.</p>
                       </div>
                     )}
 
@@ -1015,7 +1015,7 @@ export default function AdminLessonsPage() {
                     <button
                       type="button"
                       onClick={addDraftQuestion}
-                      className="w-full py-4 rounded-2xl border-2 border-dashed border-gray-200 flex items-center justify-center gap-3 text-[10px] font-black uppercase tracking-widest text-gray-400 hover:border-primary hover:text-primary hover:bg-primary/2 transition-all"
+                      className="w-full py-4 rounded-2xl border-2 border-dashed border-slate-200 flex items-center justify-center gap-3 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:border-primary hover:text-primary hover:bg-primary/2 transition-all"
                     >
                       <Plus className="w-4 h-4" /> Add Question
                     </button>
@@ -1026,11 +1026,11 @@ export default function AdminLessonsPage() {
 
             {/* Footer */}
             {!qLoading && (
-              <div className="p-6 border-t border-gray-50 flex items-center justify-end gap-4 shrink-0 bg-gray-50/30">
+              <div className="p-6 border-t border-slate-50 flex items-center justify-end gap-4 shrink-0 bg-slate-50/30">
                 <button
                   type="button"
                   onClick={() => { setActiveLessonId(null); setDraftQuestions([]); }}
-                  className="px-8 py-3.5 font-black uppercase tracking-widest text-[10px] text-gray-400 hover:text-gray-600 transition-colors"
+                  className="px-8 py-3.5 font-black uppercase tracking-widest text-[10px] text-slate-400 hover:text-slate-600 transition-colors"
                 >
                   Close
                 </button>
@@ -1052,3 +1052,6 @@ export default function AdminLessonsPage() {
     </div>
   );
 }
+
+
+

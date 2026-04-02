@@ -3,36 +3,36 @@ import Link from "next/link";
 
 export default function Footer() {
   return (
-    <footer className="bg-gray-50 py-10 md:py-14 border-t border-gray-100 px-4 md:px-8 lg:px-12 ">
+    <footer className="bg-slate-50 py-10 md:py-14 border-t border-slate-100 px-4 md:px-8 lg:px-12 ">
       <div className="max-w-7xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
           
           {/* Brand Column */}
           <div className="md:col-span-2 space-y-6">
-            <Link href="/" className="text-2xl font-black text-gray-900 flex items-center gap-1 mb-6 tracking-tighter">
+            <Link href="/" className="text-2xl font-black text-slate-900 flex items-center gap-1 mb-6 tracking-tighter">
               Mozhi<span className="text-primary italic">Aruvi</span>
             </Link>
-            <p className="text-gray-700 dark:text-gray-400 max-w-sm text-base leading-relaxed font-medium">
+            <p className="text-slate-700 dark:text-slate-400 max-w-sm text-base leading-relaxed font-medium">
               The modern platform for learning Tamil language and culture. We connect learners with expert tutors and interactive heritage resources.
             </p>
           </div>
 
           {/* Links Column 1 */}
           <div>
-            <h4 className="font-bold text-gray-800 dark:text-white mb-6 text-sm tracking-tight uppercase">Learn</h4>
+            <h4 className="font-bold text-slate-800 dark:text-white mb-6 text-sm tracking-tight uppercase">Learn</h4>
             <ul className="space-y-4">
               <li>
-                <Link href="/lessons" className="text-gray-600 dark:text-gray-400 hover:text-primary transition-colors text-base font-medium">
+                <Link href="/lessons" className="text-slate-600 dark:text-slate-400 hover:text-primary transition-colors text-base font-medium">
                   Interactive Lessons
                 </Link>
               </li>
               <li>
-                <Link href="/tutors" className="text-gray-600 dark:text-gray-400 hover:text-primary transition-colors text-base font-medium">
+                <Link href="/tutors" className="text-slate-600 dark:text-slate-400 hover:text-primary transition-colors text-base font-medium">
                   Find Tutors
                 </Link>
               </li>
               <li>
-                <Link href="/auth/signup" className="text-gray-600 dark:text-gray-400 hover:text-primary transition-colors text-base font-medium">
+                <Link href="/auth/signup" className="text-slate-600 dark:text-slate-400 hover:text-primary transition-colors text-base font-medium">
                   Premium Pass
                 </Link>
               </li>
@@ -41,15 +41,15 @@ export default function Footer() {
 
           {/* Links Column 2 */}
           <div>
-            <h4 className="font-bold text-gray-800 dark:text-white mb-6 text-sm tracking-tight uppercase">Community</h4>
+            <h4 className="font-bold text-slate-800 dark:text-white mb-6 text-sm tracking-tight uppercase">Community</h4>
             <ul className="space-y-4">
               <li>
-                <Link href="/events" className="text-gray-600 dark:text-gray-400 hover:text-primary transition-colors text-base font-medium">
+                <Link href="/events" className="text-slate-600 dark:text-slate-400 hover:text-primary transition-colors text-base font-medium">
                   Latest Events
                 </Link>
               </li>
               <li>
-                <Link href="/about" className="text-gray-600 dark:text-gray-400 hover:text-primary transition-colors text-base font-medium">
+                <Link href="/about" className="text-slate-600 dark:text-slate-400 hover:text-primary transition-colors text-base font-medium">
                   Our Story
                 </Link>
               </li>
@@ -58,9 +58,9 @@ export default function Footer() {
 
         </div>
 
-        <div className="flex flex-col md:flex-row items-center justify-between pt-8 border-t border-gray-100 ">
+        <div className="flex flex-col md:flex-row items-center justify-between pt-8 border-t border-slate-100 ">
           {/* Copyright */}
-          <p className="text-sm text-gray-500 mb-4 md:mb-0">
+          <p className="text-sm text-slate-500 mb-4 md:mb-0">
             &copy; 2026 Mozhi Aruvi. All rights reserved.
           </p>
 
@@ -71,7 +71,7 @@ export default function Footer() {
             </svg>
             <div className="text-right">
               <div className="text-sm font-bold text-primary">"அறிவே ஆற்றல்"</div>
-              <div className="text-xs text-gray-500 italic">"Knowledge is power"</div>
+              <div className="text-xs text-slate-500 italic">"Knowledge is power"</div>
             </div>
           </div>
         </div>
@@ -80,4 +80,6 @@ export default function Footer() {
     </footer>
   );
 }
+
+
 

@@ -1,24 +1,25 @@
 "use client";
 
-import React, { useEffect, useState, Suspense } from "react";
+import React, { useEffect, useState, Suspense, useRef } from "react";
 import { DataTable, ColumnDef } from "@/components/ui/DataTable";
-import { Calendar as CalendarIcon, MapPin, Users, Globe2, Trash2, PlusCircle, AlertCircle, Loader2 } from "lucide-react";
+import { Calendar as CalendarIcon, MapPin, Users, Globe2, Trash2, PlusCircle, AlertCircle, Loader2, Upload, Edit3 } from "lucide-react";
 import { getEvents, deleteEvent, createEvent, updateEvent, MozhiEvent, CreateEventPayload, getEventById } from "@/services/eventService";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Pagination } from "@/components/ui/Pagination";
 import { Button } from "@/components/ui/Button";
+import ImageAdjuster from "@/components/ui/ImageAdjuster";
 
 const EventStatusBadge = ({ isActive }: { isActive: boolean }) => {
    if (isActive) {
-      return <span className="inline-flex rounded-full bg-emerald-100 px-2 py-1 text-xs font-semibold text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-500">Active</span>;
+      return <span className="inline-flex rounded-full bg-emerald-100 px-2 py-1 text-xs font-semibold text-emerald-800">Active</span>;
    }
-   return <span className="inline-flex rounded-full bg-red-100 px-2 py-1 text-xs font-semibold text-red-800 dark:bg-red-900/40 dark:text-red-500">Cancelled / Inactive</span>;
+   return <span className="inline-flex rounded-full bg-red-100 px-2 py-1 text-xs font-semibold text-red-800">Cancelled / Inactive</span>;
 }
 
 export default function AdminEventsPage() {
   return (
     <Suspense fallback={
-      <div className="flex items-center justify-center py-20 gap-3 text-gray-400 font-bold uppercase tracking-widest text-xs">
+      <div className="flex items-center justify-center py-20 gap-3 text-slate-400 font-bold uppercase tracking-widest text-xs">
         <Loader2 className="h-5 w-5 animate-spin" /> Loading Admin Dashboard...
       </div>
     }>
@@ -40,6 +41,7 @@ function AdminEventsClient() {
   
   // Pagination State
   const [currentPage, setCurrentPage] = useState(1);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [totalPages, setTotalPages] = useState(1);
   const [totalEvents, setTotalEvents] = useState(0);
 
@@ -113,13 +115,20 @@ function AdminEventsClient() {
 
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [adjustImage, setAdjustImage] = useState<string | null>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setSelectedFile(file);
-      setPreviewUrl(URL.createObjectURL(file));
+      setAdjustImage(URL.createObjectURL(file));
     }
+  };
+
+  const handleAdjustConfirm = (croppedBlob: Blob) => {
+    const file = new File([croppedBlob], "event_poster.jpg", { type: "image/jpeg" });
+    setSelectedFile(file);
+    setPreviewUrl(URL.createObjectURL(croppedBlob));
+    setAdjustImage(null);
   };
 
   const handleCreate = async (e: React.FormEvent) => {
@@ -181,19 +190,19 @@ function AdminEventsClient() {
       accessorKey: "title",
       cell: (row) => (
          <div className="flex flex-col text-left">
-            <span className="font-bold text-gray-800 dark:text-slate-100">{row.title}</span>
-            <span className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+            <span className="font-bold text-slate-800">{row.title}</span>
+            <span className="flex items-center gap-1 text-xs text-slate-500 mt-0.5">
                <Globe2 className="h-3 w-3" /> {row.eventCode}
             </span>
          </div>
       ),
     },
-    { header: "Host Tutor", accessorKey: "createdBy", cell: (row) => <span className="text-sm font-medium text-gray-800 dark:text-gray-200">{(row as any).createdBy?.name || 'Unknown'}</span> },
+    { header: "Host Tutor", accessorKey: "createdBy", cell: (row) => <span className="text-sm font-medium text-slate-800">{(row as any).createdBy?.name || 'Unknown'}</span> },
     {
       header: "Schedule",
       accessorKey: "date",
       cell: (row) => (
-         <div className="flex items-center gap-1.5 text-sm text-gray-600 dark:text-gray-300">
+         <div className="flex items-center gap-1.5 text-sm text-slate-600">
             <CalendarIcon className="h-4 w-4" />
             {new Date(row.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })} {row.time}
          </div>
@@ -203,7 +212,7 @@ function AdminEventsClient() {
       header: "Attendees",
       accessorKey: "participantsCount",
       cell: (row) => (
-         <div className="flex items-center gap-1.5 text-sm font-medium text-primary dark:text-secondary">
+         <div className="flex items-center gap-1.5 text-sm font-medium text-primary">
             <Users className="h-4 w-4" /> {(row as any).participantsCount ?? 0} / {row.capacity}
          </div>
       )
@@ -217,7 +226,7 @@ function AdminEventsClient() {
          <div className="flex justify-end gap-3">
             <button
               onClick={() => handleEdit(row)}
-              className="text-sm font-bold text-gray-400 hover:text-primary transition inline-flex items-center gap-1 uppercase tracking-widest text-[10px]"
+              className="text-sm font-bold text-slate-400 hover:text-primary transition inline-flex items-center gap-1 uppercase tracking-widest text-[10px]"
             >
                Edit
             </button>
@@ -237,14 +246,14 @@ function AdminEventsClient() {
 
   return (
     <div className="space-y-8 animate-in fade-in zoom-in-95 duration-500 pb-12">
-      <div className="mb-0 flex flex-col md:flex-row md:items-end md:justify-between gap-6 border-b border-gray-100 pb-8">
+      <div className="mb-0 flex flex-col md:flex-row md:items-end md:justify-between gap-6 border-b border-slate-100 pb-8">
         <div>
            <div className="flex items-center gap-2 mb-2">
               <span className="h-1.5 w-6 rounded-full bg-secondary" />
               <span className="text-[10px] font-black text-secondary uppercase tracking-[0.3em]">Administrator</span>
            </div>
-           <h1 className="text-3xl md:text-4xl font-black text-gray-800 uppercase tracking-tight">Events Moderation</h1>
-           <p className="mt-2 text-gray-500 font-medium">Monitor and create community events.</p>
+           <h1 className="text-3xl md:text-4xl font-black text-slate-800 uppercase tracking-tight">Events Moderation</h1>
+           <p className="mt-2 text-slate-500 font-medium">Monitor and create community events.</p>
         </div>
         <button
           onClick={() => {
@@ -269,80 +278,119 @@ function AdminEventsClient() {
       {showCreate && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start animate-in slide-in-from-top-4 duration-500">
           {/* Left Side: Interactive Form */}
-          <form onSubmit={handleCreate} className="relative overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-xl shadow-primary/5 p-8 space-y-8">
+          <form onSubmit={handleCreate} className="relative overflow-hidden rounded-3xl border border-slate-100 bg-white shadow-xl shadow-primary/5 p-8 space-y-8">
             <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-primary to-secondary" />
             
             <div className="flex flex-col space-y-1">
-              <h3 className="text-xl font-black text-gray-800 tracking-tight">{editingId ? 'Edit Event' : 'New Event'}</h3>
-              <p className="text-xs font-medium text-gray-500">Fill in the details to update the community.</p>
+              <h3 className="text-xl font-black text-slate-800 tracking-tight">{editingId ? 'Edit Event' : 'New Event'}</h3>
+              <p className="text-xs font-medium text-slate-500">Fill in the details to update the community.</p>
             </div>
 
             <div className="space-y-5">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-1">Event Code</label>
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Event Code</label>
                   <input required value={form.eventCode} onChange={e => setForm(f => ({ ...f, eventCode: e.target.value.toUpperCase() }))}
                     placeholder="E.g., ADM-01"
-                    className="w-full rounded-xl border border-gray-100 bg-gray-50/50 px-4 py-2.5 text-sm font-medium outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all focus:bg-white" />
+                    className="w-full rounded-xl border border-slate-100 bg-slate-50/50 px-4 py-2.5 text-sm font-medium outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all focus:bg-white" />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-1">Capacity</label>
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Capacity</label>
                   <input required type="number" min={1} value={form.capacity} onChange={e => setForm(f => ({ ...f, capacity: Number(e.target.value) }))}
-                    className="w-full rounded-xl border border-gray-100 bg-gray-50/50 px-4 py-2.5 text-sm font-medium outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all focus:bg-white" />
+                    className="w-full rounded-xl border border-slate-100 bg-slate-50/50 px-4 py-2.5 text-sm font-medium outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all focus:bg-white" />
                 </div>
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-1">Event Title</label>
+                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Event Title</label>
                 <input required value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
                   placeholder="Enter a catchy title..."
-                  className="w-full rounded-xl border border-gray-100 bg-gray-50/50 px-4 py-2.5 text-sm font-semibold text-gray-800 outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all focus:bg-white" />
+                  className="w-full rounded-xl border border-slate-100 bg-slate-50/50 px-4 py-2.5 text-sm font-semibold text-slate-800 outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all focus:bg-white" />
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-1">Date</label>
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Date</label>
                   <input required type="date" min={today} value={form.date} onChange={e => setForm(f => ({ ...f, date: e.target.value }))}
-                    className="w-full rounded-xl border border-gray-100 bg-gray-50/50 px-4 py-2.5 text-sm font-medium outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all focus:bg-white" />
+                    className="w-full rounded-xl border border-slate-100 bg-slate-50/50 px-4 py-2.5 text-sm font-medium outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all focus:bg-white" />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-1">Time</label>
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Time</label>
                   <input required type="time" value={form.time} onChange={e => setForm(f => ({ ...f, time: e.target.value }))}
-                    className="w-full rounded-xl border border-gray-100 bg-gray-50/50 px-4 py-2.5 text-sm font-medium outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all focus:bg-white" />
+                    className="w-full rounded-xl border border-slate-100 bg-slate-50/50 px-4 py-2.5 text-sm font-medium outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all focus:bg-white" />
                 </div>
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-1">Location</label>
+                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Location</label>
                 <input required value={form.location} onChange={e => setForm(f => ({ ...f, location: e.target.value }))}
                   placeholder="Online (Google Meet) or venue"
-                  className="w-full rounded-xl border border-gray-100 bg-gray-50/50 px-4 py-2.5 text-sm font-medium outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all focus:bg-white" />
+                  className="w-full rounded-xl border border-slate-100 bg-slate-50/50 px-4 py-2.5 text-sm font-medium outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all focus:bg-white" />
               </div>
 
               <div className="space-y-3">
-                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-1">Event Banner</label>
-                <div className="relative group overflow-hidden rounded-xl bg-gray-50 border border-gray-100 hover:border-primary/30 transition-all p-3">
-                  <input type="file" accept="image/*" onChange={handleFileChange} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
-                  <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 flex items-center justify-center rounded-lg bg-white border border-gray-100 shadow-sm">
-                      <PlusCircle className="w-5 h-5 text-gray-300 group-hover:text-primary transition-colors" />
+                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Event Banner</label>
+                <div className="relative group overflow-hidden rounded-xl bg-slate-50 border border-slate-100 hover:border-primary/30 transition-all p-3">
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                      <div className="h-10 w-10 flex items-center justify-center rounded-lg bg-white border border-slate-100 shadow-sm">
+                        {previewUrl || (form as any).image ? <CalendarIcon size={16} className="text-primary" /> : <PlusCircle className="w-5 h-5 text-slate-300" />}
+                      </div>
+                      <span className="text-[10px] font-black uppercase text-slate-500 tracking-widest truncate max-w-[150px]">
+                        {selectedFile ? selectedFile.name : (previewUrl || (form as any).image ? "Active Poster" : "Select cover image")}
+                      </span>
                     </div>
-                    <span className="text-xs font-bold text-gray-500">{selectedFile ? selectedFile.name : "Select cover image"}</span>
+
+                    <div className="flex items-center gap-2">
+                       <button 
+                        type="button"
+                        onClick={() => fileInputRef.current?.click()}
+                        className="p-2.5 rounded-lg bg-white border border-slate-100 shadow-sm text-slate-400 hover:text-primary transition-all"
+                        title="Upload New"
+                       >
+                          <Upload size={14} />
+                       </button>
+                       {(previewUrl || (form as any).image) && (
+                         <>
+                           <button 
+                            type="button"
+                            onClick={() => setAdjustImage(previewUrl || (form as any).image || "")}
+                            className="p-2.5 rounded-lg bg-white border border-slate-100 shadow-sm text-primary hover:text-primary/70 transition-all"
+                            title="Re-adjust Crop"
+                           >
+                              <Edit3 size={14} />
+                           </button>
+                           <button 
+                            type="button"
+                            onClick={() => {
+                               setSelectedFile(null);
+                               setPreviewUrl(null);
+                               setForm(p => ({ ...p, image: "" }));
+                            }}
+                            className="p-2.5 rounded-lg bg-white border border-slate-100 shadow-sm text-red-500 hover:text-red-600 transition-all"
+                            title="Remove Poster"
+                           >
+                              <Trash2 size={14} />
+                           </button>
+                         </>
+                       )}
+                    </div>
                   </div>
+                  <input type="file" ref={fileInputRef} accept="image/*" onChange={handleFileChange} className="hidden" />
                 </div>
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-1">Description</label>
+                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Description</label>
                 <textarea required rows={3} value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
                   placeholder="Tell us about the event..."
-                  className="w-full resize-none rounded-xl border border-gray-100 bg-gray-50/50 px-4 py-3 text-sm font-medium outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all focus:bg-white" />
+                  className="w-full resize-none rounded-xl border border-slate-100 bg-slate-50/50 px-4 py-3 text-sm font-medium outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all focus:bg-white" />
               </div>
             </div>
 
-            <div className="flex items-center justify-end gap-3 pt-4 border-t border-gray-50">
+            <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-50">
               <button type="button" onClick={() => { setShowCreate(false); setEditingId(null); resetForm(); }} 
-                 className="rounded-xl px-5 py-2.5 text-xs font-bold text-gray-400 hover:text-gray-600 transition-colors">
+                 className="rounded-xl px-5 py-2.5 text-xs font-bold text-slate-400 hover:text-slate-600 transition-colors">
                 Cancel
               </button>
               <button type="submit" disabled={creating} 
@@ -355,22 +403,22 @@ function AdminEventsClient() {
 
           {/* Right Side: Live Preview Card (Matching Model UI) */}
           <div className="hidden lg:sticky lg:top-8 lg:flex flex-col items-center">
-            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.3em] mb-4">Live Preview</span>
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.3em] mb-4">Live Preview</span>
             
-            <div className="w-full max-w-[400px] overflow-hidden rounded-[40px] border border-gray-100 bg-white shadow-2xl shadow-primary/10 animate-in fade-in zoom-in-95 duration-700">
+            <div className="w-full max-w-[400px] overflow-hidden rounded-[40px] border border-slate-100 bg-white shadow-2xl shadow-primary/10 animate-in fade-in zoom-in-95 duration-700">
               {/* Card Header (Image/Banner) */}
               <div className="relative aspect-[10/9] bg-[#f8f9fa] flex items-center justify-center p-12 overflow-hidden">
                 {previewUrl || (form as any).image ? (
                   <img src={previewUrl || (form as any).image} className="absolute inset-0 w-full h-full object-cover" alt="Preview" />
                 ) : (
                   <div className="flex flex-col items-center gap-2 opacity-10">
-                    <h2 className="text-6xl font-black tracking-tighter text-gray-900">MOZHI</h2>
+                    <h2 className="text-6xl font-black tracking-tighter text-slate-900">MOZHI</h2>
                   </div>
                 )}
                 
                 {/* Badge Overlay */}
                 <div className="absolute top-8 left-8 shadow-2xl shadow-black/10">
-                   <div className="bg-white rounded-full px-5 py-2 text-[10px] font-black text-gray-700 uppercase tracking-widest border border-gray-50/50">
+                   <div className="bg-white rounded-full px-5 py-2 text-[10px] font-black text-slate-700 uppercase tracking-widest border border-slate-50/50">
                       Community Event
                    </div>
                 </div>
@@ -388,7 +436,7 @@ function AdminEventsClient() {
                     <div className="h-12 w-12 flex items-center justify-center rounded-2xl bg-[#eff2ff] text-[#4d69ff]">
                       <CalendarIcon className="w-5 h-5" />
                     </div>
-                    <span className="text-lg font-bold text-gray-600">
+                    <span className="text-lg font-bold text-slate-600">
                       {form.date || "2026-04-14"}
                     </span>
                   </div>
@@ -398,7 +446,7 @@ function AdminEventsClient() {
                     <div className="h-12 w-12 flex items-center justify-center rounded-2xl bg-[#e8fff3] text-[#00c566]">
                       <Globe2 className="w-5 h-5" />
                     </div>
-                    <span className="text-lg font-bold text-gray-600">
+                    <span className="text-lg font-bold text-slate-600">
                       {form.time || "18:00"}
                     </span>
                   </div>
@@ -408,7 +456,7 @@ function AdminEventsClient() {
                     <div className="h-12 w-12 flex items-center justify-center rounded-2xl bg-[#fff7ef] text-[#ff8c39]">
                       <Users className="w-5 h-5" />
                     </div>
-                    <span className="text-lg font-bold text-gray-600">
+                    <span className="text-lg font-bold text-slate-600">
                       1 / {form.capacity || "50"} joined
                     </span>
                   </div>
@@ -418,7 +466,7 @@ function AdminEventsClient() {
                     <div className="h-12 w-12 flex items-center justify-center rounded-2xl bg-[#f5f7f9] text-[#78829d]">
                       <MapPin className="w-5 h-5" />
                     </div>
-                    <span className="text-lg font-bold text-gray-500 font-medium">
+                    <span className="text-lg font-bold text-slate-500 font-medium">
                       {form.location || "Online Zoom Session"}
                     </span>
                   </div>
@@ -426,19 +474,19 @@ function AdminEventsClient() {
               </div>
             </div>
             
-            <p className="mt-6 text-[10px] font-bold text-gray-300 uppercase tracking-widest italic">Preview updates in real-time</p>
+            <p className="mt-6 text-[10px] font-bold text-slate-300 uppercase tracking-widest italic">Preview updates in real-time</p>
           </div>
         </div>
       )}
       
       {loading ? (
-        <div className="flex items-center justify-center py-20 gap-3 text-gray-400 font-bold uppercase tracking-widest text-xs">
+        <div className="flex items-center justify-center py-20 gap-3 text-slate-400 font-bold uppercase tracking-widest text-xs">
           <Loader2 className="h-5 w-5 animate-spin" /> Loading records...
         </div>
       ) : (
         <div className="space-y-8">
            <DataTable title={`All Scheduled Events (${totalEvents})`} columns={columns} data={events} onSearch={() => {}} />
-           <div className="pt-8 border-t border-gray-100">
+           <div className="pt-8 border-t border-slate-100">
               <Pagination 
                 currentPage={currentPage}
                 totalPages={totalPages}
@@ -447,6 +495,17 @@ function AdminEventsClient() {
            </div>
         </div>
       )}
+      {adjustImage && (
+        <ImageAdjuster 
+          image={adjustImage} 
+          aspect={16 / 9} 
+          onConfirm={handleAdjustConfirm} 
+          onCancel={() => setAdjustImage(null)} 
+        />
+      )}
     </div>
   );
 }
+
+
+

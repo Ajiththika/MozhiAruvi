@@ -19,7 +19,7 @@ export async function getSinglePublicBlog(req, res, next) {
 // ── Authenticated User ────────────────────────────────────────────────────────
 export async function createBlog(req, res, next) {
     try {
-        const blog = await blogService.createBlog(req.user.sub, req.body);
+        const blog = await blogService.createBlog(req.user.sub, req.user.role, req.body);
         res.status(201).json({ blog });
     } catch (e) { next(e); }
 }
@@ -31,16 +31,24 @@ export async function getMyBlogs(req, res, next) {
     } catch (e) { next(e); }
 }
 
+// Used by the edit page — returns a blog if the user is its author or an admin
+export async function getBlogForEdit(req, res, next) {
+    try {
+        const blog = await blogService.getBlogForEdit(req.params.id, req.user.sub, req.user.role);
+        res.json({ blog });
+    } catch (e) { next(e); }
+}
+
 export async function updateMyBlog(req, res, next) {
     try {
-        const blog = await blogService.updateBlog(req.params.id, req.user.sub, req.body);
+        const blog = await blogService.updateBlog(req.params.id, req.user.sub, req.body, req.user.role);
         res.json({ blog });
     } catch (e) { next(e); }
 }
 
 export async function deleteMyBlog(req, res, next) {
     try {
-        await blogService.deleteBlog(req.params.id, req.user.sub);
+        await blogService.deleteBlog(req.params.id, req.user.sub, req.user.role);
         res.json({ message: 'Blog deleted successfully.' });
     } catch (e) { next(e); }
 }

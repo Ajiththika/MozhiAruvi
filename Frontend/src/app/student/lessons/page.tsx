@@ -44,7 +44,7 @@ function LessonPreviewModal({ lesson, status, onClose, onStart }: PreviewModalPr
   const estimatedMin = Math.max(2, Math.ceil((lesson as any).questionCount || 5));
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-black/30 backdrop-blur-sm animate-in fade-in duration-200"
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-indigo-950/25 backdrop-blur-sm animate-in fade-in duration-200"
       onClick={onClose}
     >
       <div
@@ -52,59 +52,54 @@ function LessonPreviewModal({ lesson, status, onClose, onStart }: PreviewModalPr
         onClick={e => e.stopPropagation()}
       >
         {/* Colored accent strip */}
-        <div className={cn("h-2 w-full", status === "completed" ? "bg-success" : "bg-secondary")} />
+        <div className={cn("h-2.5 w-full", status === "completed" ? "bg-success" : "bg-secondary")} />
 
-        <div className="p-8 space-y-6">
+        <div className="p-10 space-y-8">
           {/* Badge + Title */}
           <div>
             <span className={cn(
-              "text-[9px] font-black uppercase tracking-[0.25em] px-2.5 py-1 rounded-full",
+              "text-xs font-bold uppercase tracking-wider px-3.5 py-1.5 rounded-full shadow-sm",
               status === "completed" ? "bg-success/10 text-success" : "bg-secondary/10 text-secondary"
             )}>
-              {status === "completed" ? "Completed" : "Available"}
+              {status === "completed" ? "Completed" : "Available Activity"}
             </span>
-            <h2 className="mt-3 text-2xl font-black text-gray-900 tracking-tight">{lesson.title}</h2>
+            <h2 className="mt-5 text-3xl font-black text-slate-900 tracking-tight leading-tight">{lesson.title}</h2>
             {lesson.category && (
-              <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">{lesson.category}</p>
+              <p className="text-xs font-bold text-slate-600 uppercase tracking-widest mt-2">{lesson.category}</p>
             )}
           </div>
 
           {/* Meta chips */}
-          <div className="flex flex-wrap items-center gap-3">
-            <div className="flex items-center gap-2 text-xs font-bold text-gray-500 bg-gray-50 px-3 py-2 rounded-xl">
-              <ListChecks className="w-3.5 h-3.5" />
+          <div className="grid grid-cols-2 gap-4">
+            <div className="flex items-center gap-3 text-xs font-bold text-slate-600 bg-slate-50 px-4 py-3 rounded-2xl border border-slate-100 shadow-sm">
+              <ListChecks className="w-5 h-5 text-primary" />
               <span>{(lesson as any).questionCount || "?"} Questions</span>
             </div>
-            <div className="flex items-center gap-2 text-xs font-bold text-gray-500 bg-gray-50 px-3 py-2 rounded-xl">
-              <Clock className="w-3.5 h-3.5" />
+            <div className="flex items-center gap-3 text-xs font-bold text-slate-600 bg-slate-50 px-4 py-3 rounded-2xl border border-slate-100 shadow-sm">
+              <Clock className="w-5 h-5 text-primary" />
               <span>~{estimatedMin} min</span>
             </div>
-            {lesson.isPremiumOnly && (
-              <div className="flex items-center gap-1.5 text-xs font-black text-amber-600 bg-amber-50 px-3 py-2 rounded-xl">
-                <Star className="w-3 h-3 fill-current" /> Premium
-              </div>
-            )}
           </div>
 
           {/* CTA buttons */}
-          <div className="flex gap-3">
-            <button
-              onClick={onClose}
-              className="flex-1 py-3.5 rounded-2xl border-2 border-gray-100 text-xs font-black uppercase tracking-widest text-gray-400 hover:bg-gray-50 transition-all"
-            >
-              Cancel
-            </button>
+          <div className="flex flex-col gap-3">
             <button
               onClick={onStart}
               className={cn(
-                "flex-1 py-3.5 rounded-2xl text-xs font-black uppercase tracking-widest text-white flex items-center justify-center gap-2 shadow-xl transition-all hover:scale-105 active:scale-95",
+                "w-full py-5 rounded-2xl text-xs font-bold uppercase tracking-widest text-white flex items-center justify-center gap-3 shadow-2xl transition-all hover:scale-[1.02] active:scale-[0.98] hover:translate-y-[-2px]",
                 status === "completed"
-                  ? "bg-success shadow-success/25"
-                  : "bg-secondary shadow-secondary/25"
+                  ? "bg-success shadow-success/30"
+                  : "bg-secondary shadow-secondary/30"
               )}
             >
-              <Play className="w-3.5 h-3.5 fill-current" />
-              {status === "completed" ? "Review" : "Start Lesson"}
+              <Play className="w-5 h-5 fill-current" />
+              {status === "completed" ? "Review Mastered Item" : "Commence Lesson"}
+            </button>
+            <button
+              onClick={onClose}
+              className="w-full py-4 rounded-2xl border-2 border-slate-100 text-xs font-bold uppercase tracking-widest text-slate-500 hover:bg-slate-50 transition-all"
+            >
+              Back to Path
             </button>
           </div>
         </div>
@@ -146,7 +141,7 @@ export default function StudentLessonsPage() {
     return (
       <div className="flex flex-col items-center justify-center min-h-[50vh] gap-3">
         <Loader2 className="h-10 w-10 animate-spin text-primary" />
-        <p className="text-lg font-bold text-gray-500">Building your path...</p>
+        <p className="text-lg font-bold text-slate-500">Building your path...</p>
       </div>
     );
   }
@@ -246,36 +241,39 @@ export default function StudentLessonsPage() {
       )}
 
       {/* Sticky Stats Bar */}
-      <div className="sticky top-0 z-20 bg-white/80 backdrop-blur-md rounded-2xl shadow-sm border border-gray-100 p-4 flex items-center justify-between">
-        <div className="flex items-center gap-2 text-primary font-extrabold text-lg">
-          <span className="p-2 bg-primary/10 rounded-full">
+      <div className="sticky top-0 z-20 bg-white/80 backdrop-blur-md rounded-2xl shadow-xl shadow-slate-200/50 border border-slate-100 p-4 flex items-center justify-between mx-2 sm:mx-0">
+        <div className="flex items-center gap-3 text-primary font-bold text-lg">
+          <span className="p-2.5 bg-primary/10 rounded-xl shadow-inner">
             <BookOpen className="w-5 h-5" />
           </span>
-          <span className="hidden sm:inline">Learning Path</span>
+          <span className="hidden sm:inline tracking-tight">Curriculum Path</span>
         </div>
-        <div className="flex items-center gap-6 font-bold text-lg">
-          <div className="flex items-center gap-1.5 text-orange-500" title="Current Daily Streak">
-            <Flame className="w-6 h-6 fill-current" /> {user?.progress?.currentStreak || 0}
+        <div className="flex items-center gap-8 font-bold">
+          <div className="flex items-center gap-2 text-orange-600" title="Daily Streak">
+            <Flame className="w-6 h-6 fill-current drop-shadow-sm" /> 
+            <span className="text-xl font-black">{user?.progress?.currentStreak || 0}</span>
           </div>
           <div
             className={cn(
-              "flex items-center gap-1.5 transition-colors",
-              powers > 10 ? "text-secondary" : powers > 0 ? "text-amber-500" : "text-red-500"
+              "flex items-center gap-2 transition-colors",
+              powers > 10 ? "text-indigo-600" : powers > 0 ? "text-amber-500" : "text-error"
             )}
-            title="Daily Power"
+            title="Training Energy"
           >
-            <Zap className="w-6 h-6 fill-current" /> {powers}/25
+            <Zap className="w-6 h-6 fill-current drop-shadow-sm" />
+            <span className="text-xl font-bold">{powers}</span>
+            <span className="text-sm font-bold opacity-40">/25</span>
           </div>
         </div>
       </div>
 
       {/* Page Header */}
-      <div className="px-2">
-        <h2 className="text-2xl font-black tracking-tight text-gray-800 dark:text-white flex items-center gap-3 uppercase">
-          <BookOpen className="h-6 w-6 text-secondary" /> Learning Path — {userLevel}
+      <div className="px-4 py-6">
+        <h2 className="text-3xl md:text-4xl lg:text-5xl font-black tracking-tight text-slate-900 flex items-center gap-3 uppercase">
+          <BookOpen className="h-8 w-8 text-indigo-500" /> Path Overview
         </h2>
-        <p className="mt-1 text-sm font-medium text-gray-500">
-          Complete categories to earn badges in your journey.
+        <p className="mt-4 text-base md:text-lg font-semibold text-slate-700 leading-relaxed">
+          Master each category to unlock professional certifications and track your linguistic growth in {userLevel}.
         </p>
       </div>
 
@@ -283,8 +281,8 @@ export default function StudentLessonsPage() {
       {isOutOfEnergy && (
         <div className="bg-soft/20 border-2 border-soft rounded-3xl p-6 text-center shadow-lg">
           <Zap className="w-12 h-12 text-primary mx-auto mb-3" />
-          <h3 className="text-xl font-extrabold text-gray-800 mb-2 uppercase tracking-tight">Out of Energy!</h3>
-          <p className="text-gray-600 mb-4 font-medium text-sm">
+          <h3 className="text-xl font-extrabold text-slate-800 mb-2 uppercase tracking-tight">Out of Energy!</h3>
+          <p className="text-slate-600 mb-4 font-medium text-sm">
             You've used up all your daily powers. Take a break!<br />
             1 Power regenerates every 1 hour.
           </p>
@@ -292,7 +290,7 @@ export default function StudentLessonsPage() {
       )}
 
       {orderedGroups.length === 0 && !isOutOfEnergy && (
-        <div className="py-20 text-center text-gray-400 font-bold uppercase tracking-widest text-sm">
+        <div className="py-20 text-center text-slate-400 font-bold uppercase tracking-widest text-sm">
           No lessons are ready yet.
         </div>
       )}
@@ -307,40 +305,40 @@ export default function StudentLessonsPage() {
         return (
           <section key={category} className="relative">
             {/* Category header */}
-            <div className="mb-6 flex items-center gap-4">
+            <div className="mb-8 flex items-center gap-5">
               <div className={cn(
-                "flex h-12 w-12 items-center justify-center rounded-2xl shadow-lg text-white ring-4 transition-transform hover:scale-105 shrink-0",
+                "flex h-14 w-14 items-center justify-center rounded-2xl shadow-2xl text-white border-2 border-white transition-all hover:scale-110 shrink-0",
                 badgeEarned
-                  ? "bg-success shadow-success/20 ring-success/10"
-                  : "bg-secondary shadow-secondary/20 ring-secondary/10"
+                  ? "bg-success shadow-success/40"
+                  : "bg-indigo-600 shadow-indigo-600/30"
               )}>
                 {badgeEarned
-                  ? <CheckCircle2 className="h-6 w-6" />
-                  : <BookOpen className="h-6 w-6 text-white" />
+                  ? <CheckCircle2 className="h-7 w-7" />
+                  : <BookOpen className="h-7 w-7 text-white" />
                 }
               </div>
               <div className="flex-1 min-w-0">
-                <h3 className="text-xl font-black text-gray-800 dark:text-white uppercase tracking-tight flex items-center gap-2 flex-wrap">
+                <h3 className="text-2xl font-black text-slate-900 uppercase tracking-tight flex items-center gap-3 flex-wrap">
                   {category}
                   {badgeEarned && (
-                    <span className="bg-success/15 text-success text-[9px] font-black tracking-widest px-2 py-0.5 rounded-full flex items-center gap-1">
-                      <CheckCircle2 className="w-3 h-3" /> MASTER
+                    <span className="bg-success/15 text-success text-xs font-bold tracking-wider px-3 py-1 rounded-full flex items-center gap-2 border border-success/20">
+                      <CheckCircle2 className="w-4 h-4" /> MASTER
                     </span>
                   )}
                 </h3>
                 {/* Animated category progress bar */}
-                <div className="mt-2 flex items-center gap-3">
-                  <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
+                <div className="mt-3 flex items-center gap-4">
+                  <div className="flex-1 h-2.5 bg-slate-100 rounded-full overflow-hidden shadow-inner">
                     <div
                       className={cn(
-                        "h-full rounded-full transition-all duration-700",
-                        badgeEarned ? "bg-success" : "bg-secondary"
+                        "h-full rounded-full transition-all duration-1000 shadow-sm",
+                        badgeEarned ? "bg-success" : "bg-indigo-500"
                       )}
                       style={{ width: `${progressPct}%` }}
                     />
                   </div>
-                  <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest whitespace-nowrap">
-                    {completedCat}/{totalCat}
+                  <span className="text-xs font-bold text-slate-600 uppercase tracking-widest whitespace-nowrap">
+                    {completedCat} / {totalCat}
                   </span>
                 </div>
               </div>
@@ -349,7 +347,7 @@ export default function StudentLessonsPage() {
             {/* Lesson nodes with connector line */}
             <div className="relative flex flex-col gap-4 pl-14">
               {/* Connector line — fills with progress */}
-              <div className="absolute inset-y-2 left-[1.45rem] ml-[1px] w-[3px] bg-gray-100 rounded-full overflow-hidden">
+              <div className="absolute inset-y-2 left-[1.45rem] ml-[1px] w-[3px] bg-slate-100 rounded-full overflow-hidden">
                 <div
                   className={cn(
                     "rounded-full transition-all duration-700",
@@ -386,12 +384,12 @@ export default function StudentLessonsPage() {
 
                     {/* LOCKED card */}
                     {isLocked ? (
-                      <div className="flex items-center gap-4 rounded-2xl border border-gray-100 bg-gray-50/80 p-4 opacity-55 grayscale select-none cursor-not-allowed">
-                        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gray-200">
-                          <Lock className="h-5 w-5 text-gray-400" />
+                      <div className="flex items-center gap-4 rounded-2xl border border-slate-100 bg-slate-50/80 p-4 opacity-55 grayscale select-none cursor-not-allowed">
+                        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-slate-200">
+                          <Lock className="h-5 w-5 text-slate-400" />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="font-bold text-gray-400 truncate text-sm">{lesson.title}</p>
+                          <p className="font-bold text-slate-400 truncate text-sm">{lesson.title}</p>
                           {lesson.isPremiumOnly && (
                             <span className="mt-1 inline-block rounded-full bg-amber-100 px-2 py-0.5 text-[9px] font-black uppercase text-amber-700 tracking-tighter">
                               Premium Path
@@ -413,7 +411,7 @@ export default function StudentLessonsPage() {
                             ? "border-success/25 bg-success/5 hover:border-success/40 hover:shadow-lg hover:shadow-success/10"
                             : isCurrent
                               ? "border-secondary/40 bg-white shadow-lg shadow-secondary/10 hover:shadow-xl hover:border-secondary/60 ring-2 ring-secondary/10"
-                              : "border-gray-100 bg-white hover:border-secondary/30 hover:shadow-md"
+                              : "border-slate-100 bg-white hover:border-secondary/30 hover:shadow-md"
                         )}
                       >
                         {/* Icon */}
@@ -432,28 +430,29 @@ export default function StudentLessonsPage() {
                         {/* Title + type */}
                         <div className="flex-1 min-w-0">
                           <p className={cn(
-                            "font-bold truncate text-sm uppercase tracking-wide",
-                            isDone ? "text-gray-600" : "text-gray-800"
+                            "font-bold truncate text-base uppercase tracking-tight",
+                            isDone ? "text-slate-500" : "text-slate-900"
                           )}>
                             {lesson.title}
                           </p>
                           {lesson.type && (
-                            <span className="text-[10px] text-primary/70 uppercase font-black tracking-widest mt-0.5 block">
-                              {lesson.type} Practice
+                            <span className="text-xs text-primary/80 uppercase font-bold tracking-widest mt-1 block">
+                              {lesson.type} Core Practice
                             </span>
                           )}
                         </div>
 
                         {/* CTA pill — slides in on hover */}
                         <div className={cn(
-                          "shrink-0 flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest px-3 py-2 rounded-xl",
-                          "opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all duration-200",
+                          "shrink-0 flex items-center gap-2 text-xs font-bold uppercase tracking-widest px-4 py-2.5 rounded-xl border opacity-0 group-hover:opacity-100 -translate-x-3 group-hover:translate-x-0 transition-all duration-300 shadow-sm",
                           isDone
-                            ? "bg-success/10 text-success"
-                            : "bg-secondary/10 text-secondary"
+                            ? "bg-success/10 text-success border-success/20"
+                            : "bg-indigo-50 text-indigo-600 border-indigo-100"
                         )}>
-                          {isDone ? "Review" : isCurrent ? "Continue" : "Start"}
-                          <ArrowRight className="w-3 h-3" />
+                          <span className="flex items-center gap-2">
+                            {isDone ? "Retake" : isCurrent ? "Continue" : "Begin"}
+                            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                          </span>
                         </div>
                       </div>
                     )}
@@ -467,3 +466,6 @@ export default function StudentLessonsPage() {
     </div>
   );
 }
+
+
+

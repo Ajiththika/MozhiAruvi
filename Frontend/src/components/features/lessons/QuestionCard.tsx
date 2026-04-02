@@ -31,7 +31,7 @@ export function QuestionCard({ question: q, feedback, credits, selectedIndex, on
                 isCorrect ? "bg-emerald-50 border-emerald-500 shadow-xl shadow-emerald-500/10 scale-[1.02]" :
                 isIncorrect ? "bg-red-50 border-red-500 shadow-xl shadow-red-500/10 scale-[1.02]" :
                 isSelected ? "bg-primary/5 border-primary shadow-xl shadow-primary/10 scale-[1.02]" :
-                "bg-white border-gray-100 hover:border-gray-200 hover:bg-gray-50/50 hover:shadow-lg active:scale-[0.98]"
+                "bg-white border-slate-100 hover:border-slate-200 hover:bg-slate-50/50 hover:shadow-lg active:scale-[0.98]"
               )}
             >
               <div className={cn(
@@ -39,7 +39,7 @@ export function QuestionCard({ question: q, feedback, credits, selectedIndex, on
                 isCorrect ? "bg-emerald-500 text-white border-emerald-400" :
                 isIncorrect ? "bg-red-500 text-white border-red-400" :
                 isSelected ? "bg-primary text-white border-primary/40" :
-                "bg-gray-50 text-gray-400 border-gray-100 group-hover:bg-primary/5 group-hover:text-primary group-hover:border-primary/20"
+                "bg-slate-50 text-slate-400 border-slate-100 group-hover:bg-primary/5 group-hover:text-primary group-hover:border-primary/20"
               )}>
                 {idx + 1}
               </div>
@@ -47,7 +47,7 @@ export function QuestionCard({ question: q, feedback, credits, selectedIndex, on
                 "text-2xl md:text-3xl font-bold tracking-tight leading-snug",
                 isCorrect ? "text-emerald-700" : 
                 isIncorrect ? "text-red-700" : 
-                isSelected ? "text-primary" : "text-gray-800"
+                isSelected ? "text-primary" : "text-slate-800"
               )}>
                 {opt}
               </span>
@@ -63,3 +63,6 @@ export function QuestionCard({ question: q, feedback, credits, selectedIndex, on
     </div>
   );
 }
+
+
+

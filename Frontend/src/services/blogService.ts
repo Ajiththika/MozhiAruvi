@@ -45,6 +45,12 @@ export async function getPublicBlogByIdOrSlug(id: string): Promise<Blog> {
   return res.data.blog;
 }
 
+// Authenticated fetch — works for author's own blogs (any status) and admins
+export async function getBlogForEdit(id: string): Promise<Blog> {
+  const res = await api.get<{ blog: Blog }>(`/blogs/${id}/edit-data`);
+  return res.data.blog;
+}
+
 export async function getMyBlogById(id: string): Promise<Blog> {
   const blogs = await getMyBlogs();
   const found = blogs.find((b) => b._id === id);

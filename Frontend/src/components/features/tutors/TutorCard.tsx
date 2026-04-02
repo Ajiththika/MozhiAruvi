@@ -6,9 +6,9 @@ import { cn } from "@/lib/utils";
 import { Tutor } from "@/services/tutorService";
 
 const levelColors: Record<string, string> = {
-  beginner:     "bg-emerald-50 text-emerald-700 border-emerald-100 dark:bg-emerald-900/20 dark:text-emerald-400 dark:border-emerald-800",
-  intermediate: "bg-amber-50 text-amber-700 border-amber-100 dark:bg-amber-900/20 dark:text-amber-400 dark:border-amber-800",
-  advanced:     "bg-violet-50 text-violet-700 border-violet-100 dark:bg-violet-900/20 dark:text-violet-400 dark:border-violet-800",
+  beginner:     "bg-emerald-50 text-emerald-700 border-emerald-100",
+  intermediate: "bg-amber-50 text-amber-700 border-amber-100",
+  advanced:     "bg-violet-50 text-violet-700 border-violet-100",
 };
 
 const modeLabel: Record<string, string> = {
@@ -38,7 +38,7 @@ export function TutorCard({ tutor }: { tutor: Tutor }) {
   return (
     <div 
       onClick={handleExploreClick}
-      className="group relative flex flex-col rounded-2xl bg-white border border-gray-100 shadow-sm transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:shadow-secondary/20 overflow-hidden cursor-pointer"
+      className="group relative flex flex-col rounded-2xl bg-white border border-slate-100 shadow-sm transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:shadow-secondary/20 overflow-hidden cursor-pointer"
     >
       {/* Background Accent */}
       <div className="absolute top-0 right-0 h-32 w-32 bg-soft/10 rounded-full -mr-16 -mt-16 group-hover:bg-soft/20 transition-all duration-700" />
@@ -46,7 +46,7 @@ export function TutorCard({ tutor }: { tutor: Tutor }) {
       <div className="flex items-start gap-5 p-7 pb-4">
         {/* Avatar Section */}
         <div className="relative shrink-0">
-          <div className="relative h-20 w-20 p-1 rounded-3xl bg-gray-50 dark:bg-gray-800 ring-1 ring-slate-200 dark:ring-slate-700 shadow-inner group-hover:ring-primary/30 transition-all">
+          <div className="relative h-20 w-20 p-1 rounded-3xl bg-slate-50 ring-1 ring-slate-200 shadow-inner group-hover:ring-primary/30 transition-all">
             <div className="h-full w-full rounded-2xl overflow-hidden bg-white">
                {profilePhoto ? (
                  <div className="relative h-full w-full">
@@ -69,7 +69,7 @@ export function TutorCard({ tutor }: { tutor: Tutor }) {
           </div>
           {/* Status Indicator */}
           <div className={cn(
-            "absolute -bottom-1 -right-1 flex items-center gap-1 z-10 px-2 py-0.5 rounded-full border-2 border-white dark:border-slate-900 shadow-sm text-[8px] font-black uppercase tracking-tight transition-all",
+            "absolute -bottom-1 -right-1 flex items-center gap-1 z-10 px-2 py-0.5 rounded-full border-2 border-white shadow-sm text-[8px] font-black uppercase tracking-tight transition-all",
             isTutorAvailable ? "bg-emerald-500 text-white" : "bg-slate-400 text-white"
           )}>
             {isTutorAvailable ? "Online" : "Away"}
@@ -80,7 +80,7 @@ export function TutorCard({ tutor }: { tutor: Tutor }) {
           <div className="flex items-start justify-between gap-2">
             <div className="space-y-1">
               <div className="flex items-center gap-1.5">
-                <h3 className="text-lg font-bold text-gray-800 leading-tight transition-colors group-hover:text-primary">
+                <h3 className="text-lg font-bold text-slate-800 leading-tight transition-colors group-hover:text-primary">
                   {name}
                 </h3>
               </div>
@@ -91,8 +91,8 @@ export function TutorCard({ tutor }: { tutor: Tutor }) {
             {hourlyRate && (
               <div className="text-right shrink-0">
                 <div className="flex flex-col items-end">
-                   <span className="text-lg font-black text-gray-800 leading-none">${hourlyRate}</span>
-                   <span className="text-[8px] font-black text-gray-400 uppercase tracking-widest mt-1">per class</span>
+                   <span className="text-lg font-black text-slate-800 leading-none">${hourlyRate}</span>
+                   <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest mt-1">per class</span>
                 </div>
               </div>
             )}
@@ -103,7 +103,7 @@ export function TutorCard({ tutor }: { tutor: Tutor }) {
       {/* Bio / Summary */}
       <div className="px-7 flex-1">
         {bio && (
-          <p className="text-[13px] font-medium text-gray-600 line-clamp-2 leading-relaxed h-[40px]">
+          <p className="text-[13px] font-medium text-slate-600 line-clamp-2 leading-relaxed h-[40px]">
             {bio}
           </p>
         )}
@@ -125,14 +125,14 @@ export function TutorCard({ tutor }: { tutor: Tutor }) {
           )}
         </div>
 
-        <div className="grid grid-cols-2 gap-4 py-4 border-t border-gray-100 /60">
+        <div className="grid grid-cols-2 gap-4 py-4 border-t border-slate-100 /60">
            <div className="flex items-center gap-2">
               <div className="h-7 w-7 rounded-lg bg-soft flex items-center justify-center shrink-0">
                  <Globe className="h-3.5 w-3.5 text-primary" />
               </div>
               <div className="min-w-0">
-                 <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest">Speaks</p>
-                 <p className="text-[10px] font-bold text-gray-700 truncate">{languages?.join(", ") || "Tamil, English"}</p>
+                 <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Speaks</p>
+                 <p className="text-[10px] font-bold text-slate-700 truncate">{languages?.join(", ") || "Tamil, English"}</p>
               </div>
            </div>
            <div className="flex items-center gap-2">
@@ -140,8 +140,8 @@ export function TutorCard({ tutor }: { tutor: Tutor }) {
                  <Clock className="h-3.5 w-3.5 text-secondary" />
               </div>
               <div className="min-w-0">
-                 <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest">Response</p>
-                 <p className="text-[10px] font-bold text-gray-700 truncate">~{responseTime || "24 hrs"}</p>
+                 <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Response</p>
+                 <p className="text-[10px] font-bold text-slate-700 truncate">~{responseTime || "24 hrs"}</p>
               </div>
            </div>
         </div>
@@ -158,4 +158,7 @@ export function TutorCard({ tutor }: { tutor: Tutor }) {
     </div>
   );
 }
+
+
+
 

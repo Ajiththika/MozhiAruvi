@@ -1,8 +1,18 @@
 import Blog from '../models/Blog.js';
 import mongoose from 'mongoose';
 
-export async function createBlog(authorId, data) {
+export async function createBlog(authorId, role, data) {
     const blog = new Blog({ ...data, author: authorId });
+    
+    // Set status based on role — admins can publish directly, teachers always go to review
+    if (role === 'admin') {
+        blog.status = data.status || 'published';
+    } else if (role === 'teacher' || role === 'tutor') {
+        blog.status = 'pending'; // always goes to review on creation
+    } else {
+        throw new Error('Only admins and teachers can write blogs.');
+    }
+
     if (!blog.slug) {
         blog.slug = blog.title.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + Date.now();
     }
@@ -67,6 +77,16 @@ export async function getUserBlogs(authorId) {
     }
 }
 
+// Fetch a single blog for editing — accessible by the author (any status) or admin
+export async function getBlogForEdit(blogId, userId, role) {
+    const blog = await Blog.findById(blogId).populate('author', 'name email role profilePhoto');
+    if (!blog) throw new Error('Blog not found');
+    const isOwner = blog.author._id.toString() === userId.toString();
+    const isAdmin = role === 'admin';
+    if (!isOwner && !isAdmin) throw new Error('Not authorized to edit this blog');
+    return blog;
+}
+
 export async function getSavedBlogs(userId) {
     try {
         return await Blog.find({ savedBy: userId }).populate('author', 'name email').sort({ createdAt: -1 });
@@ -90,8 +110,9 @@ export async function toggleSaveBlog(userId, blogId) {
     return { isSaved: !isSaved };
 }
 
-export async function updateBlog(blogId, authorId, data) {
-    const blog = await Blog.findOne({ _id: blogId, author: authorId });
+export async function updateBlog(blogId, authorId, data, role = 'user') {
+    const filter = role === 'admin' ? { _id: blogId } : { _id: blogId, author: authorId };
+    const blog = await Blog.findOne(filter);
     if (!blog) throw new Error('Blog not found or unauthorized');
     
     ['title', 'content', 'excerpt', 'category', 'featuredImage', 'status'].forEach(field => {
@@ -105,8 +126,9 @@ export async function updateBlog(blogId, authorId, data) {
     return await blog.save();
 }
 
-export async function deleteBlog(blogId, authorId) {
-    const blog = await Blog.findOneAndDelete({ _id: blogId, author: authorId });
+export async function deleteBlog(blogId, authorId, role = 'user') {
+    const filter = role === 'admin' ? { _id: blogId } : { _id: blogId, author: authorId };
+    const blog = await Blog.findOneAndDelete(filter);
     if (!blog) throw new Error('Blog not found or unauthorized');
     return blog;
 }

@@ -100,7 +100,7 @@ export default function PublicLessonsClient({ initialLessons }: { initialLessons
 
   return (
     <div className="space-y-8 pb-20 pt-6">
-      <div className="sticky top-20 z-20 bg-white/80 backdrop-blur-md rounded-2xl shadow-sm border border-gray-100 p-4 flex items-center justify-between mb-6">
+      <div className="sticky top-20 z-20 bg-white/80 backdrop-blur-md rounded-2xl shadow-sm border border-slate-100 p-4 flex items-center justify-between mb-6">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2 text-primary font-extrabold text-lg">
             <span className="p-2 bg-primary/10 rounded-full"><BookOpen className="w-5 h-5" /></span>
@@ -120,10 +120,10 @@ export default function PublicLessonsClient({ initialLessons }: { initialLessons
       </div>
 
       <div className="px-2">
-        <h2 className="text-2xl font-black tracking-tight text-gray-800 flex items-center gap-3 uppercase">
+        <h2 className="text-2xl font-black tracking-tight text-slate-800 flex items-center gap-3 uppercase">
           <BookOpen className="h-6 w-6 text-secondary" /> Learning Path
         </h2>
-        <p className="mt-1 text-sm font-medium text-gray-500">
+        <p className="mt-1 text-sm font-medium text-slate-500">
           Explore our structured Tamil curriculum. Authenticate to track progress.
         </p>
       </div>
@@ -131,15 +131,15 @@ export default function PublicLessonsClient({ initialLessons }: { initialLessons
       {isOutOfEnergy && (
         <div className="bg-soft/20 border-2 border-soft rounded-3xl p-6 text-center shadow-lg">
           <Zap className="w-12 h-12 text-primary mx-auto mb-3" />
-          <h3 className="text-xl font-extrabold text-gray-800 mb-2 uppercase tracking-tight">Out of Energy!</h3>
-          <p className="text-gray-600 mb-4 font-medium text-sm">
+          <h3 className="text-xl font-extrabold text-slate-800 mb-2 uppercase tracking-tight">Out of Energy!</h3>
+          <p className="text-slate-600 mb-4 font-medium text-sm">
             You've used up all your daily learning credits. Credits refill automatically.
           </p>
         </div>
       )}
 
       {Object.keys(grouped).length === 0 && !isOutOfEnergy && (
-        <div className="py-20 text-center text-gray-400 font-bold uppercase tracking-widest text-sm">
+        <div className="py-20 text-center text-slate-400 font-bold uppercase tracking-widest text-sm">
           No lessons are ready yet.
         </div>
       )}
@@ -157,16 +157,16 @@ export default function PublicLessonsClient({ initialLessons }: { initialLessons
               <BookOpen className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h3 className="text-xl font-black text-gray-800 uppercase tracking-tight">
+              <h3 className="text-xl font-black text-slate-800 uppercase tracking-tight">
                 {category}
               </h3>
-              <span className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">
+              <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">
                 {categoryLessons.length} units available in this path
               </span>
             </div>
           </div>
 
-          <div className="relative flex flex-col gap-5 pl-14 before:absolute before:inset-y-2 before:left-[1.45rem] before:ml-[1px] before:w-[2.5px] before:bg-gray-200">
+          <div className="relative flex flex-col gap-5 pl-14 before:absolute before:inset-y-2 before:left-[1.45rem] before:ml-[1px] before:w-[2.5px] before:bg-slate-200">
             {categoryLessons.map((lesson) => {
               const status = lessonStatus.get(lesson._id) || "locked";
               const isLocked = status === "locked" || lesson.isPremiumOnly;
@@ -179,12 +179,12 @@ export default function PublicLessonsClient({ initialLessons }: { initialLessons
                   )} />
 
                   {isLocked ? (
-                    <div className="flex items-center gap-4 rounded-2xl border border-gray-100 bg-gray-50 p-4 opacity-70 grayscale">
-                      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gray-200">
-                        <Lock className="h-5 w-5 text-gray-500" />
+                    <div className="flex items-center gap-4 rounded-2xl border border-slate-100 bg-slate-50 p-4 opacity-70 grayscale">
+                      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-slate-200">
+                        <Lock className="h-5 w-5 text-slate-500" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="font-bold text-gray-400 truncate">
+                        <p className="font-bold text-slate-400 truncate">
                           {lesson.title}
                         </p>
                         {lesson.isPremiumOnly && (
@@ -201,7 +201,7 @@ export default function PublicLessonsClient({ initialLessons }: { initialLessons
                         "w-full text-left group flex items-center gap-4 rounded-2xl border p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md active:scale-[0.99]",
                         status === "completed"
                           ? "border-success/20 bg-success/5 hover:border-success/40"
-                          : "border-gray-100 bg-white hover:border-secondary"
+                          : "border-slate-100 bg-white hover:border-secondary"
                       )}
                     >
                       <div className={cn(
@@ -218,12 +218,12 @@ export default function PublicLessonsClient({ initialLessons }: { initialLessons
                       <div className="flex-1 min-w-0">
                         <p className={cn(
                           "font-bold truncate text-sm",
-                          status === "completed" ? "text-gray-600" : "text-gray-800"
+                          status === "completed" ? "text-slate-600" : "text-slate-800"
                         )}>
                           {lesson.title}
                         </p>
                         {lesson.description && (
-                          <p className="mt-0.5 text-xs text-gray-500 line-clamp-1 font-medium">
+                          <p className="mt-0.5 text-xs text-slate-500 line-clamp-1 font-medium">
                             {lesson.description}
                           </p>
                         )}
@@ -243,3 +243,6 @@ export default function PublicLessonsClient({ initialLessons }: { initialLessons
     </div>
   );
 }
+
+
+

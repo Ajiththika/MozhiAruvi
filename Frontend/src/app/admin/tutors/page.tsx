@@ -61,8 +61,8 @@ export default function AdminTutorsPage() {
             {row.name.charAt(0)}
           </div>
           <div className="min-w-0">
-            <p className="font-black text-gray-800 text-sm tracking-tight truncate">{row.name}</p>
-            <div className="flex items-center gap-1.5 text-[10px] text-gray-400 font-bold uppercase truncate">
+            <p className="font-black text-slate-800 text-sm tracking-tight truncate">{row.name}</p>
+            <div className="flex items-center gap-1.5 text-[10px] text-slate-400 font-bold uppercase truncate">
                <Mail className="h-3 w-3 shrink-0" /> {row.email}
             </div>
           </div>
@@ -96,8 +96,8 @@ export default function AdminTutorsPage() {
       accessorKey: "specialization",
       cell: (row) => (
         <div className="flex flex-col">
-           <span className="text-xs font-bold text-gray-700">{row.specialization || "General Mentor"}</span>
-           <span className="text-[10px] text-gray-400 font-medium italic truncate max-w-[150px]">{row.experience || "Native Speaker"}</span>
+           <span className="text-xs font-bold text-slate-700">{row.specialization || "General Mentor"}</span>
+           <span className="text-[10px] text-slate-400 font-medium italic truncate max-w-[150px]">{row.experience || "Native Speaker"}</span>
         </div>
       )
     },
@@ -139,14 +139,14 @@ export default function AdminTutorsPage() {
 
   return (
     <div className="space-y-12 animate-in fade-in duration-700 max-w-7xl mx-auto py-10 lg:py-16">
-      <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-8 border-b border-gray-100 pb-12">
+      <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-8 border-b border-slate-100 pb-12">
         <div className="space-y-6">
            <div className="flex items-center gap-3">
               <span className="h-2 w-12 rounded-full bg-emerald-400" />
               <span className="text-[10px] font-black text-emerald-500 uppercase tracking-[0.3em]">Directory Control</span>
            </div>
-           <h1 className="text-4xl md:text-5xl font-black text-gray-900 tracking-tight leading-none uppercase">Verified Mentors</h1>
-           <p className="text-lg text-gray-500 font-medium max-w-xl">Comprehensive archive of authenticated teachers and language experts across the Mozhi Aruvi network.</p>
+           <h1 className="text-4xl md:text-5xl font-black text-slate-900 tracking-tight leading-none uppercase">Verified Mentors</h1>
+           <p className="text-lg text-slate-500 font-medium max-w-xl">Comprehensive archive of authenticated teachers and language experts across the MozhiAruvi network.</p>
         </div>
         <Button
           onClick={() => refetch()}
@@ -166,14 +166,14 @@ export default function AdminTutorsPage() {
       )}
 
       {isLoading ? (
-        <div className="flex flex-col items-center justify-center py-40 gap-8 bg-white rounded-[3rem] border border-dashed border-gray-100 shadow-sm">
+        <div className="flex flex-col items-center justify-center py-40 gap-8 bg-white rounded-[3rem] border border-dashed border-slate-100 shadow-sm">
           <div className="h-16 w-16 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin shadow-xl ring-4 ring-emerald-500/5" />
-          <p className="text-[10px] font-black text-gray-300 uppercase tracking-widest animate-pulse">Requesting secure data from node...</p>
+          <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest animate-pulse">Requesting secure data from node...</p>
         </div>
       ) : (
         <div className="space-y-12 animate-in slide-in-from-bottom-8 duration-700">
            <DataTable title={`Expert Directory Intelligence (${totalItems} active entries)`} columns={columns} data={tutors} />
-           <div className="pt-10 border-t border-gray-50">
+           <div className="pt-10 border-t border-slate-50">
               <Pagination 
                 currentPage={currentPage}
                 totalPages={totalPages}
@@ -185,3 +185,6 @@ export default function AdminTutorsPage() {
     </div>
   );
 }
+
+
+

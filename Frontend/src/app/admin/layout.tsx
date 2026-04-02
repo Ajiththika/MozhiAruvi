@@ -8,7 +8,6 @@ const adminLinks: SidebarItem[] = [
   { name: "Users",       href: "/admin/users",     icon: "users" },
   { name: "Tutors",      href: "/admin/tutors",    icon: "graduation-cap" },
   { name: "Lessons",     href: "/admin/lessons",   icon: "book-open" },
-  { name: "Categories",  href: "/admin/categories",icon: "library-big" },
   { name: "Blogs",       href: "/admin/blogs",     icon: "message-square" },
   { name: "Events",      href: "/admin/events",    icon: "calendar" },
   { name: "Premium Elite", href: "/admin/dashboard", icon: "crown" },
@@ -18,7 +17,7 @@ const adminLinks: SidebarItem[] = [
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   return (
     <RoleProtectedRoute allowedRoles={["admin"]}>
-      <div className="flex min-h-screen w-full bg-soft/5 dark:bg-white">
+      <div className="flex min-h-screen w-full bg-soft/5">
         <Sidebar items={adminLinks} basePath="/admin/dashboard" />
         <div className="flex flex-1 flex-col overflow-hidden">
           <Topbar title="Admin Portal" />
@@ -32,3 +31,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     </RoleProtectedRoute>
   );
 }
+
+
+

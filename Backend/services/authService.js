@@ -75,22 +75,22 @@ export async function sendForgotEmail(req) {
     if (user) {
         const raw = crypto.randomBytes(32).toString('hex');
         user.resetPasswordToken = crypto.createHash('sha256').update(raw).digest('hex');
-        user.resetPasswordExpiry = new Date(Date.now() + 3_600_000);
+        user.resetPasswordExpires = new Date(Date.now() + 3_600_000);
         await user.save();
-        const resetUrl = `${process.env.FRONTEND_ORIGIN}/reset-password?token=${raw}`;
+        const resetUrl = `${process.env.FRONTEND_ORIGIN}/auth/reset-password?token=${raw}`;
         await sendPasswordResetEmail(email, resetUrl);
     }
 }
 
 export async function doResetPassword(token, password) {
     const hash = crypto.createHash('sha256').update(token).digest('hex');
-    const user = await User.findOne({ resetPasswordToken: hash, resetPasswordExpiry: { $gt: new Date() } });
+    const user = await User.findOne({ resetPasswordToken: hash, resetPasswordExpires: { $gt: new Date() } });
     if (!user) {
         const err = new Error('Token invalid or expired.'); err.status = 400; err.code = 'INVALID_TOKEN'; throw err;
     }
     user.password = password;
     user.resetPasswordToken = undefined;
-    user.resetPasswordExpiry = undefined;
+    user.resetPasswordExpires = undefined;
     await user.save();
     await Session.updateMany({ userId: user._id }, { revoked: true });
 }

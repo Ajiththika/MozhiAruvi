@@ -1,59 +1,118 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { getMyBlogById, updateMyBlog, Blog } from "@/services/blogService";
+import React, { useState, useRef, useEffect } from "react";
+import { getBlogForEdit, updateMyBlog } from "@/services/blogService";
 import { useRouter, useParams } from "next/navigation";
-import { ArrowLeft, Loader2, CheckCircle2, AlertCircle, Save, Send, BookOpen, UserCircle, LayoutGrid, Image as ImageIcon, FileText, Sparkles } from "lucide-react";
+import { ArrowLeft, Loader2, CheckCircle2, AlertCircle, UserCircle, Sparkles, Upload, X } from "lucide-react";
 import Link from "next/link";
-import { cn } from "@/lib/utils";
+import { useAuth } from "@/context/AuthContext";
 import Button from "@/components/ui/Button";
+import api from "@/lib/api";
+import ImageAdjuster from "@/components/ui/ImageAdjuster";
+import dynamic from "next/dynamic";
+
+const RichTextEditor = dynamic(() => import("@/components/ui/RichTextEditor"), { ssr: false });
 
 const CATEGORIES = ["Grammar", "Culture", "Pronunciation", "Tutor Tips", "Updates", "General"];
-
-const labelCls = "text-xs font-bold text-gray-400 tracking-tight ml-2 mb-2 block";
-const inputCls = "w-full rounded-2xl border border-gray-100  bg-gray-50 px-6 py-4 text-sm font-medium text-gray-800 dark:text-white placeholder:text-gray-300 focus:ring-4 focus:ring-primary/5 focus:border-primary outline-none transition-all shadow-sm";
 
 export default function EditBlogPage() {
   const params = useParams();
   const router = useRouter();
-  const [loading, setLoading] = useState(true);
+  const { user, isLoading: authLoading } = useAuth();
+  const [pageLoading, setPageLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [adjustImage, setAdjustImage] = useState<string | null>(null);
   const [banner, setBanner] = useState<{ type: "success" | "error"; message: string } | null>(null);
+
   const [form, setForm] = useState({
     title: "", content: "", excerpt: "", category: "General", featuredImage: "",
   });
 
+  // Auth guard
+  useEffect(() => {
+    if (!authLoading && !user) {
+      router.push(`/auth/signin?redirect=${encodeURIComponent(`/blogs/${params.id}/edit`)}`);
+    }
+  }, [user, authLoading, router, params.id]);
+
+  // Load existing blog content — wait for auth to be ready so token is sent
   useEffect(() => {
     const id = params.id as string;
-    getMyBlogById(id)
+    if (!id || authLoading) return;
+
+    // Not logged in — let the auth guard redirect, but stop the spinner
+    if (!user) {
+      setPageLoading(false);
+      return;
+    }
+
+    getBlogForEdit(id)
       .then((blog) => {
         setForm({
-          title: blog.title,
-          content: blog.content,
+          title: blog.title || "",
+          content: blog.content || "",
           excerpt: blog.excerpt || "",
           category: blog.category || "General",
           featuredImage: blog.featuredImage || "",
         });
       })
-      .catch(() => setBanner({ type: "error", message: "Failed to load story for editing." }))
-      .finally(() => setLoading(false));
-  }, [params.id]);
+      .catch(() => {
+        setBanner({ type: "error", message: "Failed to load story for editing. Make sure you are the author." });
+      })
+      .finally(() => setPageLoading(false));
+  }, [params.id, authLoading, user]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setAdjustImage(URL.createObjectURL(file));
+    }
+  };
+
+  const handleAdjustConfirm = async (croppedBlob: Blob) => {
+    const file = new File([croppedBlob], "blog_cover.jpg", { type: "image/jpeg" });
+    const formData = new FormData();
+    formData.append("image", file);
+
+    setUploading(true);
+    setBanner(null);
+    setAdjustImage(null);
+    try {
+      const res = await api.post("/upload/image", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      setForm((prev) => ({ ...prev, featuredImage: res.data.url }));
+    } catch {
+      setBanner({ type: "error", message: "Image upload failed. Please try again." });
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const handleSubmit = async (isDraft: boolean) => {
     if (!form.title.trim() || !form.content.trim()) {
-      setBanner({ type: "error", message: "Title and Content are required to preserve your story." });
+      setBanner({ type: "error", message: "Title and Content are required." });
       return;
     }
     setSubmitting(true);
     setBanner(null);
     try {
-      const blog = await updateMyBlog(params.id as string, { ...form, status: isDraft ? "draft" : "published" });
-      setBanner({ type: "success", message: isDraft ? "Story preserved as draft." : "Updates published to the feed!" });
+      const blog = await updateMyBlog(params.id as string, {
+        ...form,
+        // Admins publish directly; teachers republish as published too on update
+        status: isDraft ? "draft" : "published",
+      });
+      setBanner({
+        type: "success",
+        message: isDraft ? "Story saved as draft." : "Story updated and published!",
+      });
       setTimeout(() => {
         if (isDraft) router.push("/blogs");
         else router.push(`/blogs/${blog.slug || blog._id}`);
@@ -65,160 +124,191 @@ export default function EditBlogPage() {
     }
   };
 
-  const wordCount = form.content.trim() ? form.content.trim().split(/\s+/).length : 0;
-
-  if (loading) return (
-    <div className="min-h-screen flex items-center justify-center bg-white dark:bg-white">
-      <Loader2 className="h-10 w-10 animate-spin text-primary" />
-    </div>
-  );
+  if (authLoading || pageLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-surface-soft">
+        <Loader2 className="h-10 w-10 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
-    <div className="animate-in fade-in duration-700 max-w-6xl mx-auto py-10">
-      <Link href="/blogs" className="group mb-12 inline-flex items-center gap-2 text-xs font-bold text-gray-400 hover:text-primary transition-colors tracking-tight">
-        <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" /> Back to studio
-      </Link>
+    <div className="min-h-screen bg-surface-soft selection:bg-primary/10">
+      {/* Premium Sticky Navigation */}
+      <nav className="fixed top-0 z-50 w-full bg-white/90 backdrop-blur-xl border-b border-border h-20 px-8">
+        <div className="max-w-7xl mx-auto h-full flex items-center justify-between">
+          <div className="flex items-center gap-10">
+            <Link
+              href="/blogs"
+              className="group flex items-center gap-2 text-slate-400 hover:text-slate-900 transition-all font-black uppercase text-[10px] tracking-widest"
+            >
+              <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" /> Back
+            </Link>
+            <Link href="/" className="flex items-center gap-2 group">
+              <span className="text-xl md:text-2xl font-black text-slate-900 tracking-tighter">
+                Mozhi<span className="text-primary italic">Aruvi</span>
+              </span>
+            </Link>
+          </div>
 
-      <div className="flex flex-col lg:flex-row gap-16">
-        {/* Editor Form */}
-        <div className="flex-1 space-y-10">
-           <div className="space-y-4">
-              <div className="flex items-center gap-2">
-                 <Sparkles className="w-5 h-5 text-primary" />
-                 <span className="text-xs font-bold text-primary tracking-tight">Refining Mode</span>
-              </div>
-              <h1 className="text-4xl md:text-5xl font-bold text-gray-800 dark:text-white tracking-tight leading-none">
-                Refine your <span className="text-primary italic">story</span>
-              </h1>
-              <p className="text-gray-500 font-medium max-w-lg leading-relaxed">Fine-tune your cultural insights. Quality content drives deeper community engagement.</p>
-           </div>
+          <div className="flex items-center gap-6">
+            <button
+              onClick={() => handleSubmit(true)}
+              disabled={submitting || uploading}
+              className="text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-900 transition-all disabled:opacity-30"
+            >
+              Save Draft
+            </button>
+            <Button
+              onClick={() => handleSubmit(false)}
+              disabled={submitting || uploading}
+              className="h-12 px-10 rounded-2xl bg-slate-900 hover:bg-black text-white text-[10px] font-black uppercase tracking-widest shadow-2xl transition-all disabled:opacity-50 flex items-center gap-3"
+            >
+              {submitting && <Loader2 size={16} className="animate-spin" />}
+              Publish Update
+            </Button>
 
-           {/* Banner Feedback */}
-           {banner && (
-            <div className={`flex items-start gap-4 rounded-3xl border px-6 py-5 text-sm font-bold shadow-xl animate-in slide-in-from-top-4 ${
-              banner.type === "success"
-                ? "border-emerald-100 bg-emerald-50 text-emerald-700 shadow-emerald-500/5"
-                : "border-red-100 bg-red-50 text-red-700 shadow-red-500/5"
-            }`}>
-              {banner.type === "success" ? <CheckCircle2 className="h-6 w-6 shrink-0 mt-0.5" /> : <AlertCircle className="h-6 w-6 shrink-0 mt-0.5" />}
-              {banner.message}
+            <div className="h-10 w-10 rounded-full bg-surface-soft border border-border overflow-hidden ml-4">
+              {user?.profilePhoto ? (
+                <img src={user.profilePhoto} alt="User" className="h-full w-full object-cover" />
+              ) : (
+                <UserCircle className="h-6 w-6 text-slate-200 mt-2 ml-2" />
+              )}
             </div>
-           )}
-
-           <div className="bg-white rounded-2xl border border-gray-100  p-8 md:p-14 shadow-2xl shadow-slate-200/20 dark:shadow-none space-y-10">
-              {/* Title Section */}
-              <div className="space-y-4">
-                 <input 
-                  type="text" 
-                  name="title" 
-                  required 
-                  value={form.title} 
-                  onChange={handleChange} 
-                  className="w-full bg-transparent border-none text-3xl md:text-5xl font-bold text-gray-800 dark:text-white placeholder:text-slate-100 focus:ring-0 px-0 outline-none tracking-tight leading-tight" 
-                  placeholder="The title of your story..." 
-                 />
-                 <div className="h-[1px] w-full bg-gray-50 dark:bg-gray-800" />
-              </div>
-
-              {/* Sub-meta */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div>
-                   <label className={labelCls}>Topic Category</label>
-                   <div className="relative">
-                      <LayoutGrid className="absolute left-6 top-1/2 -translate-y-1/2 h-4 w-4 text-primary opacity-40" />
-                      <select name="category" value={form.category} onChange={handleChange} className={cn(inputCls, "pl-14 appearance-none")}>
-                        {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
-                      </select>
-                   </div>
-                </div>
-                <div>
-                   <label className={labelCls}>Featured Cover Image</label>
-                   <div className="relative">
-                      <ImageIcon className="absolute left-6 top-1/2 -translate-y-1/2 h-4 w-4 text-primary opacity-40" />
-                      <input type="url" name="featuredImage" value={form.featuredImage} onChange={handleChange} className={cn(inputCls, "pl-14")} placeholder="https://unsplash.com/..." />
-                   </div>
-                </div>
-              </div>
-
-              {/* Summary / Excerpt */}
-              <div>
-                 <label className={labelCls}>Article Preview (Excerpt)</label>
-                 <textarea name="excerpt" rows={2} value={form.excerpt} onChange={handleChange} className={cn(inputCls, "resize-none h-24")} placeholder="Briefly describe what your readers can expect..." />
-              </div>
-
-              {/* Main Content Body */}
-              <div className="pt-6 space-y-4">
-                 <div className="flex items-center justify-between px-2">
-                      <label className={labelCls}>Body Content</label>
-                      <span className="text-[10px] font-bold text-primary border border-primary/20 bg-primary/5 px-2 py-0.5 rounded-md">{wordCount} Words</span>
-                 </div>
-                 <textarea name="content" required rows={16} value={form.content} onChange={handleChange} className={cn(inputCls, "resize-none text-base md:text-lg leading-relaxed font-medium bg-white border-gray-100  h-[30rem]")} placeholder="Start sharing your knowledge..." />
-              </div>
-           </div>
+          </div>
         </div>
+      </nav>
 
-        {/* Action Sidebar / Settings */}
-        <div className="w-full lg:w-80 shrink-0">
-           <div className="sticky top-10 space-y-8">
-              <div className="bg-white rounded-2xl p-10 text-white shadow-2xl shadow-slate-900/10">
-                 <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-8 px-2">Update story</p>
-                 <div className="flex flex-col gap-5">
-                    <Button
-                      onClick={() => handleSubmit(false)}
-                      disabled={submitting}
-                      className="w-full h-16 rounded-2xl bg-primary text-white hover:scale-[1.02] shadow-xl shadow-primary/20 disabled:opacity-50"
-                    >
-                      {submitting ? <Loader2 className="w-5 h-5 animate-spin mr-3" /> : <Send className="w-5 h-5 mr-3" />}
-                      Push Updates
-                    </Button>
-                    <button
-                      onClick={() => handleSubmit(true)}
-                      disabled={submitting}
-                      className="w-full h-16 flex items-center justify-center gap-3 rounded-2xl border border-white/10 bg-white/5 text-sm font-bold text-white hover:bg-white/10 transition-all disabled:opacity-50"
-                    >
-                      <Save className="w-5 h-5 mr-1" /> Move to Draft
-                    </button>
-                 </div>
-                 
-                 <div className="mt-12 pt-10 border-t border-white/5 space-y-8">
-                    <div className="flex items-center gap-4 group">
-                       <div className="h-12 w-12 rounded-2xl bg-white/5 flex items-center justify-center border border-white/10 transition-colors group-hover:bg-primary/20">
-                          <UserCircle className="w-6 h-6 text-primary" />
-                       </div>
-                       <div>
-                          <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-0.5">Author</p>
-                          <p className="text-xs font-bold text-white">Community Member</p>
-                       </div>
-                    </div>
-                    <div className="flex items-center gap-4 group">
-                       <div className="h-12 w-12 rounded-2xl bg-white/5 flex items-center justify-center border border-white/10 transition-colors group-hover:bg-primary/20">
-                          <BookOpen className="w-6 h-6 text-primary" />
-                       </div>
-                       <div>
-                          <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-0.5">Visibility</p>
-                          <p className="text-xs font-bold text-white">Public Revision</p>
-                       </div>
-                    </div>
-                 </div>
-              </div>
+      {/* Main Editorial Canvas */}
+      <main className="pt-40 pb-32 max-w-[850px] mx-auto px-10 animate-in fade-in slide-in-from-bottom-4 duration-1000">
 
-              {/* Revision Sidebar */}
-              <div className="bg-primary/5 dark:bg-primary/10 border border-primary/10 rounded-2xl p-10">
-                 <h4 className="flex items-center gap-2 text-xs font-bold text-primary mb-6 tracking-tight">
-                    <FileText className="w-4 h-4" /> Editing Policy
-                 </h4>
-                 <p className="text-[11px] font-medium text-gray-600 dark:text-gray-400 leading-relaxed mb-6">
-                    Changes made to published stories will go live immediately after submission. Please ensure accuracy before pushing.
-                 </p>
-                 <div className="flex items-center gap-2 text-gray-400">
-                    <div className="h-1 w-full bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
-                       <div className="h-full w-full bg-primary animate-pulse" />
-                    </div>
-                 </div>
+        {banner && (
+          <div className={`mb-16 flex items-start gap-5 rounded-3xl border p-8 text-sm font-bold shadow-xl animate-in slide-in-from-top-4 ${
+            banner.type === "success"
+              ? "border-emerald-100 bg-emerald-50 text-emerald-700 shadow-emerald-500/5"
+              : "border-red-100 bg-red-50 text-red-700 shadow-red-500/5"
+          }`}>
+            {banner.type === "success" ? <CheckCircle2 className="h-6 w-6 shrink-0 mt-0.5" /> : <AlertCircle className="h-6 w-6 shrink-0 mt-0.5" />}
+            {banner.message}
+          </div>
+        )}
+
+        <div className="space-y-12">
+          {/* Cover Image Upload */}
+          <div className="relative group rounded-2xl border border-dashed border-border p-1.5 transition-all focus-within:border-primary/40 focus-within:ring-8 focus-within:ring-primary/5">
+            {form.featuredImage ? (
+              <div className="relative aspect-[2/1] w-full rounded-[2.8rem] overflow-hidden group shadow-sm bg-surface-soft">
+                <img src={form.featuredImage} alt="Cover Preview" className="w-full h-full object-cover transition-transform group-hover:scale-105 duration-700" />
+                <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4 backdrop-blur-sm">
+                  <button
+                    onClick={() => fileInputRef.current?.click()}
+                    className="p-4 bg-white rounded-full text-slate-900 shadow-xl hover:scale-110 transition-transform"
+                  >
+                    <Upload size={20} />
+                  </button>
+                  <button
+                    onClick={() => setForm((p) => ({ ...p, featuredImage: "" }))}
+                    className="p-4 bg-white rounded-full text-red-500 shadow-xl hover:scale-110 transition-transform"
+                  >
+                    <X size={20} />
+                  </button>
+                </div>
               </div>
-           </div>
+            ) : (
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploading}
+                className="flex flex-col items-center justify-center w-full aspect-[21/9] rounded-[2.8rem] bg-white hover:bg-surface-soft transition-all space-y-4 group"
+              >
+                <div className="p-5 rounded-full bg-surface-soft group-hover:bg-white border border-border transition-all">
+                  {uploading ? (
+                    <Loader2 size={24} className="animate-spin text-primary" />
+                  ) : (
+                    <Upload size={24} className="text-slate-400 group-hover:text-primary transition-colors" />
+                  )}
+                </div>
+                <div className="text-center">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-900">Upload Visual Cover</p>
+                  <p className="text-[9px] font-bold text-slate-400 mt-1 uppercase tracking-widest">Landscape recommended (Base 2:1)</p>
+                </div>
+              </button>
+            )}
+            <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" accept="image/*" />
+          </div>
+
+          <div className="flex flex-col space-y-12">
+            {/* Metadata Tier */}
+            <div className="flex items-center gap-6 px-1">
+              <div className="flex items-center gap-3 bg-white border border-border px-6 py-2 rounded-2xl shadow-sm">
+                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Category</span>
+                <select
+                  name="category"
+                  value={form.category}
+                  onChange={handleChange}
+                  className="text-[10px] font-black uppercase tracking-widest text-slate-900 outline-none cursor-pointer pr-4"
+                >
+                  {CATEGORIES.map((c) => (
+                    <option key={c} value={c}>{c}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="h-0.5 w-12 bg-border rounded-full" />
+              <div className="flex items-center gap-2">
+                <Sparkles size={14} className="text-secondary" />
+                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Editing Mode</span>
+              </div>
+            </div>
+
+            {/* Title */}
+            <textarea
+              name="title"
+              value={form.title}
+              onChange={handleChange}
+              rows={1}
+              placeholder="Title of your story..."
+              className="w-full text-5xl md:text-7xl font-black text-slate-900 placeholder:text-slate-100 border-none outline-none resize-none px-1 overflow-hidden h-auto tracking-tighter leading-[0.9]"
+              onInput={(e) => {
+                const target = e.target as HTMLTextAreaElement;
+                target.style.height = "auto";
+                target.style.height = target.scrollHeight + "px";
+              }}
+            />
+
+            {/* Excerpt */}
+            <textarea
+              name="excerpt"
+              value={form.excerpt}
+              onChange={handleChange}
+              rows={1}
+              placeholder="A brief preview for your audience..."
+              className="w-full text-2xl font-bold text-slate-400 placeholder:text-slate-100 border-none outline-none resize-none px-1 h-auto leading-relaxed tracking-tight"
+              onInput={(e) => {
+                const target = e.target as HTMLTextAreaElement;
+                target.style.height = "auto";
+                target.style.height = target.scrollHeight + "px";
+              }}
+            />
+
+            <div className="h-px w-full bg-border opacity-50" />
+
+            {/* Body Content — Rich Text */}
+            <RichTextEditor
+              value={form.content}
+              onChange={(html) => setForm((prev) => ({ ...prev, content: html }))}
+              placeholder="Start sharing your linguistic journey..."
+            />
+          </div>
         </div>
-      </div>
+      </main>
+
+      {adjustImage && (
+        <ImageAdjuster
+          image={adjustImage}
+          aspect={21 / 9}
+          onConfirm={handleAdjustConfirm}
+          onCancel={() => setAdjustImage(null)}
+        />
+      )}
     </div>
   );
 }

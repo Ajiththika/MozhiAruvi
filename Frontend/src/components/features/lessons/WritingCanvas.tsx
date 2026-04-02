@@ -21,7 +21,7 @@ export function WritingCanvas({ onResult, expectedText, isCorrect }: WritingCanv
         ctx.lineCap = "round";
         ctx.lineJoin = "round";
         ctx.lineWidth = 4;
-        ctx.strokeStyle = "#1f2937"; // text-gray-800
+        ctx.strokeStyle = "#1f2937"; // text-slate-800
       }
     }
   }, []);
@@ -86,9 +86,9 @@ export function WritingCanvas({ onResult, expectedText, isCorrect }: WritingCanv
 
   return (
     <div className="w-full flex flex-col items-center gap-8 animate-in fade-in duration-500">
-      <div className="relative border-[12px] border-gray-100 rounded-[3rem] bg-white shadow-2xl overflow-hidden flex items-center justify-center dark:border-gray-800 ring-4 ring-gray-50">
+      <div className="relative border-[12px] border-slate-100 rounded-[3rem] bg-white shadow-2xl overflow-hidden flex items-center justify-center ring-4 ring-slate-50">
          {/* Whiteboard Label */}
-         <div className="absolute top-6 left-1/2 -translate-x-1/2 text-[10px] font-black uppercase tracking-[0.4em] text-gray-300 pointer-events-none select-none">
+         <div className="absolute top-6 left-1/2 -translate-x-1/2 text-[10px] font-black uppercase tracking-[0.4em] text-slate-300 pointer-events-none select-none">
             Whiteboard Canvas
          </div>
 
@@ -122,7 +122,7 @@ export function WritingCanvas({ onResult, expectedText, isCorrect }: WritingCanv
 
       {!isCorrect && (
           <div className="flex gap-6">
-            <Button onClick={clearCanvas} variant="outline" size="xl" className="rounded-2xl shadow-sm border-2 border-gray-100 font-black uppercase tracking-widest text-[10px] h-16 w-32" aria-label="Clear Canvas">
+            <Button onClick={clearCanvas} variant="outline" size="xl" className="rounded-2xl shadow-sm border-2 border-slate-100 font-black uppercase tracking-widest text-[10px] h-16 w-32" aria-label="Clear Canvas">
                 <Eraser className="w-5 h-5 mr-3" /> Clear
             </Button>
             <Button onClick={submitDrawing} disabled={!hasDrawn} size="xl" className="rounded-2xl shadow-xl bg-primary hover:bg-primary/90 font-black uppercase tracking-widest text-[10px] h-16 w-60">
@@ -133,3 +133,6 @@ export function WritingCanvas({ onResult, expectedText, isCorrect }: WritingCanv
     </div>
   );
 }
+
+
+

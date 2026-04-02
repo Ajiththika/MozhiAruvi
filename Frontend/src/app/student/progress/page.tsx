@@ -27,7 +27,7 @@ export default function StudentProgressPage() {
      return (
        <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4">
          <Loader2 className="h-10 w-10 animate-spin text-primary" />
-         <p className="text-sm font-semibold text-gray-500 tracking-tight animate-pulse">Calculating your achievements...</p>
+         <p className="text-sm font-semibold text-slate-500 tracking-tight animate-pulse">Calculating your achievements...</p>
        </div>
      );
    }
@@ -45,132 +45,88 @@ export default function StudentProgressPage() {
    const vocabCount = completedCount * 10;
 
    return (
-     <div className="space-y-10 animate-in fade-in zoom-in-95 duration-500 pb-12">
-        <div>
-           <h1 className="text-2xl md:text-3xl font-bold text-gray-800 tracking-tight">
-              Learning Progress
-           </h1>
-           <p className="mt-2 text-sm text-gray-500 font-medium">
-              Visualize your Tamil learning journey and track your real-time academic milestones.
-           </p>
-        </div>
+      <div className="space-y-10 animate-in fade-in zoom-in-95 duration-500 pb-12">
+         <div className="py-6">
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight uppercase">
+               Learning Progress
+            </h1>
+            <p className="mt-4 text-base md:text-lg text-slate-700 font-semibold leading-relaxed">
+               Visualize your Tamil learning journey and track your real-time academic milestones.
+            </p>
+         </div>
 
-        {error && (
-          <div className="flex items-center gap-3 rounded-2xl border border-red-100 bg-red-50 px-6 py-4 text-sm text-red-600 font-bold">
-            <AlertCircle className="h-5 w-5 shrink-0" /> {error}
-          </div>
-        )}
+         {error && (
+           <div className="flex items-center gap-3 rounded-2xl border border-red-100 bg-red-50 px-6 py-4 text-sm text-red-600 font-bold">
+             <AlertCircle className="h-5 w-5 shrink-0" /> {error}
+           </div>
+         )}
 
-        {/* Top Metrics Row */}
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            <StatCard 
-               title="Daily Streak" 
-               value={`${user?.progress?.currentStreak || 0} Days`} 
-               description={`Personal Best: ${user?.progress?.highStreak || 0} days`} 
-               icon={Flame} 
-               trend={(user?.progress?.currentStreak || 0) > 0 ? "up" : "neutral"}
-               trendValue={(user?.progress?.currentStreak || 0) > 0 ? "Active" : "New"}
-               className="border-primary/10 bg-primary/5" 
-            />
-            <StatCard 
-               title="Average Accuracy" 
-               value={`${avgAccuracy}%`} 
-               description="Based on your quiz performance" 
-               icon={Target} 
-               trend={avgAccuracy > 80 ? "up" : "neutral"}
-               trendValue={avgAccuracy > 0 ? "Real" : "No starts"} 
-            />
-            <StatCard 
-               title="Vocabulary" 
-               value={String(vocabCount)} 
-               description="Estimated words learned" 
-               icon={TrendingUp} 
-            />
-            <StatCard 
-               title="Course Completion" 
-               value={`${progressPercentage}%`} 
-               description={`${completedCount} of ${totalLessons} finished`} 
-               icon={Award} 
-               trend={progressPercentage > 0 ? "up" : "neutral"}
-            />
-        </div>
+         {/* Top Metrics Row */}
+         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+             <StatCard 
+                title="Daily Streak" 
+                value={`${user?.progress?.currentStreak || 0} Days`} 
+                description={`Personal Best: ${user?.progress?.highStreak || 0} days`} 
+                icon={Flame} 
+                trend={(user?.progress?.currentStreak || 0) > 0 ? "up" : "neutral"}
+                trendValue={(user?.progress?.currentStreak || 0) > 0 ? "Active" : "New"}
+                className="border-primary/10 bg-primary/5" 
+             />
+             <StatCard 
+                title="Average Accuracy" 
+                value={`${avgAccuracy}%`} 
+                description="Based on your quiz performance" 
+                icon={Target} 
+                trend={avgAccuracy > 80 ? "up" : "neutral"}
+                trendValue={avgAccuracy > 0 ? "Real" : "No starts"} 
+             />
+             <StatCard 
+                title="Vocabulary" 
+                value={String(vocabCount)} 
+                description="Estimated words learned" 
+                icon={TrendingUp} 
+             />
+             <StatCard 
+                title="Course Completion" 
+                value={`${progressPercentage}%`} 
+                description={`${completedCount} of ${totalLessons} finished`} 
+                icon={Award} 
+                trend={progressPercentage > 0 ? "up" : "neutral"}
+             />
+         </div>
 
-        {/* Learning History Preview */}
-        <div className="rounded-3xl border border-gray-100 bg-white p-8 md:p-10 shadow-2xl shadow-gray-200/5">
-            <div className="flex items-center justify-between border-b border-gray-50 pb-6">
-               <h3 className="text-lg font-black text-gray-800 flex items-center gap-3">
-                  <TrendingUp className="h-6 w-6 text-primary" />
-                  Your Journey Statistics
-               </h3>
-               <div className="text-[10px] font-black uppercase tracking-widest text-gray-400">
-                  Real-time Data Sync
-               </div>
-            </div>
-           
-            <div className="mt-10 flex flex-col items-center justify-center py-10 text-center space-y-4">
-               <div className="relative h-40 w-40 flex items-center justify-center">
-                  <svg className="h-full w-full transform -rotate-90">
-                     <circle cx="80" cy="80" r="70" stroke="currentColor" strokeWidth="12" fill="transparent" className="text-gray-50" />
-                     <circle cx="80" cy="80" r="70" stroke="currentColor" strokeWidth="12" fill="transparent" strokeDasharray={440} strokeDashoffset={440 - (440 * progressPercentage) / 100} strokeLinecap="round" className="text-primary transition-all duration-1000" />
-                  </svg>
-                  <div className="absolute inset-0 flex flex-col items-center justify-center">
-                     <span className="text-4xl font-black text-gray-800">{progressPercentage}%</span>
-                     <span className="text-[10px] font-black text-gray-400 uppercase tracking-tighter">Completed</span>
-                  </div>
-               </div>
-               <p className="text-sm text-gray-500 font-medium max-w-xs ring-offset-4">
-                  You have mastered {completedCount} lessons so far. Keep going to unlock more rewards!
-               </p>
-            </div>
-        </div>
-
-        {/* Badges / Achievements */}
-        <div className="space-y-8">
-             <h3 className="text-xs font-black text-gray-400 mb-6 uppercase tracking-[0.2em] border-l-4 border-secondary pl-3">
-                Academic Achievements
-             </h3>
-             <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
-                 <div className={`flex flex-col items-center rounded-3xl border p-8 text-center transition-all group ${completedCount > 0 ? "border-emerald-100 bg-emerald-50/30" : "border-gray-100 bg-white opacity-60 grayscale"}`}>
-                    <div className={`flex h-16 w-16 items-center justify-center rounded-2xl bg-white shadow-xl transition-transform group-hover:scale-110 ${completedCount > 0 ? "text-emerald-500" : "text-gray-300"}`}>
-                       <Flame className="h-8 w-8" />
-                    </div>
-                    <h4 className="mt-6 font-bold text-gray-800 text-sm">First Steps</h4>
-                    <p className={`mt-2 text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full ${completedCount > 0 ? "bg-emerald-100 text-emerald-700" : "bg-gray-100 text-gray-400"}`}>
-                       {completedCount > 0 ? "Earned" : "Locked"}
-                    </p>
-                 </div>
-                 
-                 <div className={`flex flex-col items-center rounded-3xl border p-8 text-center transition-all group ${vocabCount >= 50 ? "border-blue-100 bg-blue-50/30" : "border-gray-100 bg-white opacity-60 grayscale"}`}>
-                    <div className={`flex h-16 w-16 items-center justify-center rounded-2xl bg-white shadow-xl transition-transform group-hover:scale-110 ${vocabCount >= 50 ? "text-primary" : "text-gray-300"}`}>
-                       <TrendingUp className="h-8 w-8" />
-                    </div>
-                    <h4 className="mt-6 font-bold text-gray-800 text-sm">Linguist</h4>
-                    <p className={`mt-2 text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full ${vocabCount >= 50 ? "bg-blue-100 text-primary" : "bg-gray-100 text-gray-400"}`}>
-                       {vocabCount >= 50 ? "Earned" : "Locked"}
-                    </p>
-                 </div>
-  
-                 <div className={`flex flex-col items-center rounded-3xl border p-8 text-center transition-all group ${avgAccuracy >= 90 && completedCount > 0 ? "border-purple-100 bg-purple-50/30" : "border-gray-100 bg-white opacity-60 grayscale"}`}>
-                    <div className={`flex h-16 w-16 items-center justify-center rounded-2xl bg-white shadow-xl transition-transform group-hover:scale-110 ${avgAccuracy >= 90 && completedCount > 0 ? "text-purple-500" : "text-gray-300"}`}>
-                       <Target className="h-8 w-8" />
-                    </div>
-                    <h4 className="mt-6 font-bold text-gray-800 text-sm">Sharp Mind</h4>
-                    <p className={`mt-2 text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full ${avgAccuracy >= 90 && completedCount > 0 ? "bg-purple-100 text-purple-700" : "bg-gray-100 text-gray-400"}`}>
-                       {avgAccuracy >= 90 && completedCount > 0 ? "Earned" : "Locked"}
-                    </p>
-                 </div>
-  
-                 <div className={`flex flex-col items-center rounded-3xl border p-8 text-center transition-all group ${progressPercentage === 100 ? "border-amber-100 bg-amber-50/30" : "border-gray-100 bg-white opacity-60 grayscale"}`}>
-                    <div className={`flex h-16 w-16 items-center justify-center rounded-2xl bg-white shadow-xl transition-transform group-hover:scale-110 ${progressPercentage === 100 ? "text-amber-500" : "text-gray-300"}`}>
-                       <Trophy className="h-8 w-8" />
-                    </div>
-                    <h4 className="mt-6 font-bold text-gray-800 text-sm">Course Master</h4>
-                    <p className={`mt-2 text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full ${progressPercentage === 100 ? "bg-amber-100 text-amber-700" : "bg-gray-100 text-gray-400"}`}>
-                       {progressPercentage === 100 ? "Earned" : "Locked"}
-                    </p>
-                 </div>
+         {/* Learning History Preview */}
+         <div className="rounded-3xl border border-slate-100 bg-white p-8 md:p-10 shadow-2xl shadow-slate-200/50">
+             <div className="flex items-center justify-between border-b border-slate-100 pb-6">
+                <h3 className="text-xl font-bold text-slate-900 flex items-center gap-3">
+                   <TrendingUp className="h-6 w-6 text-primary" />
+                   Your Journey Statistics
+                </h3>
+                <div className="text-xs font-bold uppercase tracking-widest text-slate-600">
+                   Real-time Data Sync
+                </div>
+             </div>
+            
+             <div className="mt-10 flex flex-col items-center justify-center py-10 text-center space-y-6">
+                <div className="relative h-44 w-44 flex items-center justify-center">
+                   <svg className="h-full w-full transform -rotate-90">
+                      <circle cx="88" cy="88" r="80" stroke="currentColor" strokeWidth="14" fill="transparent" className="text-slate-50" />
+                      <circle cx="88" cy="88" r="80" stroke="currentColor" strokeWidth="14" fill="transparent" strokeDasharray={502.6} strokeDashoffset={502.6 - (502.6 * progressPercentage) / 100} strokeLinecap="round" className="text-primary transition-all duration-1000 shadow-sm" />
+                   </svg>
+                   <div className="absolute inset-0 flex flex-col items-center justify-center">
+                      <span className="text-5xl font-black text-slate-900">{progressPercentage}%</span>
+                      <span className="text-xs font-bold text-slate-600 uppercase tracking-tight mt-1">Learned</span>
+                   </div>
+                </div>
+                <p className="text-base text-slate-600 font-semibold max-w-xs leading-relaxed">
+                   You have mastered {completedCount} lessons so far. Keep going to unlock more rewards!
+                </p>
              </div>
          </div>
-     </div>
-   );
+
+       </div>
+    );
 }
+
+
+

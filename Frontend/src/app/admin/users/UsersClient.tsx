@@ -106,8 +106,8 @@ export default function UsersClient() {
             {row.name.charAt(0)}
           </div>
           <div>
-            <p className="font-black text-gray-800 text-sm tracking-tight">{row.name}</p>
-            <p className="text-xs font-medium text-gray-400">{row.email}</p>
+            <p className="font-black text-slate-800 text-sm tracking-tight">{row.name}</p>
+            <p className="text-xs font-medium text-slate-400">{row.email}</p>
           </div>
         </div>
       ),
@@ -165,14 +165,14 @@ export default function UsersClient() {
 
   return (
     <div className="space-y-12 animate-in fade-in duration-700 max-w-7xl mx-auto py-8 lg:py-12">
-      <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-8 border-b border-gray-100 pb-10">
+      <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-8 border-b border-slate-100 pb-10">
         <div className="space-y-4">
            <div className="flex items-center gap-3">
               <span className="h-2 w-10 rounded-full bg-secondary" />
               <span className="text-[10px] font-black text-secondary uppercase tracking-[0.3em]">Administrator</span>
            </div>
-           <h1 className="text-4xl md:text-5xl font-black text-gray-800 tracking-tight">Access Control</h1>
-           <p className="text-lg text-gray-500 font-medium max-w-xl">Unified management system for student and mentor accounts across the Mozhi Aruvi network.</p>
+           <h1 className="text-4xl md:text-5xl font-black text-slate-800 tracking-tight">Access Control</h1>
+           <p className="text-lg text-slate-500 font-medium max-w-xl">Unified management system for student and mentor accounts across the MozhiAruvi network.</p>
         </div>
         <Button
           onClick={() => refetch()}
@@ -194,7 +194,7 @@ export default function UsersClient() {
       {isLoading ? (
         <div className="flex flex-col items-center justify-center py-40 gap-6">
           <Loader2 className="h-12 w-12 animate-spin text-primary/30" />
-           <p className="text-[10px] font-black text-gray-300 uppercase tracking-widest">Querying database...</p>
+           <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest">Querying database...</p>
         </div>
       ) : (
         <div className="space-y-8">
@@ -283,7 +283,7 @@ export default function UsersClient() {
           />
 
           {editFormData.role === "teacher" && (
-            <div className="pt-6 border-t border-gray-100 flex flex-col gap-6 animate-in slide-in-from-top-4 duration-500">
+            <div className="pt-6 border-t border-slate-100 flex flex-col gap-6 animate-in slide-in-from-top-4 duration-500">
                <h4 className="text-xs font-black uppercase tracking-widest text-primary">Mentor Credentials</h4>
                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <Input 
@@ -315,3 +315,6 @@ export default function UsersClient() {
     </div>
   );
 }
+
+
+

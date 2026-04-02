@@ -15,13 +15,13 @@ export default function ErrorBoundary({
   }, [error]);
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 px-4">
-      <div className="w-full max-w-md p-8 bg-white rounded-3xl shadow-xl border border-gray-100 text-center">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 px-4">
+      <div className="w-full max-w-md p-8 bg-white rounded-3xl shadow-xl border border-slate-100 text-center">
         <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-6">
           <AlertCircle className="w-8 h-8 text-red-500" />
         </div>
-        <h2 className="text-2xl font-black text-gray-800 mb-2">System Interruption</h2>
-        <p className="text-gray-500 mb-8 font-medium italic">
+        <h2 className="text-2xl font-black text-slate-800 mb-2">System Interruption</h2>
+        <p className="text-slate-500 mb-8 font-medium italic">
           We encountered an unexpected error processing this view. Our diagnostic systems have logged the anomaly.
         </p>
         <button
@@ -32,7 +32,7 @@ export default function ErrorBoundary({
         </button>
         <a 
           href="/" 
-          className="block w-full py-4 rounded-xl font-bold border border-gray-200 text-gray-700 hover:bg-gray-50 transition-colors"
+          className="block w-full py-4 rounded-xl font-bold border border-slate-200 text-slate-700 hover:bg-slate-50 transition-colors"
         >
           Return to Hub
         </a>
@@ -40,3 +40,6 @@ export default function ErrorBoundary({
     </div>
   );
 }
+
+
+

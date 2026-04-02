@@ -22,19 +22,19 @@ export default function SubscriptionSuccess() {
       </div>
       
       <div className="space-y-4 mb-12">
-        <h1 className="text-4xl md:text-5xl font-black text-gray-800 tracking-tight">Access Unlocked!</h1>
-        <p className="text-xl text-gray-500 font-medium max-w-xl mx-auto">
+        <h1 className="text-4xl md:text-5xl font-black text-slate-800 tracking-tight">Access Unlocked!</h1>
+        <p className="text-xl text-slate-500 font-medium max-w-xl mx-auto">
           Welcome to your new membership. Your subscription has been activated successfully.
         </p>
       </div>
 
-      <div className="bg-white p-10 rounded-[2.5rem] border border-gray-100 shadow-xl max-w-md w-full mb-12 flex items-center justify-center gap-6">
+      <div className="bg-white p-10 rounded-[2.5rem] border border-slate-100 shadow-xl max-w-md w-full mb-12 flex items-center justify-center gap-6">
            <div className="p-4 bg-primary/5 rounded-2xl">
              <Award className="w-10 h-10 text-primary" />
            </div>
            <div className="text-left">
-             <p className="font-black text-gray-800 uppercase tracking-widest text-xs">New Achievement</p>
-             <p className="text-lg font-bold text-gray-900">Pathfinder Subscriber</p>
+             <p className="font-black text-slate-800 uppercase tracking-widest text-xs">New Achievement</p>
+             <p className="text-lg font-bold text-slate-900">Pathfinder Subscriber</p>
            </div>
       </div>
 
@@ -48,7 +48,7 @@ export default function SubscriptionSuccess() {
         <Button
           variant="outline"
           onClick={() => router.push("/student/dashboard")}
-          className="h-14 px-10 rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-gray-50 bg-white"
+          className="h-14 px-10 rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-slate-50 bg-white"
         >
           View Dashboard
         </Button>
@@ -56,3 +56,6 @@ export default function SubscriptionSuccess() {
     </div>
   );
 }
+
+
+

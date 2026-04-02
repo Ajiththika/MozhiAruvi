@@ -43,16 +43,47 @@ export default function LessonInteractiveSession() {
 
   const [energy, setEnergy] = useState<{currentEnergy: number; maxEnergy: number; nextRecoveryIn: number; isPremium: boolean} | null>(null);
 
-  const handlePlayAudio = async (text: string, qId: string) => {
-    if (!text) return;
+  const handlePlayAudio = async (text: string, qId: string, url?: string) => {
+    if (!text && !url) return;
     try {
       setPlayingAudioId(qId);
-      const { audioUrl } = await generateSpeech(id as string, text);
-      const audio = new Audio(audioUrl);
-      audio.play();
-      audio.onended = () => setPlayingAudioId(null);
+      if (url && url.startsWith('http')) {
+        const audio = new Audio(url);
+        audio.onended = () => setPlayingAudioId(null);
+        audio.onerror = () => setPlayingAudioId(null);
+        await audio.play();
+      } else if (text) {
+        try {
+          const { audioUrl } = await generateSpeech(id as string, text);
+          const audio = new Audio(audioUrl);
+          audio.onended = () => setPlayingAudioId(null);
+          audio.onerror = () => setPlayingAudioId(null);
+          await audio.play();
+        } catch (backendErr) {
+          console.warn("Backend TTS failed, falling back to Browser TTS", backendErr);
+          
+          const utterance = new SpeechSynthesisUtterance(text);
+          // Explicit Tamil Voice Seek
+          const voices = window.speechSynthesis.getVoices();
+          const taVoice = voices.find(v => v.lang.startsWith('ta'));
+          if (taVoice) utterance.voice = taVoice;
+          
+          utterance.lang = "ta-IN";
+          utterance.rate = 0.9;
+          utterance.onend = () => { setPlayingAudioId(null); delete (window as any)._activeUtterance; };
+          utterance.onerror = () => { setPlayingAudioId(null); delete (window as any)._activeUtterance; };
+          
+          // Prevent Chrome garbage collection bug
+          (window as any)._activeUtterance = utterance;
+          
+          window.speechSynthesis.speak(utterance);
+          
+          // Safety timeout
+          setTimeout(() => setPlayingAudioId(null), 3000);
+        }
+      }
     } catch (err) {
-      console.error("TTS playback failed:", err);
+      console.error("Critical TTS failure:", err);
       setPlayingAudioId(null);
     }
   };
@@ -221,7 +252,16 @@ export default function LessonInteractiveSession() {
                  <p className="text-4xl font-black text-primary">{score?.score}/{score?.total}</p>
               </div>
            </div>
-           <Button href="/student/dashboard" size="xl" className="w-full rounded-2xl">Back to Course</Button>
+           <div className="flex flex-col sm:flex-row gap-4">
+              <Button href="/student/lessons" variant="outline" size="xl" className="flex-1 rounded-2xl">Course Path</Button>
+              <Button 
+                href={score?.nextLessonId ? `/student/lessons/${score.nextLessonId}` : "/student/dashboard"} 
+                size="xl" 
+                className={cn("flex-1 rounded-2xl shadow-xl", score?.passed ? "bg-emerald-500 shadow-emerald-500/20" : "")}
+              >
+                {score?.nextLessonId ? "Next Activity" : "Main Dashboard"}
+              </Button>
+           </div>
         </Card>
       </div>
     );
@@ -261,10 +301,13 @@ export default function LessonInteractiveSession() {
                )}
 
                <div className="flex flex-col items-center gap-8 w-full">
-                  <div className="flex items-center justify-center gap-8 w-full">
-                    {(q?.type === 'speaking' || q?.type === 'quiz') && (
+                   <div className="flex items-center justify-center gap-8 w-full">
+                    {(q?.type === 'speaking' || q?.type === 'quiz' || q?.type === 'listening' || q?.type === 'choice') && (
                       <button
-                          onClick={() => handlePlayAudio(q?.text || "", q?._id)}
+                          onClick={() => {
+                            const textToSpeak = q?.type === 'speaking' ? (q?.correctAnswer || q?.expectedAudioText) : q?.text;
+                            handlePlayAudio(textToSpeak || "", q?._id, q?.audioUrl);
+                          }}
                           disabled={playingAudioId === q?._id}
                           className={cn(
                           "flex items-center justify-center h-20 w-20 rounded-[2rem] border-2 transition-all shadow-lg active:scale-95 shrink-0",
@@ -278,7 +321,7 @@ export default function LessonInteractiveSession() {
                     {q?.type !== 'match' && (
                         <h2 className="text-4xl md:text-5xl font-black text-gray-800 tracking-tight leading-tight grow text-left max-w-3xl">
                             {q?.type === 'fill' ? (
-                                q.text.split('_____').map((part: string, i: number, arr: string[]) => (
+                                q.text.split(/_{2,}/).map((part: string, i: number, arr: string[]) => (
                                     <React.Fragment key={i}>
                                         {part}
                                         {i < arr.length - 1 && (
@@ -311,7 +354,7 @@ export default function LessonInteractiveSession() {
                     <div className="w-full max-w-xl space-y-6">
                         <input
                             type="text"
-                            placeholder="Type the missing word..."
+                            placeholder="Write here"
                             value={typingValue}
                             onChange={(e) => setTypingValue(e.target.value)}
                             disabled={!!feedback[q._id]}
@@ -320,7 +363,8 @@ export default function LessonInteractiveSession() {
                         {!feedback[q._id] && (
                             <Button 
                                 onClick={() => {
-                                    const correct = (q.correctAnswer || q.options?.[q.correctOptionIndex ?? 0]).toLowerCase().trim();
+                                    const rawCorrect = q.correctAnswer || (q.options ? q.options[q.correctOptionIndex ?? 0] : "");
+                                    const correct = (rawCorrect || "").toLowerCase().trim();
                                     const isCorrect = typingValue.toLowerCase().trim() === correct;
                                     handleSelect(q._id, isCorrect ? (q.correctOptionIndex ?? 0) : -1, q.correctOptionIndex);
                                 }}
@@ -333,7 +377,7 @@ export default function LessonInteractiveSession() {
                 )}
 
                 {q?.type === "speaking" && (
-                    <AudioRecorder lessonId={id as string} questionId={q._id} expectedAudioText={q.expectedAudioText} isCorrect={feedback[q._id] === "correct"} takeCredit={takePower} onResult={(passed, message) => handleAudioResult(q._id, passed, message)} backendMessage={backendMessage[q._id]} />
+                    <AudioRecorder lessonId={id as string} questionId={q._id} expectedAudioText={q.expectedAudioText} audioUrl={q.audioUrl} isCorrect={feedback[q._id] === "correct"} takeCredit={takePower} onResult={(passed, message) => handleAudioResult(q._id, passed, message)} backendMessage={backendMessage[q._id]} />
                 )}
 
                 {q?.type === "writing" && (

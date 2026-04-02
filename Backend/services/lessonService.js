@@ -28,7 +28,7 @@ export async function getUserProgressList(userId) {
 // ── Questions (Public/User) ───────────────────────────────────────────────────
 export async function getQuestionsForLesson(lessonId) {
     try {
-        const allQuestions = await Question.find({ lessonId }).select('_id type text options scoreValue correctOptionIndex correctAnswer expectedAudioText');
+        const allQuestions = await Question.find({ lessonId }).select('_id type text options scoreValue correctOptionIndex correctAnswer expectedAudioText').sort({ orderIndex: 1, createdAt: 1 });
         
         // Return up to 10 random questions per session as requested
         if (allQuestions.length <= 10) return allQuestions;
@@ -145,8 +145,9 @@ export async function evaluateAnswersAndSaveProgress(userId, lessonId, answers) 
         await progress.save();
     }
 
-    // Find next lesson to suggest
+    // Find next lesson to suggest (must match the SAME level as the current lesson or user level)
     const nextLesson = await Lesson.findOne({
+        level: lesson.level, // strictly maintain level parity
         $or: [
             { moduleNumber: lesson.moduleNumber, orderIndex: { $gt: lesson.orderIndex } },
             { moduleNumber: { $gt: lesson.moduleNumber } }
@@ -196,9 +197,32 @@ export async function createQuestion(lessonId, data) {
     });
 }
 
+export async function updateQuestion(questionId, updateData) {
+    const question = await Question.findByIdAndUpdate(questionId, updateData, { new: true });
+    if (!question) {
+        const err = new Error('Question not found'); err.status = 404; err.code = 'NOT_FOUND'; throw err;
+    }
+    return question;
+}
+
 export async function deleteQuestion(questionId) {
     const question = await Question.findByIdAndDelete(questionId);
     if (!question) {
         const err = new Error('Question not found'); err.status = 404; err.code = 'NOT_FOUND'; throw err;
+    }
+}
+
+export async function reorderQuestions(orderedIds) {
+    if (!orderedIds || !Array.isArray(orderedIds)) return;
+    
+    const bulkOps = orderedIds.map((id, index) => ({
+        updateOne: {
+            filter: { _id: id },
+            update: { $set: { orderIndex: index } }
+        }
+    }));
+    
+    if (bulkOps.length > 0) {
+        await Question.bulkWrite(bulkOps);
     }
 }

@@ -48,7 +48,7 @@ export default function TutorDashboard() {
     return (
       <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4">
         <Loader2 className="h-10 w-10 animate-spin text-primary" />
-        <p className="text-sm font-semibold text-gray-500 tracking-tight animate-pulse">Initializing Dashboard...</p>
+        <p className="text-sm font-semibold text-slate-500 tracking-tight animate-pulse">Initializing Dashboard...</p>
       </div>
     );
   }
@@ -57,14 +57,14 @@ export default function TutorDashboard() {
 
   return (
     <div className="mx-auto max-w-6xl space-y-10 animate-in fade-in slide-in-from-bottom-2 duration-500 pb-20">
-      <div className="mb-0 flex flex-col md:flex-row md:items-end md:justify-between gap-10 border-b border-gray-100 pb-12">
+      <div className="mb-0 flex flex-col md:flex-row md:items-end md:justify-between gap-10 border-b border-slate-100 pb-12">
         <div className="space-y-6">
            <div className="flex items-center gap-2">
               <span className="h-1.5 w-10 rounded-full bg-secondary" />
                <span className="text-[10px] font-bold text-secondary uppercase tracking-[0.2em]">Tutor Operations</span>
            </div>
-           <h1 className="text-4xl md:text-5xl font-bold text-gray-800 tracking-tight">Welcome, {user?.name?.split(" ")[0]}</h1>
-           <p className="text-lg text-gray-600 font-medium leading-relaxed max-w-xl">
+           <h1 className="text-4xl md:text-5xl font-bold text-slate-800 tracking-tight">Welcome, {user?.name?.split(" ")[0]}</h1>
+           <p className="text-lg text-slate-600 font-medium leading-relaxed max-w-xl">
              You have <span className="text-primary font-bold">{activeRequests} active requests</span> awaiting your expert guidance today.
            </p>
         </div>
@@ -74,10 +74,10 @@ export default function TutorDashboard() {
           onClick={handleAvailabilityToggle}
           disabled={toggling}
           className={cn(
-            "flex items-center gap-4 rounded-2xl border-2 px-8 py-4 text-xs font-bold transition-all shadow-xl shadow-gray-200/10 active:scale-95",
+            "flex items-center gap-4 rounded-2xl border-2 px-8 py-4 text-xs font-bold transition-all shadow-xl shadow-slate-200/10 active:scale-95",
             isAvailable
               ? "border-emerald-100 bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
-              : "border-gray-100 bg-white text-gray-500 hover:border-secondary/30"
+              : "border-slate-100 bg-white text-slate-500 hover:border-secondary/30"
           )}
         >
           {isAvailable ? <ToggleRight className="h-5 w-5" /> : <ToggleLeft className="h-5 w-5" />}
@@ -125,9 +125,9 @@ export default function TutorDashboard() {
 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
         {/* Quick actions */}
-        <div className="lg:col-span-8 flex flex-col rounded-2xl bg-white border border-gray-100 p-10 md:p-14 shadow-2xl shadow-gray-200/10">
+        <div className="lg:col-span-8 flex flex-col rounded-2xl bg-white border border-slate-100 p-10 md:p-14 shadow-2xl shadow-slate-200/10">
           <div className="space-y-10">
-            <h3 className="text-xl font-bold text-gray-800 flex items-center gap-3">
+            <h3 className="text-xl font-bold text-slate-800 flex items-center gap-3">
                <Layers className="h-6 w-6 text-primary" /> Operations Center
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
@@ -142,7 +142,7 @@ export default function TutorDashboard() {
                 <Link
                   key={action.href}
                   href={action.href}
-                  className="group flex items-center justify-between rounded-2xl border border-gray-50 bg-white p-8 transition-all hover:bg-soft/10 hover:border-secondary/30 shadow-xl shadow-gray-200/10"
+                  className="group flex items-center justify-between rounded-2xl border border-slate-50 bg-white p-8 transition-all hover:bg-soft/10 hover:border-secondary/30 shadow-xl shadow-slate-200/10"
                 >
                   <div className="flex items-center gap-6">
                     <div className={cn(
@@ -152,11 +152,11 @@ export default function TutorDashboard() {
                        <Icon className="h-8 w-8" />
                     </div>
                     <div>
-                      <h4 className="font-bold text-gray-800 text-lg tracking-tight">{action.label}</h4>
-                      <p className="text-sm text-gray-500 mt-1 font-medium">{action.desc}</p>
+                      <h4 className="font-bold text-slate-800 text-lg tracking-tight">{action.label}</h4>
+                      <p className="text-sm text-slate-500 mt-1 font-medium">{action.desc}</p>
                     </div>
                   </div>
-                  <ArrowRight className="h-6 w-6 text-gray-200 group-hover:text-primary group-hover:translate-x-2 transition-all duration-300" />
+                  <ArrowRight className="h-6 w-6 text-slate-200 group-hover:text-primary group-hover:translate-x-2 transition-all duration-300" />
                 </Link>
               )})}
             </div>
@@ -164,9 +164,9 @@ export default function TutorDashboard() {
         </div>
 
         {/* Inbox Preview */}
-        <div className="lg:col-span-4 flex flex-col rounded-2xl bg-white border border-gray-100 p-10 shadow-2xl shadow-gray-200/10">
+        <div className="lg:col-span-4 flex flex-col rounded-2xl bg-white border border-slate-100 p-10 shadow-2xl shadow-slate-200/10">
           <div className="flex items-center justify-between mb-10">
-            <h3 className="text-lg font-bold text-gray-800">Live Inbox</h3>
+            <h3 className="text-lg font-bold text-slate-800">Live Inbox</h3>
             {activeRequests > 0 && (
               <span className="inline-flex h-8 px-4 items-center justify-center rounded-full bg-primary/10 text-[10px] font-black text-primary uppercase tracking-widest border border-primary/10">
                 {activeRequests} New
@@ -175,16 +175,16 @@ export default function TutorDashboard() {
           </div>
 
           {activeRequests === 0 ? (
-            <div className="flex flex-1 flex-col items-center justify-center rounded-2xl border border-dashed border-gray-100 p-10 text-center space-y-4">
-               <div className="h-16 w-16 rounded-full bg-gray-50 flex items-center justify-center border border-gray-100 shadow-inner">
-                  <CheckCircle2 className="h-8 w-8 text-gray-200" />
+            <div className="flex flex-1 flex-col items-center justify-center rounded-2xl border border-dashed border-slate-100 p-10 text-center space-y-4">
+               <div className="h-16 w-16 rounded-full bg-slate-50 flex items-center justify-center border border-slate-100 shadow-inner">
+                  <CheckCircle2 className="h-8 w-8 text-slate-200" />
                </div>
-               <p className="text-sm font-bold text-gray-400">Everything resolved for now.</p>
+               <p className="text-sm font-bold text-slate-400">Everything resolved for now.</p>
             </div>
           ) : (
             <div className="space-y-6">
               {pendingQs.slice(0, 3).map((q) => (
-                <div key={q._id} className="flex flex-col gap-4 rounded-[2rem] border border-gray-50 bg-soft/10 p-6 hover:bg-white hover:border-secondary/30 transition-all duration-300 shadow-sm hover:shadow-xl">
+                <div key={q._id} className="flex flex-col gap-4 rounded-[2rem] border border-slate-50 bg-soft/10 p-6 hover:bg-white hover:border-secondary/30 transition-all duration-300 shadow-sm hover:shadow-xl">
                    <div className="flex items-center justify-between">
                        <div className={cn(
                             "text-[10px] font-black px-3 py-1 rounded-lg uppercase tracking-widest",
@@ -192,9 +192,9 @@ export default function TutorDashboard() {
                         )}>
                             {q.requestType || 'Request'}
                        </div>
-                       <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">{new Date(q.createdAt).toLocaleDateString()}</span>
+                       <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{new Date(q.createdAt).toLocaleDateString()}</span>
                    </div>
-                  <p className="text-sm font-semibold text-gray-800 line-clamp-2 leading-relaxed">
+                  <p className="text-sm font-semibold text-slate-800 line-clamp-2 leading-relaxed">
                     "{q.content}"
                   </p>
                   <Link href="/tutor/questions" className="text-xs font-bold text-primary flex items-center gap-2 group/reply">
@@ -204,7 +204,7 @@ export default function TutorDashboard() {
                 </div>
               ))}
               {activeRequests > 3 && (
-                <Link href="/tutor/questions" className="block text-center text-xs font-bold text-gray-400 hover:text-primary mt-6 tracking-widest uppercase py-4 rounded-2xl border border-dashed border-gray-100 hover:border-primary/20 transition-all">
+                <Link href="/tutor/questions" className="block text-center text-xs font-bold text-slate-400 hover:text-primary mt-6 tracking-widest uppercase py-4 rounded-2xl border border-dashed border-slate-100 hover:border-primary/20 transition-all">
                    +{activeRequests - 3} more interactions
                 </Link>
               )}
@@ -215,3 +215,6 @@ export default function TutorDashboard() {
     </div>
   );
 }
+
+
+

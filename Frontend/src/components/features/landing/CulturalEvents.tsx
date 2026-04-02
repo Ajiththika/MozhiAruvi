@@ -57,10 +57,10 @@ export default function CulturalEvents() {
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent text-xs font-bold text-primary tracking-tight">
             Community & culture
           </div>
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-800 tracking-tight leading-tight">
+          <h2 className="text-3xl md:text-4xl font-bold text-slate-800 tracking-tight leading-tight">
             Live Cultural Events
           </h2>
-          <p className="text-base text-gray-700 font-medium max-w-xl mx-auto leading-relaxed">
+          <p className="text-base text-slate-700 font-medium max-w-xl mx-auto leading-relaxed">
             Language is best learned through the heart of its culture. Join our regular gatherings to experience Tamil heritage in action.
           </p>
         </div>
@@ -71,10 +71,10 @@ export default function CulturalEvents() {
             {events.map((event) => (
               <div 
                 key={event.id} 
-                className="p-8 rounded-3xl bg-white border border-gray-100 shadow-sm transition-all duration-300 group hover:border-primary/20 hover:shadow-xl cursor-pointer flex flex-col gap-4"
+                className="p-8 rounded-3xl bg-white border border-slate-100 shadow-sm transition-all duration-300 group hover:border-primary/20 hover:shadow-xl cursor-pointer flex flex-col gap-4"
               >
                 <div className="flex items-center justify-between mb-2">
-                  <div className="w-12 h-12 rounded-2xl bg-gray-50 text-primary flex items-center justify-center shadow-sm group-hover:bg-primary group-hover:text-white transition-all">
+                  <div className="w-12 h-12 rounded-2xl bg-slate-50 text-primary flex items-center justify-center shadow-sm group-hover:bg-primary group-hover:text-white transition-all">
                     {event.icon}
                   </div>
                   <span className={`text-xs font-bold px-3 py-1 rounded-full ${
@@ -84,8 +84,8 @@ export default function CulturalEvents() {
                   </span>
                 </div>
                 <div>
-                  <h4 className="font-bold text-gray-800 text-lg mb-1 tracking-tight">{event.title}</h4>
-                  <div className="text-xs font-semibold text-gray-400 flex items-center gap-2">
+                  <h4 className="font-bold text-slate-800 text-lg mb-1 tracking-tight">{event.title}</h4>
+                  <div className="text-xs font-semibold text-slate-400 flex items-center gap-2">
                     <Calendar className="w-4 h-4 text-primary/60" />
                     {event.date}
                   </div>
@@ -96,10 +96,10 @@ export default function CulturalEvents() {
 
           {/* Right Column (Text) */}
           <div className="flex-1 w-full text-center lg:text-left space-y-6">
-            <h3 className="text-3xl md:text-4xl font-bold text-gray-800 tracking-tight leading-tight">
+            <h3 className="text-3xl md:text-4xl font-bold text-slate-800 tracking-tight leading-tight">
               Celebrate Tamil Heritage Together
             </h3>
-            <p className="text-base text-gray-700 font-medium leading-relaxed max-w-xl">
+            <p className="text-base text-slate-700 font-medium leading-relaxed max-w-xl">
               Experience Tamil culture through poetry readings, festival celebrations, film screenings, and interactive workshops. Connect with fellow enthusiasts and deepen your understanding beyond the classroom.
             </p>
             <Link 
@@ -115,4 +115,7 @@ export default function CulturalEvents() {
     </section>
   );
 }
+
+
+
 

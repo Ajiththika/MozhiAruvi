@@ -67,10 +67,10 @@ export default function SignInForm() {
   return (
     <div className="w-full max-w-sm mx-auto xl:max-w-md">
       <div className="mb-8 md:mb-10 text-center md:text-left">
-        <h2 className="text-3xl md:text-4xl font-extrabold text-gray-700 mb-3 tracking-tight">
+        <h2 className="text-3xl md:text-4xl font-extrabold text-slate-700 mb-3 tracking-tight">
           Welcome back
         </h2>
-        <p className="text-gray-400 text-lg md:text-xl font-medium">
+        <p className="text-slate-400 text-lg md:text-xl font-medium">
           Sign in to continue your Tamil learning journey.
         </p>
       </div>
@@ -123,14 +123,14 @@ export default function SignInForm() {
       </form>
 
       <div className="mt-8 mb-8 flex items-center">
-        <div className="flex-1 border-t border-gray-100/60"></div>
-        <div className="px-5 text-sm text-gray-400 font-bold tracking-wide uppercase">or continue with</div>
-        <div className="flex-1 border-t border-gray-100/60"></div>
+        <div className="flex-1 border-t border-slate-100/60"></div>
+        <div className="px-5 text-sm text-slate-400 font-bold tracking-wide uppercase">or continue with</div>
+        <div className="flex-1 border-t border-slate-100/60"></div>
       </div>
 
-      <SocialLogin provider="Google" onClick={() => window.location.href = 'http://localhost:5000/api/auth/google'} />
+      <SocialLogin provider="Google" onClick={() => window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/google`} />
 
-      <p className="text-center mt-12 text-gray-400 font-medium text-base">
+      <p className="text-center mt-12 text-slate-400 font-medium text-base">
         Don't have an account?{' '}
         <Link href="/auth/signup" className="text-primary hover:text-primary-dark font-extrabold transition-colors">
           Sign up
@@ -139,4 +139,7 @@ export default function SignInForm() {
     </div>
   );
 }
+
+
+
 
