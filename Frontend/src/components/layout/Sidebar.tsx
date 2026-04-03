@@ -105,8 +105,10 @@ export function Sidebar({ items, basePath }: SidebarProps) {
             <div className="absolute bottom-0 right-0 h-2.5 w-2.5 bg-emerald-500 border-2 border-white rounded-full" />
           </div>
           <div className="min-w-0">
-            <p className="text-[9px] font-black text-primary/60 uppercase tracking-widest leading-none mb-1">Student</p>
-            <h4 className="text-xs font-black text-slate-800 truncate pr-2">
+            <p className="text-[9px] font-black text-purple-400 uppercase tracking-widest leading-none mb-1">
+              {pathname.startsWith('/admin') ? 'Admin' : pathname.startsWith('/tutor') ? 'Teacher' : 'Student'}
+            </p>
+            <h4 className="text-xs font-black text-text-primary truncate pr-2">
               {user?.name || "Member"}
             </h4>
           </div>

@@ -5,6 +5,7 @@ import { Bell, Menu, UserCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/context/AuthContext";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 interface TopbarProps {
   onMenuClick?: () => void;
@@ -13,6 +14,7 @@ interface TopbarProps {
 
 export function Topbar({ onMenuClick, title = "Dashboard" }: TopbarProps) {
   const { user } = useAuth();
+  const pathname = usePathname();
 
   const profileHref = user?.role === 'teacher' ? '/tutor/profile' : '/student/profile';
 
@@ -33,13 +35,14 @@ export function Topbar({ onMenuClick, title = "Dashboard" }: TopbarProps) {
 
       <div className="flex items-center gap-4">
         {user && (
-          <Link 
-            href={profileHref}
-            className="group flex items-center gap-3 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-all p-1.5"
-          >
+          <Link href={profileHref} className="flex items-center gap-3">
             <div className="hidden text-right md:block">
-              <p className="text-xs font-bold text-slate-800 dark:text-white leading-none">{user.name}</p>
-              <p className="text-[10px] font-medium text-slate-500 capitalize">{user.role}</p>
+              <h4 className="text-xs font-black text-text-primary truncate pr-2">
+                {user?.name || "Member"}
+              </h4>
+              <p className="text-[9px] font-black text-purple-400 uppercase tracking-widest leading-none mt-1">
+                {pathname.startsWith('/admin') ? 'Admin' : pathname.startsWith('/tutor') ? 'Teacher' : 'Student'}
+              </p>
             </div>
             <div className="h-9 w-9 overflow-hidden rounded-full bg-slate-100 border border-slate-100 group-hover:border-primary transition-colors">
               {user.profilePhoto ? (

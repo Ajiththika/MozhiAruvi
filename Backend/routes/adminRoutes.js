@@ -23,6 +23,7 @@ router.get('/tutors', authenticate, authorizeRoles(ROLES.ADMIN), adminController
 router.get('/tutors/applications', authenticate, authorizeRoles(ROLES.ADMIN), tutorApplicationController.getTutorApplications);
 router.patch('/tutors/:id/approve', authenticate, authorizeRoles(ROLES.ADMIN), tutorApplicationController.approveTutorApplication);
 router.patch('/tutors/:id/reject', authenticate, authorizeRoles(ROLES.ADMIN), tutorApplicationController.rejectTutorApplication);
+router.get('/mentor-applications', authenticate, authorizeRoles(ROLES.ADMIN), adminController.getMentorApplications);
 
 // Admin functions
 router.patch('/users/:id/deactivate', authenticate, authorizeRoles(ROLES.ADMIN), adminController.deactivateUser);

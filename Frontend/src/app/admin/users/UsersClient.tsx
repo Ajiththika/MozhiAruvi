@@ -21,7 +21,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 function RoleBadge({ role }: { role: BaseUser["role"] }) {
   const map: Record<string, string> = {
     student: "bg-primary/5 text-primary border-primary/10",
-    teacher: "bg-emerald-50 text-emerald-600 border-emerald-100",
+    teacher: "bg-white text-text-primary border-primary/30 shadow-sm",
     admin: "bg-purple-50 text-purple-600 border-purple-100",
   };
   const labelMap: Record<string, string> = { student: "Student", teacher: "Tutor", admin: "Admin" };
@@ -117,8 +117,11 @@ export default function UsersClient() {
           <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/5 border border-primary/10 font-black text-primary text-lg shadow-inner uppercase tracking-tighter">
             {row.name.charAt(0)}
           </div>
-          <div>
-            <p className="font-black text-slate-800 text-sm tracking-tight">{row.name}</p>
+          <div className="min-w-0">
+            <p className="text-[9px] font-black text-primary/60 uppercase tracking-widest leading-none mb-1">
+              {row.role} user
+            </p>
+            <h4 className="text-xs font-black text-slate-800 truncate pr-2">{row.name}</h4>
             <p className="text-xs font-medium text-primary/60">{row.email}</p>
           </div>
         </div>

@@ -260,3 +260,8 @@ export async function uploadAudio(file: File): Promise<{ url: string; public_id:
   return res.data;
 }
 
+
+export async function getMentorApplications(): Promise<any[]> {
+  const res = await api.get<{ applications: any[] }>("/admin/mentor-applications");
+  return res.data.applications;
+}

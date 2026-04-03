@@ -144,3 +144,24 @@ export async function getPremiumUsers(page = 1, limit = 10) {
         currentPage: parseInt(page)
     };
 }
+
+export async function getMentorApplications() {
+    const [teacherApps, tutorApps] = await Promise.all([
+        TeacherApplication.find({ status: 'pending' }).sort({ createdAt: -1 }).lean(),
+        TutorApplication.find({ status: 'pending' }).sort({ createdAt: -1 }).lean()
+    ]);
+    
+    const normalizedTeacherApps = teacherApps.map(app => ({
+        ...app,
+        type: 'teacher',
+        cleanName: app.fullName || "Teacher Candidate"
+    }));
+    
+    const normalizedTutorApps = tutorApps.map(app => ({
+        ...app,
+        type: 'tutor',
+        cleanName: app.name || "Tutor Candidate"
+    }));
+    
+    return [...normalizedTeacherApps, ...normalizedTutorApps].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+}

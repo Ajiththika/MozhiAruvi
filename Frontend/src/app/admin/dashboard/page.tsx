@@ -8,18 +8,17 @@ import { cn } from "@/lib/utils";
 import { 
   getAllUsers, 
   getAllTutors, 
-  getTeacherApplications, 
   getAdminStats, 
   AdminStats, 
   BaseUser, 
-  TeacherApplication, 
   getPremiumUsers, 
   PremiumUser,
   getPlanSettings,
   updatePlanSettings,
   createPlanSettings,
   deletePlanSettings,
-  PlanSettings 
+  PlanSettings,
+  getMentorApplications
 } from "@/services/adminService";
 import { getEvents, MozhiEvent } from "@/services/eventService";
 import { getMe, SafeUser } from "@/services/authService";
@@ -45,49 +44,32 @@ export default function AdminDashboard() {
   const [editFormData, setEditFormData] = useState<Partial<PlanSettings>>({});
 
   useEffect(() => {
-    Promise.all([
-        getMe(), 
-        getAdminStats(), 
-        getAllUsers(), 
-        getAllTutors(), 
-        getAllBlogsForAdmin(), 
-        getTeacherApplications(), 
-        getEvents(), 
-        getPremiumUsers(),
-        getPlanSettings(),
-        getTutorApplicationsAdmin()
-    ])
-      .then(([me, st, us, ts, bl, teacherApps, evs, prem, plans, tutorApps]) => {
+    (async () => {
+      try {
+        const [me, s, ts, bl, mentors, evs, prem, plans] = await Promise.all([
+          getMe(),
+          getAdminStats(),
+          getAllTutors(1, 4),
+          getAllBlogsForAdmin(),
+          getMentorApplications(),
+          getEvents(),
+          getPremiumUsers(1, 10),
+          getPlanSettings(),
+        ]);
         setAdmin(me);
-        setStats(st);
-        setUsers(us.users);
+        setStats(s);
         setTutors(ts.tutors);
         setBlogs(bl.blogs.filter(b => b.status === 'pending'));
-        
-        // Merge and normalize applications
-        const mergedApps = [
-          ...teacherApps.applications.map(a => ({ 
-            ...a, 
-            type: 'teacher',
-            cleanName: a.fullName || a.userId?.name || "Unknown",
-            cleanEmail: a.userId?.email || "N/A"
-          })),
-          ...tutorApps.map((a: any) => ({ 
-            ...a, 
-            type: 'tutor',
-            cleanName: a.name,
-            cleanEmail: a.email,
-            specialization: a.experience // Use experience as specialization for tutor apps if missing
-          }))
-        ].filter(a => a.status === 'pending');
-        
-        setApplications(mergedApps as any);
+        setApplications(mentors);
         setEvents(evs.events);
         setPremiumUsers(prem.users);
         setPlanSettings(plans);
-      })
-      .catch(() => setError("Could not load dashboard data. Check backend connection."))
-      .finally(() => setLoading(false));
+      } catch (err) {
+        setError("Could not load dashboard data. Check backend connection.");
+      } finally {
+        setLoading(false);
+      }
+    })();
   }, []);
 
   const handleEditPlan = (plan: PlanSettings) => {
@@ -233,15 +215,17 @@ export default function AdminDashboard() {
                         applications.slice(0, 4).map((app) => (
                           <tr key={app._id} className="hover:bg-slate-50/50 transition-all">
                             <td className="px-10 py-6 flex items-center gap-5">
-                               <div className="h-12 w-12 rounded-2xl bg-amber-50 flex items-center justify-center font-black text-amber-600 text-sm border border-amber-100">{(app.cleanName || "U").charAt(0)}</div>
+                               <div className="h-12 w-12 rounded-2xl bg-amber-50 flex items-center justify-center font-black text-amber-600 text-sm border border-amber-100">{(app.cleanName || app.name || "U").charAt(0)}</div>
                                <div>
-                                  <p className="text-sm font-black text-text-primary">{app.cleanName}</p>
+                                  <p className="text-sm font-black text-text-primary">{app.cleanName || app.name}</p>
                                   <p className="text-[10px] font-bold text-primary/60 uppercase tracking-widest">{app.specialization || "Pending Review"}</p>
                                </div>
                             </td>
-                            <td className="px-10 py-6 text-right">
-                               <Button href="/admin/tutors" variant="ghost" size="sm" className="h-10 px-6 text-[10px] font-black uppercase tracking-widest text-primary border border-primary/10 rounded-xl">Review</Button>
-                            </td>
+                             <td className="px-10 py-6 text-right">
+                                 <span className="px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest border bg-white text-text-primary border-primary/20 shadow-sm whitespace-nowrap">
+                                    {app.type} request
+                                 </span>
+                             </td>
                           </tr>
                         ))
                       )}

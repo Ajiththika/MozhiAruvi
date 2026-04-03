@@ -5,18 +5,19 @@ import { createBlog } from "@/services/blogService";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Loader2, CheckCircle2, AlertCircle, Save, Send, UserCircle, Image as ImageIcon, Sparkles, Upload, X } from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import Button from "@/components/ui/Button";
 import { api } from "@/lib/api";
 import { ImageAdjuster } from "@/components/ui/ImageAdjuster";
-import dynamic from "next/dynamic";
-
-const RichTextEditor = dynamic(() => import("@/components/ui/RichTextEditor"), { ssr: false });
+import { EditorToolbar, useMozhiEditor } from "@/components/ui/RichTextEditor";
+import { EditorContent } from "@tiptap/react";
 
 const CATEGORIES = ["Grammar", "Culture", "Pronunciation", "Tutor Tips", "Updates", "General"];
 
 export default function CreateBlogPage() {
   const router = useRouter();
+  const pathname = usePathname();
   const { user, isLoading } = useAuth();
   const [submitting, setSubmitting] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -95,6 +96,12 @@ export default function CreateBlogPage() {
     }
   };
 
+  const editor = useMozhiEditor({
+    value: form.content,
+    onChange: (html) => setForm((prev) => ({ ...prev, content: html })),
+    placeholder: "Start sharing your linguistic journey..."
+  });
+
   return (
     <div className="min-h-screen bg-surface-soft selection:bg-primary/10">
       {/* Premium Sticky Navigation */}
@@ -102,7 +109,7 @@ export default function CreateBlogPage() {
         <div className="max-w-7xl mx-auto h-full flex items-center justify-between">
           <div className="flex items-center gap-10">
              <Link href="/blogs" className="group flex items-center gap-2 text-primary/60 hover:text-primary transition-all font-black uppercase text-[10px] tracking-widest">
-                <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" /> Back
+                <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" /> Back to Feed
              </Link>
              <Link href="/" className="flex items-center gap-2 group">
                <span className="text-xl md:text-2xl font-black text-primary tracking-tighter">
@@ -112,28 +119,22 @@ export default function CreateBlogPage() {
           </div>
 
           <div className="flex items-center gap-6">
-            <button
-               onClick={() => handleSubmit(true)}
-               disabled={submitting || uploading}
-               className="text-[10px] font-black uppercase tracking-widest text-primary/60 hover:text-primary transition-all disabled:opacity-30"
-            >
-               Save Draft
-            </button>
-            <Button
-              onClick={() => handleSubmit(false)}
-              disabled={submitting || uploading}
-              className="h-12 px-10 rounded-2xl bg-primary hover:bg-primary/90 text-white text-[10px] font-black uppercase tracking-widest shadow-2xl shadow-primary/20 transition-all disabled:opacity-50 flex items-center gap-3"
-            >
-              {submitting && <Loader2 size={16} className="animate-spin" />}
-              {user?.role === 'teacher' ? 'Submit Request' : 'Publish Story'}
-            </Button>
-            
-            <div className="h-10 w-10 rounded-full bg-surface-soft border border-border overflow-hidden ml-4">
-              {user?.profilePhoto ? (
-                <img src={user.profilePhoto} alt="User" className="h-full w-full object-cover" />
-              ) : (
-                <UserCircle className="h-6 w-6 text-slate-200 mt-2 ml-2" />
-              )}
+             <div className="flex items-center gap-3">
+               <div className="hidden text-right md:block">
+                  <h4 className="text-xs font-black text-text-primary truncate">{user?.name}</h4>
+                  <p className="text-[9px] font-black text-purple-400 uppercase tracking-widest leading-none mt-1">
+                    {pathname.startsWith('/admin') ? 'Admin' : pathname.startsWith('/tutor') ? 'Teacher' : 'Student'}
+                  </p>
+               </div>
+               <div className="h-10 w-10 rounded-full bg-surface-soft border border-border overflow-hidden ml-2">
+                 {user?.profilePhoto ? (
+                   <img src={user.profilePhoto} alt="User" className="h-full w-full object-cover" />
+                 ) : (
+                   <div className="h-full w-full flex items-center justify-center bg-primary/5">
+                      <UserCircle className="h-6 w-6 text-primary/30" />
+                   </div>
+                 )}
+               </div>
             </div>
           </div>
         </div>
@@ -153,126 +154,94 @@ export default function CreateBlogPage() {
           </div>
         )}
 
-        <div className="space-y-12">
-          {/* Enhanced Media Upload Orchestrator */}
-          <div className="relative group rounded-2xl border border-dashed border-border p-1.5 transition-all focus-within:border-primary/40 focus-within:ring-8 focus-within:ring-primary/5">
-            {form.featuredImage ? (
-              <div className="relative aspect-[2/1] w-full rounded-[2.8rem] overflow-hidden group shadow-sm bg-surface-soft">
-                 <img src={form.featuredImage} alt="Cover Preview" className="w-full h-full object-cover transition-transform group-hover:scale-105 duration-700" />
-                 <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4 backdrop-blur-sm">
-                    <button 
-                      onClick={() => fileInputRef.current?.click()}
-                      className="p-4 bg-white rounded-full text-primary shadow-xl hover:scale-110 transition-transform"
-                    >
-                       <Upload size={20} />
-                    </button>
-                    <button 
-                      onClick={() => setForm(p => ({ ...p, featuredImage: "" }))}
-                      className="p-4 bg-white rounded-full text-red-500 shadow-xl hover:scale-110 transition-transform"
-                    >
-                       <X size={20} />
-                    </button>
-                 </div>
-              </div>
-            ) : (
-              <button 
-                onClick={() => fileInputRef.current?.click()}
-                disabled={uploading}
-                className="flex flex-col items-center justify-center w-full aspect-[21/9] rounded-[2.8rem] bg-white hover:bg-surface-soft transition-all space-y-4 group"
-              >
-                 <div className="p-5 rounded-full bg-surface-soft group-hover:bg-white border border-border transition-all">
-                    {uploading ? <Loader2 size={24} className="animate-spin text-primary" /> : <Upload size={24} className="text-primary/60 group-hover:text-primary transition-colors" />}
-                 </div>
-                 <div className="text-center">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-primary">Upload Visual Cover</p>
-                    <p className="text-[9px] font-bold text-primary/60 mt-1 uppercase tracking-widest">Landscape recommended (Base 2:1)</p>
-                 </div>
-              </button>
-            )}
-            <input 
-              type="file" 
-              ref={fileInputRef} 
-              onChange={handleFileChange} 
-              className="hidden" 
-              accept="image/*" 
-            />
-          </div>
+        <div className="pl-20">
+            {/* Sidebar Fixed Toolbar (Rendered outside the flow) */}
+            <EditorToolbar editor={editor} />
 
-          <div className="flex flex-col space-y-12">
-            {/* Metadata Tier */}
-            <div className="flex items-center gap-6 px-1">
-               <div className="flex items-center gap-3 bg-white border border-border px-6 py-2 rounded-2xl shadow-sm">
-                  <span className="text-[10px] font-black text-primary/60 uppercase tracking-widest">Category</span>
-                  <select 
-                    name="category" 
-                    value={form.category} 
-                    onChange={handleChange} 
-                    className="text-[10px] font-black uppercase tracking-widest text-primary outline-none cursor-pointer pr-4"
-                  >
-                    {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
-                  </select>
-               </div>
-               <div className="h-0.5 w-12 bg-border rounded-full" />
-               <div className="flex items-center gap-2">
-                  <Sparkles size={14} className="text-secondary" />
-                  <span className="text-[10px] font-black text-primary/60 uppercase tracking-widest">Cultural Archive</span>
-               </div>
+            {/* Main Editorial Canvas */}
+            <div className="max-w-4xl mx-auto space-y-12">
+                {/* Title - Architectural Typography */}
+                <div className="space-y-6 pt-6">
+                    <textarea
+                      name="title"
+                      value={form.title}
+                      onChange={handleChange}
+                      rows={1}
+                      placeholder="Title of your story..."
+                      className="w-full text-4xl md:text-7xl font-black text-text-primary placeholder:text-primary/10 border-none outline-none resize-none px-1 overflow-hidden h-auto tracking-tighter leading-[0.9]"
+                      onInput={(e) => {
+                        const target = e.target as HTMLTextAreaElement;
+                        target.style.height = "auto";
+                        target.style.height = target.scrollHeight + "px";
+                      }}
+                    />
+
+                    {/* Excerpt - Refined Context */}
+                    <textarea
+                      name="excerpt"
+                      value={form.excerpt}
+                      onChange={handleChange}
+                      rows={1}
+                      placeholder="A brief preview for your audience..."
+                      className="w-full text-2xl font-bold text-text-secondary placeholder:text-primary/10 border-none outline-none resize-none px-1 h-auto leading-relaxed tracking-tight"
+                      onInput={(e) => {
+                        const target = e.target as HTMLTextAreaElement;
+                        target.style.height = "auto";
+                        target.style.height = target.scrollHeight + "px";
+                      }}
+                    />
+                </div>
+
+              {/* Enhanced Media Upload Orchestrator */}
+              <div className="relative group rounded-[3rem] border border-dashed border-primary/10 p-2 transition-all focus-within:border-primary/40 focus-within:ring-8 focus-within:ring-primary/5 bg-white/30">
+                {form.featuredImage ? (
+                  <div className="relative aspect-[21/9] w-full rounded-[2.8rem] overflow-hidden group shadow-sm bg-surface-soft">
+                     <img src={form.featuredImage} alt="Cover Preview" className="w-full h-full object-cover transition-transform group-hover:scale-105 duration-700" />
+                     <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4 backdrop-blur-sm">
+                        <button onClick={() => fileInputRef.current?.click()} className="p-4 bg-white rounded-full text-primary shadow-xl hover:scale-110 transition-transform"><Upload size={20} /></button>
+                        <button onClick={() => setForm(p => ({ ...p, featuredImage: "" }))} className="p-4 bg-white rounded-full text-red-500 shadow-xl hover:scale-110 transition-transform"><X size={20} /></button>
+                     </div>
+                  </div>
+                ) : (
+                  <button onClick={() => fileInputRef.current?.click()} disabled={uploading} className="flex flex-col items-center justify-center w-full aspect-[21/9] rounded-[2.8rem] bg-white hover:bg-surface-soft transition-all space-y-4 group">
+                     <div className="p-5 rounded-full bg-surface-soft group-hover:bg-white border border-border transition-all">
+                        {uploading ? <Loader2 size={24} className="animate-spin text-primary" /> : <Upload size={24} className="text-primary/60 group-hover:text-primary transition-colors" />}
+                     </div>
+                     <div className="text-center">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-primary">Upload Visual Cover</p>
+                        <p className="text-[9px] font-bold text-primary/60 mt-1 uppercase tracking-widest">Landscape recommended (Base 2:1)</p>
+                     </div>
+                  </button>
+                )}
+                <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" accept="image/*" />
+              </div>
+
+              <div className="flex flex-col space-y-20">
+                {/* CONTENT AREA — NOW UNDER COVER IMAGE */}
+                <div className="min-h-[300px]">
+                    <EditorContent editor={editor} />
+                </div>
+
+                {/* Actions Area */}
+                <div className="flex items-center gap-6 pt-12 border-t border-border">
+                   <button
+                      onClick={() => handleSubmit(true)}
+                      disabled={submitting || uploading}
+                      className="h-16 px-10 rounded-[2rem] text-[11px] font-black uppercase tracking-widest text-primary/60 hover:text-primary hover:bg-primary/5 transition-all disabled:opacity-30 border border-primary/20"
+                   >
+                      Save as Draft
+                   </button>
+                   <Button
+                    onClick={() => handleSubmit(false)}
+                    disabled={submitting || uploading}
+                    className="h-16 px-16 rounded-[2rem] bg-primary hover:bg-primary/90 text-white text-[11px] font-black uppercase tracking-widest shadow-2xl shadow-primary/20 transition-all disabled:opacity-50 flex items-center gap-4"
+                   >
+                     {submitting && <Loader2 size={16} className="animate-spin" />}
+                     {user?.role === 'teacher' ? 'Submit for Review' : 'Publish Story'}
+                   </Button>
+                </div>
+              </div>
             </div>
-
-            {/* Title - Architectural Typography */}
-            <textarea
-              name="title"
-              value={form.title}
-              onChange={handleChange}
-              rows={1}
-              placeholder="Title of your story..."
-              className="w-full text-4xl md:text-7xl font-black text-text-primary placeholder:text-primary/10 border-none outline-none resize-none px-1 overflow-hidden h-auto tracking-tighter leading-[0.9]"
-              onInput={(e) => {
-                const target = e.target as HTMLTextAreaElement;
-                target.style.height = "auto";
-                target.style.height = target.scrollHeight + "px";
-              }}
-            />
-
-            {/* Excerpt - Refined Context */}
-            <textarea
-              name="excerpt"
-              value={form.excerpt}
-              onChange={handleChange}
-              rows={1}
-              placeholder="A brief preview for your audience..."
-              className="w-full text-2xl font-bold text-text-secondary placeholder:text-primary/10 border-none outline-none resize-none px-1 h-auto leading-relaxed tracking-tight"
-              onInput={(e) => {
-                const target = e.target as HTMLTextAreaElement;
-                target.style.height = "auto";
-                target.style.height = target.scrollHeight + "px";
-              }}
-            />
-
-            <div className="h-px w-full bg-border opacity-50" />
-
-            {/* Body Content — Rich Text */}
-            <RichTextEditor
-              value={form.content}
-              onChange={(html) => setForm((prev) => ({ ...prev, content: html }))}
-              placeholder="Start sharing your linguistic journey..."
-            />
-          </div>
-        </div>
-
-        {/* Global Stats Overlay */}
-        <div className="fixed right-12 bottom-12 flex flex-col items-end gap-3 pointer-events-none">
-           <div className="px-6 py-3 bg-white border border-border rounded-2xl shadow-2xl pointer-events-auto flex items-center gap-6">
-              <div className="flex flex-col">
-                 <span className="text-[9px] font-black text-primary/60 uppercase tracking-widest">Narrative Depth</span>
-                 <span className="text-sm font-black text-primary">{form.content.trim() ? form.content.trim().split(/\s+/).length : 0} Words</span>
-              </div>
-              <div className="h-8 w-px bg-border" />
-              <div className="flex flex-col">
-                 <span className="text-[9px] font-black text-primary/60 uppercase tracking-widest">Time Spent</span>
-                 <span className="text-sm font-black text-primary">{Math.ceil((form.content.trim() ? form.content.trim().split(/\s+/).length : 0) / 200)} min</span>
-              </div>
-           </div>
         </div>
       </main>
       {adjustImage && (

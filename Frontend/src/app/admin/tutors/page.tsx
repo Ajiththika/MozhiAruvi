@@ -26,9 +26,9 @@ import {
   warnUser, 
   activateUser, 
   deactivateUser,
-  getTeacherApplications,
-  approveTeacherApplication,
-  rejectTeacherApplication
+  approveTeacherApplication, 
+  rejectTeacherApplication,
+  getMentorApplications
 } from "@/services/adminService";
 import { 
   getTutorApplicationsAdmin, 
@@ -62,37 +62,19 @@ export default function AdminTutorsPage() {
   } = useQuery({
     queryKey: ["admin", "tutor-applications-combined"],
     queryFn: async () => {
-      const [teacherApps, tutorApps] = await Promise.all([
-        getTeacherApplications(1, 100, "pending"),
-        getTutorApplicationsAdmin()
-      ]);
-
-      // Map both to a common format
-      const normalizedTeacherApps = (teacherApps.applications || []).map(app => ({
-        _id: app._id,
-        name: app.fullName || app.userId?.name || "Unknown",
-        email: app.userId?.email || "N/A",
-        experience: app.experience || "N/A",
-        bio: app.bio || "N/A",
-        languages: app.languages || [],
-        status: app.status,
-        type: 'teacher' as const,
-        phone: app.userId?.phoneNumber || ""
+      const mentors = await getMentorApplications();
+      // Service already returns normalized data, but for legacy compatibility we can ensure types
+      return mentors.map(m => ({
+        ...m,
+        name: m.cleanName || m.fullName || m.name || "Unknown",
+        email: m.userId?.email || m.email || "N/A",
+        experience: m.experience || "N/A",
+        bio: m.bio || "N/A",
+        languages: m.languages || [],
+        status: m.status,
+        type: m.type as 'teacher' | 'tutor',
+        phone: m.userId?.phoneNumber || m.phone || ""
       }));
-
-      const normalizedTutorApps = (tutorApps || []).map((app: any) => ({
-        _id: app._id,
-        name: app.name,
-        email: app.email,
-        experience: app.experience,
-        bio: app.bio,
-        languages: app.languages || [],
-        status: app.status,
-        type: 'tutor' as const,
-        phone: app.phone || app.userId?.phoneNumber || ""
-      }));
-
-      return [...normalizedTeacherApps, ...normalizedTutorApps].filter(a => a.status === 'pending');
     },
     staleTime: 2 * 60 * 1000,
   });
@@ -174,12 +156,9 @@ export default function AdminTutorsPage() {
             <Mail className="h-3 w-3 shrink-0" /> {row.email}
           </div>
           <div className="flex items-center gap-2 mt-1">
-             <span className={cn(
-               "px-2 py-0.5 rounded-md text-[8px] font-black uppercase tracking-widest border",
-               row.type === 'teacher' ? "bg-indigo-50 text-indigo-600 border-indigo-100" : "bg-teal-50 text-teal-600 border-teal-100"
-             )}>
-                {row.type} request
-             </span>
+              <span className="px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest border bg-white text-text-primary border-primary/20 shadow-sm whitespace-nowrap">
+                 {row.type} request
+              </span>
           </div>
         </div>
       ),

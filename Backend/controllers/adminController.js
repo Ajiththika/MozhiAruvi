@@ -98,3 +98,10 @@ export async function getPremiumUsers(req, res, next) {
         res.json(result);
     } catch (e) { next(e); }
 }
+
+export async function getMentorApplications(req, res, next) {
+    try {
+        const applications = await adminService.getMentorApplications();
+        res.json({ applications });
+    } catch (e) { next(e); }
+}
