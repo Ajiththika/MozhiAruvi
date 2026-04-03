@@ -1,7 +1,6 @@
 import { Router } from 'express';
 import * as adminController from '../controllers/adminController.js';
-import * as teacherApplicationController from '../controllers/teacherApplicationController.js';
-import * as tutorApplicationController from '../controllers/tutorApplicationController.js';
+import * as mentorApplicationController from '../controllers/mentorApplicationController.js';
 import * as eventController from '../controllers/eventController.js';
 import { authenticate } from '../middleware/auth.js';
 import { authorizeRoles } from '../middleware/authorizeRoles.js';
@@ -20,9 +19,9 @@ router.delete('/plan-settings/:planId', authenticate, authorizeRoles(ROLES.ADMIN
 
 // ── Tutor Management ────────────────────────────────────────────────────────
 router.get('/tutors', authenticate, authorizeRoles(ROLES.ADMIN), adminController.getTutors);
-router.get('/tutors/applications', authenticate, authorizeRoles(ROLES.ADMIN), tutorApplicationController.getTutorApplications);
-router.patch('/tutors/:id/approve', authenticate, authorizeRoles(ROLES.ADMIN), tutorApplicationController.approveTutorApplication);
-router.patch('/tutors/:id/reject', authenticate, authorizeRoles(ROLES.ADMIN), tutorApplicationController.rejectTutorApplication);
+router.get('/tutors/applications', authenticate, authorizeRoles(ROLES.ADMIN), mentorApplicationController.getTeacherApplications);
+router.patch('/tutors/:id/approve', authenticate, authorizeRoles(ROLES.ADMIN), mentorApplicationController.approveTeacherApplication);
+router.patch('/tutors/:id/reject', authenticate, authorizeRoles(ROLES.ADMIN), mentorApplicationController.rejectTeacherApplication);
 router.get('/mentor-applications', authenticate, authorizeRoles(ROLES.ADMIN), adminController.getMentorApplications);
 
 // Admin functions
@@ -35,10 +34,10 @@ router.patch('/users/:id/tutor-status', authenticate, authorizeRoles(ROLES.ADMIN
 router.patch('/users/:id/warn', authenticate, authorizeRoles(ROLES.ADMIN), adminController.warnUser);
 
 // ── Teacher Application Management ──────────────────────────────────────────
-router.get('/teacher-applications', authenticate, authorizeRoles(ROLES.ADMIN), teacherApplicationController.getTeacherApplications);
-router.patch('/teacher-applications/:id/approve', authenticate, authorizeRoles(ROLES.ADMIN), teacherApplicationController.approveTeacherApplication);
-router.patch('/teacher-applications/:id/reject', authenticate, authorizeRoles(ROLES.ADMIN), teacherApplicationController.rejectTeacherApplication);
-router.patch('/teacher-applications/:id/request-revision', authenticate, authorizeRoles(ROLES.ADMIN), teacherApplicationController.requestRevisionTeacherApplication);
+router.get('/teacher-applications', authenticate, authorizeRoles(ROLES.ADMIN), mentorApplicationController.getTeacherApplications);
+router.patch('/teacher-applications/:id/approve', authenticate, authorizeRoles(ROLES.ADMIN), mentorApplicationController.approveTeacherApplication);
+router.patch('/teacher-applications/:id/reject', authenticate, authorizeRoles(ROLES.ADMIN), mentorApplicationController.rejectTeacherApplication);
+router.patch('/teacher-applications/:id/request-revision', authenticate, authorizeRoles(ROLES.ADMIN), mentorApplicationController.requestRevisionTeacherApplication);
 
 // ── Event Join Request Management ────────────────────────────────────────────
 // GET  /api/admin/events/join-requests?eventId=&status=

@@ -7,6 +7,8 @@ import './config/env.js'; // MUST BE FIRST: Load and validate env
 import app from './app.js';
 import { connectDB, closeDB } from './config/db.js';
 import { seedPlans } from './utils/seedPlans.js';
+import { initNotificationService } from './services/notificationService.js';
+import { initCronJobs } from './jobs/cronJobs.js';
 
 const PORT = 5000;
 
@@ -21,6 +23,12 @@ const server = app.listen(PORT, async () => {
     try {
         await connectDB();
         await seedPlans();
+        
+        // ── Mozhi Aruvi Automation Systems ────────────────────────────────────
+        initNotificationService();
+        initCronJobs();
+        console.log('✅ [SERVER] Notification & Automation Systems: Operational');
+        
     } catch (err) {
         console.error('❌ [SERVER] Start Failure during DB connection:', err.message);
     }

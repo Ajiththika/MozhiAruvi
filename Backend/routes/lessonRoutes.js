@@ -23,7 +23,7 @@ const createLessonSchema = z.object({
     content: z.string().optional(),
     isPremiumOnly: z.boolean().optional(),
     orderIndex: z.number().int().optional().default(0),
-    level: z.enum(['Basic', 'Beginner', 'Intermediate', 'Advanced']).optional().default('Basic'),
+    level: z.enum(['Basic', 'Beginner', 'Elementary', 'Intermediate', 'Advanced']).optional().default('Basic'),
 }).strict();
 
 const updateLessonSchema = createLessonSchema.partial();

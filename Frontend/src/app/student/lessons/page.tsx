@@ -174,10 +174,11 @@ export default function StudentLessonsPage() {
   const powers = user?.progress?.energy ?? user?.power ?? 25;
   const isOutOfEnergy = powers <= 0;
   const userLevel = (user?.level === "Not Set" || !user?.level) ? "Beginner" : user?.level;
+  const [activeLevel, setActiveLevel] = useState<string>(userLevel);
 
   const filteredLessons = lessons.filter(l => {
     const lessonLevel = (l.level || "Basic").toLowerCase();
-    const target = userLevel.toLowerCase();
+    const target = activeLevel.toLowerCase();
     return lessonLevel === target || 
            (target === "beginner" && lessonLevel === "basic") ||
            (target === "basic" && lessonLevel === "beginner");
@@ -267,13 +268,31 @@ export default function StudentLessonsPage() {
         </div>
       </div>
 
+      {/* Level Selection Tabs */}
+      <div className="flex flex-wrap items-center gap-3 bg-white p-3 rounded-[2rem] border border-slate-100 shadow-sm mx-2 sm:mx-0">
+        {["Beginner", "Elementary", "Intermediate", "Advanced"].map((lv) => (
+          <button
+            key={lv}
+            onClick={() => setActiveLevel(lv)}
+            className={cn(
+              "flex-1 min-w-[140px] py-4 rounded-[1.5rem] text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-300 border-2",
+              activeLevel === lv 
+                ? "bg-primary text-white border-primary shadow-lg shadow-primary/20 scale-[1.02]" 
+                : "bg-slate-50 text-primary/60 border-transparent hover:bg-slate-100 hover:text-slate-600"
+            )}
+          >
+            {lv}
+          </button>
+        ))}
+      </div>
+
       {/* Page Header */}
       <div className="px-4 py-6">
         <h2 className="text-3xl md:text-4xl lg:text-4xl font-black tracking-tight text-primary flex items-center gap-3 uppercase">
-          <BookOpen className="h-8 w-8 text-indigo-500" /> Path Overview
+          <BookOpen className="h-8 w-8 text-secondary" /> {activeLevel} Curriculum
         </h2>
         <p className="mt-4 text-base md:text-lg font-semibold text-slate-700 leading-relaxed">
-          Master each category to unlock professional certifications and track your linguistic growth in {userLevel}.
+           Embark on your {activeLevel} path. Master these fundamentals to build a strong linguistic base.
         </p>
       </div>
 
@@ -289,180 +308,81 @@ export default function StudentLessonsPage() {
         </div>
       )}
 
-      {orderedGroups.length === 0 && !isOutOfEnergy && (
-        <div className="py-20 text-center text-primary/60 font-bold uppercase tracking-widest text-sm">
-          No lessons are ready yet.
-        </div>
-      )}
+      {/* Unified Lesson Grid */}
+      {!isOutOfEnergy && filteredLessons.length > 0 && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 px-4 pb-20">
+          {sortedLessons.map((lesson) => {
+            const status = lessonStatus.get(lesson._id) || "locked";
+            const isPaidPlan = user?.subscription?.plan && ['PRO', 'PREMIUM', 'BUSINESS'].includes(user.subscription.plan);
+            const isPremiumUser = user?.isPremium || isPaidPlan;
+            
+            const isLocked = status === "locked" || (lesson.isPremiumOnly && !isPremiumUser);
+            const isCurrent = status === "unlocked" && !isLocked;
+            const isDone = status === "completed";
 
-      {/* Category Sections */}
-      {!isOutOfEnergy && orderedGroups.map(([category, categoryLessons]) => {
-        const totalCat = categoryLessons.length;
-        const completedCat = categoryLessons.filter(l => progressMap.get(l._id)?.isCompleted).length;
-        const badgeEarned = totalCat > 0 && completedCat === totalCat;
-        const progressPct = totalCat > 0 ? Math.round((completedCat / totalCat) * 100) : 0;
-
-        return (
-          <section key={category} className="relative">
-            {/* Category header */}
-            <div className="mb-8 flex items-center gap-5">
-              <div className={cn(
-                "flex h-14 w-14 items-center justify-center rounded-2xl shadow-2xl text-white border-2 border-white transition-all hover:scale-110 shrink-0",
-                badgeEarned
-                  ? "bg-success shadow-success/40"
-                  : "bg-indigo-600 shadow-indigo-600/30"
-              )}>
-                {badgeEarned
-                  ? <CheckCircle2 className="h-7 w-7" />
-                  : <BookOpen className="h-7 w-7 text-white" />
-                }
-              </div>
-              <div className="flex-1 min-w-0">
-                <h3 className="text-2xl font-black text-primary uppercase tracking-tight flex items-center gap-3 flex-wrap">
-                  {category}
-                  {badgeEarned && (
-                    <span className="bg-success/15 text-success text-xs font-bold tracking-wider px-3 py-1 rounded-full flex items-center gap-2 border border-success/20">
-                      <CheckCircle2 className="w-4 h-4" /> MASTER
-                    </span>
-                  )}
-                </h3>
-                {/* Animated category progress bar */}
-                <div className="mt-3 flex items-center gap-4">
-                  <div className="flex-1 h-2.5 bg-slate-100 rounded-full overflow-hidden shadow-inner">
-                    <div
-                      className={cn(
-                        "h-full rounded-full transition-all duration-1000 shadow-sm",
-                        badgeEarned ? "bg-success" : "bg-indigo-500"
-                      )}
-                      style={{ width: `${progressPct}%` }}
-                    />
+            return (
+              <div
+                key={lesson._id}
+                onClick={() => setPreviewLesson({
+                  lesson,
+                  status: isDone ? "completed" : "unlocked"
+                })}
+                className={cn(
+                  "group flex flex-col gap-5 rounded-[2.5rem] border p-8 cursor-pointer transition-all duration-500 hover:-translate-y-2",
+                  isLocked 
+                    ? "bg-slate-50 border-slate-100 opacity-60 grayscale cursor-not-allowed"
+                    : isDone
+                      ? "bg-emerald-50/30 border-emerald-100 hover:shadow-2xl hover:shadow-emerald-100/50"
+                      : "bg-white border-slate-100 shadow-xl shadow-slate-200/40 hover:border-primary/20 hover:shadow-2xl hover:shadow-primary/5"
+                )}
+              >
+                <div className="flex items-start justify-between">
+                  <div className={cn(
+                    "h-14 w-14 rounded-2xl border flex items-center justify-center transition-all duration-500",
+                    isLocked ? "bg-slate-200 text-slate-400" : isDone ? "bg-emerald-500 text-white shadow-lg shadow-emerald-500/20" : "bg-primary text-white shadow-lg shadow-primary/20 group-hover:rotate-12"
+                  )}>
+                    {isDone ? <CheckCircle2 className="w-8 h-8" /> : isLocked ? <Lock className="w-6 h-6" /> : <BookOpen className="w-8 h-8" />}
                   </div>
-                  <span className="text-xs font-bold text-slate-600 uppercase tracking-widest whitespace-nowrap">
-                    {completedCat} / {totalCat}
+                  <span className={cn(
+                    "text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full border",
+                    "text-indigo-600 bg-indigo-50 border-indigo-100"
+                  )}>
+                    {activeLevel} - STAGE {lesson.orderIndex}
                   </span>
                 </div>
-              </div>
-            </div>
 
-            {/* Lesson nodes with connector line */}
-            <div className="relative flex flex-col gap-4 pl-14">
-              {/* Connector line — fills with progress */}
-              <div className="absolute inset-y-2 left-[1.45rem] ml-[1px] w-[3px] bg-slate-100 rounded-full overflow-hidden">
-                <div
-                  className={cn(
-                    "rounded-full transition-all duration-700",
-                    badgeEarned ? "bg-success" : "bg-secondary/50"
+                <div className="space-y-3">
+                  <h3 className={cn(
+                    "text-xl font-black uppercase tracking-tight leading-tight",
+                    isLocked ? "text-slate-400" : "text-slate-800"
+                  )}>
+                    {lesson.title}
+                  </h3>
+                  {lesson.description && (
+                    <p className="text-sm font-medium text-slate-500 line-clamp-2 leading-relaxed">
+                      {lesson.description}
+                    </p>
                   )}
-                  style={{ height: `${progressPct}%` }}
-                />
+                </div>
+
+                <div className="flex items-center gap-3">
+                   <span className={cn(
+                     "text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full border",
+                     lesson.isPremiumOnly ? "text-amber-600 bg-amber-50 border-amber-100" : "text-emerald-600 bg-emerald-50 border-emerald-100"
+                   )}>
+                      {lesson.isPremiumOnly ? "★ Premium" : "✓ Free"}
+                   </span>
+                   {isDone && (
+                      <span className="text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full bg-emerald-100 text-emerald-600 border border-emerald-200">
+                        Mastered
+                      </span>
+                   )}
+                </div>
               </div>
-
-              {categoryLessons.map((lesson) => {
-                const status = lessonStatus.get(lesson._id) || "locked";
-                const isPaidPlan = user?.subscription?.plan && ['PRO', 'PREMIUM', 'BUSINESS'].includes(user.subscription.plan);
-                const isPremiumUser = user?.isPremium || isPaidPlan;
-                
-                // Lock if naturally locked by sequence OR if premium-only and user is not premium
-                const isLocked = status === "locked" || (lesson.isPremiumOnly && !isPremiumUser);
-                
-                const isCurrent = status === "unlocked" && !isLocked;
-                const isDone = status === "completed";
-
-                return (
-                  <div key={lesson._id} className="relative">
-                    {/* Node dot */}
-                    <div className={cn(
-                      "absolute -left-[32px] top-1/2 -translate-y-1/2 z-10 rounded-full border-[3px] bg-white transition-all duration-300",
-                      isDone
-                        ? "h-5 w-5 border-success scale-110"
-                        : isCurrent
-                          ? "h-5 w-5 border-secondary ring-4 ring-secondary/20 animate-pulse"
-                          : "h-4 w-4 border-slate-300"
-                    )}>
-                      {isDone && <div className="absolute inset-0.5 rounded-full bg-success/40" />}
-                    </div>
-
-                    {/* LOCKED card */}
-                    {isLocked ? (
-                      <div className="flex items-center gap-4 rounded-2xl border border-slate-100 bg-slate-50/80 p-4 opacity-55 grayscale select-none cursor-not-allowed">
-                        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-slate-200">
-                          <Lock className="h-5 w-5 text-primary/60" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="font-bold text-primary/60 truncate text-sm">{lesson.title}</p>
-                          {lesson.isPremiumOnly && (
-                            <span className="mt-1 inline-block rounded-full bg-amber-100 px-2 py-0.5 text-[9px] font-black uppercase text-amber-700 tracking-tighter">
-                              Premium Path
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    ) : (
-                      /* UNLOCKED / COMPLETED card */
-                      <div
-                        onClick={() => setPreviewLesson({
-                          lesson,
-                          status: isDone ? "completed" : "unlocked"
-                        })}
-                        className={cn(
-                          "group flex items-center gap-4 rounded-2xl border p-4 cursor-pointer",
-                          "transition-all duration-200 hover:scale-[1.02] hover:-translate-y-0.5 active:scale-[0.99]",
-                          isDone
-                            ? "border-success/25 bg-success/5 hover:border-success/40 hover:shadow-lg hover:shadow-success/10"
-                            : isCurrent
-                              ? "border-secondary/40 bg-white shadow-lg shadow-secondary/10 hover:shadow-xl hover:border-secondary/60 ring-2 ring-secondary/10"
-                              : "border-slate-100 bg-white hover:border-secondary/30 hover:shadow-md"
-                        )}
-                      >
-                        {/* Icon */}
-                        <div className={cn(
-                          "flex h-12 w-12 shrink-0 items-center justify-center rounded-xl transition-all duration-300",
-                          isDone
-                            ? "bg-success/15 group-hover:bg-success/25"
-                            : "bg-primary/10 group-hover:bg-primary/20"
-                        )}>
-                          {isDone
-                            ? <CheckCircle2 className="h-6 w-6 text-success" />
-                            : <BookOpen className="h-6 w-6 text-primary" />
-                          }
-                        </div>
-
-                        {/* Title + type */}
-                        <div className="flex-1 min-w-0">
-                          <p className={cn(
-                            "font-bold truncate text-base uppercase tracking-tight",
-                            isDone ? "text-primary/70" : "text-primary"
-                          )}>
-                            {lesson.title}
-                          </p>
-                          {lesson.type && (
-                            <span className="text-xs text-primary/80 uppercase font-bold tracking-widest mt-1 block">
-                              {lesson.type} Core Practice
-                            </span>
-                          )}
-                        </div>
-
-                        {/* CTA pill — slides in on hover */}
-                        <div className={cn(
-                          "shrink-0 flex items-center gap-2 text-xs font-bold uppercase tracking-widest px-4 py-2.5 rounded-xl border opacity-0 group-hover:opacity-100 -translate-x-3 group-hover:translate-x-0 transition-all duration-300 shadow-sm",
-                          isDone
-                            ? "bg-success/10 text-success border-success/20"
-                            : "bg-indigo-50 text-indigo-600 border-indigo-100"
-                        )}>
-                          <span className="flex items-center gap-2">
-                            {isDone ? "Retake" : isCurrent ? "Continue" : "Begin"}
-                            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                          </span>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          </section>
-        );
-      })}
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

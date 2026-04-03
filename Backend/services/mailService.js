@@ -89,3 +89,25 @@ export async function testSmtpConnection(to) {
 
     return info.messageId;
 }
+
+// ── Generic Email Sender (Main Logic) ─────────────────────────────────────────
+export async function sendEmail(to, subject, html) {
+    let transporter;
+    try {
+        transporter = createTransporter();
+    } catch (configError) {
+        console.error('SMTP Connection Failure:', configError.message);
+        return;
+    }
+
+    const rawFrom = process.env.SMTP_FROM || '';
+    const from = rawFrom.replace(/^["']|["']$/g, '') || `"Mozhi Aruvi" <${process.env.SMTP_USER}>`;
+
+    const mailOptions = { from, to, subject, html };
+
+    try {
+        await transporter.sendMail(mailOptions);
+    } catch (error) {
+        console.error('Failed to dispatch email:', error.message);
+    }
+}

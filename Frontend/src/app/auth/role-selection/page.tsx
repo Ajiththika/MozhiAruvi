@@ -7,7 +7,9 @@ import { GraduationCap, User, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Button from "@/components/ui/Button";
 
-export default function RoleSelectionPage() {
+import { Suspense } from "react";
+
+function RoleSelectionContent() {
   const { user } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -77,5 +79,13 @@ export default function RoleSelectionPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function RoleSelectionPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-slate-50">Loading...</div>}>
+      <RoleSelectionContent />
+    </Suspense>
   );
 }

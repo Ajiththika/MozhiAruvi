@@ -31,11 +31,11 @@ interface DraftQuestion {
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 const TYPE_META: Record<QuestionType, { label: string; icon: React.ReactNode; color: string }> = {
-  mcq:        { label: "MCQ",         icon: null, color: "text-violet-600 bg-violet-50 border-violet-100" },
-  fill_blank: { label: "Fill Blank",  icon: null, color: "text-sky-600 bg-sky-50 border-sky-100" },
-  matching:   { label: "Matching",    icon: null, color: "text-amber-600 bg-amber-50 border-amber-100" },
-  listening:  { label: "Listening",   icon: null, color: "text-emerald-600 bg-emerald-50 border-emerald-100" },
-  speaking:   { label: "Speaking",    icon: <Mic         className="w-4 h-4" />, color: "text-rose-600 bg-rose-50 border-rose-100" },
+  mcq:        { label: "MCQ",         icon: null, color: "text-indigo-600 bg-indigo-50 border-indigo-100" },
+  fill_blank: { label: "Fill Blank",  icon: null, color: "text-indigo-600 bg-indigo-50 border-indigo-100" },
+  matching:   { label: "Matching",    icon: null, color: "text-indigo-600 bg-indigo-50 border-indigo-100" },
+  listening:  { label: "Listening",   icon: null, color: "text-indigo-600 bg-indigo-50 border-indigo-100" },
+  speaking:   { label: "Speaking",    icon: <Mic className="w-4 h-4" />, color: "text-indigo-600 bg-indigo-50 border-indigo-100" },
 };
 
 const defaultData = (type: QuestionType): QuestionData => {
@@ -336,11 +336,11 @@ function AdminLessonCard({ lesson, onManageQuestions, onEdit, onDelete }: AdminL
   }
 
   const levelColor: Record<string, string> = {
-    Basic: "text-sky-600 bg-sky-50 border-sky-100",
+    Basic: "text-indigo-600 bg-indigo-50 border-indigo-100",
     Beginner: "text-indigo-600 bg-indigo-50 border-indigo-100",
-    Elementary: "text-emerald-600 bg-emerald-50 border-emerald-100",
-    Intermediate: "text-amber-600 bg-amber-50 border-amber-100",
-    Advanced: "text-rose-600 bg-rose-50 border-rose-100",
+    Elementary: "text-indigo-600 bg-indigo-50 border-indigo-100",
+    Intermediate: "text-indigo-600 bg-indigo-50 border-indigo-100",
+    Advanced: "text-indigo-600 bg-indigo-50 border-indigo-100",
   };
 
   return (
@@ -359,7 +359,7 @@ function AdminLessonCard({ lesson, onManageQuestions, onEdit, onDelete }: AdminL
           <div className="flex items-center gap-3 flex-wrap">
             {/* Level badge */}
             <span className={`text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full border ${levelColor[lesson.level || "Basic"] || levelColor["Basic"]}`}>
-              {lesson.level || "Basic"} • Stage {lesson.orderIndex}
+              {lesson.level || "Basic"} - STAGE {lesson.orderIndex}
             </span>
             {/* Published / Premium tag */}
             <span className={`text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full border ${lesson.isPremiumOnly ? "text-amber-600 bg-amber-50 border-amber-100" : "text-emerald-600 bg-emerald-50 border-emerald-100"}`}>
@@ -806,25 +806,17 @@ export default function AdminLessonsPage() {
                       <p className="text-primary/60 font-bold italic">This level is currently empty.</p>
                     </div>
                   ) : (
-                    Object.entries(categoriesOnPage).map(([category, catLessons]) => (
-                      <div key={category} className="space-y-8 relative border-l-2 border-slate-50 pl-10">
-                        <div className="absolute -left-[11px] top-0 h-5 w-5 rounded-full border-4 border-white bg-secondary shadow-md ring-4 ring-secondary/10" />
-                        <h3 className="text-3xl font-black text-slate-800 tracking-tight flex items-center gap-4">
-                          {category}
-                        </h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                          {catLessons.map(lesson => (
-                            <AdminLessonCard
-                              key={lesson._id}
-                              lesson={lesson}
-                              onManageQuestions={() => openQuestions(lesson)}
-                              onEdit={() => openEdit(lesson)}
-                              onDelete={() => handleDelete(lesson._id)}
-                            />
-                          ))}
-                        </div>
-                      </div>
-                    ))
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {paginated.map(lesson => (
+                      <AdminLessonCard
+                        key={lesson._id}
+                        lesson={lesson}
+                        onManageQuestions={() => openQuestions(lesson)}
+                        onEdit={() => openEdit(lesson)}
+                        onDelete={() => handleDelete(lesson._id)}
+                      />
+                    ))}
+                  </div>
                   )}
                 </div>
 

@@ -1,6 +1,7 @@
 import * as authService from '../services/authService.js';
 import * as tokenService from '../services/tokenService.js';
 import { regenerateEnergy } from '../utils/energyManager.js';
+import { emitMozhiEvent } from '../events/eventEmitter.js';
 import User from '../models/User.js';
 
 // ── Register ──────────────────────────────────────────────────────────────────
@@ -8,6 +9,13 @@ export async function register(req, res, next) {
     try {
         const { user, accessToken, raw, sessionId } = await authService.registerUser(req);
         tokenService.setRefreshCookie(res, { raw, sessionId });
+
+        // ── Automated Welcome Cycle ───────────────────────────────────────────
+        emitMozhiEvent('USER_REGISTERED', {
+            name: user.name || 'Student',
+            email: user.email
+        });
+
         res.status(201).json({ accessToken, user: user.toSafeObject() });
     } catch (e) { next(e); }
 }
@@ -17,6 +25,17 @@ export async function login(req, res, next) {
     try {
         const { user, accessToken, raw, sessionId } = await authService.loginUser(req);
         tokenService.setRefreshCookie(res, { raw, sessionId });
+
+        // ── Smart Auth Tracking ───────────────────────────────────────────────
+        user.lastLogin = new Date();
+        await user.save();
+
+        emitMozhiEvent('USER_LOGIN', {
+            name: user.name || 'User',
+            email: user.email,
+            isNewDevice: false // Logic can be enhanced with IP checks
+        });
+
         res.json({ accessToken, user: user.toSafeObject() });
     } catch (e) { next(e); }
 }

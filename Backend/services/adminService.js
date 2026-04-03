@@ -1,7 +1,6 @@
+import MentorApplication from '../models/MentorApplication.js';
 import User from '../models/User.js';
-import TeacherApplication from '../models/TeacherApplication.js';
 import Event from '../models/Event.js';
-import TutorApplication from '../models/TutorApplication.js';
 
 // Get users with pagination
 export async function getAllUsers(page = 1, limit = 6) {
@@ -108,12 +107,11 @@ export async function editUser(userId, updateData) {
 }
 
 export async function getDashboardStats() {
-    const [totalUsers, activeUsers, totalTutors, teacherApps, tutorApps, totalEvents] = await Promise.all([
+    const [totalUsers, activeUsers, totalTutors, pendingMentorApps, totalEvents] = await Promise.all([
         User.countDocuments(),
         User.countDocuments({ isActive: true }),
         User.countDocuments({ role: { $in: ['teacher', 'tutor'] } }),
-        TeacherApplication.countDocuments({ status: 'pending' }),
-        TutorApplication.countDocuments({ status: 'pending' }),
+        MentorApplication.countDocuments({ status: 'pending' }),
         Event.countDocuments()
     ]);
 
@@ -121,7 +119,7 @@ export async function getDashboardStats() {
         totalUsers,
         activeUsers,
         totalTutors,
-        pendingApps: teacherApps + tutorApps,
+        pendingApps: pendingMentorApps,
         totalEvents
     };
 }
@@ -146,22 +144,11 @@ export async function getPremiumUsers(page = 1, limit = 10) {
 }
 
 export async function getMentorApplications() {
-    const [teacherApps, tutorApps] = await Promise.all([
-        TeacherApplication.find({ status: 'pending' }).sort({ createdAt: -1 }).lean(),
-        TutorApplication.find({ status: 'pending' }).sort({ createdAt: -1 }).lean()
-    ]);
+    const apps = await MentorApplication.find({ status: 'pending' }).sort({ createdAt: -1 }).lean();
     
-    const normalizedTeacherApps = teacherApps.map(app => ({
+    return apps.map(app => ({
         ...app,
-        type: 'teacher',
-        cleanName: app.fullName || "Teacher Candidate"
+        type: app.type || 'mentor', // Default to mentor if no type was stored
+        cleanName: app.fullName || app.name || "Candidate"
     }));
-    
-    const normalizedTutorApps = tutorApps.map(app => ({
-        ...app,
-        type: 'tutor',
-        cleanName: app.name || "Tutor Candidate"
-    }));
-    
-    return [...normalizedTeacherApps, ...normalizedTutorApps].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 }

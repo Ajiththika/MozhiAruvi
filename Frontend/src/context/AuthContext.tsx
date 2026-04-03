@@ -4,7 +4,7 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import { SafeUser, getMe, refresh, logout } from "@/services/authService";
 import { authStore } from "@/lib/authStore";
 
-interface AuthContextType {
+export interface AuthContextType {
   user: SafeUser | null;
   isLoading: boolean;
   setUser: React.Dispatch<React.SetStateAction<SafeUser | null>>;

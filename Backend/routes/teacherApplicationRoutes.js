@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { authenticate } from '../middleware/auth.js';
 import { validate } from '../middleware/validate.js';
-import * as teacherApplicationController from '../controllers/teacherApplicationController.js';
+import * as mentorApplicationController from '../controllers/mentorApplicationController.js';
 import { z } from 'zod';
 
 const router = Router();
@@ -32,12 +32,12 @@ const applicationSchema = z.object({
 // ── User Application Management Routes ────────────────────────────────────────
 
 // Submit a new application
-router.post('/apply', authenticate, validate(applicationSchema), teacherApplicationController.applyForTeacher);
+router.post('/apply', authenticate, validate(applicationSchema), mentorApplicationController.submitApplication);
 
 // View my current application status
-router.get('/application/me', authenticate, teacherApplicationController.getMyApplication);
+router.get('/application/me', authenticate, mentorApplicationController.getMyApplication);
 
 // Update a pending or rejected application
-router.patch('/application/me', authenticate, validate(applicationSchema.partial()), teacherApplicationController.updateMyApplication);
+router.patch('/application/me', authenticate, validate(applicationSchema.partial()), mentorApplicationController.updateMyApplication);
 
 export default router;

@@ -6,9 +6,9 @@ import { cn } from "@/lib/utils";
 import { Tutor } from "@/services/tutorService";
 
 const levelColors: Record<string, string> = {
-  beginner:     "bg-emerald-50 text-emerald-700 border-emerald-100",
-  intermediate: "bg-amber-50 text-amber-700 border-amber-100",
-  advanced:     "bg-violet-50 text-violet-700 border-violet-100",
+  beginner:     "bg-indigo-50 text-indigo-700 border-indigo-100",
+  intermediate: "bg-indigo-50 text-indigo-700 border-indigo-100",
+  advanced:     "bg-indigo-50 text-indigo-700 border-indigo-100",
 };
 
 const modeLabel: Record<string, string> = {
