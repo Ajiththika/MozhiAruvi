@@ -26,7 +26,7 @@ export function Topbar({ onMenuClick, title = "Dashboard" }: TopbarProps) {
           <Menu className="h-5 w-5" />
           <span className="sr-only">Toggle menu</span>
         </button>
-        <h1 className="text-lg font-semibold tracking-tight text-slate-800 dark:text-slate-100">
+        <h1 className="text-lg font-black tracking-tight text-text-primary">
           {title}
         </h1>
       </div>

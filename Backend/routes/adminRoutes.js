@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import * as adminController from '../controllers/adminController.js';
 import * as teacherApplicationController from '../controllers/teacherApplicationController.js';
+import * as tutorApplicationController from '../controllers/tutorApplicationController.js';
 import * as eventController from '../controllers/eventController.js';
 import { authenticate } from '../middleware/auth.js';
 import { authorizeRoles } from '../middleware/authorizeRoles.js';
@@ -17,8 +18,11 @@ router.post('/plan-settings', authenticate, authorizeRoles(ROLES.ADMIN), adminCo
 router.patch('/plan-settings/:planId', authenticate, authorizeRoles(ROLES.ADMIN), adminController.updatePlanSettings);
 router.delete('/plan-settings/:planId', authenticate, authorizeRoles(ROLES.ADMIN), adminController.deletePlanSettings);
 
-// Retrieve all tutors (admins can view)
+// ── Tutor Management ────────────────────────────────────────────────────────
 router.get('/tutors', authenticate, authorizeRoles(ROLES.ADMIN), adminController.getTutors);
+router.get('/tutors/applications', authenticate, authorizeRoles(ROLES.ADMIN), tutorApplicationController.getTutorApplications);
+router.patch('/tutors/:id/approve', authenticate, authorizeRoles(ROLES.ADMIN), tutorApplicationController.approveTutorApplication);
+router.patch('/tutors/:id/reject', authenticate, authorizeRoles(ROLES.ADMIN), tutorApplicationController.rejectTutorApplication);
 
 // Admin functions
 router.patch('/users/:id/deactivate', authenticate, authorizeRoles(ROLES.ADMIN), adminController.deactivateUser);

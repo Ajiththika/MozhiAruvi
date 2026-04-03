@@ -44,7 +44,7 @@ export function QuestionCard({ question: q, feedback, credits, selectedIndex, on
                 {idx + 1}
               </div>
               <span className={cn(
-                "text-2xl md:text-3xl font-bold tracking-tight leading-snug",
+                "text-xl md:text-2xl font-bold tracking-tight leading-snug",
                 isCorrect ? "text-emerald-700" : 
                 isIncorrect ? "text-red-700" : 
                 isSelected ? "text-primary" : "text-slate-800"

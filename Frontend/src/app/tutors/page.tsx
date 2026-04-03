@@ -9,8 +9,12 @@ import { getAvailableTutors } from "@/services/tutorService";
 import Button from "@/components/ui/Button";
 import Pagination from "@/components/ui/Pagination";
 import { useQuery } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
 
 export default function PublicTutorsPage() {
+  const router = useRouter();
+  const { user } = useAuth();
   const [searchInput, setSearchInput] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -33,9 +37,17 @@ export default function PublicTutorsPage() {
     staleTime: 5 * 60 * 1000,
   });
 
-  const tutors = data?.tutors || [];
-  const totalPages = data?.totalPages || 1;
-  const totalTutors = data?.totalTutors || 0;
+  const tutors = (data as any)?.tutors || [];
+  const totalPages = (data as any)?.totalPages || 1;
+  const totalTutors = (data as any)?.totalTutors || 0;
+
+  const handleJoinAsTutor = () => {
+    if (user) {
+      router.push('/tutor/apply');
+    } else {
+      router.push('/auth/signup?redirect=/tutor/apply');
+    }
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-white font-sans">
@@ -50,6 +62,13 @@ export default function PublicTutorsPage() {
               <h2 className="text-3xl font-black text-slate-800 tracking-tight uppercase">Professional Tutors</h2>
               <p className="text-sm text-primary/60 font-bold uppercase tracking-widest mt-1">Found {totalTutors} experts ready to help</p>
             </div>
+            
+            <Button 
+                onClick={handleJoinAsTutor} 
+                className="bg-primary text-white px-8 py-3 rounded-xl shadow-lg hover:scale-105 transition active:scale-95 text-xs font-black uppercase tracking-widest"
+            >
+                Join as a Tutor
+            </Button>
           </div>
 
           {/* --- Search Bar --- */}
@@ -102,7 +121,7 @@ export default function PublicTutorsPage() {
                     </div>
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-10">
-                      {tutors.map((tutor) => (
+                      {tutors.map((tutor: any) => (
                         <TutorCard key={tutor._id} tutor={tutor} />
                       ))}
                     </div>

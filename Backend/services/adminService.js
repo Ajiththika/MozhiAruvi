@@ -1,6 +1,7 @@
 import User from '../models/User.js';
 import TeacherApplication from '../models/TeacherApplication.js';
 import Event from '../models/Event.js';
+import TutorApplication from '../models/TutorApplication.js';
 
 // Get users with pagination
 export async function getAllUsers(page = 1, limit = 6) {
@@ -107,11 +108,12 @@ export async function editUser(userId, updateData) {
 }
 
 export async function getDashboardStats() {
-    const [totalUsers, activeUsers, totalTutors, pendingApps, totalEvents] = await Promise.all([
+    const [totalUsers, activeUsers, totalTutors, teacherApps, tutorApps, totalEvents] = await Promise.all([
         User.countDocuments(),
         User.countDocuments({ isActive: true }),
         User.countDocuments({ role: { $in: ['teacher', 'tutor'] } }),
         TeacherApplication.countDocuments({ status: 'pending' }),
+        TutorApplication.countDocuments({ status: 'pending' }),
         Event.countDocuments()
     ]);
 
@@ -119,7 +121,7 @@ export async function getDashboardStats() {
         totalUsers,
         activeUsers,
         totalTutors,
-        pendingApps,
+        pendingApps: teacherApps + tutorApps,
         totalEvents
     };
 }

@@ -11,9 +11,10 @@ interface MatchingPairsProps {
   };
   onResult: (passed: boolean) => void;
   isCorrect?: boolean;
+  questionNumber?: number;
 }
 
-export function MatchingPairs({ question: q, onResult, isCorrect }: MatchingPairsProps) {
+export function MatchingPairs({ question: q, onResult, isCorrect, questionNumber }: MatchingPairsProps) {
   const [leftItems, setLeftItems] = useState<string[]>([]);
   const [rightItems, setRightItems] = useState<string[]>([]);
   const [selectedLeft, setSelectedLeft] = useState<string | null>(null);
@@ -70,7 +71,8 @@ export function MatchingPairs({ question: q, onResult, isCorrect }: MatchingPair
 
   return (
     <div className="flex flex-col items-center gap-16 w-full max-w-4xl animate-in slide-in-from-bottom-8 duration-700">
-      <h2 className="text-5xl md:text-6xl font-black text-slate-900 tracking-tight self-start mb-8 leading-none">
+      <h2 className="text-3xl md:text-4xl font-black text-slate-900 tracking-tight self-start mb-6 leading-none flex items-center">
+        {questionNumber && <span className="mr-4 font-mono">{questionNumber}.</span>}
         Match the pairs
       </h2>
 
@@ -82,7 +84,7 @@ export function MatchingPairs({ question: q, onResult, isCorrect }: MatchingPair
               disabled={matched.has(item) || isCorrect}
               onClick={() => setSelectedLeft(item)}
               className={cn(
-                "w-full py-10 px-6 text-2xl font-semibold rounded-[2rem] border-2 transition-all duration-300 text-center shadow-sm",
+                "w-full py-6 px-4 text-xl font-semibold rounded-[1.5rem] border-2 transition-all duration-300 text-center shadow-sm",
                 matched.has(item) ? "bg-slate-100 border-transparent text-primary/40 opacity-30 scale-95" :
                 wrongMatch?.[0] === item ? "bg-red-50 border-red-500 text-red-600 animate-shake" :
                 selectedLeft === item ? "bg-primary/5 border-primary text-primary shadow-xl scale-105" :
@@ -101,7 +103,7 @@ export function MatchingPairs({ question: q, onResult, isCorrect }: MatchingPair
               disabled={matched.has(item) || isCorrect}
               onClick={() => setSelectedRight(item)}
               className={cn(
-                "w-full py-10 px-6 text-2xl font-semibold rounded-[2rem] border-2 transition-all duration-300 text-center shadow-sm",
+                "w-full py-6 px-4 text-xl font-semibold rounded-[1.5rem] border-2 transition-all duration-300 text-center shadow-sm",
                 matched.has(item) ? "bg-slate-100 border-transparent text-primary/40 opacity-30 scale-95" :
                 wrongMatch?.[1] === item ? "bg-red-50 border-red-500 text-red-600 animate-shake" :
                 selectedRight === item ? "bg-primary/5 border-primary text-primary shadow-xl scale-105" :

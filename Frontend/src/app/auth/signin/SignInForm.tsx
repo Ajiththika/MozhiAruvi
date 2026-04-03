@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { AuthInput, SocialLogin } from '../shared';
 import { login } from '@/services/authService';
+import { submitTutorApplication } from "@/services/tutorApplicationService";
 import { getRoleDashboardRoute } from '@/lib/roleUtils';
 import { isAxiosError } from 'axios';
 import { useAuth } from '@/context/AuthContext';
@@ -38,12 +39,43 @@ export default function SignInForm() {
 
     try {
       const res = await login({ email, password });
-      setUser(res.user);
-      
-      // After login success: Check for "redirect" query param
-      if (redirectParam) {
+
+      if (redirectParam === '/tutor/apply') {
+        if (res.user.tutorStatus === 'none' || !res.user.tutorStatus) {
+            // Quick Apply: Auto-submit with basic info
+            try {
+                await submitTutorApplication({
+                    name: res.user.name,
+                    email: res.user.email,
+                    phone: "",
+                    experience: "Automated Login Applicant",
+                    bio: "Interested in joining as a tutor from the platform join button.",
+                    languages: [],
+                    availability: "Contact for details",
+                    certifications: ""
+                });
+                setUser({ ...res.user, tutorStatus: 'pending' });
+                router.push('/tutor/apply/status');
+            } catch (err) {
+                // If auto-submit fails, just go to the form normally
+                setUser(res.user);
+                router.push(redirectParam);
+            }
+        } else {
+            setUser(res.user);
+            router.push('/tutor/apply/status');
+        }
+      } else if (!res.user.hasCompletedOnboarding && res.user.role === 'student' && !redirectParam) {
+        setUser(res.user);
+        router.push('/auth/role-selection');
+      } else if (redirectParam) {
+        setUser(res.user);
         router.push(redirectParam);
+      } else if (res.user.tutorStatus === 'pending') {
+        setUser(res.user);
+        router.push('/tutor/apply/status');
       } else {
+        setUser(res.user);
         router.push(getRoleDashboardRoute(res.user.role));
       }
     } catch (err) {
@@ -67,7 +99,7 @@ export default function SignInForm() {
   return (
     <div className="w-full max-w-sm mx-auto xl:max-w-md">
       <div className="mb-10 text-center md:text-left">
-        <h2 className="text-3xl md:text-5xl font-black text-primary tracking-tight leading-tight">
+        <h2 className="text-3xl md:text-5xl font-black text-text-primary tracking-tight leading-tight">
           Welcome back
         </h2>
       </div>

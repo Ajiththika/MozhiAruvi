@@ -23,6 +23,7 @@ import {
 } from "@/services/adminService";
 import { getEvents, MozhiEvent } from "@/services/eventService";
 import { getMe, SafeUser } from "@/services/authService";
+import { getTutorApplicationsAdmin } from "@/services/tutorApplicationService";
 import { getAllBlogsForAdmin, Blog } from "@/services/blogService";
 import Button from "@/components/ui/Button";
 
@@ -33,7 +34,7 @@ export default function AdminDashboard() {
   const [users, setUsers] = useState<BaseUser[]>([]);
   const [tutors, setTutors] = useState<BaseUser[]>([]);
   const [blogs, setBlogs] = useState<Blog[]>([]);
-  const [applications, setApplications] = useState<TeacherApplication[]>([]);
+  const [applications, setApplications] = useState<any[]>([]);
   const [events, setEvents] = useState<MozhiEvent[]>([]);
   const [premiumUsers, setPremiumUsers] = useState<PremiumUser[]>([]);
   const [planSettings, setPlanSettings] = useState<PlanSettings[]>([]);
@@ -53,15 +54,34 @@ export default function AdminDashboard() {
         getTeacherApplications(), 
         getEvents(), 
         getPremiumUsers(),
-        getPlanSettings()
+        getPlanSettings(),
+        getTutorApplicationsAdmin()
     ])
-      .then(([me, st, us, ts, bl, apps, evs, prem, plans]) => {
+      .then(([me, st, us, ts, bl, teacherApps, evs, prem, plans, tutorApps]) => {
         setAdmin(me);
         setStats(st);
         setUsers(us.users);
         setTutors(ts.tutors);
         setBlogs(bl.blogs.filter(b => b.status === 'pending'));
-        setApplications(apps.applications.filter(a => a.status === 'pending'));
+        
+        // Merge and normalize applications
+        const mergedApps = [
+          ...teacherApps.applications.map(a => ({ 
+            ...a, 
+            type: 'teacher',
+            cleanName: a.fullName || a.userId?.name || "Unknown",
+            cleanEmail: a.userId?.email || "N/A"
+          })),
+          ...tutorApps.map((a: any) => ({ 
+            ...a, 
+            type: 'tutor',
+            cleanName: a.name,
+            cleanEmail: a.email,
+            specialization: a.experience // Use experience as specialization for tutor apps if missing
+          }))
+        ].filter(a => a.status === 'pending');
+        
+        setApplications(mergedApps as any);
         setEvents(evs.events);
         setPremiumUsers(prem.users);
         setPlanSettings(plans);
@@ -135,7 +155,7 @@ export default function AdminDashboard() {
               <span className="text-[10px] font-black text-secondary tracking-[0.2em] uppercase">Control Center</span>
            </div>
            <div>
-              <h1 className="text-3xl md:text-4xl font-black text-slate-800 tracking-tighter leading-none mb-4">Command Deck</h1>
+              <h1 className="text-3xl md:text-4xl font-black text-text-primary tracking-tighter leading-none mb-4">Command Deck</h1>
               <p className="text-lg text-primary/70 font-medium leading-relaxed max-w-2xl italic opacity-80">
                 Orchestrating the ecosystem of classical Tamil learning. Managed by <strong className="text-primary not-italic">{admin?.name}</strong>.
               </p>
@@ -201,8 +221,8 @@ export default function AdminDashboard() {
               {/* Applications Table */}
               <div className="rounded-[2.5rem] border border-slate-100 bg-white shadow-2xl shadow-slate-200/20 overflow-hidden flex flex-col">
                 <div className="flex items-center justify-between border-b border-slate-50 px-10 py-8">
-                  <h3 className="text-xl font-black text-slate-800 tracking-tight">Mentor Applications</h3>
-                  <Button href="/admin/teachers" variant="ghost" className="text-[10px] font-black uppercase tracking-widest text-primary border border-primary/10 rounded-xl">Review Queue</Button>
+                  <h3 className="text-xl font-black text-text-primary tracking-tight">Mentor Inbox</h3>
+                  <Button href="/admin/tutors" variant="ghost" className="text-[10px] font-black uppercase tracking-widest text-primary border border-primary/10 rounded-xl">Review Queue</Button>
                 </div>
                 <div className="overflow-x-auto">
                   <table className="w-full text-left border-collapse">
@@ -213,14 +233,14 @@ export default function AdminDashboard() {
                         applications.slice(0, 4).map((app) => (
                           <tr key={app._id} className="hover:bg-slate-50/50 transition-all">
                             <td className="px-10 py-6 flex items-center gap-5">
-                               <div className="h-12 w-12 rounded-2xl bg-amber-50 flex items-center justify-center font-black text-amber-600 text-sm border border-amber-100">{(app.userId?.name || app.fullName).charAt(0)}</div>
+                               <div className="h-12 w-12 rounded-2xl bg-amber-50 flex items-center justify-center font-black text-amber-600 text-sm border border-amber-100">{(app.cleanName || "U").charAt(0)}</div>
                                <div>
-                                  <p className="text-sm font-black text-slate-800">{app.userId?.name || app.fullName}</p>
-                                  <p className="text-[10px] font-bold text-primary/60 uppercase tracking-widest">{app.specialization}</p>
+                                  <p className="text-sm font-black text-text-primary">{app.cleanName}</p>
+                                  <p className="text-[10px] font-bold text-primary/60 uppercase tracking-widest">{app.specialization || "Pending Review"}</p>
                                </div>
                             </td>
                             <td className="px-10 py-6 text-right">
-                               <Button href="/admin/teachers" variant="ghost" size="sm" className="h-10 px-6 text-[10px] font-black uppercase tracking-widest text-primary border border-primary/10 rounded-xl">Review</Button>
+                               <Button href="/admin/tutors" variant="ghost" size="sm" className="h-10 px-6 text-[10px] font-black uppercase tracking-widest text-primary border border-primary/10 rounded-xl">Review</Button>
                             </td>
                           </tr>
                         ))
@@ -233,7 +253,7 @@ export default function AdminDashboard() {
               {/* Stories Table */}
               <div className="rounded-[2.5rem] border border-slate-100 bg-white shadow-2xl shadow-slate-200/20 overflow-hidden flex flex-col">
                 <div className="flex items-center justify-between border-b border-slate-50 px-10 py-8">
-                  <h3 className="text-xl font-black text-slate-800 tracking-tight">Editorial Moderation</h3>
+                  <h3 className="text-xl font-black text-text-primary tracking-tight">Editorial Moderation</h3>
                   <Button href="/admin/blogs" variant="ghost" className="text-[10px] font-black uppercase tracking-widest text-primary border border-primary/10 rounded-xl">Open Editor</Button>
                 </div>
                 <div className="overflow-x-auto">
@@ -247,7 +267,7 @@ export default function AdminDashboard() {
                             <td className="px-10 py-6 flex items-center gap-5">
                                <div className="h-12 w-12 rounded-2xl bg-primary/5 flex items-center justify-center font-black text-primary text-sm border border-primary/10">{(blog.author?.name || "B").charAt(0)}</div>
                                <div>
-                                  <p className="text-sm font-black text-slate-800">{blog.title}</p>
+                                  <p className="text-sm font-black text-text-primary">{blog.title}</p>
                                   <p className="text-[10px] font-bold text-primary/60 uppercase tracking-widest">By {blog.author?.name}</p>
                                </div>
                             </td>
@@ -265,7 +285,7 @@ export default function AdminDashboard() {
 
             <div className="space-y-10">
               {/* Quick Actions */}
-              <div className="rounded-[2.5rem] bg-white p-10 text-slate-900 shadow-2xl shadow-slate-200/20 relative overflow-hidden group border border-slate-100">
+              <div className="rounded-[2.5rem] bg-white p-10 text-text-primary shadow-2xl shadow-slate-200/20 relative overflow-hidden group border border-slate-100">
                  <div className="absolute top-0 right-0 w-64 h-64 bg-primary opacity-[0.03] rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-1000" />
                  <h3 className="text-xs font-black text-primary uppercase tracking-[0.4em] mb-10">Executive Suite</h3>
                  <div className="space-y-4 relative z-10">
@@ -317,7 +337,7 @@ export default function AdminDashboard() {
            <div className="rounded-[2.5rem] border border-slate-100 bg-white shadow-2xl shadow-slate-200/20 overflow-hidden">
               <div className="p-10 border-b border-slate-50 flex items-center justify-between">
                  <div>
-                    <h3 className="text-2xl font-black text-slate-800 tracking-tight">Financial Models & Subscription Logic</h3>
+                    <h3 className="text-2xl font-black text-text-primary tracking-tight">Financial Models & Subscription Logic</h3>
                     <p className="text-sm font-medium text-primary/70 italic mt-2">Adjust pricing, limits and tier accessibility in real-time across the platform.</p>
                  </div>
                  <button 

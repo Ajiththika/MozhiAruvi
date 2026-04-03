@@ -7,7 +7,7 @@ interface DashboardLayoutProps {
   children: React.ReactNode;
   links: SidebarItem[];
   title: string;
-  allowedRoles: Array<"student" | "teacher" | "admin">;
+  allowedRoles: Array<"student" | "teacher" | "admin" | "tutor" | "tutor_pending" | "rejected">;
   basePath: string;
 }
 

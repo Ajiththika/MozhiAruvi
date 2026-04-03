@@ -2,9 +2,39 @@
 
 import React, { useState } from "react";
 import DataTable, { ColumnDef } from "@/components/ui/DataTable";
-import { Loader2, AlertCircle, ShieldCheck, GraduationCap, Globe, Mail, IdCard, XCircle, AlertTriangle, Ban, CheckCircle2 } from "lucide-react";
+import { 
+  Loader2, 
+  AlertCircle, 
+  ShieldCheck, 
+  GraduationCap, 
+  Mail, 
+  XCircle, 
+  AlertTriangle, 
+  Ban, 
+  CheckCircle2,
+  Hourglass,
+  Languages,
+  Calendar,
+  Layers,
+  Search,
+  UserCheck
+} from "lucide-react";
 import { cn } from "@/lib/utils";
-import { getAllTutors, BaseUser, warnUser, activateUser, deactivateUser } from "@/services/adminService";
+import { 
+  getAllTutors, 
+  BaseUser, 
+  warnUser, 
+  activateUser, 
+  deactivateUser,
+  getTeacherApplications,
+  approveTeacherApplication,
+  rejectTeacherApplication
+} from "@/services/adminService";
+import { 
+  getTutorApplicationsAdmin, 
+  approveTutorApplication, 
+  rejectTutorApplication as rejectTutorApp 
+} from "@/services/tutorApplicationService";
 import Pagination from "@/components/ui/Pagination";
 import Button from "@/components/ui/Button";
 import { useQuery } from "@tanstack/react-query";
@@ -13,23 +43,105 @@ export default function AdminTutorsPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [actioning, setActioning] = useState<string | null>(null);
 
-  const { data, isLoading, isError, error, refetch } = useQuery({
+  // Fetch Directory (Approved Tutors)
+  const { 
+    data: directoryData, 
+    isLoading: isDirectoryLoading, 
+    refetch: refetchDirectory 
+  } = useQuery({
     queryKey: ["admin", "tutors", currentPage],
-    queryFn: () => getAllTutors(currentPage, 6),
+    queryFn: () => getAllTutors(currentPage, 10),
     staleTime: 5 * 60 * 1000,
   });
 
-  const tutors = data?.tutors || [];
-  const totalPages = data?.totalPages || 1;
-  const totalItems = data?.totalItems || 0;
+  // Fetch Applications (Combined Queue)
+  const { 
+    data: applicationsData, 
+    isLoading: isAppsLoading, 
+    refetch: refetchApps 
+  } = useQuery({
+    queryKey: ["admin", "tutor-applications-combined"],
+    queryFn: async () => {
+      const [teacherApps, tutorApps] = await Promise.all([
+        getTeacherApplications(1, 100, "pending"),
+        getTutorApplicationsAdmin()
+      ]);
+
+      // Map both to a common format
+      const normalizedTeacherApps = (teacherApps.applications || []).map(app => ({
+        _id: app._id,
+        name: app.fullName || app.userId?.name || "Unknown",
+        email: app.userId?.email || "N/A",
+        experience: app.experience || "N/A",
+        bio: app.bio || "N/A",
+        languages: app.languages || [],
+        status: app.status,
+        type: 'teacher' as const,
+        phone: app.userId?.phoneNumber || ""
+      }));
+
+      const normalizedTutorApps = (tutorApps || []).map((app: any) => ({
+        _id: app._id,
+        name: app.name,
+        email: app.email,
+        experience: app.experience,
+        bio: app.bio,
+        languages: app.languages || [],
+        status: app.status,
+        type: 'tutor' as const,
+        phone: app.phone || app.userId?.phoneNumber || ""
+      }));
+
+      return [...normalizedTeacherApps, ...normalizedTutorApps].filter(a => a.status === 'pending');
+    },
+    staleTime: 2 * 60 * 1000,
+  });
+
+  const handleApprove = async (app: any) => {
+    if (!confirm(`Approve ${app.name} as a verified mentor?`)) return;
+    setActioning(app._id);
+    try {
+      if (app.type === 'teacher') {
+        await approveTeacherApplication(app._id);
+      } else {
+        await approveTutorApplication(app._id);
+      }
+      alert("Application approved! User promoted to Mentor role.");
+      refetchApps();
+      refetchDirectory();
+    } catch (err: any) {
+      alert("Failed to approve application.");
+    } finally {
+      setActioning(null);
+    }
+  };
+
+  const handleReject = async (app: any) => {
+    const reason = prompt("Enter rejection reason:");
+    if (reason === null) return;
+    setActioning(app._id);
+    try {
+      if (app.type === 'teacher') {
+        await rejectTeacherApplication(app._id, reason);
+      } else {
+        await rejectTutorApp(app._id, reason);
+      }
+      alert("Application rejected.");
+      refetchApps();
+    } catch (err: any) {
+      alert("Failed to reject application.");
+    } finally {
+      setActioning(null);
+    }
+  };
 
   const handleWarn = async (id: string) => {
     setActioning(id);
     try {
       await warnUser(id);
-      refetch();
+      refetchDirectory();
     } catch (err: any) {
-      console.error("Failed to issue warning.");
+      alert("Failed to issue warning.");
     } finally {
       setActioning(null);
     }
@@ -43,25 +155,110 @@ export default function AdminTutorsPage() {
       } else {
         await activateUser(id);
       }
-      refetch();
+      refetchDirectory();
     } catch (err: any) {
-      console.error("Failed to update account status.");
+      alert("Failed to update status.");
     } finally {
       setActioning(null);
     }
   };
 
-  const columns: ColumnDef<BaseUser>[] = [
+  const appColumns: ColumnDef<any>[] = [
     {
-      header: "Mentor Identity",
+      header: "Applicant",
       accessorKey: "name",
       cell: (row) => (
-        <div className="flex items-center gap-4 py-2">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-50 border border-emerald-100 font-black text-emerald-600 text-lg shadow-inner uppercase tracking-tighter shrink-0">
+        <div className="flex flex-col gap-1 py-4">
+          <span className="font-black text-text-primary text-sm tracking-tight capitalize">{row.name}</span>
+          <div className="flex items-center gap-1.5 text-[10px] text-primary/60 font-bold uppercase truncate">
+            <Mail className="h-3 w-3 shrink-0" /> {row.email}
+          </div>
+          <div className="flex items-center gap-2 mt-1">
+             <span className={cn(
+               "px-2 py-0.5 rounded-md text-[8px] font-black uppercase tracking-widest border",
+               row.type === 'teacher' ? "bg-indigo-50 text-indigo-600 border-indigo-100" : "bg-teal-50 text-teal-600 border-teal-100"
+             )}>
+                {row.type} request
+             </span>
+          </div>
+        </div>
+      ),
+    },
+    {
+      header: "Application Details",
+      accessorKey: "experience",
+      cell: (row) => (
+        <div className="max-w-md space-y-3 py-4">
+          <div className="flex flex-col">
+            <span className="text-[9px] font-black text-primary/40 uppercase tracking-widest mb-1">Background & Expertise</span>
+            <p className="text-xs text-text-secondary line-clamp-2 leading-relaxed">{row.experience}</p>
+          </div>
+          <div className="flex items-center gap-4">
+              <div className="flex items-center gap-1.5 bg-primary/5 px-2 py-1 rounded-lg border border-primary/10">
+                 <Languages className="h-3 w-3 text-primary/40" />
+                 <span className="text-[9px] font-bold text-text-secondary uppercase">{row.languages?.join(", ") || "Native"}</span>
+              </div>
+              <div className="flex items-center gap-1.5 bg-primary/5 px-2 py-1 rounded-lg border border-primary/10">
+                 <Search className="h-3 w-3 text-primary/40" />
+                 <span className="text-[9px] font-bold text-text-secondary uppercase">Reviewing</span>
+              </div>
+          </div>
+        </div>
+      ),
+    },
+    {
+      header: "Identity Status",
+      accessorKey: "status",
+      cell: (row) => (
+        <div className="flex flex-col gap-2">
+          <span className="inline-flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-widest px-4 py-1.5 rounded-full border shadow-sm text-yellow-600 bg-yellow-50 border-yellow-100">
+            <Hourglass className="h-3 w-3" />
+            {row.status}
+          </span>
+          <span className="text-[9px] font-bold text-primary/30 text-center uppercase tracking-tighter">Needs Decision</span>
+        </div>
+      ),
+    },
+    {
+      header: "Decision Desk",
+      accessorKey: "_id",
+      className: "text-right",
+      cell: (row) => (
+        <div className="flex items-center justify-end gap-3 px-2">
+          <Button
+            onClick={() => handleApprove(row)}
+            disabled={actioning === row._id}
+            className="bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-black uppercase tracking-widest h-10 px-6 rounded-xl shadow-xl shadow-emerald-600/20"
+          >
+            Approve
+          </Button>
+          <Button
+            onClick={() => handleReject(row)}
+            disabled={actioning === row._id}
+            variant="danger"
+            className="bg-red-500 hover:bg-red-600 text-white text-[10px] font-black uppercase tracking-widest h-10 px-6 rounded-xl shadow-xl shadow-red-500/20"
+          >
+            Reject
+          </Button>
+        </div>
+      ),
+    },
+  ];
+
+  const dirColumns: ColumnDef<BaseUser>[] = [
+    {
+      header: "Verified Identity",
+      accessorKey: "name",
+      cell: (row) => (
+        <div className="flex items-center gap-4 py-3">
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/5 border border-primary/10 font-black text-primary text-lg shadow-sm uppercase tracking-tighter shrink-0">
             {row.name.charAt(0)}
           </div>
           <div className="min-w-0">
-            <p className="font-black text-slate-800 text-sm tracking-tight truncate">{row.name}</p>
+            <p className="font-black text-slate-800 text-sm tracking-tight truncate flex items-center gap-2">
+              {row.name}
+              <UserCheck className="h-3.5 w-3.5 text-emerald-500" />
+            </p>
             <div className="flex items-center gap-1.5 text-[10px] text-primary/60 font-bold uppercase truncate">
                <Mail className="h-3 w-3 shrink-0" /> {row.email}
             </div>
@@ -70,22 +267,22 @@ export default function AdminTutorsPage() {
       ),
     },
     {
-      header: "Status",
+      header: "Trust Score",
       accessorKey: "isActive",
       cell: (row) => (
         <div className="flex flex-col gap-2">
           <span className={cn(
-            "inline-flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full border shadow-sm w-fit",
+            "inline-flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full border shadow-sm w-fit",
             row.isActive 
-              ? "text-emerald-500 bg-emerald-50 border-emerald-100 shadow-emerald-500/5" 
-              : "text-red-500 bg-red-50 border-red-100 shadow-red-500/5"
+              ? "text-emerald-500 bg-emerald-50 border-emerald-100" 
+              : "text-red-500 bg-red-50 border-red-100"
           )}>
             {row.isActive ? <ShieldCheck className="h-3.5 w-3.5" /> : <XCircle className="h-3.5 w-3.5" />}
-            {row.isActive ? "Verified Active" : "Blocked / Inactive"}
+            {row.isActive ? "Verified Active" : "Suspended"}
           </span>
           {row.warnings && row.warnings > 0 && (
             <span className="inline-flex items-center gap-1.5 text-[9px] font-black text-amber-500 uppercase tracking-tighter bg-amber-50 px-2 py-0.5 rounded-lg border border-amber-100 w-fit">
-               <AlertTriangle className="h-3 w-3" /> {row.warnings} Total Warnings issued
+               <AlertTriangle className="h-3 w-3" /> {row.warnings} Warning Nodes
             </span>
           )}
         </div>
@@ -95,14 +292,17 @@ export default function AdminTutorsPage() {
       header: "Specialization",
       accessorKey: "specialization",
       cell: (row) => (
-        <div className="flex flex-col">
-           <span className="text-xs font-bold text-slate-700">{row.specialization || "General Mentor"}</span>
-           <span className="text-[10px] text-primary/60 font-medium italic truncate max-w-[150px]">{row.experience || "Native Speaker"}</span>
+        <div className="flex flex-col gap-1">
+           <span className="text-xs font-black text-slate-700 uppercase tracking-tight">{row.specialization || "General Mentor"}</span>
+           <div className="flex items-center gap-1.5">
+              <Layers className="h-3 w-3 text-primary/20" />
+              <span className="text-[10px] text-primary/60 font-bold italic truncate max-w-[150px]">{row.experience || "Native Speaker"}</span>
+           </div>
         </div>
       )
     },
     {
-       header: "Administrative Logic",
+       header: "Control Logic",
        accessorKey: "_id",
        className: "text-right",
        cell: (row) => (
@@ -112,7 +312,7 @@ export default function AdminTutorsPage() {
                disabled={actioning === row._id}
                variant="outline"
                size="sm"
-               className="h-9 px-4 border-amber-200 text-amber-600 hover:bg-amber-50 hover:border-amber-300 text-[10px] font-black uppercase tracking-widest gap-2"
+               className="h-10 px-5 border-amber-200 text-amber-600 hover:bg-amber-50 hover:border-amber-300 text-[10px] font-black uppercase tracking-widest gap-2 rounded-xl"
              >
                 <AlertTriangle className="h-3.5 w-3.5" />
                 Warn
@@ -123,14 +323,14 @@ export default function AdminTutorsPage() {
                variant={row.isActive ? "danger" : "secondary"}
                size="sm"
                className={cn(
-                 "h-9 px-5 text-[10px] font-black uppercase tracking-widest gap-2 shadow-lg transition-all",
+                 "h-10 px-6 text-[10px] font-black uppercase tracking-widest gap-2 shadow-xl transition-all rounded-xl",
                  row.isActive 
                   ? "bg-red-500 hover:bg-red-600 shadow-red-500/20" 
                   : "bg-emerald-600 hover:bg-emerald-700 shadow-emerald-500/20"
                )}
              >
                 {row.isActive ? <Ban className="h-3.5 w-3.5" /> : <CheckCircle2 className="h-3.5 w-3.5" />}
-                {row.isActive ? "Block Access" : "Activate Portal"}
+                {row.isActive ? "Deactivate" : "Reactive"}
              </Button>
           </div>
        )
@@ -138,66 +338,104 @@ export default function AdminTutorsPage() {
   ];
 
   return (
-    <div className="space-y-12 animate-in fade-in duration-700 max-w-7xl mx-auto py-10 lg:py-16">
-      <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-8 border-b border-slate-100 pb-12">
+    <div className="space-y-12 animate-in fade-in duration-700 max-w-7xl mx-auto py-10 lg:py-20">
+      {/* Header Section */}
+      <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-10 border-b border-slate-100 pb-16">
         <div className="space-y-6">
            <div className="flex items-center gap-3">
-              <span className="h-2 w-12 rounded-full bg-emerald-400" />
-              <span className="text-[10px] font-black text-emerald-500 uppercase tracking-[0.3em]">Directory Control</span>
+              <span className="h-1 w-16 rounded-full bg-primary" />
+              <span className="text-[10px] font-black text-primary uppercase tracking-[0.5em]">Mentor Core</span>
            </div>
-           <h1 className="text-4xl md:text-4xl font-black text-primary tracking-tight leading-none uppercase">Verified Mentors</h1>
-           <p className="text-lg text-primary/70 font-medium max-w-xl">Comprehensive archive of authenticated teachers and language experts across the MozhiAruvi network.</p>
+           <h1 className="text-4xl md:text-5xl font-black text-slate-800 tracking-tighter leading-none uppercase">Expert Ecosystem</h1>
+           <p className="text-lg text-slate-500 font-medium max-w-2xl leading-relaxed">
+             Orchestrate the authenticated network of Tamil language mentors. Review incoming requests and manage verified directory nodes.
+           </p>
         </div>
-        <Button
-          onClick={() => refetch()}
-          isLoading={isLoading}
-          variant="outline"
-          size="lg"
-          className="uppercase tracking-widest text-[10px] font-black px-10 border-2 hover:bg-emerald-50 hover:text-emerald-600 hover:border-emerald-200"
-        >
-          Audit Repository
-        </Button>
+        <div className="flex gap-4">
+          <Button
+            onClick={() => { refetchDirectory(); refetchApps(); }}
+            isLoading={isDirectoryLoading || isAppsLoading}
+            variant="outline"
+            size="lg"
+            className="uppercase tracking-widest text-[10px] font-black px-12 border-2 rounded-2xl hover:bg-slate-50 transition-all h-14"
+          >
+            Sync Intelligence
+          </Button>
+        </div>
       </div>
 
-      {isError && (
-        <div className="flex items-center gap-4 rounded-3xl border border-red-100 bg-red-50/50 p-8 text-sm text-red-600">
-          <AlertCircle className="h-6 w-6 shrink-0" /> <span className="font-bold">{error?.message || "Could not load mentors directory."}</span>
+      {/* SUBMISSION QUEUE (From image 2 style) */}
+      <div className="space-y-8">
+        <div className="flex items-center gap-4">
+           <Hourglass className="h-5 w-5 text-yellow-500" />
+           <h2 className="text-xl font-black text-slate-800 uppercase tracking-tight">Submission Queue</h2>
+           <span className="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-lg text-[10px] font-black">
+              {applicationsData?.length || 0} PENDING NODES
+           </span>
         </div>
-      )}
 
-      {isLoading ? (
-        <div className="flex flex-col items-center justify-center py-40 gap-8 bg-white rounded-[3rem] border border-dashed border-slate-100 shadow-sm">
-          <div className="h-16 w-16 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin shadow-xl ring-4 ring-emerald-500/5" />
-          <p className="text-[10px] font-black text-primary/40 uppercase tracking-widest animate-pulse">Requesting secure data from node...</p>
+        {isAppsLoading ? (
+            <div className="h-64 rounded-[2.5rem] bg-slate-50 border border-dashed border-slate-200 flex flex-col items-center justify-center gap-4">
+               <Loader2 className="h-12 w-12 text-primary/40 animate-spin" />
+               <p className="text-[10px] font-black text-primary/30 uppercase tracking-widest">Scanning requests...</p>
+            </div>
+        ) : applicationsData?.length === 0 ? (
+            <div className="rounded-[2.5rem] border border-slate-100 bg-white p-16 text-center shadow-xl shadow-slate-200/20 group hover:border-emerald-100 transition-all">
+               <CheckCircle2 className="h-16 w-16 text-emerald-500 mx-auto mb-6 group-hover:scale-110 transition-transform" />
+               <h3 className="text-xl font-black text-slate-800 uppercase">Queue Synchronized</h3>
+               <p className="text-xs font-bold text-primary/40 uppercase mt-2 tracking-widest italic">All applications have been processed.</p>
+            </div>
+        ) : (
+            <div className="rounded-[2.5rem] overflow-hidden border border-slate-100 bg-white shadow-2xl shadow-slate-200/30">
+               <DataTable 
+                 title={`Pending Evaluations`} 
+                 columns={appColumns} 
+                 data={applicationsData || []} 
+               />
+               <div className="px-10 py-6 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
+                  <span className="text-[10px] font-black text-primary/40 uppercase tracking-widest">Total Sequence Records: {applicationsData?.length}</span>
+                  <div className="flex items-center gap-2">
+                     <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Real-time sync active</span>
+                  </div>
+               </div>
+            </div>
+        )}
+      </div>
+
+      {/* EXPERT DIRECTORY */}
+      <div className="space-y-8 pt-10">
+        <div className="flex items-center gap-4">
+           <GraduationCap className="h-5 w-5 text-emerald-500" />
+           <h2 className="text-xl font-black text-slate-800 uppercase tracking-tight">Expert Directory intelligence</h2>
+           <span className="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-lg text-[10px] font-black lowercase">
+              {directoryData?.totalItems || 0} active entries
+           </span>
         </div>
-      ) : (
-        <div className="space-y-12 animate-in slide-in-from-bottom-8 duration-700">
-           <DataTable title={`Expert Directory Intelligence (${totalItems} active entries)`} columns={columns} data={tutors} />
-           <div className="pt-10 border-t border-slate-50">
-              <Pagination 
-                currentPage={currentPage}
-                totalPages={totalPages}
-                onPageChange={setCurrentPage}
-              />
-           </div>
-        </div>
-      )}
+
+        {isDirectoryLoading ? (
+            <div className="h-96 rounded-[3rem] bg-slate-50 border border-dashed border-slate-200 flex flex-col items-center justify-center gap-4">
+               <div className="h-12 w-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+            </div>
+        ) : (
+            <div className="space-y-12">
+               <div className="rounded-[3rem] overflow-hidden border border-slate-100 bg-white shadow-2xl shadow-slate-200/30">
+                  <DataTable 
+                    title="Authenticated Network Nodes" 
+                    columns={dirColumns} 
+                    data={directoryData?.tutors || []} 
+                  />
+                  <div className="px-10 py-10 bg-slate-50 border-t border-slate-100">
+                    <Pagination 
+                      currentPage={currentPage}
+                      totalPages={directoryData?.totalPages || 1}
+                      onPageChange={setCurrentPage}
+                    />
+                  </div>
+               </div>
+            </div>
+        )}
+      </div>
     </div>
   );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

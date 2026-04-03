@@ -12,7 +12,7 @@ export interface BaseUser {
   _id: string;
   name: string;
   email: string;
-  role: "student" | "teacher" | "admin";
+  role: "student" | "teacher" | "admin" | "tutor";
   isActive: boolean;
   warnings?: number;
   adminNotes?: string;
@@ -36,7 +36,7 @@ export interface BaseUser {
 
 export interface TeacherApplication {
   _id: string;
-  userId: { _id: string; name: string; email: string };
+  userId: { _id: string; name: string; email: string; phoneNumber?: string };
   fullName: string;
   bio?: string;
   experience?: string;

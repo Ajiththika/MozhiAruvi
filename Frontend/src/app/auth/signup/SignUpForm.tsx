@@ -2,17 +2,29 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { AuthInput, SocialLogin } from '../shared';
 import { register } from '@/services/authService';
-import { getRoleDashboardRoute } from '@/lib/roleUtils';
+import { submitTutorApplication } from "@/services/tutorApplicationService";
 import { isAxiosError } from 'axios';
 import { useAuth } from '@/context/AuthContext';
+import { useEffect } from 'react';
 import Button from '@/components/ui/Button';
 
 export default function SignUpForm() {
   const router = useRouter();
-  const { setUser } = useAuth();
+  const searchParams = useSearchParams();
+  const redirectParam = searchParams.get('redirect');
+  const { user, isLoading, setUser } = useAuth();
+  
+  // Redirect already logged-in users
+  useEffect(() => {
+    if (!isLoading && user) {
+      const dest = redirectParam || '/student/dashboard';
+      router.replace(dest);
+    }
+  }, [isLoading, user, router, redirectParam]);
+  
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -33,9 +45,35 @@ export default function SignUpForm() {
 
     try {
       const res = await register({ name, email, password });
-      setUser(res.user);
-      router.push(getRoleDashboardRoute(res.user.role));
-    } catch (err) {
+      
+      if (redirectParam === '/tutor/apply') {
+        // Quick Apply: Auto-submit with basic info
+        try {
+          await submitTutorApplication({
+            name: res.user.name,
+            email: res.user.email,
+            phone: "",
+            experience: "Automated Registration Applicant",
+            bio: "Interested in joining as a tutor from the platform join button.",
+            languages: [],
+            availability: "Contact for details",
+            certifications: ""
+          });
+          setUser({ ...res.user, tutorStatus: 'pending' });
+          router.push('/tutor/apply/status');
+        } catch (err) {
+          // If auto-submit fails, just go to the form normally
+          setUser(res.user);
+          router.push(redirectParam);
+        }
+      } else if (redirectParam) {
+        setUser(res.user);
+        router.push(redirectParam);
+      } else {
+        setUser(res.user);
+        router.push('/auth/role-selection');
+      }
+    } catch (err: any) {
       if (isAxiosError(err) && err.response?.data?.error?.message) {
         setError(err.response.data.error.message);
       } else {
@@ -49,7 +87,7 @@ export default function SignUpForm() {
   return (
     <div className="w-full max-w-sm mx-auto xl:max-w-md">
       <div className="mb-10 text-center md:text-left">
-        <h2 className="text-3xl md:text-5xl font-black text-primary tracking-tight leading-tight">
+        <h2 className="text-3xl md:text-5xl font-black text-text-primary tracking-tight leading-tight">
           Join with our <br /> tamil community
         </h2>
       </div>

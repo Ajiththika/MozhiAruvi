@@ -26,7 +26,7 @@ export default function Navbar() {
     router.push("/");
   };
 
-  const getDashboardLink = () => getRoleDashboardRoute(user?.role ?? "student");
+  const getDashboardLink = () => getRoleDashboardRoute(user?.role ?? "student", user?.tutorStatus);
 
   const getProfileLink = () => {
     if (user?.role === "admin") return "/admin";
@@ -137,15 +137,6 @@ export default function Navbar() {
                         Dashboard
                       </Link>
 
-                      {user.role === "student" && (
-                        <div className="flex items-center justify-between px-5 py-2 mx-2 my-1 rounded-xl bg-primary/5 border border-primary/10">
-                          <div className="flex items-center gap-2">
-                            <Award size={18} className="text-primary" />
-                            <span className="text-xs font-bold text-primary">Day Streak</span>
-                          </div>
-                          <span className="text-xs font-black text-primary">{user.progress?.currentStreak || 0}</span>
-                        </div>
-                      )}
                     </div>
 
                     <div className="border-t border-slate-100 my-1"></div>

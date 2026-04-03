@@ -79,7 +79,7 @@ export default function AdminBlogsPage() {
               <div className="h-0.5 w-10 bg-primary/40 rounded-full" />
               <span className="text-[10px] font-black text-gray-400 uppercase tracking-[0.25em]">Central Archive Control</span>
            </div>
-           <h1 className="text-4xl font-black text-gray-900 tracking-tighter leading-none">Content Moderation</h1>
+           <h1 className="text-4xl font-black text-text-primary tracking-tighter leading-none">Content Moderation</h1>
            <p className="text-gray-400 font-bold max-w-lg tracking-tight">Audit and orchestrate community contributions to maintain architectural and cultural excellence.</p>
         </div>
         
@@ -88,7 +88,7 @@ export default function AdminBlogsPage() {
             href="/blogs/write"
             variant="primary"
             size="xl"
-            className="rounded-2xl shadow-2xl shadow-primary/20 h-16 px-12 font-black uppercase text-[10px] tracking-widest bg-gray-900 hover:bg-black text-white"
+            className="rounded-2xl shadow-2xl shadow-primary/20 h-16 px-12 font-black uppercase text-[10px] tracking-widest bg-primary hover:bg-primary/90 text-white border-none"
           >
             <Plus className="w-5 h-5 mr-3" /> Write
           </Button>

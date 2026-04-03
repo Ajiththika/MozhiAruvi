@@ -9,7 +9,7 @@ import { useAuth } from "@/context/AuthContext";
 
 interface RoleProtectedRouteProps {
   children: React.ReactNode;
-  allowedRoles: Array<"student" | "teacher" | "admin">;
+  allowedRoles: Array<"student" | "teacher" | "admin" | "tutor" | "tutor_pending" | "rejected">;
 }
 
 export function RoleProtectedRoute({ children, allowedRoles }: RoleProtectedRouteProps) {
@@ -37,7 +37,7 @@ export function RoleProtectedRoute({ children, allowedRoles }: RoleProtectedRout
           if (isMounted.current) setIsAuthorized(true);
         } else {
           // Wrong role → redirect to their own dashboard
-          router.replace(getRoleDashboardRoute(authUser.role));
+          router.replace(getRoleDashboardRoute(authUser.role, authUser.tutorStatus));
         }
         if (isMounted.current) setLoading(false);
         return;
@@ -51,7 +51,7 @@ export function RoleProtectedRoute({ children, allowedRoles }: RoleProtectedRout
         if (allowedRoles.includes(user.role)) {
           setIsAuthorized(true);
         } else {
-          router.replace(getRoleDashboardRoute(user.role));
+          router.replace(getRoleDashboardRoute(user.role, user.tutorStatus));
         }
       } catch {
         if (!isMounted.current) return;

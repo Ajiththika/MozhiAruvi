@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { authorizeRoles } from '../middleware/authorizeRoles.js';
 import { ROLES } from '../utils/roles.js';
 import * as tutorController from '../controllers/tutorController.js';
+import * as tutorApplicationController from '../controllers/tutorApplicationController.js';
 import { authenticate, authenticateOptional } from '../middleware/auth.js';
 import { validate } from '../middleware/validate.js';
 import { checkTutorAccess } from '../middleware/accessControl.js';
@@ -56,6 +57,9 @@ const updateAvailabilitySchema = z.object({
 
 // Browse available tutors (Public Discovery)
 router.get('/', authenticateOptional, tutorController.listAvailableTutors);
+
+// Apply for tutor
+router.post('/apply', authenticate, tutorApplicationController.applyForTutor);
 
 // Learner: view own request history ← before /:id to avoid collision
 router.get('/my-requests', authenticate, tutorController.getLearnerRequests);

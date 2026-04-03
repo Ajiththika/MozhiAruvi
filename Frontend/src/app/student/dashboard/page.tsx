@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import StatCard from "@/components/features/dashboard/StatCard";
-import { BookOpen, Trophy, AlertCircle, ArrowRight, Clock, BookMarked, Flame, Zap, Crown, Calendar, Headphones } from "lucide-react";
+import { BookOpen, Trophy, AlertCircle, ArrowRight, Clock, BookMarked, Flame, Zap, Crown, Calendar, Headphones, Hourglass } from "lucide-react";
 import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
 import { getDashboardData } from "@/services/authService";
@@ -100,6 +100,24 @@ export default function StudentDashboard() {
           </p>
         </div>
       </div>
+
+      {/* Tutor Application Notice */}
+      {user?.tutorStatus === 'pending' && (
+         <Card variant="outline" padding="lg" className="border-indigo-100 bg-indigo-50/50 flex flex-col md:flex-row items-center justify-between gap-6 transition-all hover:bg-indigo-50 animate-in slide-in-from-top-4 duration-1000 rounded-[2rem]">
+            <div className="flex flex-col md:flex-row items-center gap-5 text-center md:text-left">
+               <div className="h-14 w-14 rounded-2xl bg-white shadow-xl shadow-indigo-100/50 flex items-center justify-center shrink-0">
+                  <Hourglass className="h-7 w-7 text-indigo-600 animate-pulse" />
+               </div>
+               <div>
+                  <h4 className="text-lg font-black text-slate-800 uppercase tracking-tight">Tutor Application Under Review</h4>
+                  <p className="text-sm font-medium text-slate-600">Our academic team is currently evaluating your credentials. We'll be in touch soon.</p>
+               </div>
+            </div>
+            <Button href="/tutor/apply/status" variant="secondary" size="sm" className="h-11 px-8 bg-white border-2 border-indigo-200 text-indigo-600 hover:bg-indigo-100/50 hover:border-indigo-300 text-[10px] font-black uppercase tracking-widest shadow-xl shadow-indigo-100/20 transition-all active:scale-95 shrink-0">
+               Check Full Status
+            </Button>
+         </Card>
+      )}
 
       {isError && (
         <Card variant="outline" className="border-red-100 bg-red-50/30 flex items-center gap-4 text-red-600">

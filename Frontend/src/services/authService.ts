@@ -18,7 +18,8 @@ export interface SafeUser {
   _id: string;
   name: string;
   email: string;
-  role: "student" | "teacher" | "admin";
+  role: "student" | "teacher" | "admin" | "tutor" | "tutor_pending" | "rejected";
+  tutorStatus?: "none" | "pending" | "approved" | "rejected";
   isTutorAvailable?: boolean;
   profilePhoto?: string | null;
   level?: "Basic" | "Beginner" | "Intermediate" | "Advanced" | "Not Set";

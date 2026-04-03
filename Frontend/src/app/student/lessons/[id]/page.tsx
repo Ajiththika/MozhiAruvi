@@ -295,14 +295,14 @@ export default function LessonInteractiveSession() {
           <div className="w-full flex flex-col items-center space-y-12 animate-in fade-in duration-700">
             <div className="text-center space-y-8 w-full max-w-4xl">
                {q?.type === 'reading' && q?.paragraph && (
-                  <div className="bg-gray-50 p-8 rounded-[2rem] border-2 text-left mb-12">
-                      <p className="text-2xl font-bold text-gray-700 leading-relaxed text-center">{q.paragraph}</p>
+                  <div className="bg-gray-50 p-6 rounded-[2rem] border-2 text-left mb-8">
+                      <p className="text-xl font-bold text-gray-700 leading-relaxed text-center">{q.paragraph}</p>
                   </div>
                )}
 
                <div className="flex flex-col items-center gap-8 w-full">
                    <div className="flex items-center justify-center gap-8 w-full">
-                    {(q?.type === 'speaking' || q?.type === 'quiz' || q?.type === 'listening' || q?.type === 'choice') && (
+                    {(q?.type === 'speaking' || q?.type === 'listening') && (
                       <button
                           onClick={() => {
                             const textToSpeak = q?.type === 'speaking' ? (q?.correctAnswer || q?.expectedAudioText) : q?.text;
@@ -319,14 +319,15 @@ export default function LessonInteractiveSession() {
                     )}
 
                     {q?.type !== 'match' && (
-                        <h2 className="text-4xl md:text-5xl font-black text-gray-800 tracking-tight leading-tight grow text-left max-w-3xl">
+                        <h2 className="text-3xl md:text-4xl font-black text-gray-800 tracking-tight leading-tight grow text-left max-w-3xl">
+                            <span className="mr-4 font-mono">{currentQ + 1}.</span>
                             {q?.type === 'fill' ? (
                                 q.text.split(/_{2,}/).map((part: string, i: number, arr: string[]) => (
                                     <React.Fragment key={i}>
                                         {part}
                                         {i < arr.length - 1 && (
                                             <span className={cn(
-                                                "inline-block mx-3 min-w-[180px] border-b-8 transition-all",
+                                                "inline-block mx-3 min-w-[150px] border-b-4 transition-all",
                                                 feedback[q._id] === 'correct' ? "border-emerald-500 text-emerald-600" : "border-gray-200"
                                             )}>
                                                 {feedback[q._id] ? (q.options?.find((o: string, idx: number) => idx === q.correctOptionIndex) || q.correctAnswer) : (typingValue || "...")}
@@ -347,7 +348,7 @@ export default function LessonInteractiveSession() {
                 )}
 
                 {q?.type === "match" && (
-                    <MatchingPairs question={q as any} isCorrect={feedback[q._id] === "correct"} onResult={(passed) => passed ? setFeedback(prev => ({ ...prev, [q._id]: "correct" })) : null} />
+                    <MatchingPairs question={q as any} isCorrect={feedback[q._id] === "correct"} onResult={(passed) => passed ? setFeedback(prev => ({ ...prev, [q._id]: "correct" })) : null} questionNumber={currentQ + 1} />
                 )}
 
                 {q?.type === "fill" && (
@@ -358,7 +359,7 @@ export default function LessonInteractiveSession() {
                             value={typingValue}
                             onChange={(e) => setTypingValue(e.target.value)}
                             disabled={!!feedback[q._id]}
-                            className="w-full p-8 text-3xl font-black text-center rounded-[2rem] border-4 border-gray-100 focus:border-primary/30 outline-none shadow-inner"
+                            className="w-full p-6 text-2xl font-black text-center rounded-[2rem] border-4 border-gray-100 focus:border-primary/30 outline-none shadow-inner"
                         />
                         {!feedback[q._id] && (
                             <Button 
@@ -366,7 +367,7 @@ export default function LessonInteractiveSession() {
                                     const rawCorrect = q.correctAnswer || (q.options ? q.options[q.correctOptionIndex ?? 0] : "");
                                     const correct = (rawCorrect || "").toLowerCase().trim();
                                     const isCorrect = typingValue.toLowerCase().trim() === correct;
-                                    handleSelect(q._id, isCorrect ? (q.correctOptionIndex ?? 0) : -1, q.correctOptionIndex);
+                                    handleSelect(q._id, isCorrect ? (q.correctOptionIndex ?? 0) : -1, q.correctOptionIndex ?? 0);
                                 }}
                                 disabled={!typingValue}
                                 size="xl"
@@ -398,10 +399,10 @@ export default function LessonInteractiveSession() {
                   {feedback[q?._id] === "correct" ? <CheckCircle2 size={40} /> : <XCircle size={40} />}
                 </div>
                 <div className="space-y-1">
-                  <h3 className={cn("text-3xl font-black", feedback[q?._id] === "correct" ? "text-emerald-700" : "text-red-700")}>
+                  <h3 className={cn("text-2xl font-black", feedback[q?._id] === "correct" ? "text-emerald-700" : "text-red-700")}>
                     {feedback[q?._id] === "correct" ? "Great!" : "The answer was:"}
                   </h3>
-                  <p className="text-xl font-bold opacity-80">{feedback[q?._id] === "correct" ? backendMessage[q?._id] : q.correctAnswer || q.options?.[q.correctOptionIndex ?? 0]}</p>
+                  <p className="text-lg font-bold opacity-80">{feedback[q?._id] === "correct" ? backendMessage[q?._id] : q.correctAnswer || q.options?.[q.correctOptionIndex ?? 0]}</p>
                 </div>
               </div>
               <Button onClick={currentQ === questions.length - 1 ? handleSubmit : handleManualNext} size="xl" className={cn("w-full sm:w-auto px-16 rounded-2xl shadow-xl", feedback[q?._id] === "correct" ? "bg-emerald-500" : "bg-red-500")}>

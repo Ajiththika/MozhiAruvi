@@ -122,7 +122,7 @@ export default function CreateBlogPage() {
             <Button
               onClick={() => handleSubmit(false)}
               disabled={submitting || uploading}
-              className="h-12 px-10 rounded-2xl bg-slate-900 hover:bg-black text-white text-[10px] font-black uppercase tracking-widest shadow-2xl transition-all disabled:opacity-50 flex items-center gap-3"
+              className="h-12 px-10 rounded-2xl bg-primary hover:bg-primary/90 text-white text-[10px] font-black uppercase tracking-widest shadow-2xl shadow-primary/20 transition-all disabled:opacity-50 flex items-center gap-3"
             >
               {submitting && <Loader2 size={16} className="animate-spin" />}
               {user?.role === 'teacher' ? 'Submit Request' : 'Publish Story'}
@@ -226,7 +226,7 @@ export default function CreateBlogPage() {
               onChange={handleChange}
               rows={1}
               placeholder="Title of your story..."
-              className="w-full text-4xl md:text-7xl font-black text-primary placeholder:text-slate-100 border-none outline-none resize-none px-1 overflow-hidden h-auto tracking-tighter leading-[0.9]"
+              className="w-full text-4xl md:text-7xl font-black text-text-primary placeholder:text-primary/10 border-none outline-none resize-none px-1 overflow-hidden h-auto tracking-tighter leading-[0.9]"
               onInput={(e) => {
                 const target = e.target as HTMLTextAreaElement;
                 target.style.height = "auto";
@@ -241,7 +241,7 @@ export default function CreateBlogPage() {
               onChange={handleChange}
               rows={1}
               placeholder="A brief preview for your audience..."
-              className="w-full text-2xl font-bold text-primary/60 placeholder:text-slate-100 border-none outline-none resize-none px-1 h-auto leading-relaxed tracking-tight"
+              className="w-full text-2xl font-bold text-text-secondary placeholder:text-primary/10 border-none outline-none resize-none px-1 h-auto leading-relaxed tracking-tight"
               onInput={(e) => {
                 const target = e.target as HTMLTextAreaElement;
                 target.style.height = "auto";
