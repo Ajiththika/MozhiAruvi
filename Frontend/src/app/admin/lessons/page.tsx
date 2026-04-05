@@ -303,124 +303,104 @@ function QuestionCard({
   );
 }
 
-// ── Admin Lesson Card (expandable) ───────────────────────────────────────────
+// ── Admin Lesson Row (Compact Level item) ───────────────────────────────────
 
-interface AdminLessonCardProps {
+interface AdminLessonRowProps {
+  index: number;
   lesson: Lesson;
   onManageQuestions: () => void;
   onEdit: () => void;
   onDelete: () => void;
 }
 
-function AdminLessonCard({ lesson, onManageQuestions, onEdit, onDelete }: AdminLessonCardProps) {
-  const [expanded, setExpanded] = useState(false);
-  const [cardQuestions, setCardQuestions] = useState<Question[]>([]);
-  const [cardQLoading, setCardQLoading] = useState(false);
-  const [fetched, setFetched] = useState(false);
-
-  async function handleExpand() {
-    const next = !expanded;
-    setExpanded(next);
-    if (next && !fetched) {
-      setCardQLoading(true);
-      try {
-        const data = await getLessonQuestions(lesson._id);
-        setCardQuestions(data.questions || []);
-        setFetched(true);
-      } catch {
-        setCardQuestions([]);
-      } finally {
-        setCardQLoading(false);
-      }
-    }
-  }
-
-  const levelColor: Record<string, string> = {
-    Basic: "text-indigo-600 bg-indigo-50 border-indigo-100",
-    Beginner: "text-indigo-600 bg-indigo-50 border-indigo-100",
-    Elementary: "text-indigo-600 bg-indigo-50 border-indigo-100",
-    Intermediate: "text-indigo-600 bg-indigo-50 border-indigo-100",
-    Advanced: "text-indigo-600 bg-indigo-50 border-indigo-100",
-  };
-
+function AdminLessonRow({ index, lesson, onManageQuestions, onEdit, onDelete }: AdminLessonRowProps) {
   return (
-    <div className={`bg-white rounded-[2.5rem] border transition-all duration-500 shadow-sm group/card overflow-hidden ${expanded ? "ring-2 ring-primary/20 border-primary shadow-2xl shadow-primary/5" : "border-slate-100 hover:border-primary/20 hover:shadow-xl hover:shadow-slate-200/50"}`}>
-      {/* Card Header */}
-      <div
-        className="flex flex-col sm:flex-row sm:items-center gap-6 p-8 cursor-pointer relative"
-        onClick={handleExpand}
-      >
-        <div className={`h-16 w-16 rounded-[1.5rem] border flex items-center justify-center shrink-0 transition-all duration-500 ${expanded ? "bg-primary text-white border-white/20 rotate-12 scale-110" : "bg-slate-50 text-primary border-slate-100 group-hover/card:bg-primary group-hover/card:text-white"}`}>
-          <BookOpen className="w-8 h-8" />
-        </div>
+    <div className="flex items-center gap-4 bg-white px-6 py-4 rounded-2xl border border-slate-100 shadow-sm hover:border-primary/20 transition-all group/l">
+      <span className="text-[10px] font-black uppercase tracking-widest text-primary/40 shrink-0 w-6 group-hover/l:text-primary transition-colors">
+        {index + 1}
+      </span>
+      <div className="flex-1 min-w-0 flex items-center gap-3">
+        <p className="text-sm font-bold text-slate-700 truncate">
+          {!isNaN(Number(lesson.title)) && lesson.title.trim() !== "" ? `Level ${lesson.title}` : lesson.title}
+        </p>
+        {lesson.isPremiumOnly && (
+          <span className="text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded border border-amber-200 bg-amber-50 text-amber-600 shrink-0">
+            Premium
+          </span>
+        )}
+      </div>
+      
+      <div className="flex items-center gap-2 md:opacity-0 group-hover/l:opacity-100 transition-opacity">
+        <button
+          onClick={onManageQuestions}
+          className="px-4 py-2 bg-primary text-white text-[9px] font-black uppercase tracking-wider rounded-lg shadow-md shadow-primary/20 hover:scale-105 active:scale-95 transition-all"
+        >
+          + Questions
+        </button>
+        <button
+          onClick={onEdit}
+          className="p-2 border border-slate-100 rounded-lg hover:bg-slate-50 text-primary/40 hover:text-primary transition-colors"
+          title="Edit Level"
+        >
+          <Settings className="w-3.5 h-3.5" />
+        </button>
+        <button
+          onClick={onDelete}
+          className="p-2 border border-slate-100 rounded-lg hover:bg-red-50 text-primary/40 hover:text-red-500 transition-colors"
+          title="Delete Level"
+        >
+          <Trash2 className="w-3.5 h-3.5" />
+        </button>
+      </div>
+    </div>
+  );
+}
 
-        <div className="flex-1 min-w-0">
-          <p className="font-black text-slate-800 text-xl tracking-tighter uppercase whitespace-nowrap overflow-hidden text-ellipsis mb-2">{lesson.title}</p>
-          <div className="flex items-center gap-3 flex-wrap">
-            {/* Level badge */}
-            <span className={`text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full border ${levelColor[lesson.level || "Basic"] || levelColor["Basic"]}`}>
-              {lesson.level || "Basic"} - STAGE {lesson.orderIndex}
-            </span>
-            {/* Published / Premium tag */}
-            <span className={`text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full border ${lesson.isPremiumOnly ? "text-amber-600 bg-amber-50 border-amber-100" : "text-emerald-600 bg-emerald-50 border-emerald-100"}`}>
-              {lesson.isPremiumOnly ? "★ Premium" : "✓ Free"}
-            </span>
+// ── Admin Category Group (expandable container for lessons) ─────────────────
+
+function AdminCategoryGroup({ categoryName, lessons, openQuestions, openEdit, handleDelete, onAddLesson }: { categoryName: string, lessons: Lesson[], openQuestions: (l: Lesson) => void, openEdit: (l: Lesson) => void, handleDelete: (id: string) => void, onAddLesson: (catName: string, nextNum?: number) => void }) {
+  const [expanded, setExpanded] = useState(false);
+  return (
+    <div className={`bg-white rounded-[2.5rem] border transition-all duration-300 ${expanded ? "ring-2 ring-primary/20 border-primary shadow-2xl shadow-primary/5" : "border-slate-100 hover:border-primary/20 hover:shadow-sm"}`}>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between p-8 cursor-pointer relative" onClick={() => setExpanded(!expanded)}>
+        <div className="flex items-center gap-6">
+          <div className={`h-16 w-16 rounded-[1.5rem] border flex items-center justify-center shrink-0 transition-all duration-500 ${expanded ? "bg-primary text-white border-white/20" : "bg-primary/5 text-primary border-primary/10"}`}>
+            <BookOpen className="w-8 h-8" />
+          </div>
+          <div>
+            <h2 className="text-2xl font-black text-slate-800 uppercase tracking-tight">{categoryName}</h2>
+            <p className="text-xs font-bold text-primary/60 uppercase tracking-widest mt-1">{lessons.length} {lessons.length === 1 ? 'Stage' : 'Stages'} configured</p>
           </div>
         </div>
-
-        <div className="flex items-center gap-2 shrink-0 md:opacity-0 group-hover/card:opacity-100 transition-opacity duration-300">
+        <div className="flex items-center gap-3 mt-4 sm:mt-0">
           <button
-            onClick={e => { e.stopPropagation(); onManageQuestions(); }}
+            onClick={e => { e.stopPropagation(); onAddLesson(categoryName, lessons.length + 1); }}
             className="flex items-center gap-2 px-6 py-3 text-[10px] font-black uppercase tracking-[0.2em] text-white bg-primary rounded-xl hover:scale-105 active:scale-95 shadow-xl shadow-primary/20 transition-all"
           >
-            <Plus className="w-4 h-4 ml-[-4px]" /> Questions
+            <Plus className="w-4 h-4 ml-[-4px]" /> Lesson
           </button>
-          <button
-            onClick={e => { e.stopPropagation(); onEdit(); }}
-            className="p-3 bg-white border border-slate-100 text-primary/60 hover:text-primary hover:border-primary/20 hover:bg-primary/5 rounded-xl transition-all"
-            title="Lesson Config"
-          >
-            <Settings className="w-4 h-4" />
-          </button>
-          <button
-            onClick={e => { e.stopPropagation(); onDelete(); }}
-            className="p-3 bg-white border border-slate-100 text-primary/40 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
-            title="Purge Node"
-          >
-            <Trash2 className="w-4 h-4" />
-          </button>
+          <div className="p-3 text-primary/50 bg-slate-50 border border-slate-100 rounded-xl hover:bg-slate-100 transition-colors">
+            {expanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+          </div>
         </div>
       </div>
-
-      {/* Expanded question list */}
       {expanded && (
-        <div className="border-t border-slate-50 bg-slate-50/40 px-8 pb-8 pt-6">
-          {cardQLoading ? (
-            <div className="flex items-center gap-3 py-4 text-primary/60">
-              <Loader2 className="w-4 h-4 animate-spin" />
-              <span className="text-xs font-bold uppercase tracking-widest">Accessing Question Nodes...</span>
-            </div>
-          ) : cardQuestions.length === 0 ? (
-            <div className="py-10 text-center border-2 border-dashed border-slate-200 rounded-[2rem] bg-white">
-              <p className="text-[10px] font-black text-primary/60 uppercase tracking-widest">No activities found in this module.</p>
-              <button
-                onClick={onManageQuestions}
-                className="mt-3 text-[10px] font-black uppercase tracking-[0.2em] text-primary hover:scale-105 transition-transform"
-              >
-                + Initialize Questions
-              </button>
+        <div className="border-t border-slate-50 bg-slate-50/20 p-8">
+          {lessons.length === 0 ? (
+            <div className="text-center py-6">
+               <p className="text-[10px] font-black text-primary/60 uppercase tracking-widest">No levels found in this category.</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 gap-3">
-              {cardQuestions.map((q, idx) => (
-                <div key={q._id} className="flex items-center gap-4 bg-white px-6 py-4 rounded-2xl border border-slate-100 shadow-sm hover:border-primary/20 transition-all group/q">
-                  <span className="text-[10px] font-black uppercase tracking-widest text-primary/40 shrink-0 w-6 group-hover/q:text-primary transition-colors">{idx + 1}</span>
-                  <span className="text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg bg-slate-50 border border-slate-100 text-primary/60 shrink-0">
-                    {q.type}
-                  </span>
-                  <p className="text-sm font-bold text-slate-700 truncate flex-1">{q.text}</p>
-                  <ArrowRight className="w-4 h-4 text-slate-200 group-hover/q:text-primary group-hover/q:translate-x-1 transition-all" />
-                </div>
+              {lessons.map((lesson, index) => (
+                <AdminLessonRow
+                  key={lesson._id}
+                  index={index}
+                  lesson={lesson}
+                  onManageQuestions={() => openQuestions(lesson)}
+                  onEdit={() => openEdit(lesson)}
+                  onDelete={() => handleDelete(lesson._id)}
+                />
               ))}
             </div>
           )}
@@ -438,7 +418,9 @@ export default function AdminLessonsPage() {
 
   // Unified Category (which is a Lesson in DB) creation form
   const [showCreate, setShowCreate] = useState(false);
+  const [isAddingToExisting, setIsAddingToExisting] = useState(false);
   const [formData, setFormData] = useState({ 
+    category: "", 
     title: "", 
     isPremiumOnly: false, 
     level: "Beginner", // The 'Stage'
@@ -462,6 +444,18 @@ export default function AdminLessonsPage() {
   // Reset page when level changes
   useEffect(() => { setCurrentPage(1); }, [activeLevel]);
 
+  function openAddLesson(catName?: string, nextNum?: number) {
+    setShowCreate(true);
+    setLessonError("");
+    setIsAddingToExisting(!!catName);
+    setFormData(prev => ({
+      ...prev,
+      category: catName || "",
+      title: nextNum ? nextNum.toString() : "1",
+      level: activeLevel
+    }));
+  }
+
   useEffect(() => { 
     fetchLessons(); 
   }, []);
@@ -480,21 +474,22 @@ export default function AdminLessonsPage() {
 
   async function handleCreate(e: React.FormEvent) {
     e.preventDefault();
-    if (!formData.title.trim()) { setLessonError("Category name is required."); return; }
+    if (!formData.category.trim()) { setLessonError("Category name is required."); return; }
+    if (!formData.title.trim()) { setLessonError("Lesson title is required."); return; }
     setLessonError("");
     setCreating(true);
       try {
         await api.post("/lessons", {
           ...formData,
+          orderIndex: parseInt(formData.title) || lessons.length,
           type: "mixed",
           moduleName: formData.level, 
-          category: formData.title,  // Map input name to Category
-          sectionName: formData.title, // Map input name to Section
-          moduleNumber: Number(formData.moduleNumber),
-          orderIndex: Number(formData.orderIndex),
+          sectionName: formData.category, // Map input name to Section
         });
       setShowCreate(false);
+      setIsAddingToExisting(false);
       setFormData({ 
+        category: "", 
         title: "", 
         isPremiumOnly: false, 
         level: "Beginner", 
@@ -542,7 +537,7 @@ export default function AdminLessonsPage() {
       await api.patch(`/lessons/${editingLessonId}`, {
         ...editFormData,
         moduleNumber: Number(editFormData.moduleNumber),
-        orderIndex: Number(editFormData.orderIndex),
+        orderIndex: parseInt(editFormData.title) || Number(editFormData.orderIndex),
       });
       setEditingLessonId(null);
       fetchLessons();
@@ -653,10 +648,10 @@ export default function AdminLessonsPage() {
           <p className="text-primary/70 font-medium mt-1">Organize your learning path and levels.</p>
         </div>
         <button
-          onClick={() => { setShowCreate(s => !s); setLessonError(""); }}
+          onClick={() => openAddLesson()}
           className="flex items-center justify-center gap-3 rounded-2xl bg-primary px-8 py-4 text-xs font-black uppercase tracking-widest text-white shadow-xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all"
         >
-          <Plus className="h-5 w-5" /> Add New Category
+          <Plus className="h-5 w-5" /> + ADD NEW CATEGORY
         </button>
       </div>
 
@@ -664,8 +659,10 @@ export default function AdminLessonsPage() {
       {showCreate && (
         <div className="bg-white p-8 rounded-[2.5rem] shadow-2xl shadow-slate-200/40 border border-primary/10 max-w-4xl mx-auto animate-in zoom-in-95 duration-300">
           <div className="flex items-center justify-between mb-8">
-            <h3 className="text-2xl font-black text-slate-800">New Category Item</h3>
-            <button onClick={() => setShowCreate(false)} className="p-2 hover:bg-slate-100 rounded-full transition-colors">
+            <h3 className="text-2xl font-black text-slate-800">
+              {isAddingToExisting ? `Add Lesson to "${formData.category}"` : "Create New Category"}
+            </h3>
+            <button onClick={() => { setShowCreate(false); setIsAddingToExisting(false); }} className="p-2 hover:bg-slate-100 rounded-full transition-colors">
               <X className="w-6 h-6 text-primary/60" />
             </button>
           </div>
@@ -677,43 +674,34 @@ export default function AdminLessonsPage() {
           )}
 
           <form onSubmit={handleCreate} className="space-y-6">
-            <div>
-              <label className={labelCls}>Category Name</label>
-              <input
-                required
-                value={formData.title}
-                onChange={e => setFormData({ ...formData, title: e.target.value })}
-                className={inputCls}
-                placeholder="e.g. Traditional Greetings"
-              />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {!isAddingToExisting && (
+                <div>
+                  <label className={labelCls}>Category Name</label>
+                  <input
+                    required
+                    value={formData.category}
+                    onChange={e => setFormData({ ...formData, category: e.target.value })}
+                    className={inputCls}
+                    placeholder="e.g. Uyir Eluththu (Vowels)"
+                  />
+                  <p className="text-[10px] font-bold text-slate-400 mt-2 uppercase tracking-widest pl-4">A category is initialized along with its first lesson.</p>
+                </div>
+              )}
+              
+              <div className={isAddingToExisting ? "col-span-1 md:col-span-2" : ""}>
+                <label className={labelCls}>Auto-assigned Level Number</label>
+                <div className="px-5 py-4 bg-slate-50 border border-slate-100/50 rounded-2xl flex items-center justify-between">
+                  <span className="text-sm font-black text-slate-700">Level {formData.title}</span>
+                  <span className="text-[9px] font-black uppercase tracking-widest text-primary/40 bg-primary/5 px-2 py-1 rounded">Auto-generated</span>
+                </div>
+              </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <div>
-                <label className={labelCls}>Select Stage</label>
-                <select 
-                  className={inputCls} 
-                  value={formData.level} 
-                  onChange={e => setFormData({ ...formData, level: e.target.value })}
-                >
-                  {["Beginner", "Elementary", "Intermediate", "Advanced"].map(lvl => (
-                    <option key={lvl} value={lvl}>{lvl}</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className={labelCls}>Level # (e.g. 1)</label>
-                <input
-                  type="number"
-                  required
-                  min="0"
-                  value={formData.orderIndex}
-                  onChange={e => setFormData({ ...formData, orderIndex: parseInt(e.target.value) })}
-                  className={inputCls}
-                />
-              </div>
-              <div className="lg:col-span-2">
-                <label className={labelCls}>Access Level</label>
+            {!isAddingToExisting && (
+              <div className="grid grid-cols-1 gap-6">
+                <div>
+                  <label className={labelCls}>Access Level</label>
                 <div className="flex gap-3">
                   <button 
                     type="button" 
@@ -731,12 +719,13 @@ export default function AdminLessonsPage() {
                   </button>
                 </div>
               </div>
-            </div>
+              </div>
+            )}
 
             <div className="flex justify-end gap-4 pt-2">
               <button type="button" onClick={() => setShowCreate(false)} className="px-8 py-4 font-black uppercase tracking-widest text-[10px] text-primary/60">Cancel</button>
               <button type="submit" disabled={creating} className="px-10 py-4 bg-primary text-white font-black uppercase tracking-widest text-[10px] rounded-2xl shadow-xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all">
-                {creating ? <Loader2 className="w-4 h-4 animate-spin" /> : "Register Category"}
+                {creating ? <Loader2 className="w-4 h-4 animate-spin" /> : (isAddingToExisting ? "Add Lesson" : "Create Category")}
               </button>
             </div>
           </form>
@@ -791,7 +780,11 @@ export default function AdminLessonsPage() {
               .slice((currentPage - 1) * 6, currentPage * 6);
 
             const categoriesOnPage = paginated.reduce((acc: Record<string, Lesson[]>, lesson: Lesson) => {
-              const category = lesson.category || "Uncategorized";
+              let category = lesson.category || "Uncategorized";
+              // Legacy data fallback: if the category was mistakenly saved as the level name
+              if (category.toLowerCase() === (lesson.level || "").toLowerCase() || category === "General") {
+                category = lesson.title || "Uncategorized";
+              }
               if (!acc[category]) acc[category] = [];
               acc[category].push(lesson);
               return acc;
@@ -806,14 +799,16 @@ export default function AdminLessonsPage() {
                       <p className="text-primary/60 font-bold italic">This level is currently empty.</p>
                     </div>
                   ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {paginated.map(lesson => (
-                      <AdminLessonCard
-                        key={lesson._id}
-                        lesson={lesson}
-                        onManageQuestions={() => openQuestions(lesson)}
-                        onEdit={() => openEdit(lesson)}
-                        onDelete={() => handleDelete(lesson._id)}
+                  <div className="space-y-6">
+                    {Object.entries(categoriesOnPage).map(([catName, catLessons]) => (
+                      <AdminCategoryGroup
+                        key={catName}
+                        categoryName={catName}
+                        lessons={catLessons}
+                        openQuestions={openQuestions}
+                        openEdit={openEdit}
+                        handleDelete={handleDelete}
+                        onAddLesson={openAddLesson}
                       />
                     ))}
                   </div>
@@ -872,40 +867,30 @@ export default function AdminLessonsPage() {
             </div>
 
             <form onSubmit={handleUpdateLesson} className="space-y-6">
-              <div>
-                <label className={labelCls}>Lesson Title</label>
-                <input
-                  required
-                  value={editFormData.title}
-                  onChange={e => setEditFormData({ ...editFormData, title: e.target.value })}
-                  className={inputCls}
-                />
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className={labelCls}>Select Stage</label>
-                  <select 
-                    className={inputCls} 
-                    value={editFormData.level} 
-                    onChange={e => setEditFormData({ ...editFormData, level: e.target.value })}
-                  >
-                    {["Beginner", "Elementary", "Intermediate", "Advanced"].map(lvl => (
-                      <option key={lvl} value={lvl}>{lvl}</option>
-                    ))}
-                  </select>
+                  <label className={labelCls}>Category Name</label>
+                  <input
+                    required
+                    value={editFormData.category}
+                    onChange={e => setEditFormData({ ...editFormData, category: e.target.value })}
+                    className={inputCls}
+                  />
                 </div>
                 <div>
-                  <label className={labelCls}>Level #</label>
+                  <label className={labelCls}>Lesson Number</label>
                   <input
                     type="number"
+                    min="1"
                     required
-                    value={editFormData.orderIndex}
-                    onChange={e => setEditFormData({ ...editFormData, orderIndex: parseInt(e.target.value) })}
+                    value={editFormData.title}
+                    onChange={e => setEditFormData({ ...editFormData, title: e.target.value })}
                     className={inputCls}
                   />
                 </div>
               </div>
+
+
 
               <div className="flex justify-end gap-4 pt-2">
                 <button type="button" onClick={() => setEditingLessonId(null)} className="px-8 py-4 font-black uppercase tracking-widest text-[10px] text-primary/60">

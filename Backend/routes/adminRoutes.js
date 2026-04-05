@@ -19,9 +19,9 @@ router.delete('/plan-settings/:planId', authenticate, authorizeRoles(ROLES.ADMIN
 
 // ── Tutor Management ────────────────────────────────────────────────────────
 router.get('/tutors', authenticate, authorizeRoles(ROLES.ADMIN), adminController.getTutors);
-router.get('/tutors/applications', authenticate, authorizeRoles(ROLES.ADMIN), mentorApplicationController.getTeacherApplications);
-router.patch('/tutors/:id/approve', authenticate, authorizeRoles(ROLES.ADMIN), mentorApplicationController.approveTeacherApplication);
-router.patch('/tutors/:id/reject', authenticate, authorizeRoles(ROLES.ADMIN), mentorApplicationController.rejectTeacherApplication);
+router.get('/tutors/applications', authenticate, authorizeRoles(ROLES.ADMIN), mentorApplicationController.getMentorApplications);
+router.patch('/tutors/:id/approve', authenticate, authorizeRoles(ROLES.ADMIN), mentorApplicationController.approveMentorApplication);
+router.patch('/tutors/:id/reject', authenticate, authorizeRoles(ROLES.ADMIN), mentorApplicationController.rejectMentorApplication);
 router.get('/mentor-applications', authenticate, authorizeRoles(ROLES.ADMIN), adminController.getMentorApplications);
 
 // Admin functions
@@ -34,10 +34,10 @@ router.patch('/users/:id/tutor-status', authenticate, authorizeRoles(ROLES.ADMIN
 router.patch('/users/:id/warn', authenticate, authorizeRoles(ROLES.ADMIN), adminController.warnUser);
 
 // ── Teacher Application Management ──────────────────────────────────────────
-router.get('/teacher-applications', authenticate, authorizeRoles(ROLES.ADMIN), mentorApplicationController.getTeacherApplications);
-router.patch('/teacher-applications/:id/approve', authenticate, authorizeRoles(ROLES.ADMIN), mentorApplicationController.approveTeacherApplication);
-router.patch('/teacher-applications/:id/reject', authenticate, authorizeRoles(ROLES.ADMIN), mentorApplicationController.rejectTeacherApplication);
-router.patch('/teacher-applications/:id/request-revision', authenticate, authorizeRoles(ROLES.ADMIN), mentorApplicationController.requestRevisionTeacherApplication);
+router.get('/teacher-applications', authenticate, authorizeRoles(ROLES.ADMIN), mentorApplicationController.getMentorApplications);
+router.patch('/teacher-applications/:id/approve', authenticate, authorizeRoles(ROLES.ADMIN), mentorApplicationController.approveMentorApplication);
+router.patch('/teacher-applications/:id/reject', authenticate, authorizeRoles(ROLES.ADMIN), mentorApplicationController.rejectMentorApplication);
+router.patch('/teacher-applications/:id/request-revision', authenticate, authorizeRoles(ROLES.ADMIN), mentorApplicationController.requestRevisionMentorApplication);
 
 // ── Event Join Request Management ────────────────────────────────────────────
 // GET  /api/admin/events/join-requests?eventId=&status=

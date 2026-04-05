@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import {
   BookOpen, Loader2, AlertCircle, Lock, Star, Flame, Zap, CheckCircle2,
-  ArrowRight, Clock, ListChecks, Play
+  ArrowRight, Clock, ListChecks, Play, ChevronDown, ChevronUp
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { getLessons, Lesson, Progress } from "@/services/lessonService";
@@ -24,7 +24,10 @@ const CATEGORY_ORDER = [
 function groupByCategory(lessons: Lesson[]) {
   const map: Record<string, Lesson[]> = {};
   lessons.forEach((l) => {
-    const category = l.category || "Uyir Eluthu";
+    let category = l.category || "Uyir Eluthu";
+    if (category.toLowerCase() === (l.level || "").toLowerCase() || category === "General") {
+      category = l.title || "Uyir Eluthu";
+    }
     if (!map[category]) map[category] = [];
     map[category].push(l);
   });
@@ -63,7 +66,9 @@ function LessonPreviewModal({ lesson, status, onClose, onStart }: PreviewModalPr
             )}>
               {status === "completed" ? "Completed" : "Available Activity"}
             </span>
-            <h2 className="mt-5 text-3xl font-black text-primary tracking-tight leading-tight">{lesson.title}</h2>
+            <h2 className="mt-5 text-3xl font-black text-primary tracking-tight leading-tight">
+              {!isNaN(Number(lesson.title)) && lesson.title.trim() !== "" ? `Level ${lesson.title}` : lesson.title}
+            </h2>
             {lesson.category && (
               <p className="text-xs font-bold text-slate-600 uppercase tracking-widest mt-2">{lesson.category}</p>
             )}
@@ -110,6 +115,133 @@ function LessonPreviewModal({ lesson, status, onClose, onStart }: PreviewModalPr
 
 // ── Main Page ─────────────────────────────────────────────────────────────────
 
+function StudentCategoryGroup({
+  category,
+  lessons,
+  user,
+  activeLevel,
+  lessonStatus,
+  setPreviewLesson,
+}: {
+  category: string;
+  lessons: Lesson[];
+  user: SafeUser | null;
+  activeLevel: string;
+  lessonStatus: Map<string, string>;
+  setPreviewLesson: (param: any) => void;
+}) {
+  const [expanded, setExpanded] = useState(false);
+
+  return (
+    <div className={cn(
+      "bg-white rounded-[2.5rem] border transition-all duration-300",
+      expanded ? "ring-2 ring-primary/20 border-primary shadow-2xl shadow-primary/5" : "border-slate-100 hover:border-primary/20 hover:shadow-sm"
+    )}>
+      <div 
+        className="flex flex-col sm:flex-row sm:items-center justify-between p-6 sm:p-8 cursor-pointer relative" 
+        onClick={() => setExpanded(!expanded)}
+      >
+        <div className="flex items-center gap-4 sm:gap-6">
+          <div className={cn(
+            "h-14 w-14 sm:h-16 sm:w-16 rounded-[1.5rem] border flex items-center justify-center shrink-0 transition-all duration-500",
+            expanded ? "bg-primary text-white border-white/20" : "bg-primary/5 text-primary border-primary/10"
+          )}>
+            <BookOpen className="w-6 h-6 sm:w-8 sm:h-8" />
+          </div>
+          <div>
+            <h2 className="text-lg sm:text-2xl font-black text-slate-800 uppercase tracking-tight">{category}</h2>
+            <p className="text-[10px] sm:text-xs font-bold text-primary/60 uppercase tracking-widest mt-0.5 sm:mt-1">
+               {lessons.length} {lessons.length === 1 ? 'Level' : 'Levels'}
+            </p>
+          </div>
+        </div>
+        <div className="flex items-center gap-3 mt-4 sm:mt-0 self-end sm:self-auto">
+          <div className="p-3 text-primary/50 bg-slate-50 border border-slate-100 rounded-xl hover:bg-slate-100 transition-colors">
+            {expanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+          </div>
+        </div>
+      </div>
+      
+      {expanded && (
+        <div className="border-t border-slate-50 bg-slate-50/20 p-6 sm:p-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {lessons.map((lesson) => {
+              const status = lessonStatus.get(lesson._id) || "locked";
+              const isPaidPlan = user?.subscription?.plan && ['PRO', 'PREMIUM', 'BUSINESS'].includes(user.subscription.plan);
+              const isPremiumUser = user?.isPremium || isPaidPlan;
+              
+              const isLocked = status === "locked" || (lesson.isPremiumOnly && !isPremiumUser);
+              const isCurrent = status === "unlocked" && !isLocked;
+              const isDone = status === "completed";
+
+              return (
+                <div
+                  key={lesson._id}
+                  onClick={() => !isLocked && setPreviewLesson({
+                    lesson,
+                    status: isDone ? "completed" : "unlocked"
+                  })}
+                  className={cn(
+                    "group flex flex-col gap-5 rounded-[2.5rem] border p-8 transition-all duration-500",
+                    isLocked 
+                      ? "bg-slate-50 border-slate-100 opacity-60 grayscale cursor-not-allowed"
+                      : isDone
+                        ? "bg-emerald-50/30 border-emerald-100 hover:-translate-y-2 hover:shadow-2xl hover:shadow-emerald-100/50 cursor-pointer"
+                        : "bg-white border-slate-100 shadow-xl shadow-slate-200/40 hover:border-primary/20 hover:-translate-y-2 hover:shadow-2xl hover:shadow-primary/5 cursor-pointer"
+                  )}
+                >
+                  <div className="flex items-start justify-between">
+                    <div className={cn(
+                      "h-14 w-14 rounded-2xl border flex items-center justify-center transition-all duration-500",
+                      isLocked ? "bg-slate-200 text-slate-400" : isDone ? "bg-emerald-500 text-white shadow-lg shadow-emerald-500/20" : "bg-primary text-white shadow-lg shadow-primary/20 group-hover:rotate-12"
+                    )}>
+                      {isDone ? <CheckCircle2 className="w-8 h-8" /> : isLocked ? <Lock className="w-6 h-6" /> : <BookOpen className="w-8 h-8" />}
+                    </div>
+                    <span className={cn(
+                      "text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full border",
+                      "text-indigo-600 bg-indigo-50 border-indigo-100"
+                    )}>
+                      {activeLevel} - LEVEL {lesson.orderIndex}
+                    </span>
+                  </div>
+
+                  <div className="space-y-3">
+                    <h3 className={cn(
+                      "text-lg sm:text-xl font-black uppercase tracking-tight leading-tight",
+                      isLocked ? "text-slate-400" : "text-slate-800"
+                    )}>
+                      {!isNaN(Number(lesson.title)) && lesson.title.trim() !== "" ? `Level ${lesson.title}` : lesson.title}
+                    </h3>
+                    {lesson.description && (
+                      <p className="text-sm font-medium text-slate-500 line-clamp-2 leading-relaxed">
+                        {lesson.description}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    <span className={cn(
+                      "text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full border",
+                      lesson.isPremiumOnly ? "text-amber-600 bg-amber-50 border-amber-100" : "text-emerald-600 bg-emerald-50 border-emerald-100"
+                    )}>
+                      {lesson.isPremiumOnly ? "★ Premium" : "✓ Free"}
+                    </span>
+                    {isDone && (
+                      <span className="text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full bg-emerald-100 text-emerald-600 border border-emerald-200">
+                        Mastered
+                      </span>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function StudentLessonsPage() {
   const router = useRouter();
   const [lessons, setLessons] = useState<Lesson[]>([]);
@@ -122,12 +254,16 @@ export default function StudentLessonsPage() {
     status: "unlocked" | "completed";
   } | null>(null);
 
+  const [activeLevel, setActiveLevel] = useState<string>("Beginner");
+
   useEffect(() => {
     Promise.all([getMe(), getLessons()])
       .then(([userData, data]) => {
         setUser(userData);
         setLessons(data.lessons || []);
         setProgresses(data.progress || []);
+        const level = (userData?.level === "Not Set" || !userData?.level) ? "Beginner" : userData.level;
+        setActiveLevel(level);
         setLoading(false);
       })
       .catch((err) => {
@@ -173,8 +309,6 @@ export default function StudentLessonsPage() {
 
   const powers = user?.progress?.energy ?? user?.power ?? 25;
   const isOutOfEnergy = powers <= 0;
-  const userLevel = (user?.level === "Not Set" || !user?.level) ? "Beginner" : user?.level;
-  const [activeLevel, setActiveLevel] = useState<string>(userLevel);
 
   const filteredLessons = lessons.filter(l => {
     const lessonLevel = (l.level || "Basic").toLowerCase();
@@ -270,31 +404,35 @@ export default function StudentLessonsPage() {
 
       {/* Level Selection Tabs */}
       <div className="flex flex-wrap items-center gap-3 bg-white p-3 rounded-[2rem] border border-slate-100 shadow-sm mx-2 sm:mx-0">
-        {["Beginner", "Elementary", "Intermediate", "Advanced"].map((lv) => (
-          <button
-            key={lv}
-            onClick={() => setActiveLevel(lv)}
-            className={cn(
-              "flex-1 min-w-[140px] py-4 rounded-[1.5rem] text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-300 border-2",
-              activeLevel === lv 
-                ? "bg-primary text-white border-primary shadow-lg shadow-primary/20 scale-[1.02]" 
-                : "bg-slate-50 text-primary/60 border-transparent hover:bg-slate-100 hover:text-slate-600"
-            )}
-          >
-            {lv}
-          </button>
-        ))}
+        {["Beginner", "Elementary", "Intermediate", "Advanced"].map((lv, index) => {
+          const normalizedLevel = (user?.level === "Not Set" || !user?.level) ? "beginner" : user.level.toLowerCase();
+          const targetLevelIndex = ["beginner", "elementary", "intermediate", "advanced"].indexOf(normalizedLevel);
+          const safeIndex = targetLevelIndex === -1 ? 0 : targetLevelIndex;
+          const isTabLocked = index !== safeIndex;
+
+          return (
+            <button
+              key={lv}
+              onClick={() => !isTabLocked && setActiveLevel(lv)}
+              disabled={isTabLocked}
+              title={isTabLocked ? "Complete your current level to unlock" : ""}
+              className={cn(
+                "flex-1 min-w-[140px] py-4 rounded-[1.5rem] text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-300 border-2 flex items-center justify-center gap-2",
+                isTabLocked
+                  ? "bg-slate-50 text-slate-300 border-transparent cursor-not-allowed opacity-70"
+                  : activeLevel === lv 
+                    ? "bg-primary text-white border-primary shadow-lg shadow-primary/20 scale-[1.02]" 
+                    : "bg-slate-50 text-primary/60 border-transparent hover:bg-slate-100 hover:text-slate-600 cursor-pointer"
+              )}
+            >
+              {isTabLocked && <Lock className="w-3.5 h-3.5 mb-[1px]" />}
+              {lv}
+            </button>
+          );
+        })}
       </div>
 
-      {/* Page Header */}
-      <div className="px-4 py-6">
-        <h2 className="text-3xl md:text-4xl lg:text-4xl font-black tracking-tight text-primary flex items-center gap-3 uppercase">
-          <BookOpen className="h-8 w-8 text-secondary" /> {activeLevel} Curriculum
-        </h2>
-        <p className="mt-4 text-base md:text-lg font-semibold text-slate-700 leading-relaxed">
-           Embark on your {activeLevel} path. Master these fundamentals to build a strong linguistic base.
-        </p>
-      </div>
+
 
       {/* Out of Energy */}
       {isOutOfEnergy && (
@@ -308,79 +446,20 @@ export default function StudentLessonsPage() {
         </div>
       )}
 
-      {/* Unified Lesson Grid */}
-      {!isOutOfEnergy && filteredLessons.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 px-4 pb-20">
-          {sortedLessons.map((lesson) => {
-            const status = lessonStatus.get(lesson._id) || "locked";
-            const isPaidPlan = user?.subscription?.plan && ['PRO', 'PREMIUM', 'BUSINESS'].includes(user.subscription.plan);
-            const isPremiumUser = user?.isPremium || isPaidPlan;
-            
-            const isLocked = status === "locked" || (lesson.isPremiumOnly && !isPremiumUser);
-            const isCurrent = status === "unlocked" && !isLocked;
-            const isDone = status === "completed";
-
-            return (
-              <div
-                key={lesson._id}
-                onClick={() => setPreviewLesson({
-                  lesson,
-                  status: isDone ? "completed" : "unlocked"
-                })}
-                className={cn(
-                  "group flex flex-col gap-5 rounded-[2.5rem] border p-8 cursor-pointer transition-all duration-500 hover:-translate-y-2",
-                  isLocked 
-                    ? "bg-slate-50 border-slate-100 opacity-60 grayscale cursor-not-allowed"
-                    : isDone
-                      ? "bg-emerald-50/30 border-emerald-100 hover:shadow-2xl hover:shadow-emerald-100/50"
-                      : "bg-white border-slate-100 shadow-xl shadow-slate-200/40 hover:border-primary/20 hover:shadow-2xl hover:shadow-primary/5"
-                )}
-              >
-                <div className="flex items-start justify-between">
-                  <div className={cn(
-                    "h-14 w-14 rounded-2xl border flex items-center justify-center transition-all duration-500",
-                    isLocked ? "bg-slate-200 text-slate-400" : isDone ? "bg-emerald-500 text-white shadow-lg shadow-emerald-500/20" : "bg-primary text-white shadow-lg shadow-primary/20 group-hover:rotate-12"
-                  )}>
-                    {isDone ? <CheckCircle2 className="w-8 h-8" /> : isLocked ? <Lock className="w-6 h-6" /> : <BookOpen className="w-8 h-8" />}
-                  </div>
-                  <span className={cn(
-                    "text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full border",
-                    "text-indigo-600 bg-indigo-50 border-indigo-100"
-                  )}>
-                    {activeLevel} - STAGE {lesson.orderIndex}
-                  </span>
-                </div>
-
-                <div className="space-y-3">
-                  <h3 className={cn(
-                    "text-xl font-black uppercase tracking-tight leading-tight",
-                    isLocked ? "text-slate-400" : "text-slate-800"
-                  )}>
-                    {lesson.title}
-                  </h3>
-                  {lesson.description && (
-                    <p className="text-sm font-medium text-slate-500 line-clamp-2 leading-relaxed">
-                      {lesson.description}
-                    </p>
-                  )}
-                </div>
-
-                <div className="flex items-center gap-3">
-                   <span className={cn(
-                     "text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full border",
-                     lesson.isPremiumOnly ? "text-amber-600 bg-amber-50 border-amber-100" : "text-emerald-600 bg-emerald-50 border-emerald-100"
-                   )}>
-                      {lesson.isPremiumOnly ? "★ Premium" : "✓ Free"}
-                   </span>
-                   {isDone && (
-                      <span className="text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full bg-emerald-100 text-emerald-600 border border-emerald-200">
-                        Mastered
-                      </span>
-                   )}
-                </div>
-              </div>
-            );
-          })}
+      {/* Unified Lesson Grid grouped by Category */}
+      {!isOutOfEnergy && orderedGroups.length > 0 && (
+        <div className="space-y-6 px-4 pb-20 mt-8">
+          {orderedGroups.map(([category, catLessons]) => (
+             <StudentCategoryGroup
+               key={category}
+               category={category}
+               lessons={catLessons}
+               user={user}
+               activeLevel={activeLevel}
+               lessonStatus={lessonStatus}
+               setPreviewLesson={setPreviewLesson}
+             />
+          ))}
         </div>
       )}
     </div>

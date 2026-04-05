@@ -29,17 +29,16 @@ export async function getAiResponse(userMessage, chatHistory = []) {
         throw new Error("HUGGINGFACE_API_KEY is not configured in environment.");
     }
 
-    // Modern OpenAI-Compatible Messages Payload
-    const messages = [
-        { role: "system", content: SYSTEM_PROMPT },
-        ...chatHistory,
-        { role: "user", content: userMessage }
-    ];
-
     try {
-        // Using the v1/chat/completions endpoint (Stable & Modern for Llama 3)
+        // Prepare a robust, prompt-engineered input for stable Hub inference
+        let prompt = `<s>[INST] ${SYSTEM_PROMPT}\n\n`;
+        chatHistory.slice(-4).forEach(m => {
+            prompt += `${m.role === 'assistant' ? '' : '[INST] '}${m.content}${m.role === 'assistant' ? '' : ' [/INST]'}\n`;
+        });
+        prompt += `[INST] ${userMessage} [/INST]`;
+
         const response = await fetch(
-            "https://api-inference.huggingface.co/v1/chat/completions",
+            "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.3",
             {
                 method: "POST",
                 headers: {
@@ -47,24 +46,27 @@ export async function getAiResponse(userMessage, chatHistory = []) {
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
-                    model: "meta-llama/Llama-3.1-8B-Instruct",
-                    messages,
-                    max_tokens: 512,
-                    temperature: 0.7,
-                    stream: false,
+                    inputs: prompt,
+                    parameters: {
+                        max_new_tokens: 512,
+                        temperature: 0.7,
+                        return_full_text: false,
+                    }
                 }),
             }
         );
 
         if (!response.ok) {
-            const err = await response.json();
-            throw new Error(err.error?.message || `Linguistic flux failure: ${response.status}`);
+            const errBody = await response.json().catch(() => ({}));
+            console.error(`AI Hub Error (${response.status}):`, errBody);
+            return "MozhiAruvi is currently meditating on ancient texts. Please give her a moment to return to the river (Hub connectivity issue).";
         }
 
         const data = await response.json();
         
-        // Correct extraction for the completions API
-        return data.choices?.[0]?.message?.content || "The linguistic river is currently quiet. Please try again soon.";
+        // Extract from stable format (usually a list of generated texts)
+        const output = Array.isArray(data) ? data[0]?.generated_text : data.generated_text;
+        return output || "The linguistic river is currently quiet. Please try again soon.";
 
     } catch (error) {
         console.error("AI Service Error:", error);

@@ -16,7 +16,7 @@ export function AuthInput({ label, error, id, type, ...props }: AuthInputProps) 
   const inputId = id || props.name;
 
   return (
-    <div className="flex flex-col gap-2.5 w-full">
+    <div className="flex flex-col gap-1.5 w-full">
       <label htmlFor={inputId} className="text-[10px] font-black uppercase tracking-[0.2em] text-text-secondary ml-1 select-none">
         {label}
       </label>
@@ -25,7 +25,7 @@ export function AuthInput({ label, error, id, type, ...props }: AuthInputProps) 
           id={inputId}
           type={currentType}
           className={cn(
-            "w-full px-6 py-5 rounded-[1.25rem] border bg-slate-50/50 text-slate-800 font-medium placeholder:text-slate-400 transition-all duration-300 outline-none focus:ring-4 focus:ring-primary/5 hover:border-primary/20 hover:bg-white focus:bg-white pr-14 shadow-sm",
+            "w-full px-6 py-3.5 rounded-xl border bg-slate-50/50 text-slate-800 font-medium placeholder:text-slate-400 transition-all duration-300 outline-none focus:ring-4 focus:ring-primary/5 hover:border-primary/20 hover:bg-white focus:bg-white pr-14 shadow-sm",
             error ? 'border-red-400 ring-red-500/5 hover:border-red-500/60' : 'border-slate-100 focus:border-primary/40'
           )}
           {...props}
@@ -60,7 +60,7 @@ export function SocialLogin({ provider, onClick }: SocialLoginProps) {
     <button
       onClick={onClick}
       type="button"
-      className="w-full flex items-center justify-center gap-4 px-6 py-5 rounded-[1.25rem] border border-slate-100 bg-white text-slate-800 font-black uppercase tracking-widest text-[10px] shadow-sm hover:bg-slate-50 hover:border-primary/30 focus:ring-4 focus:ring-primary/5 transition-all group active:scale-[0.98]"
+      className="w-full flex items-center justify-center gap-4 px-6 py-3.5 rounded-xl border border-slate-100 bg-white text-slate-800 font-black uppercase tracking-widest text-[10px] shadow-sm hover:bg-slate-50 hover:border-primary/30 focus:ring-4 focus:ring-primary/5 transition-all group active:scale-[0.98]"
     >
       <svg className="w-5 h-5 group-hover:scale-110 transition-transform" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
         <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>

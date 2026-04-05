@@ -53,7 +53,7 @@ export async function updateMyApplication(req, res, next) {
  * Filtered & Paginated Applications List.
  * GET /api/v1/admin/mentor-applications
  */
-export async function getTeacherApplications(req, res, next) {
+export async function getMentorApplications(req, res, next) {
     try {
         const { status, page = 1, limit = 10 } = req.query;
         const result = await mentorApplicationService.getAllApplications(status, parseInt(page), parseInt(limit));
@@ -65,7 +65,7 @@ export async function getTeacherApplications(req, res, next) {
  * Approve Mentor and Promote User.
  * PATCH /api/v1/admin/mentor-applications/:id/approve
  */
-export async function approveTeacherApplication(req, res, next) {
+export async function approveMentorApplication(req, res, next) {
     try {
         const application = await mentorApplicationService.approveApplication(req.params.id, req.user.sub);
         
@@ -88,7 +88,7 @@ export async function approveTeacherApplication(req, res, next) {
  * Reject Mentor.
  * PATCH /api/v1/admin/mentor-applications/:id/reject
  */
-export async function rejectTeacherApplication(req, res, next) {
+export async function rejectMentorApplication(req, res, next) {
     try {
         const { rejectionReason, adminNotes } = req.body;
         const application = await mentorApplicationService.rejectApplication(
@@ -112,7 +112,7 @@ export async function rejectTeacherApplication(req, res, next) {
  * Revision Request.
  * PATCH /api/v1/admin/mentor-applications/:id/revision
  */
-export async function requestRevisionTeacherApplication(req, res, next) {
+export async function requestRevisionMentorApplication(req, res, next) {
     try {
         const { adminNotes } = req.body;
         const application = await mentorApplicationService.requestRevision(

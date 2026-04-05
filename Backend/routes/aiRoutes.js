@@ -19,8 +19,11 @@ router.post('/chat', async (req, res, next) => {
         res.json({ response: data });
 
     } catch (e) {
-        console.error('AI Route Error:', e);
-        res.status(500).json({ error: "The AI brain is having a moment. Please wait." });
+        console.error('AI Route Error (Handled):', e.message || e);
+        // Fallback response with 200 OK to prevent Axios break in frontend
+        res.json({ 
+            response: "MozhiAruvi is currently meditating on ancient texts. Please give her a moment to return to the river (Hub connectivity issue)." 
+        });
     }
 });
 

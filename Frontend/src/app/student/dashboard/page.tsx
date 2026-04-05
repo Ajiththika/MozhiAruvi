@@ -7,7 +7,9 @@ import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
 import { getDashboardData } from "@/services/authService";
 import { useQuery } from "@tanstack/react-query";
+import { cn } from "@/lib/utils";
 import { DashboardSkeleton } from "./DashboardSkeleton";
+import WeeklyProgressChart from "@/components/features/dashboard/WeeklyProgressChart";
 
 export default function StudentDashboard() {
   const { data, isLoading, isError, error: queryError } = useQuery({
@@ -92,7 +94,7 @@ export default function StudentDashboard() {
           <span className="text-xs font-bold text-primary tracking-widest uppercase">Learning Hub</span>
         </div>
         <div className="max-w-3xl">
-          <h1 className="text-3xl md:text-4xl lg:text-4xl font-black text-primary tracking-tight leading-tight">
+          <h1 className="text-2xl md:text-3xl lg:text-3xl font-black text-primary tracking-tight leading-tight">
             Vanakkam, {user?.name?.split(" ")[0]}!
           </h1>
           <p className="text-base md:text-lg text-slate-600 font-semibold leading-relaxed mt-4">
@@ -163,21 +165,38 @@ export default function StudentDashboard() {
         />
       </div>
 
-      {/* Progress Bar */}
-      <div className="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm mt-8">
-         <div className="flex justify-between items-center mb-4">
-            <span className="text-sm font-bold uppercase tracking-widest text-primary">Academy Progress</span>
-            <span className="text-sm font-bold text-slate-600">{progressPercentage}%</span>
-         </div>
-         <div className="h-4 bg-slate-100 rounded-full overflow-hidden w-full">
-            <div className="h-full bg-primary transition-all duration-1000 shadow-lg" style={{ width: `${progressPercentage}%` }} />
-         </div>
+      {/* Activity Chart & Progress Bar Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
+        <WeeklyProgressChart />
+        <div className="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm flex flex-col justify-center">
+            <div className="flex justify-between items-center mb-6">
+                <div>
+                    <span className="text-sm font-bold uppercase tracking-widest text-primary">Academy Progress</span>
+                    <p className="text-xs font-medium text-slate-500 mt-1">Overall curriculum completion</p>
+                </div>
+                <span className="text-2xl font-black text-primary">{progressPercentage}%</span>
+            </div>
+            <div className="h-6 bg-slate-100 rounded-full overflow-hidden w-full p-1 border border-slate-50">
+                <div className="h-full bg-primary rounded-full transition-all duration-1000 shadow-lg relative overflow-hidden" style={{ width: `${progressPercentage}%` }}>
+                    <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent animate-shimmer" />
+                </div>
+            </div>
+            <div className="mt-8 flex items-center gap-4 p-4 bg-primary/5 rounded-2xl border border-primary/10">
+                <div className="h-10 w-10 rounded-xl bg-white flex items-center justify-center shadow-sm">
+                    <Trophy className="w-5 h-5 text-primary" />
+                </div>
+                <div>
+                    <p className="text-xs font-bold text-slate-800 tracking-tight">Milestone Reached</p>
+                    <p className="text-[10px] font-medium text-primary uppercase tracking-widest mt-0.5">Level: {user?.level || "Beginner"}</p>
+                </div>
+            </div>
+        </div>
       </div>
 
       {/* Section: Learning Roadmap */}
       <div className="space-y-8">
           <div className="flex items-center justify-between border-b border-slate-100 pb-6">
-            <h3 className="text-2xl font-black text-primary tracking-tight">Active Learning Path</h3>
+            <h3 className="text-xl font-black text-primary tracking-tight">Active Learning Path</h3>
             <Button href="/student/lessons" variant="ghost" size="sm" className="text-primary uppercase tracking-widest text-xs font-bold">
               Full Curriculum <ArrowRight className="ml-2 w-4 h-4" />
             </Button>
@@ -197,7 +216,7 @@ export default function StudentDashboard() {
                     <span className="inline-flex items-center gap-2 rounded-full bg-white/15 px-4 py-2 text-xs font-bold uppercase tracking-wider border border-white/20 shadow-sm">
                       <Clock className="w-4 h-4" /> Resume Activity
                     </span>
-                    <h4 className="text-3xl lg:text-4xl font-black tracking-tight drop-shadow-sm leading-tight">
+                    <h4 className="text-2xl lg:text-3xl font-black tracking-tight drop-shadow-sm leading-tight">
                       {nextLesson.title}
                     </h4>
                     <p className="text-lg text-white/80 font-semibold leading-relaxed line-clamp-2">
@@ -212,10 +231,19 @@ export default function StudentDashboard() {
 
                   <div className="flex flex-col sm:flex-row items-center gap-4 pt-4">
                     <Button
-                      href="/student/lessons"
-                      className="bg-white text-primary hover:bg-slate-50 border-none h-14 px-10 rounded-2xl shadow-2xl shadow-primary/30 w-full sm:w-auto"
+                      href={(user?.progress?.energy ?? 0) <= 0 && !isPremium ? "/student/premium" : "/student/lessons"}
+                      className={cn(
+                        "h-14 px-10 rounded-2xl shadow-2xl transition-all w-full sm:w-auto",
+                        (user?.progress?.energy ?? 0) <= 0 && !isPremium 
+                          ? "bg-amber-400 text-slate-900 hover:bg-amber-300 shadow-amber-400/30" 
+                          : "bg-white text-primary hover:bg-slate-50"
+                      )}
                     >
-                       Start Learning <ArrowRight className="ml-3 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                       {(user?.progress?.energy ?? 0) <= 0 && !isPremium ? (
+                         <>Claim Daily Bonus <Zap className="ml-3 h-5 w-5 fill-current" /></>
+                       ) : (
+                         <>Start Learning <ArrowRight className="ml-3 h-5 w-5 group-hover:translate-x-1 transition-transform" /></>
+                       )}
                     </Button>
                     <div className="flex items-center gap-3 text-white/70 text-xs font-bold uppercase tracking-widest border border-white/10 rounded-full px-5 py-3.5 bg-white/5 shadow-inner">
                        <span className="">Level: {user?.level || "Beginner"}</span>

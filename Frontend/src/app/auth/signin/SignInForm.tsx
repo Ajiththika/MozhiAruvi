@@ -98,13 +98,13 @@ export default function SignInForm() {
 
   return (
     <div className="w-full max-w-sm mx-auto xl:max-w-md">
-      <div className="mb-10 text-center md:text-left">
-        <h2 className="text-3xl md:text-5xl font-black text-text-primary tracking-tight leading-tight">
+      <div className="mb-6 text-center md:text-left">
+        <h2 className="text-3xl md:text-4xl font-black text-text-primary tracking-tight leading-tight">
           Welcome back
         </h2>
       </div>
 
-      <form className="space-y-6" onSubmit={handleSubmit}>
+      <form className="space-y-4" onSubmit={handleSubmit}>
         {error && (
           <div className="p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg">
             {error}
@@ -151,7 +151,7 @@ export default function SignInForm() {
         </Button>
       </form>
 
-      <div className="mt-8 mb-8 flex items-center">
+      <div className="mt-4 mb-4 flex items-center">
         <div className="flex-1 border-t border-slate-100/60"></div>
         <div className="px-5 text-sm text-primary/60 font-bold tracking-wide uppercase">or continue with</div>
         <div className="flex-1 border-t border-slate-100/60"></div>
@@ -159,7 +159,7 @@ export default function SignInForm() {
 
       <SocialLogin provider="Google" onClick={() => window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/google`} />
 
-      <p className="text-center mt-12 text-primary/60 font-medium text-base">
+      <p className="text-center mt-6 text-primary/60 font-medium text-base">
         New to the heritage?{' '}
         <Link href="/auth/signup" className="text-primary hover:text-primary-dark font-extrabold transition-colors">
           Join Flow

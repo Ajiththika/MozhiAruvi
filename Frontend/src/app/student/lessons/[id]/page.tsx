@@ -319,7 +319,7 @@ export default function LessonInteractiveSession() {
                     )}
 
                     {q?.type !== 'match' && (
-                        <h2 className="text-3xl md:text-4xl font-black text-gray-800 tracking-tight leading-tight grow text-left max-w-3xl">
+                        <h2 className="text-xl md:text-2xl font-bold text-gray-800 tracking-tight leading-relaxed grow text-left max-w-3xl line-clamp-3">
                             <span className="mr-4 font-mono">{currentQ + 1}.</span>
                             {q?.type === 'fill' ? (
                                 q.text.split(/_{2,}/).map((part: string, i: number, arr: string[]) => (
@@ -389,23 +389,35 @@ export default function LessonInteractiveSession() {
         </div>
 
         {feedback[q?._id] && (
-          <div className={cn(
-            "fixed bottom-0 left-0 right-0 py-10 px-6 border-t animate-in slide-in-from-bottom-full duration-500 z-50 shadow-2xl",
-            feedback[q?._id] === "correct" ? "bg-emerald-50 border-emerald-200" : "bg-red-50 border-red-200"
-          )}>
-            <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-8">
-              <div className="flex items-center gap-8">
-                <div className={cn("h-20 w-20 rounded-3xl flex items-center justify-center shadow-lg", feedback[q?._id] === "correct" ? "bg-emerald-500 text-white" : "bg-red-500 text-white")}>
-                  {feedback[q?._id] === "correct" ? <CheckCircle2 size={40} /> : <XCircle size={40} />}
+          <div className="fixed bottom-10 left-1/2 -translate-x-1/2 w-[90%] max-w-2xl z-50 animate-in slide-in-from-bottom-12 duration-500">
+            <div className={cn(
+              "p-6 md:p-8 rounded-[2.5rem] shadow-2xl flex flex-col md:flex-row items-center justify-between gap-6 border-2",
+              feedback[q?._id] === "correct" ? "bg-emerald-50 border-emerald-500/30 text-emerald-900" : "bg-red-50 border-red-500/30 text-red-900"
+            )}>
+              <div className="flex items-center gap-6">
+                <div className={cn(
+                  "h-14 w-14 rounded-2xl flex items-center justify-center shadow-lg shrink-0", 
+                  feedback[q?._id] === "correct" ? "bg-emerald-500 text-white" : "bg-red-500 text-white"
+                )}>
+                  {feedback[q?._id] === "correct" ? <CheckCircle2 size={32} /> : <XCircle size={32} />}
                 </div>
-                <div className="space-y-1">
-                  <h3 className={cn("text-2xl font-black", feedback[q?._id] === "correct" ? "text-emerald-700" : "text-red-700")}>
-                    {feedback[q?._id] === "correct" ? "Great!" : "The answer was:"}
+                <div className="space-y-0.5">
+                  <h3 className={cn("text-xl font-black", feedback[q?._id] === "correct" ? "text-emerald-800" : "text-red-800")}>
+                    {feedback[q?._id] === "correct" ? "Great!" : "Keep going!"}
                   </h3>
-                  <p className="text-lg font-bold opacity-80">{feedback[q?._id] === "correct" ? backendMessage[q?._id] : q.correctAnswer || q.options?.[q.correctOptionIndex ?? 0]}</p>
+                  <p className="text-sm font-medium opacity-70">
+                    {feedback[q?._id] === "correct" ? backendMessage[q?._id] : (q.correctAnswer || q.options?.[q.correctOptionIndex ?? 0])}
+                  </p>
                 </div>
               </div>
-              <Button onClick={currentQ === questions.length - 1 ? handleSubmit : handleManualNext} size="xl" className={cn("w-full sm:w-auto px-16 rounded-2xl shadow-xl", feedback[q?._id] === "correct" ? "bg-emerald-500" : "bg-red-500")}>
+              <Button 
+                onClick={currentQ === questions.length - 1 ? handleSubmit : handleManualNext} 
+                size="lg" 
+                className={cn(
+                  "w-full md:w-auto px-10 rounded-2xl shadow-xl", 
+                  feedback[q?._id] === "correct" ? "bg-emerald-500" : "bg-red-500"
+                )}
+              >
                 {currentQ === questions.length - 1 ? "Finish" : "Continue"}
               </Button>
             </div>

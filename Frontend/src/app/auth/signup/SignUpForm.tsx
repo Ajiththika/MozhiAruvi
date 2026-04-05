@@ -86,13 +86,14 @@ export default function SignUpForm() {
 
   return (
     <div className="w-full max-w-sm mx-auto xl:max-w-md">
-      <div className="mb-10 text-center md:text-left">
-        <h2 className="text-3xl md:text-5xl font-black text-text-primary tracking-tight leading-tight">
-          Join with our <br /> tamil community
+      <div className="mb-4 text-center md:text-left">
+        <h2 className="text-2xl md:text-3xl font-black text-text-primary tracking-tight leading-tight uppercase">
+          Join Flow
         </h2>
+        <p className="text-sm font-bold text-primary/60 uppercase tracking-widest mt-1">Tamil Cultural Heritage</p>
       </div>
 
-      <form className="space-y-4" onSubmit={handleSubmit}>
+      <form className="space-y-2.5" onSubmit={handleSubmit}>
         {error && (
           <div className="p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg">
             {error}
@@ -148,21 +149,21 @@ export default function SignUpForm() {
           isLoading={loading}
           variant="primary"
           size="xl"
-          className="w-full mt-6 shadow-xl shadow-primary/20"
+          className="w-full mt-4 shadow-xl shadow-primary/20"
         >
           Begin Heritage Journey
         </Button>
       </form>
 
-      <div className="mt-8 mb-8 flex items-center">
+      <div className="mt-4 mb-4 flex items-center">
         <div className="flex-1 border-t border-slate-100/60"></div>
-        <div className="px-5 text-sm text-primary/60 font-bold tracking-wide uppercase">or continue with</div>
+        <div className="px-5 text-sm text-primary/60 font-bold tracking-wide uppercase">or</div>
         <div className="flex-1 border-t border-slate-100/60"></div>
       </div>
 
       <SocialLogin provider="Google" onClick={() => window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/google`} />
 
-      <p className="text-center mt-12 text-primary/60 font-medium text-base">
+      <p className="text-center mt-4 text-primary/60 font-medium text-base">
         Already have an account?{' '}
         <Link href="/auth/signin" className="text-primary hover:text-primary-dark font-extrabold transition-colors">
           Sign in

@@ -58,8 +58,10 @@ const updateAvailabilitySchema = z.object({
 // Browse available tutors (Public Discovery)
 router.get('/', authenticateOptional, tutorController.listAvailableTutors);
 
-// Apply for tutor
+// Apply for mentor/tutor status
 router.post('/apply', authenticate, mentorApplicationController.submitApplication);
+router.get('/application/me', authenticate, mentorApplicationController.getMyApplication);
+router.patch('/application/me', authenticate, mentorApplicationController.updateMyApplication);
 
 // Learner: view own request history ← before /:id to avoid collision
 router.get('/my-requests', authenticate, tutorController.getLearnerRequests);
