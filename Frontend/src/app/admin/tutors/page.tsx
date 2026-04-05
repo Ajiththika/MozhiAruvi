@@ -34,7 +34,7 @@ import {
   getTutorApplicationsAdmin, 
   approveTutorApplication, 
   rejectTutorApplication as rejectTutorApp 
-} from "@/services/tutorApplicationService";
+} from "@/services/tutorService";
 import Pagination from "@/components/ui/Pagination";
 import Button from "@/components/ui/Button";
 import { useQuery } from "@tanstack/react-query";

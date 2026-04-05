@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import DataTable, { ColumnDef } from "@/components/ui/DataTable";
 import { Loader2, AlertCircle, CheckCircle2, XCircle, Mail, Phone, Languages, Calendar, Hourglass } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { getTutorApplicationsAdmin, approveTutorApplication, rejectTutorApplication } from "@/services/tutorApplicationService";
+import { getTutorApplicationsAdmin, approveTutorApplication, rejectTutorApplication } from "@/services/tutorService";
 import Button from "@/components/ui/Button";
 import { useQuery } from "@tanstack/react-query";
 // import { toast } from "react-hot-toast";

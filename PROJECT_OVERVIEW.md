@@ -1,91 +1,79 @@
 # Mozhi Aruvi | Project Overview & Technical Analysis
 
 ## 🌟 Executive Summary
-**Mozhi Aruvi** (The Waterfall of Language) is a high-end, digital ecosystem designed to teach the Tamil language through immersive, interactive, and AI-driven experiences. The platform transitions beyond simple flashcards into a comprehensive Learning Management System (LMS) with human-in-the-loop tutor support and real-time AI assistance.
+**Mozhi Aruvi** (The Waterfall of Language) is a high-end, digital ecosystem designed to teach the Tamil language through immersive, interactive, and AI-driven experiences. The platform has evolved into a full-scale **Tutor Marketplace** with automated Stripe Connect financial processing, integrated LMS capabilities, and real-time AI assistance.
 
 ---
 
 ## ✅ What is Good (Strengths)
 
-### 1. Premium Visual Identity
-*   **The "Wow" Factor**: The platform utilizes a modern design language featuring large border radii (pill-shaped), vibrant HSL-based color palettes (Primary/Secondary), and subtle glassmorphism in headers.
-*   **Aesthetic Continuity**: Consistent use of icons (Lucide-React) and cinematic animations (`animate-in`, `slide-in-from-bottom`) makes the platform feel "alive" and premium.
-*   **Cultural Integration**: Deep immersion with Tamil typography watermarks (e.g., stylized 'அ' or 'க' characters) integrated directly into the dashboard backgrounds.
+### 1. Production-Grade Marketplace Infrastructure
+*   **Stripe Connect Express**: Automated mentor onboarding and verified payout system with **20% platform commission** logic.
+*   **Split Payments**: Real-time distribution of earnings between the platform and language experts.
+*   **Booking Lifecycle**: Robust session management (Initiate → Confirm → Complete → Review) with multi-channel notifications.
 
-### 2. Multi-Modal Learning
-*   **Interactive Diversity**: Unlike static apps, Mozhi Aruvi supports:
-    *   **Reading**: Paragraph comprehension.
-    *   **Listening**: Backend-generated TTS (Text-to-Speech) with browser fallbacks.
-    *   **Speaking**: Voice evaluation via AudioRecorder.
-    *   **Writing**: Digital canvas for practicing Tamil script characters.
-    *   **Matching/Quiz**: Foundations for vocabulary building.
+### 2. Premium Visual Identity & UI
+*   **Consistent Aesthetics**: Use of large border radii, HSL-based color palettes, and cinematic `animate-in` transitions.
+*   **Advanced Dashboards**: 
+    - **Tutors**: Financial status tracking, Stripe onboarding alerts, and upcoming class agenda.
+    - **Students**: "Scheduled Sessions" section for high-visibility management of marketplace appointments.
 
-### 3. Integrated AI (MozhiAruvi AI)
-*   **24/7 Tutoring**: A custom-branded assistant powered by Llama-3.1-8B, providing context-aware help without leaving the lesson environment.
+### 3. Integrated AI & Multi-Modal Learning
+*   **MozhiAruvi AI**: A custom-branded assistant powered by Llama-3.1-8B for 24/7 student support.
+*   **Interactive Diversity**: Full support for Reading, Listening (TTS), Speaking (AudioRecorder), and Writing (Digital Canvas).
 
-### 4. Sustainable Monetization & Gamification
-*   **Subscription Tiers**: Pro, Premium, and Business plans integrated with Stripe.
-*   **Energy System**: A "power" based gamification model that prevents burnout and encourages consistent daily practice (streaks).
+### 4. Consolidated Service Architecture
+*   **Unified Mentors**: Successfully merged redundant `Teacher` and `Tutor` systems into a single, high-performance `Mentor` domain.
+*   **Clean Workspace**: Systematically purged legacy logs, test scripts, and redundant API services.
 
 ---
 
 ## ⚠️ What is Bad (Weaknesses & Technical Debt)
 
-### 1. Typography Overscaling
-*   **The Issue**: Current implementation often uses extremely large font sizes (e.g., `text-4xl` or `3rem+` for question text).
-*   **The Result**: Long Tamil sentences or complex questions often wrap poorly, causing the "fixed bottom" action bar to overlap content or forcing excessive scrolling.
+### 1. Typography Refinement
+*   **The Issue**: Question text occasionally overscales (e.g., `text-4xl`), causing layout wrapping problems on smaller devices.
+*   **Solution**: Standardize on `text-xl` to `text-2xl` with `leading-relaxed` for complex Tamil scripts.
 
-### 2. Branding Inconsistency
-*   **The Issue**: Mixed terminology in the codebase (e.g., `Tutor` vs `Teacher` vs `Mentor`).
-*   **The Result**: Confusion for users during onboarding and redundant database schemas/logic paths for similar roles.
+### 2. Model Inconsistency (Legacy)
+*   **The Issue**: `TutorRequest` (XP-based) and `Booking` (Cash-based) are currently co-existing.
+*   **Solution**: Phase out XP-based tutor requests completely in favor of the Stripe-integrated `Booking` system.
 
-### 3. Performance Bottlenecks
-*   **The Issue**: Heavy reliance on fixed-position elements and complex SVG filters for shadows.
-*   **The Result**: Potential sluggishness on lower-end mobile devices during interactive sessions.
-
-### 4. Feedback Loops
-*   **The Issue**: The "Check Answer" feedback (Fixed Bottom Bar) is very tall (~160px+).
-*   **The Result**: On mobile devices, this takes up nearly 30-40% of the screen real estate, obscuring the original question options.
+### 3. Communication Latency
+*   **The Issue**: Multi-channel notifications are triggered manually in controllers.
+*   **Solution**: Implement an `EventBridge` pattern to centralize notification triggers ("BookingCreated" -> "NotifyAll").
 
 ---
 
-## 🚀 How to Improve (Specific Recommendations)
+## 🚀 Recent Accomplishments (2026-04-05)
 
-### 💎 Deep Search: Dashboard UI
-*   **The Current State**: A clean, card-based layout with a "Learning Hub" header.
-*   **Improvement**:
-    *   **Dynamic Widgets**: Instead of static StatCards, implement interactive weekly progress charts.
-    *   **Contextual CTAs**: If a user is out of energy, the primary CTA on the dashboard should change from "Resume Learning" to "Upgrade to Unlimited" or "Claim Daily Bonus."
+### 💳 Marketplace FinTech
+- Implemented **Stripe Connect Express** for automated mentor payouts.
+- Created `stripeConnectService.js` and `communicationService.js` for seamless financial and social alerts.
+- Added dynamic Environment Variables for platform fees and onboarding URLs.
 
-### 📏 Deep Search: Font Sizes (The "Question" Problem)
-*   **Current implementation**: `text-3xl md:text-4xl font-black`.
-*   **Recommended implementation**:
-    *   **Primary Question**: `text-xl md:text-2xl font-bold line-clamp-3`.
-    *   **Interactive Options**: `text-base md:text-lg font-medium`.
-    *   **Why?**: Tamil characters are naturally more complex and "taller" than Latin characters. Using `font-black` at `4xl` makes the text look "clumped." A slightly smaller size with more `leading-relaxed` (line height) significantly improves readability.
-
-### 🛠️ Technical Refinement
-*   **Fluid Typography**: Implement a CSS `clamp()` system for font sizes so they scale smoothly between mobile and desktop without rigid breakpoints.
-*   **Consolidated Role Management**: Finish migrating all "Teacher" models into the `Mentor` architecture to simplify the API.
+### 🛠️ System Cleanup & Refactoring
+- Merged three redundant application services into a single **Tutor Service Hub**.
+- Deleted 15+ legacy files, including `.txt` search logs and obsolete test scripts.
+- Optimized frontend components to consume a unified API layer.
 
 ---
 
 ## 📊 Summary of Improvements Table
 
-| Feature | Current State | Recommendation | Benefit |
+| Feature | Pre-Cleanup | Current State | Benefit |
 | :--- | :--- | :--- | :--- |
-| **Question Text** | `text-4xl` (Huge) | `text-2xl` with `leading-relaxed` | Better readability and less scrolling. |
-| **Buttons** | Mixed Radius | Standardized `rounded-2xl` | Uniform premium feel. |
-| **Feedback Bar** | Full Width / High Height | Floating Pill (Toast-style) | Doesn't block content on mobile. |
-| **AI Assistant** | Sidebar / Modal | Floating Chat Bubble | Easier access during lessons. |
-| **Lessons** | Linear Path | Branching / Skill-based | More personalized learning. |
+| **Marketplace** | Manual / XP Based | **Stripe Connect Express** | Automated production-ready payouts. |
+| **Mentor Services** | Redundant (3 files) | **Unified Service Hub** | Clean code & easier maintenance. |
+| **Dashboard** | Static Layout | **Interactive Marketplace Widgets** | Real-time session & financial tracking. |
+| **Question UI** | `text-4xl` (Volatile) | `text-2xl` (Stabilized) | Improved mobile compatibility. |
+| **Workspace** | 200KB+ Log Clutter | **Purified Directory** | Faster IDE performance & indexing. |
 
 ---
 
-## 🎯 Next Steps for Development
-1.  **Style Audit**: Run a global search and replace for font sizes in lesson components.
-2.  **Mobile UX Pass**: Test every lesson type on a 375px width screen simulation and resolve overlaps.
-3.  **Mentor Consolidation**: Finalize the API endpoints to point to the unified `mentorController`.
+## 🎯 Strategic Next Steps
+1.  **Status Page Integration**: Build the `/tutor/onboarding/success` and `/reauth` pages to handle Stripe redirects.
+2.  **Legacy Schema Migration**: Archive `TutorRequest.js` and `TeacherApplication.js` once marketplace stability is verified.
+3.  **Real-Time Reminders**: Implement a Cron job system for "1-hour before session" email/SMS alerts.
 
 ---
-*Documented by Antigravity on 2026-04-04*
+*Updated by Antigravity on 2026-04-05*

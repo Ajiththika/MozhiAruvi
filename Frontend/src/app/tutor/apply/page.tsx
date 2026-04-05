@@ -7,7 +7,7 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
-import { submitTutorApplication } from "@/services/tutorApplicationService";
+import { submitTutorApplication } from "@/services/tutorService";
 // import { toast } from "react-hot-toast"; // Dependency removed to fix build error
 
 export default function TutorApplicationPage() {

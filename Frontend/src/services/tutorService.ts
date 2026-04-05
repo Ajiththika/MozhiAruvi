@@ -190,3 +190,60 @@ export async function addRequestMessage(
   return res.data.request;
 }
 
+// ── Mentor Application Logic ──────────────────────────────────────────────────
+
+export interface MentorApplicationPayload {
+  fullName: string;
+  bio: string;
+  experience: string;
+  specialization: string;
+  languages: string[];
+  hourlyRate: number;
+  teachingMode: "online" | "offline" | "both";
+  motivation: string;
+}
+
+export interface MentorApplication {
+  _id: string;
+  fullName: string;
+  status: "pending" | "approved" | "rejected" | "needs_revision";
+  adminNotes?: string;
+  rejectionReason?: string;
+  createdAt: string;
+}
+
+/** Submit a new mentor application */
+export async function submitTutorApplication(payload: any): Promise<MentorApplication> {
+  const res = await api.post<{ application: MentorApplication }>("/tutors/apply", payload);
+  return res.data.application;
+}
+
+/** Get my own application status (authorized tutor/teacher) */
+export async function getMyMentorApplication(): Promise<MentorApplication | null> {
+  try {
+    const res = await api.get<{ application: MentorApplication | null }>("/tutors/application/me");
+    return res.data.application;
+  } catch (error: any) {
+    if (error.response?.status === 404) return null;
+    throw error;
+  }
+}
+
+/** Admin: List all applications */
+export async function getTutorApplicationsAdmin(): Promise<MentorApplication[]> {
+  const res = await api.get<{ applications: MentorApplication[] }>("/admin/tutors/applications");
+  return res.data.applications;
+}
+
+/** Admin: Approve application */
+export async function approveTutorApplication(id: string): Promise<any> {
+    const res = await api.patch(`/admin/tutors/${id}/approve`);
+    return res.data;
+}
+
+/** Admin: Reject application */
+export async function rejectTutorApplication(id: string, adminNotes?: string): Promise<any> {
+    const res = await api.patch(`/admin/tutors/${id}/reject`, { adminNotes });
+    return res.data;
+}
+

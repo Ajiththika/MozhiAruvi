@@ -2,6 +2,7 @@
   "name": "mozhi-arivu-backend",
   "version": "1.0.0",
   "description": "Mozhi Arivu Auth Backend",
+  "author": "Ajiththika <ajiththika17@gmail.com>",
   "type": "module",
   "main": "server.js",
   "scripts": {
@@ -31,5 +32,6 @@
     "string-similarity-js": "^2.1.4",
     "stripe": "^21.0.1",
     "zod": "^3.22.4"
-  }
+  },
+  "license": "MIT"
 }

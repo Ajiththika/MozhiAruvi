@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { AuthInput, SocialLogin } from '../shared';
 import { login } from '@/services/authService';
-import { submitTutorApplication } from "@/services/tutorApplicationService";
+import { submitTutorApplication } from "@/services/tutorService";
 import { getRoleDashboardRoute } from '@/lib/roleUtils';
 import { isAxiosError } from 'axios';
 import { useAuth } from '@/context/AuthContext';

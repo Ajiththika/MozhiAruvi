@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { AuthInput, SocialLogin } from '../shared';
 import { register } from '@/services/authService';
-import { submitTutorApplication } from "@/services/tutorApplicationService";
+import { submitTutorApplication } from "@/services/tutorService";
 import { isAxiosError } from 'axios';
 import { useAuth } from '@/context/AuthContext';
 import { useEffect } from 'react';

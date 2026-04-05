@@ -1,6 +1,7 @@
 {
-  "name": "myapp",
+  "name": "mozhi-aruvi-frontend",
   "version": "0.1.0",
+  "author": "Ajiththika <ajiththika17@gmail.com>",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -37,5 +38,6 @@
     "replace-in-file": "^8.4.0",
     "tailwindcss": "^4",
     "typescript": "^5"
-  }
+  },
+  "license": "MIT"
 }

@@ -22,7 +22,7 @@ import {
 } from "@/services/adminService";
 import { getEvents, MozhiEvent } from "@/services/eventService";
 import { getMe, SafeUser } from "@/services/authService";
-import { getTutorApplicationsAdmin } from "@/services/tutorApplicationService";
+import { getTutorApplicationsAdmin } from "@/services/tutorService";
 import { getAllBlogsForAdmin, Blog } from "@/services/blogService";
 import Button from "@/components/ui/Button";
 
