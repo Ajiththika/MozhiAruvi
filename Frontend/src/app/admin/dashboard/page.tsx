@@ -137,9 +137,9 @@ export default function AdminDashboard() {
               <span className="text-[10px] font-black text-secondary tracking-[0.2em] uppercase">Control Center</span>
            </div>
            <div>
-              <h1 className="text-3xl md:text-4xl font-black text-text-primary tracking-tighter leading-none mb-4">Command Deck</h1>
-              <p className="text-lg text-primary/70 font-medium leading-relaxed max-w-2xl italic opacity-80">
-                Orchestrating the ecosystem of classical Tamil learning. Managed by <strong className="text-primary not-italic">{admin?.name}</strong>.
+               <h1 className="text-2xl md:text-3xl font-black text-text-primary tracking-tighter leading-none mb-4">Command Deck</h1>
+              <p className="text-lg text-primary/70 font-medium leading-relaxed max-w-2xl opacity-80">
+                Orchestrating the ecosystem of classical Tamil learning. Managed by <strong className="text-primary">{admin?.name}</strong>.
               </p>
            </div>
         </div>
@@ -178,9 +178,9 @@ export default function AdminDashboard() {
               className="border-primary/10 bg-primary/5 shadow-2xl shadow-primary/5"
             />
             <StatCard
-              title="Verified Mentors"
+              title="Verified Teachers"
               value={String(stats?.totalTutors ?? 0)}
-              description="Certified tutors"
+              description="Certified teachers"
               icon={GraduationCap}
             />
             <StatCard
@@ -203,7 +203,7 @@ export default function AdminDashboard() {
               {/* Applications Table */}
               <div className="rounded-[2.5rem] border border-slate-100 bg-white shadow-2xl shadow-slate-200/20 overflow-hidden flex flex-col">
                 <div className="flex items-center justify-between border-b border-slate-50 px-10 py-8">
-                  <h3 className="text-xl font-black text-text-primary tracking-tight">Mentor Inbox</h3>
+                  <h3 className="text-xl font-black text-text-primary tracking-tight">Teacher Inbox</h3>
                   <Button href="/admin/tutors" variant="ghost" className="text-[10px] font-black uppercase tracking-widest text-primary border border-primary/10 rounded-xl">Review Queue</Button>
                 </div>
                 <div className="overflow-x-auto">
@@ -305,7 +305,7 @@ export default function AdminDashboard() {
               <div className="rounded-[2.5rem] bg-indigo-600 p-10 text-white shadow-2xl shadow-indigo-600/30 overflow-hidden relative">
                  <Globe className="absolute -bottom-10 -right-10 h-48 w-48 text-white/10" />
                  <h4 className="text-lg font-black tracking-tight mb-4 leading-tight uppercase">System Health</h4>
-                 <p className="text-xs font-bold text-indigo-100/70 leading-relaxed mb-6 italic">Secure nodes active. Encryption protocols version 4.2 active. Webhook sync at 100%.</p>
+                 <p className="text-xs font-bold text-indigo-100/70 leading-relaxed mb-6">Secure nodes active. Encryption protocols version 4.2 active. Webhook sync at 100%.</p>
                  <div className="flex items-center gap-3">
                     <div className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
                     <span className="text-[10px] font-black uppercase tracking-widest">Network Stable</span>
@@ -321,8 +321,8 @@ export default function AdminDashboard() {
            <div className="rounded-[2.5rem] border border-slate-100 bg-white shadow-2xl shadow-slate-200/20 overflow-hidden">
               <div className="p-10 border-b border-slate-50 flex items-center justify-between">
                  <div>
-                    <h3 className="text-2xl font-black text-text-primary tracking-tight">Financial Models & Subscription Logic</h3>
-                    <p className="text-sm font-medium text-primary/70 italic mt-2">Adjust pricing, limits and tier accessibility in real-time across the platform.</p>
+                    <h3 className="text-xl font-black text-text-primary tracking-tight">Financial Models & Subscription Logic</h3>
+                    <p className="text-sm font-medium text-primary/70 mt-2">Adjust pricing, limits and tier accessibility in real-time across the platform.</p>
                  </div>
                  <button 
                   onClick={handleStartCreate}
@@ -462,7 +462,7 @@ export default function AdminDashboard() {
                                 </td>
                                 <td className="px-10 py-6">
                                    {plan.plan === 'FREE' ? (
-                                      <span className="text-[10px] font-bold text-primary/40 italic">No Bridge Required</span>
+                                      <span className="text-[10px] font-bold text-primary/40">No Bridge Required</span>
                                    ) : (
                                       <div className="flex items-center gap-2 group-hover:scale-105 transition-transform origin-left">
                                          <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 shadow-lg shadow-emerald-500/50" />
@@ -510,7 +510,7 @@ export default function AdminDashboard() {
                   <Crown className="h-8 w-8 text-amber-600 stroke-[2.5]" />
                 </div>
                 <div>
-                  <h3 className="text-3xl font-black text-slate-800 tracking-tighter uppercase">Elite Collective</h3>
+                   <h3 className="text-xl font-black text-slate-800 tracking-tighter uppercase">Elite Collective</h3>
                   <p className="text-xs font-black text-amber-600 uppercase tracking-[0.3em] flex items-center gap-2 mt-1">
                      <span className="h-1 w-1 bg-amber-400 rounded-full animate-pulse" />
                      {premiumUsers.length} High-Tier Pulse Members
@@ -541,7 +541,7 @@ export default function AdminDashboard() {
                   {premiumUsers.length === 0 ? (
                     <tr>
                       <td colSpan={6} className="py-24 text-center">
-                        <p className="text-xs font-black text-primary/40 uppercase tracking-[0.4em] italic">No active elite members</p>
+                        <p className="text-xs font-black text-primary/40 uppercase tracking-[0.4em]">No active elite members</p>
                       </td>
                     </tr>
                   ) : (
@@ -552,7 +552,7 @@ export default function AdminDashboard() {
                               <div className="h-12 w-12 rounded-2xl bg-amber-100 flex items-center justify-center font-black text-amber-700 text-sm border border-amber-200 group-hover:scale-110 transition-transform duration-500 shadow-lg shadow-amber-200/20">{pu.name?.charAt(0)}</div>
                               <div>
                                  <p className="text-sm font-black text-slate-800 tracking-tight">{pu.name}</p>
-                                 <p className="text-[10px] font-bold text-primary/60 italic mt-0.5">{pu.email}</p>
+                                 <p className="text-[10px] font-bold text-primary/60 mt-0.5">{pu.email}</p>
                               </div>
                            </div>
                         </td>
@@ -574,7 +574,7 @@ export default function AdminDashboard() {
                            </span>
                         </td>
                         <td className="px-10 py-6">
-                           <span className="text-[10px] font-black text-primary/60 font-serif italic">{pu.country || 'Global'}</span>
+                           <span className="text-[10px] font-black text-primary/60 font-serif">{pu.country || 'Global'}</span>
                         </td>
                         <td className="px-10 py-6 text-right">
                            <span className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-[9px] font-black uppercase tracking-widest bg-emerald-50 text-emerald-600 border border-emerald-100">

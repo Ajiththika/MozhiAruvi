@@ -227,7 +227,7 @@ export default function SubscriptionPage() {
              <div className="flex items-center gap-2 font-bold text-primary/70">
                <ShieldCheck className="w-5 h-5" /> SSL SHA-256 Verified
              </div>
-             <div className="flex items-center gap-2 font-bold text-primary/70 uppercase tracking-tighter text-xl italic">
+             <div className="flex items-center gap-2 font-bold text-primary/70 uppercase tracking-tighter text-xl">
                Stripe Payment
              </div>
         </div>

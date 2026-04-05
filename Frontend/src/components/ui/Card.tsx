@@ -1,7 +1,7 @@
 import React from "react";
 import { cn } from "@/lib/utils";
 
-interface CardProps {
+interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;
   className?: string;
   variant?: "flat" | "shadow" | "outline" | "elevated";
@@ -13,6 +13,7 @@ export function Card({
   className,
   variant = "shadow",
   padding = "md",
+  ...rest
 }: CardProps) {
   const baseClasses = "bg-surface overflow-hidden rounded-responsive transition-all duration-300";
 
@@ -32,7 +33,7 @@ export function Card({
   };
 
   return (
-    <div className={cn(baseClasses, variants[variant], paddings[padding], className)}>
+    <div className={cn(baseClasses, variants[variant], paddings[padding], className)} {...rest}>
       {children}
     </div>
   );

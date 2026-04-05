@@ -6,7 +6,7 @@ import { DashboardLayout } from "@/components/layout/DashboardLayout";
 const studentLinks: SidebarItem[] = [
   { name: "Dashboard",     href: "/student/dashboard",  icon: "home" },
   { name: "Lessons",       href: "/student/lessons",    icon: "book-open" },
-  { name: "Tutors",        href: "/tutors",             icon: "graduation-cap" },
+  { name: "Teachers",        href: "/tutors",             icon: "graduation-cap" },
   { name: "My Progress",   href: "/student/progress",   icon: "line-chart" },
 ];
 

@@ -178,7 +178,7 @@ export default function StudentPremiumPage() {
 
              <div className="mt-auto">
                {!userStats?.user?.hasUsedTrial && (
-                  <p className="text-[10px] font-bold text-emerald-600 mb-4 uppercase tracking-tighter text-center italic">
+                  <p className="text-[10px] font-bold text-emerald-600 mb-4 uppercase tracking-tighter text-center">
                     You will not be charged for the first 7 days
                   </p>
                )}

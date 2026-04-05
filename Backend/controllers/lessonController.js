@@ -72,7 +72,7 @@ export async function getLessonQuestions(req, res, next) {
             }
         }
 
-        const questions = await lessonService.getQuestionsForLesson(req.params.id);
+        const questions = await lessonService.getQuestionsForLesson(req.params.id, user?.role === 'admin');
         res.json({ 
             questions, 
             user: user?.toSafeObject(),

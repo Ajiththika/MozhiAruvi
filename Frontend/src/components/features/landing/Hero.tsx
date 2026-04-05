@@ -140,7 +140,7 @@ export default function Hero() {
           <p className="text-lg font-bold text-primary mb-3">
             &ldquo;யாதும் ஊரே யாவரும் கேளிர்&rdquo;
           </p>
-          <p className="text-base text-gray-700 italic mb-3 leading-relaxed font-bold">
+          <p className="text-base text-gray-700 mb-3 leading-relaxed font-bold">
             &ldquo;To us all towns are one, all men our kin.&rdquo;
           </p>
           <div className="flex items-center justify-center gap-2 mt-4 text-[10px] text-gray-500 font-bold border-t border-gray-50 pt-4 tracking-tight">

@@ -99,7 +99,7 @@ export default function SignInForm() {
   return (
     <div className="w-full max-w-sm mx-auto xl:max-w-md">
       <div className="mb-6 text-center md:text-left">
-        <h2 className="text-3xl md:text-4xl font-black text-text-primary tracking-tight leading-tight">
+        <h2 className="text-2xl md:text-3xl font-black text-text-primary tracking-tight leading-tight">
           Welcome back
         </h2>
       </div>
@@ -162,7 +162,7 @@ export default function SignInForm() {
       <p className="text-center mt-6 text-primary/60 font-medium text-base">
         New to the heritage?{' '}
         <Link href="/auth/signup" className="text-primary hover:text-primary-dark font-extrabold transition-colors">
-          Join Flow
+          Join With Us
         </Link>
       </p>
     </div>

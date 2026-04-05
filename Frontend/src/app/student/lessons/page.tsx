@@ -8,18 +8,33 @@ import {
 import { useRouter } from "next/navigation";
 import { getLessons, Lesson, Progress } from "@/services/lessonService";
 import { getMe, SafeUser } from "@/services/authService";
+import { getCategories, Category } from "@/services/categoryService";
 import { cn } from "@/lib/utils";
 import { LessonOnboarding } from "@/components/LessonOnboarding";
 
-// ── Constants ─────────────────────────────────────────────────────────────────
+// ── Heuristics ────────────────────────────────────────────────────────────────
 
-const CATEGORY_ORDER = [
-  "Uyir Eluthu",
-  "Mei Eluthu",
-  "Uyirmei Eluthu",
-  "Ayutha Eluthu",
-  "Grantha Eluthugal"
+const TAMIL_ALPHABET_ORDER = [
+  "uyir eluthu",
+  "mei eluthu",
+  "uyirmei eluthu",
+  "uyir mei eluthu",
+  "ayutha eluthu",
+  "grantha eluthugal"
 ];
+
+function getHeuristicOrder(name: string): number {
+  const lower = name.toLowerCase();
+  if (TAMIL_ALPHABET_ORDER.indexOf(lower) !== -1) return TAMIL_ALPHABET_ORDER.indexOf(lower);
+  if (lower.includes("uyir mei") || lower.includes("uyirmei")) return 2;
+  if (lower.includes("uyir")) return 0;
+  if (lower.includes("mei")) return 1;
+  if (lower.includes("ayutha")) return 3;
+  if (lower.includes("grantha")) return 4;
+  return 99;
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
 
 function groupByCategory(lessons: Lesson[]) {
   const map: Record<string, Lesson[]> = {};
@@ -246,6 +261,7 @@ export default function StudentLessonsPage() {
   const router = useRouter();
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [progresses, setProgresses] = useState<Progress[]>([]);
+  const [dbCategories, setDbCategories] = useState<Category[]>([]);
   const [user, setUser] = useState<SafeUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -257,11 +273,12 @@ export default function StudentLessonsPage() {
   const [activeLevel, setActiveLevel] = useState<string>("Beginner");
 
   useEffect(() => {
-    Promise.all([getMe(), getLessons()])
-      .then(([userData, data]) => {
+    Promise.all([getMe(), getLessons(), getCategories()])
+      .then(([userData, data, categories]) => {
         setUser(userData);
         setLessons(data.lessons || []);
         setProgresses(data.progress || []);
+        setDbCategories(categories || []);
         const level = (userData?.level === "Not Set" || !userData?.level) ? "Beginner" : userData.level;
         setActiveLevel(level);
         setLoading(false);
@@ -342,12 +359,14 @@ export default function StudentLessonsPage() {
 
   const grouped = groupByCategory(sortedLessons);
   const orderedGroups = Object.entries(grouped).sort((a, b) => {
-    const idxA = CATEGORY_ORDER.indexOf(a[0]);
-    const idxB = CATEGORY_ORDER.indexOf(b[0]);
-    if (idxA === -1 && idxB === -1) return a[0].localeCompare(b[0]);
-    if (idxA === -1) return 1;
-    if (idxB === -1) return -1;
-    return idxA - idxB;
+    const catA = dbCategories.find(c => c.name.toLowerCase() === a[0].toLowerCase());
+    const catB = dbCategories.find(c => c.name.toLowerCase() === b[0].toLowerCase());
+    
+    const orderA = catA?.orderIndex !== undefined && catA.orderIndex !== 0 ? catA.orderIndex : getHeuristicOrder(a[0]);
+    const orderB = catB?.orderIndex !== undefined && catB.orderIndex !== 0 ? catB.orderIndex : getHeuristicOrder(b[0]);
+
+    if (orderA !== orderB) return orderA - orderB;
+    return a[0].localeCompare(b[0]);
   });
 
   function navigateToLesson(lesson: Lesson) {

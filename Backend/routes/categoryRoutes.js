@@ -8,6 +8,7 @@ const router = Router();
 
 router.get('/', categoryController.listCategories);
 router.post('/', authenticate, authorizeRoles(ROLES.ADMIN), categoryController.createCategory);
+router.patch('/:id', authenticate, authorizeRoles(ROLES.ADMIN), categoryController.updateCategory);
 router.delete('/:id', authenticate, authorizeRoles(ROLES.ADMIN), categoryController.deleteCategory);
 
 export default router;

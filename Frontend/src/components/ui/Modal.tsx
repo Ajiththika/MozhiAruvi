@@ -70,7 +70,7 @@ export function Modal({
                 {title}
               </h3>
               {description && (
-                <p className="text-sm font-semibold text-text-secondary italic">
+                <p className="text-sm font-semibold text-text-secondary">
                   {description}
                 </p>
               )}

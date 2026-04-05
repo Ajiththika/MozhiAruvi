@@ -59,15 +59,15 @@ export default function PublicTutorsPage() {
           {/* --- Header Section (Clean) --- */}
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-l-4 border-primary pl-6 py-2">
             <div>
-              <h2 className="text-3xl font-black text-slate-800 tracking-tight uppercase">Professional Tutors</h2>
-              <p className="text-sm text-primary/60 font-bold uppercase tracking-widest mt-1">Found {totalTutors} experts ready to help</p>
+              <h2 className="text-3xl font-black text-slate-800 tracking-tight uppercase">Native Tamil Teachers</h2>
+              <p className="text-sm text-primary/60 font-bold uppercase tracking-widest mt-1">Find your perfect native Tamil teacher</p>
             </div>
             
             <Button 
                 onClick={handleJoinAsTutor} 
                 className="bg-primary text-white px-8 py-3 rounded-xl shadow-lg hover:scale-105 transition active:scale-95 text-xs font-black uppercase tracking-widest"
             >
-                Join as a Tutor
+                Become a Teacher
             </Button>
           </div>
 
@@ -95,7 +95,7 @@ export default function PublicTutorsPage() {
               <div className="flex items-center justify-between rounded-3xl border border-red-100 bg-red-50/50 px-8 py-6 text-sm text-red-600 font-bold">
                 <div className="flex items-center gap-4">
                    <AlertCircle className="h-6 w-6 shrink-0" /> 
-                   <span>{error?.message || "Could not load tutors. Please try again."}</span>
+                   <span>{error?.message || "Could not load teachers. Please try again."}</span>
                 </div>
                 <button onClick={() => refetch()} className="text-xs underline uppercase tracking-widest">Retry</button>
               </div>
@@ -106,9 +106,9 @@ export default function PublicTutorsPage() {
                     <div className="h-24 w-24 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-8">
                       <GraduationCap className="h-12 w-12 text-slate-200" />
                     </div>
-                    <h3 className="text-2xl font-black text-slate-800 mb-3 uppercase tracking-tight">No teachers found</h3>
+                    <h3 className="text-2xl font-black text-slate-800 mb-3 uppercase tracking-tight">No Teachers Found</h3>
                     <p className="text-primary/70 max-w-sm mx-auto font-medium">
-                      {searchInput ? <>We couldn't find matches for <strong>"{searchInput}"</strong>. Try broadening your criteria.</> : "Check back later for more tutors."}
+                      {searchInput ? <>We couldn't find matches for <strong>"{searchInput}"</strong>. Try broadening your criteria.</> : "Check back later for more teachers."}
                     </p>
                     <Button onClick={() => setSearchInput("")} variant="secondary" className="mt-8 px-10">Clear search</Button>
                   </div>
@@ -116,7 +116,7 @@ export default function PublicTutorsPage() {
                   <div className="space-y-12">
                     <div className="flex items-center justify-between">
                       <p className="text-[10px] font-black text-primary/60 uppercase tracking-[0.2em] px-2">
-                         Explored {totalTutors} native Tamil experts
+                         Browse our global teacher network
                       </p>
                     </div>
                     

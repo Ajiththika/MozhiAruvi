@@ -25,3 +25,19 @@ export async function deleteCategory(req, res, next) {
         res.json({ message: "Category deleted" });
     } catch (e) { next(e); }
 }
+
+export async function updateCategory(req, res, next) {
+    try {
+        const { name, description, orderIndex, icon } = req.body;
+        const category = await Category.findByIdAndUpdate(
+            req.params.id,
+            { name, description, orderIndex, icon },
+            { new: true, runValidators: true }
+        );
+        if (!category) return res.status(404).json({ message: "Category not found" });
+        res.json({ category });
+    } catch (e) {
+        if (e.code === 11000) return res.status(400).json({ message: "Category name already exists" });
+        next(e);
+    }
+}

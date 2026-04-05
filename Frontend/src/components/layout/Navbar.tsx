@@ -69,7 +69,7 @@ export default function Navbar() {
               href="/tutors"
               className="text-slate-600 hover:text-primary transition-colors font-bold text-sm"
             >
-              Tutors
+              Teachers
             </Link>
             <Link
               href="/events"

@@ -87,8 +87,8 @@ export default function SignUpForm() {
   return (
     <div className="w-full max-w-sm mx-auto xl:max-w-md">
       <div className="mb-4 text-center md:text-left">
-        <h2 className="text-2xl md:text-3xl font-black text-text-primary tracking-tight leading-tight uppercase">
-          Join Flow
+        <h2 className="text-xl md:text-2xl font-black text-text-primary tracking-tight leading-tight uppercase">
+          Join With Us
         </h2>
         <p className="text-sm font-bold text-primary/60 uppercase tracking-widest mt-1">Tamil Cultural Heritage</p>
       </div>
@@ -172,7 +172,6 @@ export default function SignUpForm() {
     </div>
   );
 }
-
 
 
 

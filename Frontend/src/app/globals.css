@@ -172,7 +172,6 @@
 .tiptap-editor blockquote {
   border-left: 4px solid var(--color-primary);
   padding-left: 1.5rem;
-  font-style: italic;
   color: var(--color-text-secondary);
   margin: 1.5rem 0;
 }

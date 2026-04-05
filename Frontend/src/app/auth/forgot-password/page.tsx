@@ -7,7 +7,7 @@ import axios from 'axios';
 import Button from '@/components/ui/Button';
 import { Mail, ArrowLeft, CheckCircle2 } from 'lucide-react';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');

@@ -3,11 +3,40 @@
 import React, { useEffect, useState } from "react";
 import {
   BookOpen, Plus, Loader2, Trash2, X, ChevronDown, ChevronUp,
-  Mic, AlertCircle, Settings, ArrowRight
+  Mic, AlertCircle, Settings, ArrowRight, LibraryBig, Tag, ArrowUpDown
 } from "lucide-react";
+import Link from "next/link";
 import { getLessons, Lesson, getLessonQuestions, Question } from "@/services/lessonService";
-import { getCategories, Category as DBCategory } from "@/services/categoryService";
+import { getCategories, updateCategory, deleteCategory, createCategory, Category as DBCategory } from "@/services/categoryService";
 import { api } from "@/lib/api";
+
+// ── Heuristics ────────────────────────────────────────────────────────────────
+
+const TAMIL_ALPHABET_ORDER = [
+  "uyir eluthu",
+  "mei eluthu",
+  "uyirmei eluthu",
+  "uyir mei eluthu",
+  "ayutha eluthu",
+  "grantha eluthugal"
+];
+
+function getHeuristicOrder(name: string): number {
+  const lower = name.trim().toLowerCase();
+  
+  // Direct matches in TAMIL_ALPHABET_ORDER
+  const directIdx = TAMIL_ALPHABET_ORDER.indexOf(lower);
+  if (directIdx !== -1) return directIdx * 10;
+
+  // Keyword matches (highest priority first)
+  if (lower.includes("uyir mei") || lower.includes("uyirmei")) return 30; // Index 2 * 10
+  if (lower.includes("mei")) return 20; // Index 1 * 10 
+  if (lower.includes("uyir")) return 10; // Index 0 * 10
+  if (lower.includes("ayutha")) return 40;
+  if (lower.includes("grantha")) return 50;
+  
+  return 999; // Unknown
+}
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -358,29 +387,97 @@ function AdminLessonRow({ index, lesson, onManageQuestions, onEdit, onDelete }: 
 
 // ── Admin Category Group (expandable container for lessons) ─────────────────
 
-function AdminCategoryGroup({ categoryName, lessons, openQuestions, openEdit, handleDelete, onAddLesson }: { categoryName: string, lessons: Lesson[], openQuestions: (l: Lesson) => void, openEdit: (l: Lesson) => void, handleDelete: (id: string) => void, onAddLesson: (catName: string, nextNum?: number) => void }) {
+function AdminCategoryGroup({ 
+  categoryName, 
+  lessons, 
+  dbCategory,
+  openQuestions, 
+  openEdit, 
+  handleDelete, 
+  onAddLesson,
+  onEditCategory,
+  onDeleteCategory,
+  onMoveCategory
+}: { 
+  categoryName: string, 
+  lessons: Lesson[], 
+  dbCategory?: DBCategory,
+  openQuestions: (l: Lesson) => void, 
+  openEdit: (l: Lesson) => void, 
+  handleDelete: (id: string) => void, 
+  onAddLesson: (catName: string, nextNum?: number) => void,
+  onEditCategory?: (cat: DBCategory) => void,
+  onDeleteCategory?: (id: string) => void,
+  onMoveCategory?: (id: string, direction: "up" | "down", currentIdx: number) => void
+}) {
   const [expanded, setExpanded] = useState(false);
   return (
     <div className={`bg-white rounded-[2.5rem] border transition-all duration-300 ${expanded ? "ring-2 ring-primary/20 border-primary shadow-2xl shadow-primary/5" : "border-slate-100 hover:border-primary/20 hover:shadow-sm"}`}>
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between p-8 cursor-pointer relative" onClick={() => setExpanded(!expanded)}>
-        <div className="flex items-center gap-6">
+      <div className="flex flex-row items-center justify-between p-8 cursor-pointer relative gap-6" onClick={() => setExpanded(!expanded)}>
+        <div className="flex items-center gap-6 min-w-0">
           <div className={`h-16 w-16 rounded-[1.5rem] border flex items-center justify-center shrink-0 transition-all duration-500 ${expanded ? "bg-primary text-white border-white/20" : "bg-primary/5 text-primary border-primary/10"}`}>
             <BookOpen className="w-8 h-8" />
           </div>
-          <div>
-            <h2 className="text-2xl font-black text-slate-800 uppercase tracking-tight">{categoryName}</h2>
-            <p className="text-xs font-bold text-primary/60 uppercase tracking-widest mt-1">{lessons.length} {lessons.length === 1 ? 'Stage' : 'Stages'} configured</p>
+          <div className="truncate">
+             <h2 className="text-xl font-black text-slate-800 uppercase tracking-tight truncate">{categoryName}</h2>
+             <p className="text-[10px] font-bold text-primary/60 uppercase tracking-widest mt-1">{lessons.length} {lessons.length === 1 ? 'Stage' : 'Stages'} configured</p>
           </div>
         </div>
-        <div className="flex items-center gap-3 mt-4 sm:mt-0">
+
+        <div className="flex items-center gap-4 shrink-0">
+          <div className="flex items-center bg-slate-50/50 p-1.5 rounded-2xl border border-slate-100/50">
+            <div className="flex flex-col items-center border-r border-slate-200/50 pr-2 mr-2">
+              <button 
+                onClick={e => { e.stopPropagation(); onMoveCategory?.(dbCategory?._id || categoryName, "up", dbCategory?.orderIndex ?? getHeuristicOrder(categoryName)); }}
+                className="p-1 text-primary/30 hover:text-primary transition-all hover:scale-125 disabled:opacity-30"
+                title="Move Up"
+              >
+                 <ChevronUp className="w-4 h-4" />
+              </button>
+              <button 
+                onClick={e => { e.stopPropagation(); onMoveCategory?.(dbCategory?._id || categoryName, "down", dbCategory?.orderIndex ?? getHeuristicOrder(categoryName)); }}
+                className="p-1 text-primary/30 hover:text-primary transition-all hover:scale-125 disabled:opacity-30"
+                title="Move Down"
+              >
+                 <ChevronDown className="w-4 h-4" />
+              </button>
+            </div>
+            
+            <div className="flex items-center gap-1">
+              <button
+                onClick={e => { 
+                  e.stopPropagation(); 
+                  if (dbCategory) onEditCategory?.(dbCategory);
+                  else onEditCategory?.({ _id: "", name: categoryName, orderIndex: getHeuristicOrder(categoryName) }); 
+                }}
+                className="p-2.5 text-primary/30 hover:text-primary hover:bg-white rounded-xl transition-all shadow-sm shadow-transparent hover:shadow-slate-200/50"
+                title="Edit Specifications"
+              >
+                <Settings className="w-4 h-4" />
+              </button>
+              <button
+                onClick={e => { 
+                  e.stopPropagation(); 
+                  if (dbCategory) onDeleteCategory?.(dbCategory._id);
+                  else handleDelete(lessons[0]._id); 
+                }}
+                className="p-2.5 text-primary/30 hover:text-red-500 hover:bg-white rounded-xl transition-all shadow-sm shadow-transparent hover:shadow-slate-200/50"
+                title="Remove Topic"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+
           <button
             onClick={e => { e.stopPropagation(); onAddLesson(categoryName, lessons.length + 1); }}
-            className="flex items-center gap-2 px-6 py-3 text-[10px] font-black uppercase tracking-[0.2em] text-white bg-primary rounded-xl hover:scale-105 active:scale-95 shadow-xl shadow-primary/20 transition-all"
+            className="hidden sm:flex items-center gap-2 px-6 py-4 text-[10px] font-black uppercase tracking-[0.2em] text-white bg-primary rounded-2xl hover:scale-105 active:scale-95 shadow-xl shadow-primary/20 transition-all ml-2"
           >
-            <Plus className="w-4 h-4 ml-[-4px]" /> Lesson
+            <Plus className="w-4 h-4" /> Lesson
           </button>
-          <div className="p-3 text-primary/50 bg-slate-50 border border-slate-100 rounded-xl hover:bg-slate-100 transition-colors">
-            {expanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+
+          <div className={`p-4 rounded-full transition-all duration-300 ${expanded ? "bg-primary/10 text-primary" : "text-slate-300"}`}>
+            {expanded ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
           </div>
         </div>
       </div>
@@ -414,6 +511,7 @@ function AdminCategoryGroup({ categoryName, lessons, openQuestions, openEdit, ha
 
 export default function AdminLessonsPage() {
   const [lessons, setLessons] = useState<Lesson[]>([]);
+  const [dbCategories, setDbCategories] = useState<DBCategory[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Unified Category (which is a Lesson in DB) creation form
@@ -463,12 +561,53 @@ export default function AdminLessonsPage() {
   async function fetchLessons() {
     try {
       setLoading(true);
-      const data = await getLessons();
-      setLessons(data.lessons || []);
+      const [lessonData, categoryData] = await Promise.all([
+        getLessons(),
+        getCategories()
+      ]);
+      setLessons(lessonData.lessons || []);
+      setDbCategories(categoryData || []);
     } catch (e: unknown) {
       console.error(e);
     } finally {
       setLoading(false);
+    }
+  }
+
+  const [editingSavedId, setEditingSavedId] = useState<string | null>(null);
+
+  async function handleMoveQuestion(index: number, direction: "up" | "down") {
+    if (!activeLessonId) return;
+    if (direction === "up" && index === 0) return;
+    if (direction === "down" && index === savedQuestions.length - 1) return;
+
+    const list = [...savedQuestions];
+    const targetIdx = direction === "up" ? index - 1 : index + 1;
+    [list[index], list[targetIdx]] = [list[targetIdx], list[index]];
+
+    setSavedQuestions(list); 
+    try {
+      await api.patch(`/lessons/${activeLessonId}/questions/reorder`, { 
+        orderedIds: list.map(q => q._id) 
+      });
+    } catch {
+      alert("Reorder failed.");
+      const data = await getLessonQuestions(activeLessonId);
+      setSavedQuestions(data.questions || []);
+    }
+  }
+
+  async function handleUpdateSaved(id: string, updated: DraftQuestion) {
+    if (!activeLessonId) return;
+    try {
+      const payload = buildPayload(updated);
+      await api.patch(`/lessons/${activeLessonId}/questions/${id}`, payload);
+      setEditingSavedId(null);
+      const data = await getLessonQuestions(activeLessonId);
+      setSavedQuestions(data.questions || []);
+    } catch {
+      setEditingSavedId(null);
+      alert("Failed to update question.");
     }
   }
 
@@ -634,6 +773,158 @@ export default function AdminLessonsPage() {
     }
   }
 
+  // Category Mgmt Actions
+  const [editingCategory, setEditingCategory] = useState<DBCategory | null>(null);
+  const [catFormData, setCatFormData] = useState({ name: "", description: "", orderIndex: 0 });
+
+  async function handleMoveCategory(idOrName: string, direction: "up" | "down", currentIdx: number) {
+    setLoading(true);
+    try {
+      const visibleLessons = lessons.filter(l => {
+        const lvl = l.level || "Beginner";
+        if (lvl === "Basic") return activeLevel === "Beginner";
+        return lvl === activeLevel;
+      });
+
+      const allNames = Array.from(new Set(visibleLessons.map(l => {
+        let cat = l.category || "Uncategorized";
+        if (cat.toLowerCase() === (l.level || "").toLowerCase() || cat === "General") return l.title || "Uncategorized";
+        return cat;
+      })));
+
+      let fullList = allNames.map(name => {
+        const dbC = dbCategories.find(c => c.name.toLowerCase() === name.toLowerCase());
+        return {
+          id: dbC?._id || name,
+          name: name,
+          isVirtual: !dbC,
+          orderIndex: (dbC?.orderIndex !== undefined && dbC.orderIndex !== null) ? dbC.orderIndex : getHeuristicOrder(name)
+        };
+      });
+
+      fullList.sort((a,b) => {
+        if (a.orderIndex !== b.orderIndex) return a.orderIndex - b.orderIndex;
+        return a.name.localeCompare(b.name);
+      });
+
+      const findIndex = fullList.findIndex(x => x.id === idOrName || x.name === idOrName);
+      if (findIndex === -1) { setLoading(false); return; }
+      if (direction === "up" && findIndex === 0) { setLoading(false); return; }
+      if (direction === "down" && findIndex === fullList.length - 1) { setLoading(false); return; }
+
+      const targetIdx = direction === "up" ? findIndex - 1 : findIndex + 1;
+      const newList = [...fullList];
+      const originItem = newList[findIndex];
+      const targetItem = newList[targetIdx];
+      
+      newList[findIndex] = targetItem;
+      newList[targetIdx] = originItem;
+
+      const resolveId = async (item: any) => {
+        if (item.isVirtual) {
+          try {
+            const res = await createCategory({ name: item.name.trim(), orderIndex: item.orderIndex });
+            return res._id;
+          } catch (err: any) {
+             if (err.response?.status === 400 && err.response?.data?.message?.toLowerCase().includes("exists")) {
+                const refreshed = await getCategories();
+                const matched = refreshed.find(c => c.name.trim().toLowerCase() === item.name.trim().toLowerCase());
+                if (matched) return matched._id;
+             }
+             throw err;
+          }
+        }
+        return item.id;
+      };
+
+      const idMap = await Promise.all(newList.map(async (item) => ({
+        id: await resolveId(item),
+        name: item.name
+      })));
+      await Promise.all(idMap.map((item, idx) => 
+        updateCategory(item.id, { orderIndex: (idx + 1) * 10 })
+      ));
+      await fetchLessons();
+    } catch (err: any) {
+      console.error("Move failed", err);
+      const msg = err.response?.data?.message || err.message || "Failed to reorder topics.";
+      alert(msg);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleDeleteCategory(id: string) {
+    if (!confirm("Delete category? (Existing lessons will become 'Uncategorized')")) return;
+    try {
+      await deleteCategory(id);
+      await fetchLessons();
+    } catch (err: any) {
+      const msg = err.response?.data?.message || err.message || "Failed to delete.";
+      alert(msg);
+    }
+  }
+
+  function openEditCategory(cat: DBCategory) {
+    setEditingCategory(cat);
+    setCatFormData({ 
+      name: cat.name, 
+      description: cat.description || "", 
+      orderIndex: cat.orderIndex || 0 
+    });
+  }
+
+  async function handleUpdateCategory(e: React.FormEvent) {
+    e.preventDefault();
+    if (!editingCategory) return;
+    setLoading(true);
+    try {
+      const oldName = editingCategory.name;
+      const newName = catFormData.name.trim();
+      const newOrder = Number(catFormData.orderIndex);
+
+      if (!editingCategory._id) {
+        // Create new category in DB
+        await createCategory({
+          name: newName,
+          description: catFormData.description,
+          orderIndex: newOrder
+        });
+      } else {
+        // Update existing category document
+        await updateCategory(editingCategory._id, {
+          name: newName,
+          description: catFormData.description,
+          orderIndex: newOrder
+        });
+
+        if (oldName && newName && oldName !== newName) {
+           const affected = lessons.filter(l => 
+             l.category?.toLowerCase() === oldName.toLowerCase() || 
+             l.sectionName?.toLowerCase() === oldName.toLowerCase()
+           );
+           
+           if (affected.length > 0) {
+             await Promise.all(affected.map(l => 
+               api.patch(`/lessons/${l._id}`, { 
+                 category: newName, 
+                 sectionName: newName 
+               }).catch(e => console.error("Failed to sync lesson "+l._id, e))
+             ));
+           }
+        }
+      }
+      setEditingCategory(null);
+      await fetchLessons();
+    } catch (err: any) {
+      console.error("Update failed", err);
+      const msg = err.response?.data?.message || err.message || "An unexpected error occurred.";
+      alert(`Save Failed: ${msg}`);
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
     <div className="space-y-8 animate-in fade-in pb-20">
       
@@ -644,8 +935,8 @@ export default function AdminLessonsPage() {
             <span className="h-2 w-10 rounded-full bg-primary/20" />
             <span className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">Curriculum Master</span>
           </div>
-          <h1 className="text-4xl font-black text-primary tracking-tight">Manage Categories</h1>
-          <p className="text-primary/70 font-medium mt-1">Organize your learning path and levels.</p>
+          <h1 className="text-2xl font-black text-primary tracking-tight">Manage Categories</h1>
+          <p className="text-primary/70 font-medium mt-1 text-sm">Organize your learning path and levels.</p>
         </div>
         <button
           onClick={() => openAddLesson()}
@@ -657,24 +948,19 @@ export default function AdminLessonsPage() {
 
       {/* Unified Creation Form */}
       {showCreate && (
-        <div className="bg-white p-8 rounded-[2.5rem] shadow-2xl shadow-slate-200/40 border border-primary/10 max-w-4xl mx-auto animate-in zoom-in-95 duration-300">
-          <div className="flex items-center justify-between mb-8">
-            <h3 className="text-2xl font-black text-slate-800">
-              {isAddingToExisting ? `Add Lesson to "${formData.category}"` : "Create New Category"}
-            </h3>
-            <button onClick={() => { setShowCreate(false); setIsAddingToExisting(false); }} className="p-2 hover:bg-slate-100 rounded-full transition-colors">
-              <X className="w-6 h-6 text-primary/60" />
-            </button>
+        <div className="bg-white p-10 rounded-[3rem] border-2 border-primary/10 shadow-2xl shadow-primary/5 animate-in slide-in-from-top-4 duration-500">
+          <div className="flex items-center gap-4 mb-8">
+            <div className="h-12 w-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
+               {isAddingToExisting ? <Plus className="w-6 h-6" /> : <BookOpen className="w-6 h-6" />}
+            </div>
+            <div>
+              <h2 className="text-xl font-black text-slate-800 uppercase tracking-tight">{isAddingToExisting ? `Add Lesson to ${formData.category}` : "Create New Category"}</h2>
+              <p className="text-xs font-bold text-primary/40 uppercase tracking-widest mt-0.5">Define your curriculum structure</p>
+            </div>
           </div>
 
-          {lessonError && (
-            <div className="flex items-center gap-2 text-[11px] font-bold text-red-500 bg-red-50 border border-red-100 px-4 py-3 rounded-xl mb-6">
-              <AlertCircle className="w-3.5 h-3.5 shrink-0" /> {lessonError}
-            </div>
-          )}
-
-          <form onSubmit={handleCreate} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <form onSubmit={handleCreate} className="space-y-8">
+            <div className={`grid grid-cols-1 ${isAddingToExisting ? "" : "md:grid-cols-2"} gap-8`}>
               {!isAddingToExisting && (
                 <div>
                   <label className={labelCls}>Category Name</label>
@@ -732,24 +1018,25 @@ export default function AdminLessonsPage() {
         </div>
       )}
 
-      {/* Lesson List */}
-
       {/* Level Filter Tabs */}
-      {!loading && lessons.length > 0 && (
-        <div className="flex flex-wrap items-center gap-3 bg-white p-3 rounded-[2rem] border border-slate-100 shadow-sm">
-          {["Beginner", "Elementary", "Intermediate", "Advanced"].map((lv) => (
-            <button
-              key={lv}
-              onClick={() => setActiveLevel(lv)}
-              className={`flex-1 min-w-[140px] py-4 rounded-[1.5rem] text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-300 border-2 ${
-                activeLevel === lv 
-                ? "bg-primary text-white border-primary shadow-lg shadow-primary/20 scale-[1.02]" 
-                : "bg-slate-50 text-primary/60 border-transparent hover:bg-slate-100 hover:text-slate-600"
-              }`}
-            >
-              {lv}
-            </button>
-          ))}
+      {!loading && (
+        <div className="flex flex-wrap items-center gap-3 bg-white p-3 rounded-[2.5rem] border border-slate-100 shadow-sm mb-12">
+          {["Beginner", "Elementary", "Intermediate", "Advanced"].map((lv) => {
+            const isActive = activeLevel === lv;
+            return (
+              <button
+                key={lv}
+                onClick={() => setActiveLevel(lv)}
+                className={`flex-1 min-w-[140px] py-5 rounded-[1.8rem] text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-300 border-2 ${
+                  isActive 
+                  ? "bg-primary text-white border-primary shadow-xl shadow-primary/20 scale-[1.03]" 
+                  : "bg-slate-50 text-primary/60 border-transparent hover:bg-slate-100 hover:text-slate-600"
+                }`}
+              >
+                {lv}
+              </button>
+            );
+          })}
         </div>
       )}
 
@@ -764,7 +1051,7 @@ export default function AdminLessonsPage() {
           {lessons.length === 0 && (
             <div className="p-20 text-center bg-white rounded-[3rem] border border-dashed border-slate-200">
               <BookOpen className="w-16 h-16 text-slate-200 mx-auto mb-4" />
-              <p className="text-primary/60 font-bold italic">No lessons yet. Create your first lesson above.</p>
+              <p className="text-primary/60 font-bold">No lessons yet. Create your first lesson above.</p>
             </div>
           )}
 
@@ -781,7 +1068,6 @@ export default function AdminLessonsPage() {
 
             const categoriesOnPage = paginated.reduce((acc: Record<string, Lesson[]>, lesson: Lesson) => {
               let category = lesson.category || "Uncategorized";
-              // Legacy data fallback: if the category was mistakenly saved as the level name
               if (category.toLowerCase() === (lesson.level || "").toLowerCase() || category === "General") {
                 category = lesson.title || "Uncategorized";
               }
@@ -796,21 +1082,39 @@ export default function AdminLessonsPage() {
                   {paginated.length === 0 ? (
                     <div className="p-20 text-center bg-white rounded-[3rem] border border-dashed border-slate-200">
                       <BookOpen className="w-16 h-16 text-slate-200 mx-auto mb-4" />
-                      <p className="text-primary/60 font-bold italic">This level is currently empty.</p>
+                      <p className="text-primary/60 font-bold">This level is currently empty.</p>
                     </div>
                   ) : (
                   <div className="space-y-6">
-                    {Object.entries(categoriesOnPage).map(([catName, catLessons]) => (
-                      <AdminCategoryGroup
-                        key={catName}
-                        categoryName={catName}
-                        lessons={catLessons}
-                        openQuestions={openQuestions}
-                        openEdit={openEdit}
-                        handleDelete={handleDelete}
-                        onAddLesson={openAddLesson}
-                      />
-                    ))}
+                    {Object.entries(categoriesOnPage)
+                      .sort(([nameA], [nameB]) => {
+                        const catA = dbCategories.find(c => c.name.toLowerCase() === nameA.toLowerCase());
+                        const catB = dbCategories.find(c => c.name.toLowerCase() === nameB.toLowerCase());
+                        
+                        const orderA = (catA?.orderIndex !== undefined && catA.orderIndex !== null) ? catA.orderIndex : getHeuristicOrder(nameA);
+                        const orderB = (catB?.orderIndex !== undefined && catB.orderIndex !== null) ? catB.orderIndex : getHeuristicOrder(nameB);
+                        
+                        if (orderA !== orderB) return orderA - orderB;
+                        return nameA.localeCompare(nameB);
+                      })
+                      .map(([catName, catLessons]) => {
+                        const dbCat = dbCategories.find(c => c.name.toLowerCase() === catName.toLowerCase());
+                        return (
+                          <AdminCategoryGroup
+                            key={catName}
+                            categoryName={catName}
+                            lessons={catLessons}
+                            dbCategory={dbCat}
+                            openQuestions={openQuestions}
+                            openEdit={openEdit}
+                            handleDelete={handleDelete}
+                            onAddLesson={openAddLesson}
+                            onEditCategory={openEditCategory}
+                            onDeleteCategory={handleDeleteCategory}
+                            onMoveCategory={handleMoveCategory}
+                          />
+                        );
+                      })}
                   </div>
                   )}
                 </div>
@@ -860,7 +1164,7 @@ export default function AdminLessonsPage() {
         <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-white/40 backdrop-blur-md animate-in fade-in duration-300">
           <div className="bg-white p-8 rounded-[2.5rem] shadow-2xl shadow-slate-200/40 border border-primary/10 max-w-2xl w-full mx-auto animate-in zoom-in-95 duration-300">
             <div className="flex items-center justify-between mb-8">
-              <h3 className="text-2xl font-black text-slate-800">Edit Lesson</h3>
+              <h3 className="text-xl font-black text-slate-800">Edit Lesson</h3>
               <button onClick={() => setEditingLessonId(null)} className="p-2 hover:bg-slate-100 rounded-full transition-colors">
                 <X className="w-6 h-6 text-primary/60" />
               </button>
@@ -880,8 +1184,7 @@ export default function AdminLessonsPage() {
                 <div>
                   <label className={labelCls}>Lesson Number</label>
                   <input
-                    type="number"
-                    min="1"
+                    type="text"
                     required
                     value={editFormData.title}
                     onChange={e => setEditFormData({ ...editFormData, title: e.target.value })}
@@ -889,18 +1192,24 @@ export default function AdminLessonsPage() {
                   />
                 </div>
               </div>
-
-
-
-              <div className="flex justify-end gap-4 pt-2">
-                <button type="button" onClick={() => setEditingLessonId(null)} className="px-8 py-4 font-black uppercase tracking-widest text-[10px] text-primary/60">
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-10 py-4 bg-primary text-white font-black uppercase tracking-widest text-[10px] rounded-2xl shadow-xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all"
+              <div>
+                <label className={labelCls}>Level</label>
+                <select
+                  value={editFormData.level}
+                  onChange={e => setEditFormData({ ...editFormData, level: e.target.value as any })}
+                  className={inputCls}
                 >
-                  Save Changes
+                  <option value="Beginner">Beginner</option>
+                  <option value="Elementary">Elementary</option>
+                  <option value="Intermediate">Intermediate</option>
+                  <option value="Advanced">Advanced</option>
+                </select>
+              </div>
+
+              <div className="flex gap-4 pt-4">
+                <button type="button" onClick={() => setEditingLessonId(null)} className="flex-1 py-4 font-black uppercase tracking-widest text-[10px] text-primary/60">Cancel</button>
+                <button type="submit" className="flex-1 py-4 bg-primary text-white font-black uppercase tracking-widest text-[10px] rounded-2xl shadow-xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all">
+                  Update Changes
                 </button>
               </div>
             </form>
@@ -917,10 +1226,10 @@ export default function AdminLessonsPage() {
             <div className="p-8 border-b border-slate-50 flex items-center justify-between bg-slate-50/30 shrink-0">
               <div>
                 <p className="text-[10px] font-black text-primary/60 uppercase tracking-widest mb-1">Question Builder</p>
-                <h2 className="text-2xl font-black text-slate-800 tracking-tight">{activeLessonTitle}</h2>
+                <h2 className="text-xl font-black text-slate-800 tracking-tight">{activeLessonTitle}</h2>
               </div>
               <button
-                onClick={() => { setActiveLessonId(null); setDraftQuestions([]); }}
+                onClick={() => { setActiveLessonId(null); setDraftQuestions([]); setEditingSavedId(null); }}
                 className="h-12 w-12 flex items-center justify-center bg-white rounded-2xl hover:bg-red-50 hover:text-red-500 shadow-sm border border-slate-100 transition-all active:scale-90"
               >
                 <X className="w-5 h-5" />
@@ -944,14 +1253,47 @@ export default function AdminLessonsPage() {
                       </div>
                       <div className="space-y-3">
                         {savedQuestions.map((q, idx) => (
-                          <div key={q._id} className="flex items-center justify-between bg-slate-50 p-5 rounded-2xl border border-slate-100 group">
-                            <div className="flex items-center gap-4 min-w-0">
-                              <span className="text-[9px] font-black uppercase tracking-widest px-3 py-1 bg-white text-primary/60 rounded-full border border-slate-100 shrink-0">{idx + 1} • {q.type}</span>
-                              <p className="text-sm font-bold text-slate-700 truncate">{q.text}</p>
+                          <div key={q._id} className="bg-white rounded-2xl border border-slate-100 overflow-hidden group">
+                           {editingSavedId === q._id ? (
+                             <div className="p-4 bg-primary/2">
+                               <QuestionCard 
+                                 question={{ 
+                                   id: q._id, 
+                                   type: (q.type as any === "quiz" ? "mcq" : q.type as any === "match" ? "matching" : q.type as any) || "mcq", 
+                                   data: { 
+                                      question: q.text, 
+                                      options: q.options || [], 
+                                      correctAnswer: q.options?.[q.correctOptionIndex || 0] || q.correctAnswer || "",
+                                      sentence: q.text,
+                                      promptText: q.text,
+                                      correctSentence: q.correctAnswer || q.expectedAudioText || ""
+                                   } 
+                                 }} 
+                                 index={idx}
+                                 onUpdate={(updated) => handleUpdateSaved(q._id, updated)} 
+                                 onRemove={() => setEditingSavedId(null)}
+                               />
+                             </div>
+                           ) : (
+                            <div className="flex items-center justify-between p-5 bg-slate-50/50 hover:bg-white transition-all">
+                              <div className="flex items-center gap-4 min-w-0">
+                                <div className="flex flex-col items-center border-r border-slate-200/50 pr-4 mr-0">
+                                  <button onClick={() => handleMoveQuestion(idx, 'up')} className="p-1 text-primary/20 hover:text-primary transition-all hover:scale-125 disabled:opacity-10" disabled={idx===0}><ChevronUp className="w-3.5 h-3.5" /></button>
+                                  <button onClick={() => handleMoveQuestion(idx, 'down')} className="p-1 text-primary/20 hover:text-primary transition-all hover:scale-125 disabled:opacity-10" disabled={idx===savedQuestions.length-1}><ChevronDown className="w-3.5 h-3.5" /></button>
+                                </div>
+                                <span className="text-[9px] font-black uppercase tracking-widest px-3 py-1 bg-white text-primary/60 rounded-full border border-slate-100 shrink-0">{idx + 1} • {q.type}</span>
+                                <p className="text-sm font-bold text-slate-700 truncate">{q.text}</p>
+                              </div>
+                              <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all ml-3">
+                                <button onClick={() => setEditingSavedId(q._id)} className="p-2.5 text-primary/30 hover:text-primary hover:bg-white rounded-xl transition-all shadow-sm shadow-transparent hover:shadow-slate-200/50">
+                                  <Settings className="w-4 h-4" />
+                                </button>
+                                <button onClick={() => handleDeleteSaved(q._id)} className="p-2.5 text-primary/30 hover:text-red-400 hover:bg-white rounded-xl transition-all shadow-sm shadow-transparent hover:shadow-slate-200/50">
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              </div>
                             </div>
-                            <button onClick={() => handleDeleteSaved(q._id)} className="p-2 text-primary/40 hover:text-red-400 hover:bg-red-50 rounded-xl transition-all opacity-0 group-hover:opacity-100 shrink-0 ml-3">
-                              <Trash2 className="w-4 h-4" />
-                            </button>
+                           )}
                           </div>
                         ))}
                       </div>
@@ -1006,7 +1348,7 @@ export default function AdminLessonsPage() {
               <div className="p-6 border-t border-slate-50 flex items-center justify-end gap-4 shrink-0 bg-slate-50/30">
                 <button
                   type="button"
-                  onClick={() => { setActiveLessonId(null); setDraftQuestions([]); }}
+                  onClick={() => { setActiveLessonId(null); setDraftQuestions([]); setEditingSavedId(null); }}
                   className="px-8 py-3.5 font-black uppercase tracking-widest text-[10px] text-primary/60 hover:text-slate-600 transition-colors"
                 >
                   Close
@@ -1026,22 +1368,77 @@ export default function AdminLessonsPage() {
           </div>
         </div>
       )}
+      {/* Category Edit Modal */}
+      {editingCategory && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-white/40 backdrop-blur-md animate-in fade-in duration-300">
+          <div className="bg-white p-8 rounded-[2.5rem] shadow-2xl shadow-slate-200/40 border border-primary/10 max-w-2xl w-full mx-auto animate-in zoom-in-95 duration-300">
+            <div className="flex items-center justify-between mb-8">
+              <h3 className="text-2xl font-black text-slate-800">Adjust Category</h3>
+              <button onClick={() => setEditingCategory(null)} className="p-2 hover:bg-slate-100 rounded-full transition-colors">
+                <X className="w-6 h-6 text-primary/60" />
+              </button>
+            </div>
+            <form onSubmit={handleUpdateCategory} className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-[10px] font-black uppercase tracking-widest text-primary/60 mb-1.5 ml-1">Category Name</label>
+                  <div className="relative">
+                    <Tag className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-primary/40" />
+                    <input
+                      required
+                      className="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl focus:border-primary focus:bg-white outline-none transition-all font-bold text-slate-700 pl-12"
+                      value={catFormData.name}
+                      onChange={e => setCatFormData({ ...catFormData, name: e.target.value })}
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-[10px] font-black uppercase tracking-widest text-primary/60 mb-1.5 ml-1">Sequence Index</label>
+                  <div className="relative">
+                    <ArrowUpDown className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-primary/40" />
+                    <input
+                      type="number"
+                      className="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl focus:border-primary focus:bg-white outline-none transition-all font-bold text-slate-700 pl-12"
+                      value={catFormData.orderIndex}
+                      onChange={e => setCatFormData({ ...catFormData, orderIndex: parseInt(e.target.value) })}
+                    />
+                  </div>
+                </div>
+              </div>
+              <div>
+                <label className="block text-[10px] font-black uppercase tracking-widest text-primary/60 mb-1.5 ml-1">Curriculum Summary</label>
+                <textarea
+                  className="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl focus:border-primary focus:bg-white outline-none transition-all font-bold text-slate-700 min-h-[120px]"
+                  placeholder="What should students know about this category?"
+                  value={catFormData.description}
+                  onChange={e => setCatFormData({ ...catFormData, description: e.target.value })}
+                />
+              </div>
+
+              <div className="flex items-center justify-between pt-2">
+                <button 
+                  type="button" 
+                  onClick={() => handleDeleteCategory(editingCategory._id)} 
+                  className="px-6 py-4 font-black uppercase tracking-widest text-[10px] text-red-500 hover:bg-red-50 rounded-2xl transition-all"
+                >
+                  Delete Fully
+                </button>
+                <div className="flex gap-4">
+                  <button type="button" onClick={() => setEditingCategory(null)} className="px-8 py-4 font-black uppercase tracking-widest text-[10px] text-primary/60">
+                    Cancel
+                  </button>
+                  <button 
+                    type="submit" 
+                    className="px-12 py-4 bg-primary text-white font-black uppercase tracking-widest text-[10px] rounded-2xl shadow-xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all"
+                  >
+                    Save Changes
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

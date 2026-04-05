@@ -151,7 +151,7 @@ export default function TutorApplicationsAdminPage() {
       </div>
 
       {isError && (
-        <div className="flex items-center gap-4 rounded-3xl border border-red-100 bg-red-50/50 p-8 text-sm text-red-600 italic">
+        <div className="flex items-center gap-4 rounded-3xl border border-red-100 bg-red-50/50 p-8 text-sm text-red-600">
           <AlertCircle className="h-6 w-6 shrink-0" /> Failed to load applications. {error instanceof Error ? error.message : ""}
         </div>
       )}

@@ -89,7 +89,7 @@ export function AskTutorModal({ isOpen, onClose, lessonId, lessonTitle, lessonMo
             </div>
           ) : tutors.length === 0 ? (
              <div className="text-center bg-slate-50 border-dashed p-6 rounded-2xl border border-slate-200">
-                <p className="text-sm font-semibold text-primary/60 italic">No mentors currently connected for this domain.</p>
+                <p className="text-sm font-semibold text-primary/60">No mentors currently connected for this domain.</p>
              </div>
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
@@ -127,7 +127,7 @@ export function AskTutorModal({ isOpen, onClose, lessonId, lessonTitle, lessonMo
             placeholder="State your linguistic challenge clearly..."
             value={askQuestion}
             onChange={(e) => setAskQuestion(e.target.value)}
-            className="text-lg font-medium italic"
+            className="text-lg font-medium"
           />
         </div>
 

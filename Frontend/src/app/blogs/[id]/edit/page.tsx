@@ -154,7 +154,7 @@ export default function EditBlogPage() {
             </Link>
             <Link href="/" className="flex items-center gap-2 group">
               <span className="text-xl md:text-2xl font-black text-slate-900 tracking-tighter">
-                Mozhi<span className="text-primary italic">Aruvi</span>
+                Mozhi<span className="text-primary">Aruvi</span>
               </span>
             </Link>
           </div>

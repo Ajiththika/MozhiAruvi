@@ -122,7 +122,7 @@ export function AudioRecorder({
            isCorrect ? "border-emerald-100 bg-emerald-50/30 font-bold" : "border-red-100 bg-red-50/10"
          )}>
             <p className={cn(
-              "text-lg italic leading-relaxed",
+              "text-lg leading-relaxed",
               isCorrect ? "text-emerald-700" : "text-red-500"
             )}>
               "{backendMessage}"

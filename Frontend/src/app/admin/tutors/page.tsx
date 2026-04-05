@@ -275,7 +275,7 @@ export default function AdminTutorsPage() {
            <span className="text-xs font-black text-slate-700 uppercase tracking-tight">{row.specialization || "General Mentor"}</span>
            <div className="flex items-center gap-1.5">
               <Layers className="h-3 w-3 text-primary/20" />
-              <span className="text-[10px] text-primary/60 font-bold italic truncate max-w-[150px]">{row.experience || "Native Speaker"}</span>
+              <span className="text-[10px] text-primary/60 font-bold truncate max-w-[150px]">{row.experience || "Native Speaker"}</span>
            </div>
         </div>
       )
@@ -325,7 +325,7 @@ export default function AdminTutorsPage() {
               <span className="h-1 w-16 rounded-full bg-primary" />
               <span className="text-[10px] font-black text-primary uppercase tracking-[0.5em]">Mentor Core</span>
            </div>
-           <h1 className="text-4xl md:text-5xl font-black text-slate-800 tracking-tighter leading-none uppercase">Expert Ecosystem</h1>
+           <h1 className="text-3xl font-black text-slate-800 tracking-tighter leading-none uppercase">Expert Ecosystem</h1>
            <p className="text-lg text-slate-500 font-medium max-w-2xl leading-relaxed">
              Orchestrate the authenticated network of Tamil language mentors. Review incoming requests and manage verified directory nodes.
            </p>
@@ -362,7 +362,7 @@ export default function AdminTutorsPage() {
             <div className="rounded-[2.5rem] border border-slate-100 bg-white p-16 text-center shadow-xl shadow-slate-200/20 group hover:border-emerald-100 transition-all">
                <CheckCircle2 className="h-16 w-16 text-emerald-500 mx-auto mb-6 group-hover:scale-110 transition-transform" />
                <h3 className="text-xl font-black text-slate-800 uppercase">Queue Synchronized</h3>
-               <p className="text-xs font-bold text-primary/40 uppercase mt-2 tracking-widest italic">All applications have been processed.</p>
+               <p className="text-xs font-bold text-primary/40 uppercase mt-2 tracking-widest">All applications have been processed.</p>
             </div>
         ) : (
             <div className="rounded-[2.5rem] overflow-hidden border border-slate-100 bg-white shadow-2xl shadow-slate-200/30">

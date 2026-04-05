@@ -3,7 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { MessageCircle, X, Send, Loader2, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import axios from 'axios';
+import { api } from '@/lib/api';
 
 // ── Mozhi Aruvi Official AI Assistant ───────────────────────────────────────
 // Theme: Vibrant Indigo | Soft Shadows | Glassmorphism Architecture
@@ -39,11 +39,10 @@ export default function PlatformChat() {
     setMessage("");
 
     try {
-        const { data } = await axios.post(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/ai/chat`, {
+        const { data } = await api.post('/ai/chat', {
             message: userMsg.content,
             chatHistory: chatHistory.slice(-5) // Send last 5 for context
         }, { 
-            withCredentials: true,
             timeout: 30000 // 30 second timeout
         });
 

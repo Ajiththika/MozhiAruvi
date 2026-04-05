@@ -20,11 +20,29 @@ import { stripeWebhook } from './controllers/paymentController.js';
 import { testSmtpConnection } from './services/mailService.js';
 import { errorHandler } from './middleware/error.js';
 
+import rateLimit from 'express-rate-limit';
+
 const app = express();
+
+// ── Rate Limiting (SaaS Standard) ─────────────────────────────────────────────
+const globalLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100, // Limit each IP to 100 requests per windowMs
+    message: { 
+        success: false, 
+        error: { code: 'TOO_MANY_REQUESTS', message: 'Too many requests from this IP, please try again after 15 minutes.' } 
+    },
+    standardHeaders: true, 
+    legacyHeaders: false,
+});
+
+// Apply to all routes
+app.use('/api/', globalLimiter);
 
 // ── Diagnostics ───────────────────────────────────────────────────────────────
 app.use((req, res, next) => {
-    console.log(`[REQ] ${req.method} ${req.url} (Origin: ${req.get('origin') || 'No Origin'})`);
+    const timestamp = new Date().toISOString();
+    console.log(`[${timestamp}] [REQ] ${req.method} ${req.url} (Origin: ${req.get('origin') || 'No Origin'})`);
     next();
 });
 
@@ -37,6 +55,7 @@ app.use((req, res, next) => {
     res.setHeader('Expires', '0');
     next();
 });
+
 app.use(cors({
     origin: ['http://localhost:3000', 'http://127.0.0.1:3000', process.env.FRONTEND_ORIGIN].filter(Boolean),
     credentials: true,
@@ -75,7 +94,13 @@ app.use('/api/payments', paymentRoutes);
 app.use('/api/organizations', organizationRoutes);
 app.use('/api/ai', aiRoutes);
 
-app.get('/health', (_req, res) => res.json({ status: 'ok' }));
+app.get('/health', (_req, res) => res.json({ 
+    status: 'operational', 
+    uptime: process.uptime(),
+    timestamp: new Date().toISOString(),
+    env: process.env.NODE_ENV,
+    version: '1.0.0-resilient'
+}));
 
 // ── Test Email (development only) ─────────────────────────────────────────────
 // Usage: GET /api/test-email?to=you@example.com

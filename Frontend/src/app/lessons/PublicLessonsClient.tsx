@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect } from "react";
-import { BookOpen, Lock, Circle, Star, Zap, CheckCircle2 } from "lucide-react";
+import { BookOpen, Lock, Circle, Star, Zap, CheckCircle2, ArrowRight } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { getLessons } from "@/services/lessonService";
 import { useAuth } from "@/context/AuthContext";
@@ -12,7 +12,7 @@ import { LessonsSkeleton } from "./LessonsSkeleton";
 function groupByCategory(lessons: any[]) {
   const map: Record<string, any[]> = {};
   lessons.forEach((l) => {
-    const category = l.moduleName || "General Curriculum";
+    const category = l.category && l.category.trim() !== "" ? l.category : "General Curriculum";
     if (!map[category]) map[category] = [];
     map[category].push(l);
   });
@@ -100,32 +100,20 @@ export default function PublicLessonsClient({ initialLessons }: { initialLessons
 
   return (
     <div className="space-y-8 pb-20 pt-6">
-      <div className="sticky top-20 z-20 bg-white/80 backdrop-blur-md rounded-2xl shadow-sm border border-slate-100 p-4 flex items-center justify-between mb-6">
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2 text-primary font-extrabold text-lg">
-            <span className="p-2 bg-primary/10 rounded-full"><BookOpen className="w-5 h-5" /></span>
-            <span className="hidden sm:inline">Path</span>
-          </div>
-        </div>
-        {authUser && (
-          <div className="flex items-center gap-6 font-bold text-lg">
-            <div className="flex items-center gap-1.5 text-amber-500" title="XP Earned">
-              <Star className="w-6 h-6 fill-current" /> {authUser?.xp || 0}
-            </div>
-            <div className="flex items-center gap-1.5 text-secondary" title="Power (regenerates 1/hour)">
-              <Zap className={cn("w-6 h-6 fill-current", energy < 5 ? "animate-pulse text-red-500" : "")} /> {energy}/25
-            </div>
-          </div>
-        )}
-      </div>
 
-      <div className="px-2">
-        <h2 className="text-2xl font-black tracking-tight text-slate-800 flex items-center gap-3 uppercase">
-          <BookOpen className="h-6 w-6 text-secondary" /> Learning Path
-        </h2>
-        <p className="mt-1 text-sm font-medium text-primary/70">
-          Explore our structured Tamil curriculum. Authenticate to track progress.
-        </p>
+
+      <div className="relative overflow-hidden rounded-[2.5rem] p-10 sm:p-14 shadow-2xl shadow-primary/25 mb-12 bg-gradient-to-br from-primary via-[#5B33FF] to-[#3B11D8] border border-white/10">
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff0a_1px,transparent_1px),linear-gradient(to_bottom,#ffffff0a_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none" />
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-white/10 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/3 pointer-events-none" />
+        
+        <div className="relative z-10 flex flex-col justify-center items-center text-center">
+          <h2 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tighter text-white uppercase drop-shadow-md">
+            Start Learning
+          </h2>
+          <p className="mt-5 text-base sm:text-xl font-medium text-white/80 max-w-2xl mx-auto leading-relaxed">
+            Effectively build your conversational skills to confidently connect with your relatives. Choose a path below to begin.
+          </p>
+        </div>
       </div>
 
       {isOutOfEnergy && (
@@ -144,102 +132,59 @@ export default function PublicLessonsClient({ initialLessons }: { initialLessons
         </div>
       )}
 
-      {!isOutOfEnergy && Object.entries(grouped).map(([category, categoryLessons]) => (
-        <section key={category} className="relative">
-          <div
-            onClick={handleCategoryClick}
-            className={cn(
-              "mb-8 flex items-center gap-4 transition-all",
-              !authUser ? "cursor-pointer hover:opacity-70" : ""
-            )}
-          >
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-secondary shadow-lg shadow-secondary/20 text-base font-black text-white ring-4 ring-secondary/5 transition-transform hover:scale-105">
-              <BookOpen className="w-5 h-5 text-white" />
-            </div>
-            <div>
-              <h3 className="text-xl font-black text-slate-800 uppercase tracking-tight">
-                {category}
-              </h3>
-              <span className="text-[10px] font-black text-primary/60 uppercase tracking-[0.2em]">
-                {categoryLessons.length} units available in this path
-              </span>
-            </div>
-          </div>
+      {!isOutOfEnergy && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {Object.entries(grouped).slice(0, 6).map(([category, categoryLessons]) => {
+            const colorClass = "bg-primary";
+            const ringClass = "group-hover:ring-primary/20";
+            const shadowClass = "hover:shadow-primary/10";
 
-          <div className="relative flex flex-col gap-5 pl-14 before:absolute before:inset-y-2 before:left-[1.45rem] before:ml-[1px] before:w-[2.5px] before:bg-slate-200">
-            {categoryLessons.map((lesson) => {
-              const status = lessonStatus.get(lesson._id) || "locked";
-              const isLocked = status === "locked" || lesson.isPremiumOnly;
-
-              return (
-                <div key={lesson._id} className="relative">
+            return (
+              <div
+                key={category}
+                onClick={handleCategoryClick}
+                className={cn(
+                  "group relative cursor-pointer flex flex-col p-8 bg-white rounded-[2rem] border-2 border-slate-100 hover:border-transparent hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 overflow-hidden",
+                  shadowClass
+                )}
+              >
+                <div className={cn("absolute -right-10 -top-10 w-32 h-32 rounded-full opacity-[0.03] transition-transform duration-500 group-hover:scale-150", colorClass)} />
+                
+                <div className="relative z-10 flex-1">
                   <div className={cn(
-                    "absolute -left-[32px] top-1/2 -translate-y-1/2 h-4 w-4 rounded-full border-[3px] bg-white z-10 transition-all",
-                    status === "completed" ? "border-success scale-110" : status === "unlocked" ? "border-secondary ring-4 ring-secondary/20" : "border-slate-300 "
-                  )} />
+                    "flex h-16 w-16 items-center justify-center rounded-[1.5rem] bg-slate-50 text-slate-400 shadow-sm ring-1 ring-slate-200 transition-all duration-500 group-hover:text-white group-hover:ring-4",
+                    colorClass, ringClass
+                  )}>
+                    <BookOpen className="w-8 h-8 transition-transform group-hover:rotate-12 duration-500" />
+                  </div>
+                  
+                  <div className="mt-6">
+                    <h3 className="text-xl sm:text-2xl font-black text-slate-800 uppercase tracking-tight group-hover:text-primary transition-colors leading-tight line-clamp-2">
+                      {category}
+                    </h3>
+                    <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mt-3 flex items-center gap-2">
+                      <span className={cn("w-2 h-2 rounded-full", colorClass)} />
+                      {categoryLessons.length} {categoryLessons.length === 1 ? 'Level' : 'Levels'} Inside
+                    </p>
+                  </div>
+                </div>
 
-                  {isLocked ? (
-                    <div className="flex items-center gap-4 rounded-2xl border border-slate-100 bg-slate-50 p-4 opacity-70 grayscale">
-                      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-slate-200">
-                        <Lock className="h-5 w-5 text-primary/70" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-bold text-primary/60 truncate">
-                          {lesson.title}
-                        </p>
-                        {lesson.isPremiumOnly && (
-                          <span className="mt-1 inline-block rounded-full bg-amber-100 px-2 py-0.5 text-[9px] font-black uppercase text-amber-700 tracking-tighter">
-                            Premium Path
-                          </span>
-                        )}
-                      </div>
-                    </div>
+                <div className="relative z-10 mt-8 pt-6 border-t border-slate-100 flex items-center justify-between">
+                  {!authUser ? (
+                    <span className="text-[10px] font-black uppercase tracking-widest px-4 py-2 rounded-xl bg-slate-50 text-slate-400 border border-slate-100 group-hover:bg-primary group-hover:text-white group-hover:border-primary/20 transition-all flex items-center gap-2">
+                       <Lock className="w-3 h-3" /> Sign in to start
+                    </span>
                   ) : (
-                    <button
-                      onClick={() => handleStartLesson(lesson._id)}
-                      className={cn(
-                        "w-full text-left group flex items-center gap-4 rounded-2xl border p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md active:scale-[0.99]",
-                        status === "completed"
-                          ? "border-success/20 bg-success/5 hover:border-success/40"
-                          : "border-slate-100 bg-white hover:border-secondary"
-                      )}
-                    >
-                      <div className={cn(
-                        "flex h-12 w-12 shrink-0 items-center justify-center rounded-xl transition-colors",
-                        status === "completed" ? "bg-success/20" : "bg-primary/10"
-                      )}>
-                        {status === "completed" ? (
-                          <CheckCircle2 className="h-6 w-6 text-success" />
-                        ) : (
-                          <Circle className="h-6 w-6 text-primary" />
-                        )}
-                      </div>
-
-                      <div className="flex-1 min-w-0">
-                        <p className={cn(
-                          "font-bold truncate text-sm",
-                          status === "completed" ? "text-slate-600" : "text-slate-800"
-                        )}>
-                          {lesson.title}
-                        </p>
-                        {lesson.description && (
-                          <p className="mt-0.5 text-xs text-primary/70 line-clamp-1 font-medium">
-                            {lesson.description}
-                          </p>
-                        )}
-                      </div>
-
-                      <div className="shrink-0 text-xs font-black uppercase tracking-widest text-primary opacity-0 group-hover:opacity-100 transition-all -translate-x-2 group-hover:translate-x-0">
-                        {status === "completed" ? "Review" : "Start"}
-                      </div>
-                    </button>
+                    <span className="text-xs font-black uppercase tracking-widest text-slate-400 group-hover:text-primary transition-colors flex items-center gap-2">
+                       Enter Path <ArrowRight className="w-4 h-4 group-hover:translate-x-2 transition-transform" />
+                    </span>
                   )}
                 </div>
-              );
-            })}
-          </div>
-        </section>
-      ))}
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

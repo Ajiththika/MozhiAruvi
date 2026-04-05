@@ -4,7 +4,7 @@ import Footer from "@/components/layout/Footer";
 import PublicLessonsClient from "./PublicLessonsClient";
 
 async function getPublicLessonsData() {
-  const url = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+  const url = process.env.NEXT_PUBLIC_API_URL;
   try {
     const res = await fetch(`${url}/lessons`, { 
       next: { revalidate: 3600 } 
@@ -23,7 +23,7 @@ export default async function PublicLessonsPage() {
   return (
     <div className="min-h-screen flex flex-col bg-white font-sans">
       <Navbar />
-      <main className="flex-1 w-full max-w-3xl mx-auto px-4 py-12 md:py-20 animate-in fade-in duration-700">
+      <main className="flex-1 w-full max-w-7xl mx-auto px-6 py-12 md:py-16 animate-in fade-in duration-700">
          <PublicLessonsClient initialLessons={lessons} />
       </main>
       <Footer />

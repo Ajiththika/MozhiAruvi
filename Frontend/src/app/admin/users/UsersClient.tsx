@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import DataTable, { ColumnDef } from "@/components/ui/DataTable";
-import { Loader2, AlertCircle, ShieldCheck, ShieldAlert, CheckCircle2, XCircle, Edit2, User, Globe, Phone, Hash, Users, Calendar, Activity } from "lucide-react";
+import { Loader2, AlertCircle, ShieldCheck, ShieldAlert, CheckCircle2, XCircle, Edit2, User, Globe, Phone, Hash, Users, Calendar, Activity, GraduationCap } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   getAllUsers,
@@ -68,20 +68,22 @@ export default function UsersClient() {
     }
   };
 
+  const [activeSettingsTab, setActiveSettingsTab] = useState<'identity' | 'academic' | 'subscription'>('identity');
+
   const handleEditOpen = (user: BaseUser) => {
     setEditingUser(user);
     setEditFormData({ ...user });
+    setActiveSettingsTab('identity'); // Reset to first tab
   };
 
   const handleEditChange = (e: any) => {
     const { name, value } = e.target;
-    // Handle nested subscription fields
     if (name.startsWith('subscription.')) {
       const field = name.split('.')[1];
       setEditFormData(prev => ({
         ...prev,
         subscription: {
-          ...(prev.subscription || { plan: 'FREE', billingCycle: 'none' }),
+          ...(prev.subscription || { plan: 'FREE', billingCycle: 'none', tutorSupportUsed: 0, eventUsageCount: 0 }),
           [field]: (field === 'tutorSupportUsed' || field === 'eventUsageCount') ? parseInt(value) || 0 : value
         }
       }));
@@ -234,168 +236,191 @@ export default function UsersClient() {
         </div>
       )}
 
-      {/* Edit Modal Refactored */}
+      {/* Optimized User Modal with Tabs */}
       <Modal
         isOpen={!!editingUser}
         onClose={() => setEditingUser(null)}
-        title={editingUser?.name ? `Identity Profile: ${editingUser.name}` : "User Profile"}
-        description="Administrative override for account credentials and privileges."
+        title={editingUser?.name ? `Identity: ${editingUser.name}` : "User Profile"}
         size="lg"
       >
-        <form onSubmit={handleEditSubmit} className="space-y-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Input 
-              label="Legal Name" 
-              name="name" 
-              value={editFormData.name || ""} 
-              onChange={handleEditChange}
-              icon={<User size={14} className="text-primary" />}
-            />
-            <Input 
-              label="System Authority" 
-              name="role" 
-              value={editFormData.role || "student"} 
-              onChange={handleEditChange}
-              options={[
-                { label: "Student", value: "student" },
-                { label: "Tutor", value: "teacher" },
-                { label: "Administrator", value: "admin" },
-              ]}
-              icon={<ShieldCheck size={14} className="text-primary" />}
-            />
-            <Input 
-              label="Phone Credentials" 
-              name="phoneNumber" 
-              value={editFormData.phoneNumber || ""} 
-              onChange={handleEditChange}
-              icon={<Phone size={14} className="text-primary" />}
-            />
-            <Input 
-              label="Primary Region" 
-              name="country" 
-              value={editFormData.country || ""} 
-              onChange={handleEditChange}
-              icon={<Globe size={14} className="text-primary" />}
-            />
-            <Input 
-              label="Age" 
-              name="age" 
-              type="number"
-              value={editFormData.age || ""} 
-              onChange={handleEditChange}
-              icon={<Hash size={14} className="text-primary" />}
-            />
-            <Input 
-              label="Identity Gender" 
-              name="gender" 
-              value={editFormData.gender || ""} 
-              onChange={handleEditChange}
-              options={[
-                { label: "Male", value: "male" },
-                { label: "Female", value: "female" },
-                { label: "Other", value: "other" },
-                { label: "Prefer not to say", value: "prefer_not_to_say" },
-              ]}
-              icon={<User size={14} className="text-primary" />}
-            />
+        <div className="flex flex-col h-full overflow-hidden">
+          {/* Internal Tab Navigation */}
+          <div className="flex items-center gap-1 p-1 bg-slate-50 border border-slate-100 rounded-2xl mb-8 w-fit">
+            {[
+              { id: 'identity', label: 'Identity', icon: User },
+              { id: 'academic', label: 'Academic', icon: GraduationCap },
+              { id: 'subscription', label: 'Economic', icon: ShieldCheck }
+            ].map(tab => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveSettingsTab(tab.id as any)}
+                className={cn(
+                  "flex items-center gap-2 px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all",
+                  activeSettingsTab === tab.id ? "bg-white shadow-xl shadow-black/5 text-primary" : "text-primary/40 hover:text-slate-600"
+                )}
+              >
+                <tab.icon size={12} />
+                {tab.label}
+              </button>
+            ))}
           </div>
 
-          <Input 
-            label="Biography & Experiences" 
-            name="bio" 
-            multiline 
-            value={editFormData.bio || ""} 
-            onChange={handleEditChange}
-            placeholder="Document any relevant historical or academic context..."
-          />
-
-          {editFormData.role === "teacher" && (
-            <div className="pt-6 border-t border-slate-100 flex flex-col gap-6 animate-in slide-in-from-top-4 duration-500">
-               <h4 className="text-xs font-black uppercase tracking-widest text-primary">Mentor Credentials</h4>
-               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <form onSubmit={handleEditSubmit} className="space-y-8 flex-1">
+            <div className="min-h-[300px]">
+              {activeSettingsTab === 'identity' && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-in fade-in zoom-in-95 duration-500">
                   <Input 
-                    label="Linguistic Specialization" 
-                    name="specialization" 
-                    value={editFormData.specialization || ""} 
+                    label="Legal Name" 
+                    name="name" 
+                    value={editFormData.name || ""} 
                     onChange={handleEditChange}
+                    icon={<User size={14} className="text-primary" />}
                   />
                   <Input 
-                    label="Academic Tenure" 
-                    name="experience" 
-                    value={editFormData.experience || ""} 
-                    onChange={handleEditChange}
-                  />
-               </div>
-            </div>
-          )}
-
-          {/* Subscriptions & Limits Section */}
-          <div className="pt-8 border-t border-dashed border-slate-100 grid grid-cols-1 md:grid-cols-2 gap-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <div className="space-y-6">
-               <h4 className="text-xs font-black uppercase tracking-widest text-primary flex items-center gap-2">
-                 <ShieldCheck className="h-4 w-4" /> Subscription Tiers
-               </h4>
-               <div className="grid grid-cols-2 gap-4">
-                  <Input 
-                    label="Active Plan" 
-                    name="subscription.plan" 
-                    value={editFormData.subscription?.plan || "FREE"} 
+                    label="Authority" 
+                    name="role" 
+                    value={editFormData.role || "student"} 
                     onChange={handleEditChange}
                     options={[
-                      { label: "Free", value: "FREE" },
-                      { label: "Pro", value: "PRO" },
-                      { label: "Premium", value: "PREMIUM" },
-                      { label: "Business", value: "BUSINESS" },
+                      { label: "Student", value: "student" },
+                      { label: "Tutor", value: "teacher" },
+                      { label: "Administrator", value: "admin" },
                     ]}
+                    icon={<ShieldCheck size={14} className="text-primary" />}
                   />
                   <Input 
-                    label="Billing Cycle" 
-                    name="subscription.billingCycle" 
-                    value={editFormData.subscription?.billingCycle || "none"} 
+                    label="Phone" 
+                    name="phoneNumber" 
+                    value={editFormData.phoneNumber || ""} 
+                    onChange={handleEditChange}
+                    icon={<Phone size={14} className="text-primary" />}
+                  />
+                  <Input 
+                    label="Region" 
+                    name="country" 
+                    value={editFormData.country || ""} 
+                    onChange={handleEditChange}
+                    icon={<Globe size={14} className="text-primary" />}
+                  />
+                  <Input 
+                    label="User Age" 
+                    name="age" 
+                    type="number"
+                    value={editFormData.age || ""} 
+                    onChange={handleEditChange}
+                    icon={<Hash size={14} className="text-primary" />}
+                  />
+                  <Input 
+                    label="Gender Identity" 
+                    name="gender" 
+                    value={editFormData.gender || ""} 
                     onChange={handleEditChange}
                     options={[
-                      { label: "None / Not Paid", value: "none" },
-                      { label: "Monthly", value: "monthly" },
-                      { label: "Yearly", value: "yearly" },
+                      { label: "Male", value: "male" },
+                      { label: "Female", value: "female" },
+                      { label: "Other", value: "other" },
+                      { label: "N/A", value: "prefer_not_to_say" },
                     ]}
+                    icon={<User size={14} className="text-primary" />}
                   />
-               </div>
+                </div>
+              )}
+
+              {activeSettingsTab === 'academic' && (
+                <div className="space-y-8 animate-in fade-in zoom-in-95 duration-500">
+                  <Input 
+                    label="Biographic Context" 
+                    name="bio" 
+                    multiline 
+                    value={editFormData.bio || ""} 
+                    onChange={handleEditChange}
+                    placeholder="Brief background or teaching history..."
+                  />
+
+                  {editFormData.role === "teacher" && (
+                    <div className="pt-6 border-t border-slate-100 flex flex-col gap-6">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <Input 
+                          label="Linguistic Specialization" 
+                          name="specialization" 
+                          value={editFormData.specialization || ""} 
+                          onChange={handleEditChange}
+                        />
+                        <Input 
+                          label="Academic Tenure" 
+                          name="experience" 
+                          value={editFormData.experience || ""} 
+                          onChange={handleEditChange}
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {activeSettingsTab === 'subscription' && (
+                <div className="space-y-8 animate-in fade-in zoom-in-95 duration-500">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div className="space-y-4">
+                      <h4 className="text-[10px] font-black uppercase tracking-widest text-primary border-b border-primary/5 pb-2">Plan Details</h4>
+                      <Input 
+                        label="Active Tier" 
+                        name="subscription.plan" 
+                        value={editFormData.subscription?.plan || "FREE"} 
+                        onChange={handleEditChange}
+                        options={[
+                          { label: "Free", value: "FREE" },
+                          { label: "Pro", value: "PRO" },
+                          { label: "Premium", value: "PREMIUM" },
+                          { label: "Business", value: "BUSINESS" },
+                        ]}
+                      />
+                      <Input 
+                        label="Billing Node" 
+                        name="subscription.billingCycle" 
+                        value={editFormData.subscription?.billingCycle || "none"} 
+                        onChange={handleEditChange}
+                        options={[
+                          { label: "Not Paid", value: "none" },
+                          { label: "Monthly", value: "monthly" },
+                          { label: "Yearly", value: "yearly" },
+                        ]}
+                      />
+                    </div>
+                    <div className="space-y-4">
+                      <h4 className="text-[10px] font-black uppercase tracking-widest text-secondary border-b border-secondary/5 pb-2">Usage Metrics</h4>
+                      <Input 
+                        label="Tutor Pulse Used" 
+                        name="subscription.tutorSupportUsed" 
+                        type="number"
+                        value={editFormData.subscription?.tutorSupportUsed || 0} 
+                        onChange={handleEditChange}
+                        icon={<Users size={12} />}
+                      />
+                      <Input 
+                        label="Event Quota Used" 
+                        name="subscription.eventUsageCount" 
+                        type="number"
+                        value={editFormData.subscription?.eventUsageCount || 0} 
+                        onChange={handleEditChange}
+                        icon={<Calendar size={12} />}
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
-            <div className="space-y-6">
-               <h4 className="text-xs font-black uppercase tracking-widest text-secondary flex items-center gap-2">
-                 <Activity className="h-4 w-4" /> Usage Quotas
-               </h4>
-               <div className="grid grid-cols-2 gap-4">
-                  <Input 
-                    label="Mentors Met (Cycle)" 
-                    name="subscription.tutorSupportUsed" 
-                    type="number"
-                    value={editFormData.subscription?.tutorSupportUsed || 0} 
-                    onChange={handleEditChange}
-                    icon={<Users size={12} />}
-                  />
-                  <Input 
-                    label="Events Attended" 
-                    name="subscription.eventUsageCount" 
-                    type="number"
-                    value={editFormData.subscription?.eventUsageCount || 0} 
-                    onChange={handleEditChange}
-                    icon={<Calendar size={12} />}
-                  />
-               </div>
+            <div className="pt-8 border-t border-slate-50 flex items-center justify-end gap-4">
+              <Button variant="ghost" onClick={() => setEditingUser(null)} className="font-black uppercase tracking-widest text-[10px]">
+                Dismiss
+              </Button>
+              <Button type="submit" isLoading={isSaving} className="px-10 shadow-xl shadow-primary/20 text-[10px] font-black uppercase tracking-[0.2em] h-12">
+                Commit Overrides
+              </Button>
             </div>
-          </div>
-          
-          <div className="pt-8 flex items-center justify-end gap-4">
-            <Button variant="ghost" onClick={() => setEditingUser(null)} className="font-black uppercase tracking-widest text-xs">
-              Dismiss
-            </Button>
-            <Button type="submit" isLoading={isSaving} size="lg" className="px-10 shadow-xl shadow-primary/20">
-              Sync Account Overrides
-            </Button>
-          </div>
-        </form>
+          </form>
+        </div>
       </Modal>
     </div>
   );

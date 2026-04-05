@@ -84,7 +84,7 @@ export function RegistrationModal({
             <CheckCircle2 className="w-12 h-12" />
           </div>
           <h3 className="text-3xl font-black text-text-primary mb-4 tracking-tight uppercase">RSVP Secured!</h3>
-          <p className="text-text-secondary font-medium text-lg italic">The elders have received your request. Prepare for the gathering.</p>
+          <p className="text-text-secondary font-medium text-lg">The elders have received your request. Prepare for the gathering.</p>
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="space-y-8 py-4">

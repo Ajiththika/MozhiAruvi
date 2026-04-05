@@ -39,7 +39,7 @@ export function DataTable<T>({
               </h3>
             )}
             {description && (
-              <p className="mt-1.5 text-sm font-medium text-text-secondary italic">
+              <p className="mt-1.5 text-sm font-semibold text-text-secondary">
                 {description}
               </p>
             )}
@@ -76,13 +76,13 @@ export function DataTable<T>({
           <tbody className="divide-y divide-border/40 bg-surface">
             {isLoading ? (
                <tr>
-                 <td colSpan={columns.length} className="px-8 py-12 text-center text-text-secondary italic font-medium animate-pulse">
+                 <td colSpan={columns.length} className="px-8 py-12 text-center text-text-secondary font-medium animate-pulse">
                     Synchronizing Data...
                  </td>
                </tr>
             ) : data.length === 0 ? (
                <tr>
-                 <td colSpan={columns.length} className="px-8 py-12 text-center text-text-tertiary italic font-medium">
+                 <td colSpan={columns.length} className="px-8 py-12 text-center text-text-tertiary font-medium">
                     No records found in current frequency.
                  </td>
                </tr>

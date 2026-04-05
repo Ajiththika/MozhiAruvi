@@ -1,5 +1,5 @@
-// ── Mozhi Aruvi Official AI Logic ───────────────────────────────────────────
-// Lightweight Hugging Face Inference Controller (V1 Chat Completions Port)
+// ── Mozhi Aruvi Production AI Controller ─────────────────────────────────────
+// Resilient Hugging Face Inference Suite with Retry Logic & Circuit Breaking
 // ─────────────────────────────────────────────────────────────────────────────
 
 const SYSTEM_PROMPT = `
@@ -23,53 +23,79 @@ TONE & STYLE:
 - ALWAYS identify as MozhiAruvi. NEVER mention Llama, Meta, or Hugging Face.
 `;
 
-export async function getAiResponse(userMessage, chatHistory = []) {
+const MAX_RETRIES = 3;
+const RETRY_DELAY_MS = 2000;
+
+export async function getAiResponse(userMessage, chatHistory = [], retryCount = 0) {
     const HUGGINGFACE_API_KEY = process.env.HUGGINGFACE_API_KEY;
     if (!HUGGINGFACE_API_KEY) {
         throw new Error("HUGGINGFACE_API_KEY is not configured in environment.");
     }
 
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 15000); // 15s timeout
+
     try {
-        // Prepare a robust, prompt-engineered input for stable Hub inference
-        let prompt = `<s>[INST] ${SYSTEM_PROMPT}\n\n`;
-        chatHistory.slice(-4).forEach(m => {
-            prompt += `${m.role === 'assistant' ? '' : '[INST] '}${m.content}${m.role === 'assistant' ? '' : ' [/INST]'}\n`;
-        });
-        prompt += `[INST] ${userMessage} [/INST]`;
+        const payload = {
+            model: "mistralai/Mistral-7B-Instruct-v0.3",
+            messages: [
+                { role: "system", content: SYSTEM_PROMPT },
+                ...chatHistory.slice(-4),
+                { role: "user", content: userMessage }
+            ],
+            max_tokens: 512,
+            temperature: 0.7,
+            stream: false
+        };
 
         const response = await fetch(
-            "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.3",
+            "https://api-inference.huggingface.co/v1/chat/completions",
             {
                 method: "POST",
                 headers: {
                     "Authorization": `Bearer ${HUGGINGFACE_API_KEY}`,
                     "Content-Type": "application/json",
+                    "x-use-cache": "true"
                 },
-                body: JSON.stringify({
-                    inputs: prompt,
-                    parameters: {
-                        max_new_tokens: 512,
-                        temperature: 0.7,
-                        return_full_text: false,
-                    }
-                }),
+                body: JSON.stringify(payload),
+                signal: controller.signal
             }
         );
+
+        clearTimeout(timeoutId);
+
+        if (response.status === 503 || response.status === 429) {
+            // Model loading or Rate limited
+            if (retryCount < MAX_RETRIES) {
+                console.warn(`[AI] Service unavailable (Status ${response.status}). Retrying ${retryCount + 1}/${MAX_RETRIES}...`);
+                await new Promise(resolve => setTimeout(resolve, RETRY_DELAY_MS * (retryCount + 1)));
+                return getAiResponse(userMessage, chatHistory, retryCount + 1);
+            }
+        }
 
         if (!response.ok) {
             const errBody = await response.json().catch(() => ({}));
             console.error(`AI Hub Error (${response.status}):`, errBody);
-            return "MozhiAruvi is currently meditating on ancient texts. Please give her a moment to return to the river (Hub connectivity issue).";
+            return "MozhiAruvi is currently meditating on ancient texts. Please give me a moment to return to the river (Service Interruption).";
         }
 
         const data = await response.json();
+        const output = data.choices && data.choices[0]?.message?.content;
         
-        // Extract from stable format (usually a list of generated texts)
-        const output = Array.isArray(data) ? data[0]?.generated_text : data.generated_text;
         return output || "The linguistic river is currently quiet. Please try again soon.";
 
     } catch (error) {
+        clearTimeout(timeoutId);
+        if (error.name === 'AbortError') {
+            console.error("[AI] Request timed out.");
+            return "The linguistic flow is taking longer than usual to reach you. Please try again in a moment.";
+        }
+        
         console.error("AI Service Error:", error);
-        throw error;
+        if (retryCount < MAX_RETRIES) {
+            return getAiResponse(userMessage, chatHistory, retryCount + 1);
+        }
+        
+        return "MozhiAruvi is currently experiencing a connection drought. Please check back soon.";
     }
 }

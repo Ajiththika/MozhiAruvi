@@ -107,6 +107,14 @@ export default function BlogsPage() {
 
       <main className="flex-1 w-full max-w-7xl mx-auto px-4 md:px-8 lg:px-12 py-12 md:py-24 animate-in fade-in duration-700">
 
+        {/* Header Section (Clean) */}
+        <div className="mb-16 border-l-4 border-primary pl-6 py-2">
+          <h1 className="text-4xl md:text-5xl font-black text-slate-800 tracking-tight uppercase">Read Our Stories</h1>
+          <p className="text-sm text-primary/60 font-bold uppercase tracking-widest mt-2 max-w-2xl">
+            Discover insights, cultural deep-dives, and updates from the Mozhi Aruvi community
+          </p>
+        </div>
+
         {/* --- Unified Management & Discovery Bar --- */}
         <section id="feed" className="flex flex-col lg:flex-row lg:items-center justify-between gap-10 mb-20">
           <div className="flex flex-wrap items-center gap-4">
@@ -124,21 +132,23 @@ export default function BlogsPage() {
               </button>
             )}
 
-            <div className="hidden sm:block w-[1px] h-8 bg-slate-200 mx-2" />
+            {isAuthenticated && (
+              <div className="hidden sm:block w-[1px] h-8 bg-slate-200 mx-2" />
+            )}
 
-            <div className="flex items-center gap-3 overflow-x-auto no-scrollbar py-1">
-              <button
-                onClick={() => setActiveTab("all")}
-                className={cn(
-                  "whitespace-nowrap rounded-[1.5rem] px-8 py-4 text-[10px] font-black uppercase tracking-widest transition-all",
-                  activeTab === "all"
-                    ? "bg-slate-900 text-white shadow-xl"
-                    : "bg-white text-primary/70 hover:text-primary border border-border"
-                )}
-              >
-                The Feed
-              </button>
-              {isAuthenticated && (
+            {isAuthenticated && (
+              <div className="flex items-center gap-3 overflow-x-auto no-scrollbar py-1">
+                <button
+                  onClick={() => setActiveTab("all")}
+                  className={cn(
+                    "whitespace-nowrap rounded-[1.5rem] px-8 py-4 text-[10px] font-black uppercase tracking-widest transition-all",
+                    activeTab === "all"
+                      ? "bg-slate-900 text-white shadow-xl"
+                      : "bg-white text-primary/70 hover:text-primary border border-border"
+                  )}
+                >
+                  All Stories
+                </button>
                 <>
                   <button
                     onClick={() => setActiveTab("saved")}
@@ -171,18 +181,18 @@ export default function BlogsPage() {
                     </button>
                   )}
                 </>
-              )}
-            </div>
+              </div>
+            )}
           </div>
 
-          <div className="relative w-full lg:max-w-md group">
+          <div className="relative flex-1 w-full group">
             <Search className="absolute left-6 top-1/2 -translate-y-1/2 h-4 w-4 text-primary/60 group-focus-within:text-primary transition-colors" />
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search heritage repository..."
-              className="w-full h-16 rounded-[2rem] border border-border bg-white px-14 text-sm font-bold text-slate-800 outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/5 placeholder:text-primary/40"
+              placeholder="Search Tamil stories, culture, and learning..."
+              className="w-full h-16 rounded-[2rem] border border-border bg-white px-14 text-sm font-bold text-slate-800 outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/5 placeholder:text-primary/40 shadow-xl shadow-slate-200/20"
             />
           </div>
         </section>

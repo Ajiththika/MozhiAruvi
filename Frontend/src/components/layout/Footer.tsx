@@ -73,7 +73,7 @@ export default function Footer() {
               </li>
               <li>
                 <Link href="/tutors" className="text-slate-800 hover:text-primary transition-colors text-xs font-bold">
-                  Find Tutors
+                  Find Teachers
                 </Link>
               </li>
             </ul>
@@ -113,7 +113,7 @@ export default function Footer() {
             </div>
             <div className="text-right">
               <div className="text-[10px] font-black text-primary uppercase tracking-tight leading-none">"அறிவே ஆற்றல்"</div>
-              <div className="text-[8px] text-primary/60 italic font-bold">"Knowledge is power"</div>
+              <div className="text-[8px] text-primary/60 font-bold">"Knowledge is power"</div>
             </div>
           </div>
         </div>

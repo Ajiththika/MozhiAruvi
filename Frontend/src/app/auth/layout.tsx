@@ -29,35 +29,35 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
       <div className="w-full md:w-1/2 bg-primary/[0.02] flex flex-col justify-center relative overflow-hidden order-2 hidden md:flex border-l border-slate-100">
         
         {/* Decorative elements */}
-        <div className="absolute top-0 right-0 p-12 opacity-[0.03] font-black text-[15rem] text-primary transform rotate-12 select-none pointer-events-none leading-none">அ</div>
-        <div className="absolute bottom-10 left-10 p-12 opacity-[0.04] font-black text-[18rem] text-primary transform -rotate-12 select-none pointer-events-none leading-none">ழ</div>
+        <div className="absolute top-0 right-0 p-12 opacity-[0.03] font-black text-[10rem] text-primary transform rotate-12 select-none pointer-events-none leading-none">அ</div>
+        <div className="absolute bottom-10 left-10 p-12 opacity-[0.04] font-black text-[12rem] text-primary transform -rotate-12 select-none pointer-events-none leading-none">ழ</div>
         
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-[100px] pointer-events-none"></div>
         <div className="absolute bottom-1/4 right-1/4 w-[28rem] h-[28rem] bg-secondary/5 rounded-full blur-[120px] pointer-events-none"></div>
 
         <div className="relative z-10 max-w-2xl mx-auto px-8 lg:px-16 text-center">
           
-          <div className="inline-flex items-center justify-center p-4 bg-white/60 backdrop-blur-xl rounded-2xl shadow-2xl mb-14 border border-white group relative hover:-translate-y-1 transition-transform duration-500">
+          <div className="inline-flex items-center justify-center p-4 bg-white/60 backdrop-blur-xl rounded-2xl shadow-2xl mb-10 border border-white group relative hover:-translate-y-1 transition-transform duration-500 scale-90">
              <div className="absolute inset-0 bg-primary/5 rounded-2xl blur-2xl -z-10 group-hover:bg-primary/10 transition-colors"></div>
-            <div className="w-20 h-20 bg-primary rounded-2xl flex items-center justify-center text-white text-4xl font-black shadow-xl group-hover:rotate-[-5deg] transition-transform duration-300">
+            <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center text-white text-3xl font-black shadow-xl group-hover:rotate-[-5deg] transition-transform duration-300">
               த
             </div>
-            <div className="w-20 h-20 bg-secondary rounded-2xl flex items-center justify-center text-white text-4xl font-black -ml-6 shadow-lg group-hover:-translate-y-2 transition-transform duration-300 delay-75">
+            <div className="w-16 h-16 bg-secondary rounded-2xl flex items-center justify-center text-white text-3xl font-black -ml-4 shadow-lg group-hover:-translate-y-2 transition-transform duration-300 delay-75">
               மி
             </div>
-            <div className="w-20 h-20 bg-accent rounded-2xl flex items-center justify-center text-white text-4xl font-black -ml-6 shadow-md group-hover:rotate-[5deg] transition-transform duration-300 delay-150 border border-white/20">
+            <div className="w-16 h-16 bg-accent rounded-2xl flex items-center justify-center text-white text-3xl font-black -ml-4 shadow-md group-hover:rotate-[5deg] transition-transform duration-300 delay-150 border border-white/20">
               ழ்
             </div>
           </div>
 
-          <h1 className="text-4xl lg:text-4xl xl:text-7xl font-black text-text-primary tracking-tight mb-8 leading-tight">
-            தமிழ் கற்கும் <br /><span className="text-primary italic">பயணம்</span>
+          <h1 className="text-3xl lg:text-3xl xl:text-5xl font-black text-text-primary tracking-tight mb-6 leading-tight">
+            தமிழ் கற்கும் <br /><span className="text-primary">பயணம்</span>
           </h1>
-          <p className="text-xl lg:text-2xl text-text-secondary font-medium leading-relaxed max-w-lg mx-auto italic">
+          <p className="text-lg lg:text-xl text-text-secondary font-medium leading-relaxed max-w-lg mx-auto">
             Discover the geometry and soul of one of the world's oldest living classical languages.
           </p>
           
-          <div className="mt-20 flex items-center justify-center gap-6 p-6 rounded-3xl bg-white/40 backdrop-blur-md border border-white/60 max-w-sm mx-auto shadow-2xl shadow-slate-200/40 hover:shadow-primary/5 transition-all cursor-default">
+          <div className="mt-14 flex items-center justify-center gap-6 p-6 rounded-3xl bg-white/40 backdrop-blur-md border border-white/60 max-w-sm mx-auto shadow-2xl shadow-slate-200/40 hover:shadow-primary/5 transition-all cursor-default scale-90">
             <div className="flex -space-x-4">
               <div className="w-12 h-12 rounded-full border-4 border-white bg-primary/10 flex items-center justify-center font-black text-primary shadow-sm">K</div>
               <div className="w-12 h-12 rounded-full border-4 border-white bg-emerald-100 flex items-center justify-center font-black text-emerald-600 shadow-sm">M</div>
