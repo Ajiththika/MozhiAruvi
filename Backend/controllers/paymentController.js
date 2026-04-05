@@ -2,7 +2,10 @@ import User from '../models/User.js';
 import Payment from '../models/Payment.js';
 import Event from '../models/Event.js';
 import Organization from '../models/Organization.js';
+import Booking from '../models/Booking.js';
 import * as stripeService from '../services/stripeService.js';
+import * as communication from '../services/communicationService.js';
+import { stripe } from '../services/stripeConnectService.js';
 
 /**
  * Endpoint for creating a Stripe Checkout Session for Subscription.
@@ -86,6 +89,31 @@ export async function stripeWebhook(req, res, next) {
                     } else if (type === 'tutor_session' && tutorId) {
                         await User.findByIdAndUpdate(userId, { $addToSet: { 'subscription.paidTutors': tutorId } });
                         await Payment.findOneAndUpdate({ stripeSessionId: session.id }, { status: 'completed' });
+                    } else if (type === 'tutor_booking' && tutorId) {
+                        // Official Marketplace Booking Flow
+                        const totalAmount = session.amount_total / 100; // to dollars
+                        const feePercent = parseFloat(process.env.PLATFORM_FEE_PERCENT || '20') / 100;
+                        const platformFee = totalAmount * feePercent;
+                        const tutorEarnings = totalAmount - platformFee;
+
+                        const booking = await Booking.create({
+                            studentId: userId,
+                            tutorId,
+                            date: new Date(session.metadata.date),
+                            startTime: session.metadata.startTime,
+                            endTime: session.metadata.endTime,
+                            duration: parseInt(session.metadata.duration),
+                            amount: totalAmount,
+                            platformFee,
+                            tutorEarnings,
+                            paymentIntentId: session.payment_intent,
+                            status: 'pending' // pending tutor confirmation
+                        });
+
+                        // Trigger Automated Communications
+                        const student = await User.findById(userId);
+                        const tutor = await User.findById(tutorId);
+                        await communication.notifyBookingSuccess(student, tutor, booking);
                     }
                 }
                 break;

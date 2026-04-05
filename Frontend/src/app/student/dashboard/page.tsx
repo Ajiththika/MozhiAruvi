@@ -6,6 +6,7 @@ import { BookOpen, Trophy, AlertCircle, ArrowRight, Clock, BookMarked, Flame, Za
 import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
 import { getDashboardData } from "@/services/authService";
+import { getMyBookings, Booking } from "@/services/bookingService";
 import { useQuery } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
 import { DashboardSkeleton } from "./DashboardSkeleton";
@@ -14,9 +15,9 @@ import WeeklyProgressChart from "@/components/features/dashboard/WeeklyProgressC
 export default function StudentDashboard() {
   const { data, isLoading, isError, error: queryError } = useQuery({
     queryKey: ["student", "dashboard"],
-    queryFn: () => {
-      console.log("[DEBUG] Fetching student dashboard data...");
-      return getDashboardData();
+    queryFn: async () => {
+      const [dash, bks] = await Promise.all([getDashboardData(), getMyBookings()]);
+      return { ...dash, bookings: bks?.bookings || [] };
     },
     staleTime: 2 * 60 * 1000,
   });
@@ -24,6 +25,7 @@ export default function StudentDashboard() {
   const user = data?.user || null;
   const lessons = data?.lessons || [];
   const progress = data?.progress || [];
+  const bookings = (data as any)?.bookings || [];
 
   const nextLesson = data?.statistics?.nextLesson || (lessons.length > 0 ? lessons[0] : null);
   const completedCount = data?.statistics?.completedCount ?? progress.filter(p => p.isCompleted).length;
@@ -192,6 +194,58 @@ export default function StudentDashboard() {
             </div>
         </div>
       </div>
+
+      {/* Section: Marketplace Sessions */}
+      {bookings.length > 0 && (
+        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+           <div className="flex items-center justify-between border-b border-slate-100 pb-6">
+              <div className="flex items-center gap-3">
+                 <div className="h-8 w-8 rounded-lg bg-secondary/10 flex items-center justify-center p-1 border border-secondary/10">
+                    <Calendar className="text-secondary w-4 h-4" />
+                 </div>
+                 <h3 className="text-xl font-black text-primary tracking-tight">Scheduled Sessions</h3>
+              </div>
+              <Button href="/student/bookings" variant="ghost" size="sm" className="text-secondary uppercase tracking-widest text-[10px] font-black">
+                Full Schedule <ArrowRight className="ml-2 w-3 h-3" />
+              </Button>
+           </div>
+           
+           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
+              {bookings.filter((b: Booking) => b.status === 'confirmed' || b.status === 'pending').slice(0, 2).map((booking: any) => (
+                <Card key={booking._id} variant="elevated" className="group rounded-[2rem] border-slate-50 shadow-xl shadow-slate-200/20 hover:shadow-secondary/20 hover:border-secondary/20 transition-all duration-500 overflow-hidden">
+                   <div className="flex items-center gap-6 p-8">
+                      <div className="shrink-0 h-20 w-20 rounded-[1.5rem] bg-slate-50 border-4 border-white shadow-xl overflow-hidden group-hover:rotate-3 transition-transform">
+                         {booking.tutorId.profilePhoto ? (
+                           <img src={booking.tutorId.profilePhoto} className="h-full w-full object-cover" />
+                         ) : (
+                           <div className="h-full w-full bg-secondary/5 flex items-center justify-center text-secondary font-black text-2xl">
+                              {booking.tutorId.name.charAt(0)}
+                           </div>
+                         )}
+                      </div>
+                      <div className="flex-1 space-y-2">
+                         <div className="flex items-center justify-between">
+                            <span className="text-[10px] font-black text-secondary uppercase tracking-[0.2em]">{new Date(booking.date).toLocaleDateString()}</span>
+                            <span className={cn(
+                               "text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full border",
+                               booking.status === 'confirmed' ? "bg-emerald-50 text-emerald-600 border-emerald-100" : "bg-amber-50 text-amber-600 border-amber-100"
+                            )}>
+                               {booking.status}
+                            </span>
+                         </div>
+                         <h4 className="text-xl font-black text-slate-800 tracking-tight">{booking.tutorId.name}</h4>
+                         <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">{booking.startTime} ({booking.duration} mins)</p>
+                      </div>
+                   </div>
+                   <div className="bg-slate-50/50 px-8 py-4 border-t border-slate-50 flex items-center justify-between">
+                      <p className="text-[10px] font-bold text-slate-400 capitalize">{booking.tutorId.specialization || "Language Session"}</p>
+                      <button className="text-[10px] font-black text-primary uppercase tracking-widest hover:text-secondary transition-colors">Join Class</button>
+                   </div>
+                </Card>
+              ))}
+           </div>
+        </div>
+      )}
 
       {/* Section: Learning Roadmap */}
       <div className="space-y-8">

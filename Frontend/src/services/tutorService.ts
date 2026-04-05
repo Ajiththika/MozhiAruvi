@@ -5,6 +5,20 @@
  */
 
 import { api } from "@/lib/api";
+export const startStripeOnboarding = async () => {
+    const response = await api.get('/tutors/me/stripe/onboard');
+    return response.data;
+};
+
+export const finalizeStripeOnboarding = async () => {
+    const response = await api.get('/tutors/me/stripe/finalize');
+    return response.data;
+};
+
+export const getTutorFinancials = async () => {
+    const response = await api.get('/tutors/me/financials');
+    return response.data;
+};
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 

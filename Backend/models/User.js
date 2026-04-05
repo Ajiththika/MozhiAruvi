@@ -33,6 +33,8 @@ const userSchema = new mongoose.Schema({
   profilePhoto: { type: String, trim: true },
   levelSupport: [{ type: String, enum: ['beginner', 'intermediate', 'advanced'] }],
   responseTime: { type: String, trim: true }, // e.g. "Within 1 hour"
+  stripeAccountId: { type: String },
+  isStripeVerified: { type: Boolean, default: false },
 
   // Credits & Premium
   credits: { type: Number, default: 0 },
@@ -95,8 +97,8 @@ userSchema.methods.comparePassword = function (plain) {
 };
 
 userSchema.methods.toSafeObject = function () {
-  const { _id, name, email, role, tutorStatus, isActive, warnings, adminNotes, isTutorAvailable, isPremium, progress, credits, createdAt, teachingMode, profilePhoto, level, learningCredits, xp, points, power, lastPowerUpdate, badges, hasCompletedOnboarding, lastCreditUpdate, phoneNumber, country, age, gender, bio, experience, specialization, languages, subscription, organizationId, roleInOrg } = this;
-  return { _id, name, email, role, tutorStatus, isActive, warnings, adminNotes, isTutorAvailable, isPremium, progress, credits, createdAt, teachingMode, profilePhoto, level, learningCredits, xp, points, power, lastPowerUpdate, badges, hasCompletedOnboarding, lastCreditUpdate, phoneNumber, country, age, gender, bio, experience, specialization, languages, subscription, organizationId, roleInOrg, hasUsedTrial: subscription?.hasUsedTrial };
+  const { _id, name, email, role, tutorStatus, isActive, warnings, adminNotes, isTutorAvailable, isPremium, progress, credits, createdAt, teachingMode, profilePhoto, level, learningCredits, xp, points, power, lastPowerUpdate, badges, hasCompletedOnboarding, lastCreditUpdate, phoneNumber, country, age, gender, bio, experience, specialization, languages, subscription, organizationId, roleInOrg, stripeAccountId, isStripeVerified, hourlyRate } = this;
+  return { _id, name, email, role, tutorStatus, isActive, warnings, adminNotes, isTutorAvailable, isPremium, progress, credits, createdAt, teachingMode, profilePhoto, level, learningCredits, xp, points, power, lastPowerUpdate, badges, hasCompletedOnboarding, lastCreditUpdate, phoneNumber, country, age, gender, bio, experience, specialization, languages, subscription, organizationId, roleInOrg, hasUsedTrial: subscription?.hasUsedTrial, stripeAccountId, isStripeVerified, hourlyRate };
 };
 
 // Indexes for high-performance lookups

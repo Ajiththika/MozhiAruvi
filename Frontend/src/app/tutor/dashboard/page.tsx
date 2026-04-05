@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import StatCard from "@/components/features/dashboard/StatCard";
-import { Users, MessageSquare, Star, ToggleRight, ToggleLeft, Loader2, AlertCircle, ArrowRight, Video, Layers, Sparkles, CheckCircle2, PenTool } from "lucide-react";
+import { Users, MessageSquare, Star, ToggleRight, ToggleLeft, Loader2, AlertCircle, ArrowRight, Video, Layers, Sparkles, CheckCircle2, PenTool, Calendar, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 import { getMe, SafeUser } from "@/services/authService";
 import { getPendingRequests, TutorRequest, updateTutorAvailability } from "@/services/tutorService";
@@ -10,9 +10,13 @@ import { getMyEvents, MozhiEvent } from "@/services/eventService";
 import { cn } from "@/lib/utils";
 import Button from "@/components/ui/Button";
 
+import StripeOnboardingNotice from "@/components/features/tutors/StripeOnboardingNotice";
+import { getMyBookings, Booking } from "@/services/bookingService";
+
 export default function TutorDashboard() {
   const [user, setUser] = useState<SafeUser | null>(null);
   const [pendingQs, setPendingQs] = useState<TutorRequest[]>([]);
+  const [bookings, setBookings] = useState<Booking[]>([]);
   const [events, setEvents] = useState<MozhiEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [toggling, setToggling] = useState(false);
@@ -21,12 +25,13 @@ export default function TutorDashboard() {
 
   useEffect(() => {
     const today = new Date().toISOString().split('T')[0];
-    Promise.all([getMe(), getPendingRequests(), getMyEvents()])
-      .then(([u, qs, evs]) => {
+    Promise.all([getMe(), getPendingRequests(), getMyEvents(), getMyBookings()])
+      .then(([u, qs, evs, bks]) => {
         setUser(u);
         setIsAvailable(u.isTutorAvailable ?? false);
         setPendingQs(qs.filter((q) => q.status === "pending" || q.status === "accepted"));
         setEvents(evs.filter(e => e.date >= today));
+        setBookings(bks.bookings || []);
       })
       .catch(() => setError("Could not load dashboard data."))
       .finally(() => setLoading(false));
@@ -57,32 +62,38 @@ export default function TutorDashboard() {
 
   return (
     <div className="mx-auto max-w-6xl space-y-10 animate-in fade-in slide-in-from-bottom-2 duration-500 pb-20">
-      <div className="mb-0 flex flex-col md:flex-row md:items-end md:justify-between gap-10 border-b border-slate-100 pb-12">
-        <div className="space-y-6">
-           <div className="flex items-center gap-2">
-              <span className="h-1.5 w-10 rounded-full bg-secondary" />
-               <span className="text-[10px] font-bold text-secondary uppercase tracking-[0.2em]">Tutor Operations</span>
-           </div>
-           <h1 className="text-4xl md:text-4xl font-bold text-slate-800 tracking-tight">Welcome, {user?.name?.split(" ")[0]}</h1>
-           <p className="text-lg text-slate-600 font-medium leading-relaxed max-w-xl">
-             You have <span className="text-primary font-bold">{activeRequests} active requests</span> awaiting your expert guidance today.
-           </p>
-        </div>
+      <div className="space-y-6">
+        {user?.stripeAccountId && (
+           <StripeOnboardingNotice isVerified={user.isStripeVerified || false} />
+        )}
 
-        {/* Availability Quick Toggle */}
-        <button
-          onClick={handleAvailabilityToggle}
-          disabled={toggling}
-          className={cn(
-            "flex items-center gap-4 rounded-2xl border-2 px-8 py-4 text-xs font-bold transition-all shadow-xl shadow-slate-200/10 active:scale-95",
-            isAvailable
-              ? "border-emerald-100 bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
-              : "border-slate-100 bg-white text-primary/70 hover:border-secondary/30"
-          )}
-        >
-          {isAvailable ? <ToggleRight className="h-5 w-5" /> : <ToggleLeft className="h-5 w-5" />}
-          {isAvailable ? "Status: Accepting Students" : "Status: Away"}
-        </button>
+        <div className="mb-0 flex flex-col md:flex-row md:items-end md:justify-between gap-10 border-b border-slate-100 pb-12">
+          <div className="space-y-6">
+            <div className="flex items-center gap-2">
+                <span className="h-1.5 w-10 rounded-full bg-secondary" />
+                <span className="text-[10px] font-bold text-secondary uppercase tracking-[0.2em]">Tutor Operations</span>
+            </div>
+            <h1 className="text-4xl md:text-4xl font-bold text-slate-800 tracking-tight">Welcome, {user?.name?.split(" ")[0]}</h1>
+            <p className="text-lg text-slate-600 font-medium leading-relaxed max-w-xl">
+              You have <span className="text-primary font-bold">{activeRequests} active questions</span> and <span className="text-secondary font-bold">{bookings.filter(b => b.status === 'pending').length} new bookings</span> awaiting you.
+            </p>
+          </div>
+
+          {/* Availability Quick Toggle */}
+          <button
+            onClick={handleAvailabilityToggle}
+            disabled={toggling}
+            className={cn(
+              "flex items-center gap-4 rounded-2xl border-2 px-8 py-4 text-xs font-bold transition-all shadow-xl shadow-slate-200/10 active:scale-95",
+              isAvailable
+                ? "border-emerald-100 bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
+                : "border-slate-100 bg-white text-primary/70 hover:border-secondary/30"
+            )}
+          >
+            {isAvailable ? <ToggleRight className="h-5 w-5" /> : <ToggleLeft className="h-5 w-5" />}
+            {isAvailable ? "Status: Accepting Students" : "Status: Away"}
+          </button>
+        </div>
       </div>
 
       {error && (
@@ -94,73 +105,89 @@ export default function TutorDashboard() {
       {/* Stats Row */}
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
-          title="Active Requests"
-          value={String(activeRequests)}
-          description="Pending student help requests"
-          icon={MessageSquare}
-          trend={activeRequests > 0 ? "up" : "neutral"}
-          trendValue={activeRequests > 0 ? "Outstanding" : "All clear"}
-          className={activeRequests > 0 ? "border-primary/10 bg-primary/5" : ""}
-        />
-        <StatCard
-          title="Earnings/Credits"
-          value={String(user?.credits ?? "0")}
-          description="Total balance in your wallet"
-          icon={Sparkles}
-        />
-        <StatCard
-          title="Live Events"
-          value={String(events.length)}
-          description="Events you are hosting"
-          icon={Video}
+          title="Direct Bookings"
+          value={String(bookings.length)}
+          description="Total marketplace sessions"
+          icon={Calendar}
+          className="border-secondary/10 bg-secondary/5"
         />
         <StatCard
           title="Account Status"
+          value={user?.isStripeVerified ? "Verified" : "Pending Setup"}
+          description={user?.isStripeVerified ? "Direct payouts active" : "Payments disabled"}
+          icon={ShieldCheck}
+          className={user?.isStripeVerified ? "border-emerald-100 bg-emerald-50" : "border-amber-100 bg-amber-50"}
+        />
+        <StatCard
+          title="Marketplace Rate"
+          value={`$${user?.hourlyRate || "0"}/hr`}
+          description="Your public hourly fee"
+          icon={Sparkles}
+        />
+        <StatCard
+          title="Quick Status"
           value={isAvailable ? "Online" : "Away"}
           description={isAvailable ? "Visible to students" : "Hidden from search"}
           icon={Star}
-          className={isAvailable ? "border-success/10 bg-success/10" : ""}
         />
       </div>
 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
-        {/* Quick actions */}
-        <div className="lg:col-span-8 flex flex-col rounded-2xl bg-white border border-slate-100 p-10 md:p-14 shadow-2xl shadow-slate-200/10">
-          <div className="space-y-10">
-            <h3 className="text-xl font-bold text-slate-800 flex items-center gap-3">
-               <Layers className="h-6 w-6 text-primary" /> Operations Center
-            </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
-              {[
-                { label: "Manage Requests", desc: `${activeRequests} pending now`, href: "/tutor/questions", icon: MessageSquare, color: "primary" },
-                { label: "Write a Story", desc: "Share your Tamil expertise", href: "/blogs/write", icon: PenTool, color: "primary" },
-                { label: "Schedule Slots", desc: "Set weekly availability", href: "/tutor/schedule", icon: Video, color: "secondary" },
-                { label: "Public Profile", desc: "Update your teaching bio", href: "/tutor/profile", icon: Users, color: "secondary" },
-              ].map((action) => {
-                const Icon = action.icon;
-                return (
-                <Link
-                  key={action.href}
-                  href={action.href}
-                  className="group flex items-center justify-between rounded-2xl border border-slate-50 bg-white p-8 transition-all hover:bg-soft/10 hover:border-secondary/30 shadow-xl shadow-slate-200/10"
-                >
-                  <div className="flex items-center gap-6">
-                    <div className={cn(
-                      "flex h-16 w-16 items-center justify-center rounded-2xl transition-all group-hover:scale-110 duration-500",
-                      action.color === 'primary' ? 'bg-primary/5 text-primary border border-primary/10' : 'bg-secondary/5 text-secondary border border-secondary/10'
-                    )}>
-                       <Icon className="h-8 w-8" />
-                    </div>
-                    <div>
-                      <h4 className="font-bold text-slate-800 text-lg tracking-tight">{action.label}</h4>
-                      <p className="text-sm text-primary/70 mt-1 font-medium">{action.desc}</p>
-                    </div>
+        {/* Marketplace Bookings Preview */}
+        <div className="lg:col-span-8 flex flex-col rounded-[2rem] bg-white border border-slate-100 p-10 md:p-14 shadow-2xl shadow-slate-200/5">
+           <div className="mb-10 flex items-center justify-between">
+              <div>
+                <h3 className="text-xl font-bold text-slate-800">Upcoming Marketplace Sessions</h3>
+                <p className="text-xs font-semibold text-slate-400 mt-1 uppercase tracking-widest">Confirmed appointments & legacy requests</p>
+              </div>
+              <Button href="/tutor/schedule" variant="outline" size="sm" className="text-[10px] uppercase font-black px-6">View Agenda</Button>
+           </div>
+
+           {bookings.length === 0 ? (
+             <div className="flex flex-col items-center justify-center py-20 text-center space-y-6 grayscale opacity-40">
+                <Calendar className="h-16 w-16 text-slate-300" />
+                <p className="text-sm font-bold text-primary/60 max-w-xs uppercase tracking-widest leading-loose">No active bookings. Promote your profile to students.</p>
+             </div>
+           ) : (
+             <div className="space-y-4">
+                {bookings.slice(0, 3).map(booking => (
+                  <div key={booking._id} className="group flex flex-col md:flex-row items-center justify-between p-6 rounded-2xl border border-slate-100 bg-slate-50/50 hover:bg-white hover:border-primary/20 hover:shadow-xl transition-all duration-500">
+                     <div className="flex items-center gap-6">
+                        <div className="h-16 w-16 rounded-xl bg-white border border-slate-100 p-1 shadow-sm overflow-hidden flex items-center justify-center">
+                           {booking.studentId.profilePhoto ? (
+                             <img src={booking.studentId.profilePhoto} className="h-full w-full object-cover rounded-lg" />
+                           ) : (
+                             <div className="h-full w-full bg-primary/5 flex items-center justify-center text-primary font-black uppercase text-xl">
+                               {booking.studentId.name ? (booking.studentId.name as string).charAt(0) : 'S'}
+                             </div>
+                           )}
+                        </div>
+                        <div>
+                           <p className="text-[10px] font-black text-primary uppercase tracking-[0.2em] mb-1">{new Date(booking.date).toLocaleDateString()} • {booking.startTime}</p>
+                           <h5 className="text-lg font-black text-slate-800 tracking-tight">{booking.studentId.name}</h5>
+                           <div className="flex items-center gap-4 mt-2">
+                              <span className={cn(
+                                "text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full",
+                                booking.status === 'confirmed' ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'
+                              )}>
+                                {booking.status}
+                              </span>
+                              <span className="text-[10px] font-bold text-slate-400 capitalize">{booking.duration} Minute Session</span>
+                           </div>
+                        </div>
+                     </div>
+                     <div className="mt-6 md:mt-0">
+                        {booking.status === 'pending' && (
+                          <Button variant="primary" size="sm" className="px-8 h-12 shadow-xl shadow-primary/20">Confirm Class</Button>
+                        )}
+                        {booking.status === 'confirmed' && (
+                          <Button variant="outline" size="sm" className="px-8 h-12 border-primary/20 text-primary">Pre-Session Brief</Button>
+                        )}
+                     </div>
                   </div>
-                  <ArrowRight className="h-6 w-6 text-slate-200 group-hover:text-primary group-hover:translate-x-2 transition-all duration-300" />
-                </Link>
-              )})}
-            </div>
-          </div>
+                ))}
+             </div>
+           )}
         </div>
 
         {/* Inbox Preview */}

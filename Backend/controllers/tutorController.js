@@ -1,4 +1,54 @@
+import * as stripeConnect from '../services/stripeConnectService.js';
 import * as tutorService from '../services/tutorService.js';
+import User from '../models/User.js';
+
+/**
+ * ── 💳 Tutor Onboarding (Stripe Connect) ────────────────────────────────────
+ */
+export async function startStripeOnboarding(req, res, next) {
+    try {
+        const tutor = await User.findById(req.user.sub);
+        if (!tutor || tutor.role !== 'teacher') {
+            return res.status(403).json({ message: 'Only approved tutors can access onboarding.' });
+        }
+
+        let accountId = tutor.stripeAccountId;
+        if (!accountId) {
+            const account = await stripeConnect.createTutorExpressAccount(tutor);
+            accountId = account.id;
+            tutor.stripeAccountId = accountId;
+            await tutor.save();
+        }
+
+        const onboardingLink = await stripeConnect.generateAccountLink(accountId);
+        res.json({ url: onboardingLink.url });
+    } catch (e) { next(e); }
+}
+
+export async function finalizeStripeOnboarding(req, res, next) {
+    try {
+        const tutor = await User.findById(req.user.sub);
+        if (!tutor || !tutor.stripeAccountId) {
+            return res.status(400).json({ message: 'No Stripe account found for this tutor.' });
+        }
+
+        const status = await stripeConnect.checkAccountStatus(tutor.stripeAccountId);
+        tutor.isStripeVerified = status.isVerified;
+        await tutor.save();
+
+        res.json({ 
+            message: status.isVerified ? 'Onboarding successful. Account verified!' : 'Onboarding pending or incomplete.', 
+            isVerified: status.isVerified 
+        });
+    } catch (e) { next(e); }
+}
+
+export async function getTutorFinancialStatus(req, res, next) {
+    try {
+       const tutor = await User.findById(req.user.sub).select('stripeAccountId isStripeVerified hourlyRate');
+       res.json({ tutor });
+    } catch (e) { next(e); }
+}
 
 export async function listAvailableTutors(req, res, next) {
     try {
@@ -36,6 +86,7 @@ export async function updateTutorAvailability(req, res, next) {
     } catch (e) { next(e); }
 }
 
+// Keep existing methods but acknowledge they are legacy/XP based
 export async function requestTutor(req, res, next) {
     try {
         const request = await tutorService.createRequest(req.user.sub, req.body);

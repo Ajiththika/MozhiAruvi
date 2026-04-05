@@ -16,6 +16,7 @@ import categoryRoutes from './routes/categoryRoutes.js';
 import paymentRoutes from './routes/paymentRoutes.js';
 import organizationRoutes from './routes/organizationRoutes.js';
 import aiRoutes from './routes/aiRoutes.js';
+import bookingRoutes from './routes/bookingRoutes.js';
 import { stripeWebhook } from './controllers/paymentController.js';
 import { testSmtpConnection } from './services/mailService.js';
 import { errorHandler } from './middleware/error.js';
@@ -93,6 +94,7 @@ app.use('/api/categories', categoryRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/organizations', organizationRoutes);
 app.use('/api/ai', aiRoutes);
+app.use('/api/bookings', bookingRoutes);
 
 app.get('/health', (_req, res) => res.json({ 
     status: 'operational', 

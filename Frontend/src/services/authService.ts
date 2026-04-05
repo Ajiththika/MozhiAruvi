@@ -64,6 +64,8 @@ export interface SafeUser {
   createdAt?: string;
   updatedAt?: string;
   hasUsedTrial?: boolean;
+  stripeAccountId?: string;
+  isStripeVerified?: boolean;
 }
 
 export interface AuthResponse {

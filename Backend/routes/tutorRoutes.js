@@ -84,6 +84,11 @@ router.patch('/requests/:id/resolve', authenticate, authorizeRoles(ROLES.TEACHER
 // Consolidated messaging for doubt-solving flow
 router.post('/requests/:id/message', authenticate, tutorController.addMessage);
 
+// ── Finance (Stripe Connect) ─────────────────────────────────────────────────
+router.get('/me/stripe/onboard', authenticate, authorizeRoles(ROLES.TEACHER), tutorController.startStripeOnboarding);
+router.get('/me/stripe/finalize', authenticate, authorizeRoles(ROLES.TEACHER), tutorController.finalizeStripeOnboarding);
+router.get('/me/financials', authenticate, authorizeRoles(ROLES.TEACHER), tutorController.getTutorFinancialStatus);
+
 // Get specific tutor by ID ← dynamic route LAST
 router.get('/:id', authenticate, tutorController.getTutorById);
 
