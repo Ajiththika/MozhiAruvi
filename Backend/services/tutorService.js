@@ -1,5 +1,8 @@
+import mongoose from 'mongoose';
 import User from '../models/User.js';
 import TutorRequest from '../models/TutorRequest.js';
+import * as aiService from './aiChatService.js';
+import mozhiEvents from '../events/eventEmitter.js';
 
 export async function getAvailableTutors(page = 1, limit = 6, filters = {}) {
     const skip = (page - 1) * limit;
@@ -34,7 +37,7 @@ export async function getAvailableTutors(page = 1, limit = 6, filters = {}) {
     try {
         const results = await Promise.all([
             User.find(query)
-                .select('name bio experience specialization hourlyRate languages email schedule teachingMode profilePhoto levelSupport responseTime isTutorAvailable')
+                .select('name bio experience specialization hourlyRate oneClassFee eightClassFee languages email schedule teachingMode profilePhoto levelSupport responseTime isTutorAvailable')
                 .sort({ createdAt: -1 })
                 .skip(skip)
                 .limit(limit),
@@ -60,7 +63,7 @@ export async function getAvailableTutors(page = 1, limit = 6, filters = {}) {
 
 export async function getTutorById(tutorId) {
     const tutor = await User.findOne({ _id: tutorId, role: 'teacher', isActive: true })
-        .select('name bio experience specialization hourlyRate languages email schedule teachingMode profilePhoto levelSupport responseTime isTutorAvailable');
+        .select('name bio experience specialization hourlyRate oneClassFee eightClassFee languages email schedule teachingMode profilePhoto levelSupport responseTime isTutorAvailable');
     if (!tutor) {
         const err = new Error('Tutor not found or unavailable'); err.status = 404; err.code = 'NOT_FOUND'; throw err;
     }
@@ -85,23 +88,63 @@ export async function updateTutorAvailability(teacherId, isAvailable) {
 }
 
 export async function createRequest(studentId, data) {
-    const tutor = await User.findById(data.teacherId);
-    if (!tutor || tutor.role !== 'teacher' || !tutor.isTutorAvailable || !tutor.isActive) {
-        const err = new Error('Tutor not found or not available.'); err.status = 404; err.code = 'UNAVAILABLE_TUTOR'; throw err;
+    let teacherId = data.teacherId;
+    
+    // SMART TUTOR ASSIGNMENT logic if no teacher selected
+    if (!teacherId) {
+        // Find tutors who are: available, support this level, and have best ratings
+        const lesson = await mongoose.model('Lesson').findById(data.lessonId);
+        const criteria = {
+            role: { $in: ['teacher', 'tutor'] },
+            isTutorAvailable: true,
+            isActive: true
+        };
+        
+        if (lesson && lesson.level) {
+            criteria.levelSupport = lesson.level.toLowerCase();
+        }
+
+        const tutors = await User.find(criteria)
+            .sort({ rating: -1, responseTime: 1 })
+            .limit(10);
+        
+        if (tutors.length > 0) {
+            // Randomly select or pick the best one
+            teacherId = tutors[0]._id;
+        } else {
+            // Fallback: Pick any available active teacher
+            const anyTutor = await User.findOne({ role: { $in: ['teacher', 'tutor'] }, isTutorAvailable: true, isActive: true });
+            if (anyTutor) teacherId = anyTutor._id;
+        }
+    }
+
+    if (!teacherId) {
+        const err = new Error('No tutors currently available for this lesson.'); err.status = 404; err.code = 'NO_TUTORS_AVAILABLE'; throw err;
+    }
+
+    const tutor = await User.findById(teacherId);
+    if (!tutor || tutor.role !== 'teacher' || !tutor.isActive) {
+        const err = new Error('Selected tutor is no longer available.'); err.status = 404; err.code = 'UNAVAILABLE_TUTOR'; throw err;
     }
 
     // Dynamic pricing based on request type
     const pricing = {
+        'doubt': 10,
+        'speaking': 20,
+        'practice': 15,
         'question': 10,
-        'live_class': 30,
-        'multi_class': 100
+        'live_class': tutor.oneClassFee || 30,
+        'multi_class': tutor.eightClassFee || 200
     };
-    const priceCredits = pricing[data.requestType || 'question'] || 10;
+    const priceCredits = pricing[data.requestType || 'doubt'] || 10;
 
     const student = await User.findById(studentId);
     if (student.credits < priceCredits && !student.isPremium) {
-        const err = new Error(`Insufficient credits. You need ${priceCredits} credits for this request.`); err.status = 402; err.code = 'NOT_ENOUGH_CREDITS'; throw err;
+        const err = new Error(`Insufficient credits. You need ${priceCredits} tokens for this expert intervention.`); err.status = 402; err.code = 'NOT_ENOUGH_CREDITS'; throw err;
     }
+
+    // Capture student progress for teacher visibility
+    const progress = await mongoose.model('Progress').findOne({ userId: studentId, lessonId: data.lessonId });
 
     // Deduct credits immediately
     if (!student.isPremium) {
@@ -109,15 +152,45 @@ export async function createRequest(studentId, data) {
         await student.save();
     }
 
-    return TutorRequest.create({
+    const helpRequest = await TutorRequest.create({
         studentId,
-        teacherId: data.teacherId,
+        teacherId: teacherId,
         lessonId: data.lessonId,
-        requestType: data.requestType || 'question',
-        content: data.content || data.question, // compatibility
-        metadata: data.metadata || {},
+        requestType: data.requestType || 'doubt',
+        content: data.content || data.question,
+        metadata: {
+            ...data.metadata,
+            studentProgress: progress ? {
+                score: progress.score,
+                accuracy: progress.accuracy,
+                weakAreas: progress.weakAreas
+            } : undefined
+        },
         priceCredits, 
     });
+
+    // AIRIVE FIRST RESPONSE (Doubt Resolving AI)
+    if (helpRequest.requestType === 'doubt' || helpRequest.requestType === 'question') {
+        try {
+            const aiPrompt = `Student Question: "${helpRequest.content}" in Lesson: "${data.metadata?.lessonTitle || 'General'}". Provide a quick helpful answer first. The teacher will follow up if needed.`;
+            const aiAnswer = await aiService.getAiResponse(aiPrompt);
+            if (aiAnswer) {
+                helpRequest.messages.push({
+                    senderRole: 'teacher', // Treat AI as a proxy teacher for now
+                    content: `[MozhiAruvi AI Assist]: ${aiAnswer}`,
+                    createdAt: new Date()
+                });
+                await helpRequest.save();
+            }
+        } catch (err) {
+            console.error("[AI Assist] Failed to generate auto-response:", err);
+        }
+    }
+
+    // EMIT NOTIFICATION
+    mozhiEvents.emit('HELP_REQUEST_CREATED', { student, teacher: tutor, request: helpRequest });
+
+    return helpRequest;
 }
 
 export async function getStudentRequests(studentId) {
@@ -169,6 +242,14 @@ export async function updateRequestStatus(teacherId, requestId, status) {
     }
 
     await request.save();
+
+    // EMIT NOTIFICATION
+    const [student, teacher] = await Promise.all([
+        User.findById(request.studentId),
+        User.findById(request.teacherId)
+    ]);
+    mozhiEvents.emit('HELP_REQUEST_REPLIED', { student, teacher, request, message: responseText });
+
     return request;
 }
 
@@ -238,5 +319,14 @@ export async function addRequestMessage(userId, requestId, content, role) {
     }
 
     await request.save();
+
+    if (role === 'teacher') {
+        const [student, teacher] = await Promise.all([
+            User.findById(request.studentId),
+            User.findById(request.teacherId)
+        ]);
+        mozhiEvents.emit('HELP_REQUEST_REPLIED', { student, teacher, request, message: content });
+    }
+
     return request;
 }

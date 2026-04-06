@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import {
   MessageSquare, Filter, Search, CheckCircle2, Loader2, AlertCircle,
-  Video, Layers, Calendar, Clock, ArrowRight, User, Ban, CheckCircle, Send
+  Video, Layers, Calendar, Clock, ArrowRight, User, Ban, CheckCircle, Send, PenTool
 } from "lucide-react";
 import {
   getPendingRequests, resolveRequest, acceptRequest, declineRequest, TutorRequest,
@@ -11,6 +11,9 @@ import {
 import { cn } from "@/lib/utils";
 
 const TYPE_CONFIG = {
+  doubt: { label: "Doubt", icon: MessageSquare, color: "text-amber-600 bg-amber-50" },
+  speaking: { label: "Speaking", icon: Video, color: "text-emerald-600 bg-emerald-50" },
+  practice: { label: "Practice", icon: PenTool, color: "text-violet-600 bg-violet-50" },
   question: { label: "Question", icon: MessageSquare, color: "text-blue-600 bg-blue-50" },
   live_class: { label: "Live Class", icon: Video, color: "text-emerald-600 bg-emerald-50" },
   multi_class: { label: "Package", icon: Layers, color: "text-violet-600 bg-violet-50" },
@@ -23,7 +26,7 @@ export default function TeacherRequestsPage() {
   const [replies, setReplies] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState<string | null>(null);
   const [search, setSearch] = useState("");
-  const [filter, setFilter] = useState<"all" | "pending" | "replied" | "resolved">("pending");
+  const [filter, setFilter] = useState<"all" | "pending" | "replied" | "resolved" | "answered" | "scheduled">("pending");
 
   useEffect(() => {
     fetchRequests();
@@ -96,7 +99,7 @@ export default function TeacherRequestsPage() {
         </div>
         <div className="flex items-center gap-2">
            <div className="bg-slate-50 rounded-2xl p-1.5 flex gap-1 border border-slate-100 shadow-inner">
-              {(["all", "pending", "replied", "resolved"] as const).map(t => (
+              {(["all", "pending", "replied", "answered", "resolved"] as const).map(t => (
                  <button 
                   key={t}
                   onClick={() => setFilter(t)}
@@ -129,23 +132,25 @@ export default function TeacherRequestsPage() {
       ) : (
         <div className="grid grid-cols-1 gap-6">
           {filtered.map((r) => {
-            const config = TYPE_CONFIG[r.requestType] || TYPE_CONFIG.question;
+            const config = (TYPE_CONFIG as any)[r.requestType] || TYPE_CONFIG.question;
             const Icon = config.icon;
-            const isResolved = r.status === "replied" || r.status === "resolved";
+            const isResolved = r.status === "replied" || r.status === "resolved" || r.status === "answered";
             const isPending = r.status === "pending";
+
+            // Extract Progress from Metadata
+            const progress = r.metadata?.studentProgress;
 
             return (
               <div
                 key={r._id}
                 className={cn(
-                  "group relative overflow-hidden rounded-2xl bg-white border transition-all duration-300",
-                  isPending ? "border-primary/20 shadow-xl shadow-primary/[0.03]" : "border-slate-100  opacity-90 hover:opacity-100"
+                  "group relative overflow-hidden rounded-3xl bg-white border transition-all duration-300",
+                  isPending ? "border-primary/30 shadow-2xl shadow-primary/[0.05]" : "border-slate-100  opacity-90 hover:opacity-100"
                 )}
               >
                 <div className="flex flex-col lg:flex-row">
                   {/* Left: Content */}
-                  {/* Left: Content */}
-                  <div className="flex-1 p-10">
+                  <div className="flex-1 p-8 md:p-10">
                     <div className="flex flex-wrap items-center justify-between gap-6 mb-8">
                       <div className="flex items-center gap-5">
                         <div className={cn("h-14 w-14 rounded-[1.25rem] flex items-center justify-center shadow-sm", config.color)}>
@@ -157,10 +162,10 @@ export default function TeacherRequestsPage() {
                               <span className="h-1 w-1 rounded-full bg-slate-200" />
                               <span className="text-[10px] font-bold text-primary/60 uppercase tracking-widest">{new Date(r.createdAt).toLocaleDateString()}</span>
                            </div>
-                           <h3 className="text-xl font-bold text-slate-800">{config.label} Request</h3>
+                           <h3 className="text-xl font-bold text-slate-800">{config.label} Escalation</h3>
                            {typeof (r as any).lessonId === 'object' && (r as any).lessonId?.title && (
                              <div className="mt-2 inline-flex items-center gap-1.5 rounded-lg bg-primary/5 border border-primary/10 px-3 py-1 text-[11px] font-bold text-primary">
-                               📖 {(r as any).lessonId.title}{(r as any).lessonId.moduleNumber ? ` · Module ${(r as any).lessonId.moduleNumber}` : ""}
+                                📖 {(r as any).lessonId.title}{(r as any).lessonId.moduleNumber ? ` · Module ${(r as any).lessonId.moduleNumber}` : ""}
                              </div>
                            )}
                         </div>
@@ -174,8 +179,26 @@ export default function TeacherRequestsPage() {
                       </div>
                     </div>
 
+                    {/* Student Progress Stats (BYJU'S style context) */}
+                    {progress && (
+                      <div className="grid grid-cols-3 gap-4 mb-8 bg-slate-50/50 p-4 rounded-2xl border border-slate-100/50">
+                        <div className="text-center">
+                          <p className="text-[8px] font-black uppercase tracking-widest text-slate-400 mb-1">Score</p>
+                          <p className="text-sm font-black text-primary">{progress.score || 0}</p>
+                        </div>
+                        <div className="text-center border-x border-slate-100">
+                          <p className="text-[8px] font-black uppercase tracking-widest text-slate-400 mb-1">Accuracy</p>
+                          <p className="text-sm font-black text-emerald-600">{progress.accuracy || 0}%</p>
+                        </div>
+                        <div className="text-center">
+                          <p className="text-[8px] font-black uppercase tracking-widest text-slate-400 mb-1">Weak Areas</p>
+                          <p className="text-xs font-bold text-amber-600 truncate px-2">{progress.weakAreas?.join(', ') || 'N/A'}</p>
+                        </div>
+                      </div>
+                    )}
+
                     <div className="relative rounded-[2rem] bg-slate-50 p-8 border border-slate-100 mb-8">
-                       <p className="text-sm font-black text-primary uppercase tracking-[0.2em] mb-4">Initial Question</p>
+                       <p className="text-sm font-black text-primary uppercase tracking-[0.2em] mb-4">Linguistic Challenge</p>
                        <p className="text-lg font-bold text-slate-700 leading-relaxed italic">
                          "{r.content}"
                        </p>
@@ -251,6 +274,14 @@ export default function TeacherRequestsPage() {
                       </div>
                     ) : (
                       <div className="space-y-5 animate-in zoom-in-95 duration-300">
+                        <div className="flex gap-2">
+                           <button 
+                             onClick={() => setReplies(prev => ({ ...prev, [r._id]: (prev[r._id] || "") + "\n\nI suggest we have a 1-on-1 Live Session to deep dive into this topic. You can book me here: [Live Session Link]" }))}
+                             className="flex-1 py-3 px-4 rounded-xl bg-secondary/10 border border-secondary/20 text-secondary text-[10px] font-black uppercase tracking-widest hover:bg-secondary/20 transition-all"
+                           >
+                              Invite to Live Class
+                           </button>
+                        </div>
                         <textarea
                           rows={4}
                           value={replies[r._id] ?? ""}

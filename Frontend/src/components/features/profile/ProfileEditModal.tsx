@@ -17,7 +17,9 @@ interface ProfileFormData {
   bio: string;
   specialization: string;
   experience: string;
-  hourlyRate: string;
+  oneClassFee: string;
+  eightClassFee: string;
+  weeklySchedule: string;
 }
 
 interface ProfileEditModalProps {
@@ -37,7 +39,9 @@ export default function ProfileEditModal({ user, setUser, onClose, role }: Profi
     bio: "",
     specialization: "",
     experience: "",
-    hourlyRate: "",
+    oneClassFee: "",
+    eightClassFee: "",
+    weeklySchedule: "",
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -57,7 +61,9 @@ export default function ProfileEditModal({ user, setUser, onClose, role }: Profi
         bio: user.bio || "",
         specialization: user.specialization || "",
         experience: user.experience || "",
-        hourlyRate: user.hourlyRate ? String(user.hourlyRate) : "",
+        oneClassFee: user.oneClassFee ? String(user.oneClassFee) : "",
+        eightClassFee: user.eightClassFee ? String(user.eightClassFee) : "",
+        weeklySchedule: user.weeklySchedule || "",
       });
     }
   }, [user]);
@@ -135,8 +141,8 @@ export default function ProfileEditModal({ user, setUser, onClose, role }: Profi
                 <Icon className="h-6 w-6" />
               </div>
               <div>
-                <h3 className="text-xl font-black text-primary tracking-tight">Identity Architecture</h3>
-                <p className="text-[10px] font-black uppercase tracking-widest text-primary/60">Configure your digital presence</p>
+                <h3 className="text-xl font-black text-primary tracking-tight">Profile Transformation</h3>
+                <p className="text-[10px] font-black uppercase tracking-widest text-primary/60">Configure your professional identity</p>
               </div>
             </div>
             <button onClick={onClose} className="p-3 rounded-2xl hover:bg-error/10 text-primary/60 hover:text-error transition-all">
@@ -157,7 +163,7 @@ export default function ProfileEditModal({ user, setUser, onClose, role }: Profi
                      "h-32 w-32 rounded-[2rem] overflow-hidden bg-surface-soft border-2 border-dashed transition-all",
                      role === 'admin' ? 'group-hover:border-red-500 border-red-500/20' : (role === 'teacher' ? 'group-hover:border-secondary border-secondary/20' : 'group-hover:border-primary border-primary/20')
                    )}>
-                      {(previewUrl || user.profilePhoto) ? (
+                      {(previewUrl || (user && user.profilePhoto)) ? (
                         <img src={previewUrl || user.profilePhoto || ""} alt="Preview" className="w-full h-full object-cover" />
                       ) : (
                         <div className="h-full w-full flex items-center justify-center opacity-30">
@@ -205,33 +211,37 @@ export default function ProfileEditModal({ user, setUser, onClose, role }: Profi
              </div>
 
              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                   <label className="text-[10px] font-black uppercase tracking-widest text-primary/70 ml-1">Full Identity Name</label>
+                <div className="space-y-1">
+                   <label className="text-[10px] font-black uppercase tracking-widest text-primary/70 ml-1">Display Name</label>
                    <input name="name" value={formData.name} onChange={handleChange} required className="w-full h-14 rounded-2xl bg-surface-soft border border-border px-6 text-sm font-bold text-slate-800 focus:bg-white focus:border-primary transition-all outline-none" />
                 </div>
-                <div className="space-y-2">
-                   <label className="text-[10px] font-black uppercase tracking-widest text-primary/70 ml-1">Contact Protocol</label>
+                <div className="space-y-1">
+                   <label className="text-[10px] font-black uppercase tracking-widest text-primary/70 ml-1">Contact Phone</label>
                    <input name="phoneNumber" value={formData.phoneNumber} onChange={handleChange} className="w-full h-14 rounded-2xl bg-surface-soft border border-border px-6 text-sm font-bold text-slate-800 focus:bg-white focus:border-primary transition-all outline-none" />
                 </div>
                 
                 {role === 'teacher' && (
                   <>
-                    <div className="space-y-2">
-                       <label className="text-[10px] font-black uppercase tracking-widest text-primary/70 ml-1">Field of Expertise</label>
+                    <div className="space-y-1">
+                       <label className="text-[10px] font-black uppercase tracking-widest text-primary/70 ml-1">Subject Specialization</label>
                        <input name="specialization" value={formData.specialization} onChange={handleChange} className="w-full h-14 rounded-2xl bg-surface-soft border border-border px-6 text-sm font-bold text-slate-800 focus:bg-white focus:border-secondary transition-all outline-none" />
                     </div>
-                    <div className="space-y-2">
-                       <label className="text-[10px] font-black uppercase tracking-widest text-primary/70 ml-1">Experience Years</label>
-                       <input name="experience" value={formData.experience} onChange={handleChange} className="w-full h-14 rounded-2xl bg-surface-soft border border-border px-6 text-sm font-bold text-slate-800 focus:bg-white focus:border-secondary transition-all outline-none" />
+                    <div className="space-y-1">
+                       <label className="text-[10px] font-black uppercase tracking-widest text-primary/70 ml-1">Daily Availability Hours</label>
+                       <input name="weeklySchedule" value={formData.weeklySchedule} onChange={handleChange} placeholder="e.g., Mon-Fri 9AM - 5PM IST" className="w-full h-14 rounded-2xl bg-surface-soft border border-border px-6 text-sm font-bold text-slate-800 focus:bg-white focus:border-secondary transition-all outline-none" />
                     </div>
-                    <div className="space-y-2">
-                       <label className="text-[10px] font-black uppercase tracking-widest text-primary/70 ml-1">Hourly Rate (XP)</label>
-                       <input type="number" name="hourlyRate" value={formData.hourlyRate} onChange={handleChange} className="w-full h-14 rounded-2xl bg-surface-soft border border-border px-6 text-sm font-bold text-slate-800 focus:bg-white focus:border-emerald-500 transition-all outline-none" />
+                    <div className="space-y-1">
+                       <label className="text-[10px] font-black uppercase tracking-widest text-primary/70 ml-1">Single Session Fee ($ USD)</label>
+                       <input type="number" name="oneClassFee" value={formData.oneClassFee} onChange={handleChange} className="w-full h-14 rounded-2xl bg-surface-soft border border-border px-6 text-sm font-bold text-slate-800 focus:bg-white focus:border-emerald-500 transition-all outline-none" />
+                    </div>
+                    <div className="space-y-1">
+                       <label className="text-[10px] font-black uppercase tracking-widest text-primary/70 ml-1">8-Class Intensive Fee ($ USD)</label>
+                       <input type="number" name="eightClassFee" value={formData.eightClassFee} onChange={handleChange} className="w-full h-14 rounded-2xl bg-surface-soft border border-border px-6 text-sm font-bold text-slate-800 focus:bg-white focus:border-indigo-500 transition-all outline-none" />
                     </div>
                   </>
                 )}
 
-                <div className="space-y-2">
+                <div className="space-y-1">
                    <label className="text-[10px] font-black uppercase tracking-widest text-primary/70 ml-1">Operation Origin (Country)</label>
                    <input name="country" value={formData.country} onChange={handleChange} className="w-full h-14 rounded-2xl bg-surface-soft border border-border px-6 text-sm font-bold text-slate-800 focus:bg-white focus:border-primary transition-all outline-none" />
                 </div>

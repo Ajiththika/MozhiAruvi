@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { cn } from "@/lib/utils";
-import { UserCircle, Mail, MapPin, Phone, AlertCircle, CheckCircle, Edit3, Zap, Award, Banknote, Briefcase, GraduationCap, Clock } from "lucide-react";
+import { UserCircle, Mail, MapPin, Phone, AlertCircle, CheckCircle, Edit3, Zap, Award, Banknote, Briefcase, GraduationCap, Clock, Layers } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { api } from "@/lib/api";
 import Button from "@/components/ui/Button";
@@ -103,45 +103,55 @@ export default function TutorProfileSettings() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* ── TEACHING STATS ───────────────────────────────────────────────────── */}
         <div className="lg:col-span-1 space-y-8">
-           <div className="rounded-2xl bg-slate-900 p-8 text-white shadow-2xl relative overflow-hidden">
-              <div className="absolute top-0 left-0 h-32 w-32 bg-secondary/10 rounded-full blur-2xl -mr-16 -mt-16" />
+           <div className="rounded-2xl bg-gradient-to-br from-primary to-primary-dark p-8 text-white shadow-2xl relative overflow-hidden">
+              <div className="absolute top-0 left-0 h-32 w-32 bg-white/10 rounded-full blur-2xl -mr-16 -mt-16" />
               <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-white/50 mb-8">Professional Metrics</h4>
               
               <div className="space-y-6">
-                <div className="flex items-center gap-5 p-5 rounded-3xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
-                   <div className="h-12 w-12 rounded-2xl bg-secondary/20 flex items-center justify-center text-secondary">
-                      <Zap className="h-6 w-6" />
-                   </div>
-                   <div>
-                      <p className="text-[10px] font-black uppercase tracking-widest text-white/40">Hourly Rate (XP)</p>
-                      <p className="text-2xl font-black">{user.hourlyRate || 0}</p>
-                   </div>
-                </div>
+                 <div className="flex items-center gap-5 p-5 rounded-3xl bg-white/10 border border-white/20 hover:bg-white/20 transition-colors">
+                    <div className="h-12 w-12 rounded-2xl bg-white/10 flex items-center justify-center text-white">
+                       <Zap className="h-6 w-6" />
+                    </div>
+                    <div>
+                       <p className="text-[10px] font-black uppercase tracking-widest text-white/40">1:1 Session ($)</p>
+                       <p className="text-2xl font-black">${user.oneClassFee || 0}</p>
+                    </div>
+                 </div>
 
-                <div className="flex items-center gap-5 p-5 rounded-3xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
-                   <div className="h-12 w-12 rounded-2xl bg-emerald-500/20 flex items-center justify-center text-emerald-500">
-                      <Banknote className="h-6 w-6" />
-                   </div>
-                   <div>
-                      <p className="text-[10px] font-black uppercase tracking-widest text-white/40">Total Earnings</p>
-                      <p className="text-2xl font-black">{user.credits || 0}</p>
-                   </div>
-                </div>
+                 <div className="flex items-center gap-5 p-5 rounded-3xl bg-white/10 border border-white/20 hover:bg-white/20 transition-colors">
+                    <div className="h-12 w-12 rounded-2xl bg-white/10 flex items-center justify-center text-white">
+                       <Layers className="h-6 w-6" />
+                    </div>
+                    <div>
+                       <p className="text-[10px] font-black uppercase tracking-widest text-white/40">8-Class Bundle ($)</p>
+                       <p className="text-2xl font-black">${user.eightClassFee || 0}</p>
+                    </div>
+                 </div>
+
+                 <div className="flex items-center gap-5 p-5 rounded-3xl bg-white/10 border border-white/20 hover:bg-white/20 transition-colors">
+                    <div className="h-12 w-12 rounded-2xl bg-white/10 flex items-center justify-center text-white">
+                       <Banknote className="h-6 w-6" />
+                    </div>
+                    <div>
+                       <p className="text-[10px] font-black uppercase tracking-widest text-white/40">Total Earnings</p>
+                       <p className="text-2xl font-black">${user.credits || 0}</p>
+                    </div>
+                 </div>
 
                 <div className="pt-4 space-y-4">
                    <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-white/40">
-                      <p>Teaching Credibility</p>
-                      <p className="text-secondary">Verified</p>
+                      <p>Trust Level</p>
+                      <p className="text-secondary-light">Verified</p>
                    </div>
                    <div className="flex items-center gap-1.5">
-                      {[1,2,3,4,5].map(i => <Award key={i} className="h-5 w-5 text-amber-500 fill-current" />)}
+                      {[1,2,3,4,5].map(i => <Award key={i} className="h-5 w-5 text-amber-400 fill-current" />)}
                    </div>
                 </div>
               </div>
            </div>
 
            <div className="rounded-2xl bg-white p-8 border border-border shadow-sm">
-              <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/60 mb-6">Mentorship Specs</h4>
+              <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/60 mb-6">Expertise Overview</h4>
               <div className="space-y-5">
                  <div className="flex items-center gap-4">
                     <div className="h-10 w-10 rounded-xl bg-surface-soft flex items-center justify-center text-primary">
@@ -161,16 +171,27 @@ export default function TutorProfileSettings() {
                        <p className="text-sm font-bold text-slate-800">{user.experience || "Native Speaker"}</p>
                     </div>
                  </div>
-                 <div className="flex items-center gap-4">
-                    <div className="h-10 w-10 rounded-xl bg-surface-soft flex items-center justify-center text-emerald-500">
+              </div>
+           </div>
+
+           <div className="rounded-2xl bg-white p-8 border border-border shadow-sm">
+              <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/60 mb-6">Weekly Teaching Schedule</h4>
+              {user.weeklySchedule ? (
+                 <div className="flex items-start gap-4">
+                    <div className="h-10 w-10 rounded-xl bg-surface-soft flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-all">
                        <Clock className="h-4 w-4" />
                     </div>
                     <div>
-                       <p className="text-[10px] font-black text-primary/60 uppercase tracking-widest leading-none mb-1">Response Time</p>
-                       <p className="text-sm font-bold text-slate-800">~24 hrs</p>
+                       <p className="text-[10px] font-black text-primary/60 uppercase tracking-widest leading-none mb-1">Operating Hours</p>
+                       <p className="text-sm font-bold text-slate-800">{user.weeklySchedule}</p>
                     </div>
                  </div>
-              </div>
+              ) : (
+                 <div className="text-center py-4 space-y-2">
+                    <Clock className="h-8 w-8 text-slate-200 mx-auto" />
+                    <p className="text-[10px] font-bold text-slate-400 italic">No specific hours set yet.</p>
+                 </div>
+              )}
            </div>
         </div>
 

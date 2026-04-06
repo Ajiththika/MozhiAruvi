@@ -2,30 +2,35 @@ import mongoose from 'mongoose';
 
 const tutorRequestSchema = new mongoose.Schema({
     studentId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-    teacherId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-    lessonId: { type: mongoose.Schema.Types.ObjectId, ref: 'Lesson' }, // optional context
+    teacherId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, // Optional for auto-assignment
+    lessonId: { type: mongoose.Schema.Types.ObjectId, ref: 'Lesson', required: true },
     
     // New: Handle different interactions
     requestType: {
         type: String,
-        enum: ['question', 'live_class', 'multi_class'],
-        default: 'question'
+        enum: ['doubt', 'speaking', 'practice', 'question', 'live_class'],
+        default: 'doubt'
     },
     
     // The main message or description of the request
     content: { type: String, required: true },
     
-    // Additional info: live class availability, number of session for packages, specific topics
+    // Additional info: student progress, specific topics, etc.
     metadata: {
         topics: [String],
         preferredTime: String,
         sessionsCount: Number,
         additionalNotes: String,
+        studentProgress: {
+            score: Number,
+            accuracy: Number,
+            weakAreas: [String]
+        }
     },
     
     status: {
         type: String,
-        enum: ['pending', 'accepted', 'declined', 'replied', 'resolved'],
+        enum: ['pending', 'accepted', 'declined', 'replied', 'resolved', 'answered', 'scheduled'],
         default: 'pending'
     },
     

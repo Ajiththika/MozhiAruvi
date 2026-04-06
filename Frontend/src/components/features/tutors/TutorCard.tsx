@@ -72,7 +72,7 @@ export function TutorCard({ tutor }: { tutor: Tutor }) {
             "absolute -bottom-1 -right-1 flex items-center gap-1 z-10 px-2 py-0.5 rounded-full border-2 border-white shadow-sm text-[8px] font-black uppercase tracking-tight transition-all",
             isTutorAvailable ? "bg-emerald-500 text-white" : "bg-slate-400 text-white"
           )}>
-            {isTutorAvailable ? "Online" : "Away"}
+            {isTutorAvailable ? "Available" : "Not Available"}
           </div>
         </div>
 
@@ -88,10 +88,10 @@ export function TutorCard({ tutor }: { tutor: Tutor }) {
                 {specialization ?? "Language Expert"}
               </p>
             </div>
-            {hourlyRate && (
+            { (tutor.oneClassFee || tutor.hourlyRate) && (
               <div className="text-right shrink-0">
                 <div className="flex flex-col items-end">
-                   <span className="text-lg font-black text-slate-800 leading-none">${hourlyRate}</span>
+                   <span className="text-lg font-black text-slate-800 leading-none">${tutor.oneClassFee || tutor.hourlyRate}</span>
                    <span className="text-[8px] font-black text-primary/60 uppercase tracking-widest mt-1">per class</span>
                 </div>
               </div>
@@ -125,7 +125,7 @@ export function TutorCard({ tutor }: { tutor: Tutor }) {
           )}
         </div>
 
-        <div className="grid grid-cols-2 gap-4 py-4 border-t border-slate-100 /60">
+        <div className="grid grid-cols-1 gap-4 py-4 border-t border-slate-100 /60">
            <div className="flex items-center gap-2">
               <div className="h-7 w-7 rounded-lg bg-soft flex items-center justify-center shrink-0">
                  <Globe className="h-3.5 w-3.5 text-primary" />
@@ -133,15 +133,6 @@ export function TutorCard({ tutor }: { tutor: Tutor }) {
               <div className="min-w-0">
                  <p className="text-[8px] font-black text-primary/60 uppercase tracking-widest">Speaks</p>
                  <p className="text-[10px] font-bold text-slate-700 truncate">{languages?.join(", ") || "Tamil, English"}</p>
-              </div>
-           </div>
-           <div className="flex items-center gap-2">
-              <div className="h-7 w-7 rounded-lg bg-soft flex items-center justify-center shrink-0">
-                 <Clock className="h-3.5 w-3.5 text-secondary" />
-              </div>
-              <div className="min-w-0">
-                 <p className="text-[8px] font-black text-primary/60 uppercase tracking-widest">Response</p>
-                 <p className="text-[10px] font-bold text-slate-700 truncate">~{responseTime || "24 hrs"}</p>
               </div>
            </div>
         </div>
@@ -152,7 +143,6 @@ export function TutorCard({ tutor }: { tutor: Tutor }) {
           <div className="group/btn relative flex items-center justify-center gap-2 rounded-2xl bg-primary py-4 text-[10px] font-black text-white uppercase tracking-[0.2em] shadow-xl transition-all hover:bg-secondary active:scale-95 overflow-hidden">
             <span className="relative z-10 transition-all group-hover/btn:translate-x-[-4px]">Explore Profile</span>
             <ArrowRight className="relative z-10 h-3 w-3 transition-all group-hover/btn:translate-x-4 opacity-70" />
-            <div className="absolute inset-0 bg-gradient-to-r from-primary to-secondary opacity-0 group-hover/btn:opacity-100 transition-opacity duration-500" />
           </div>
       </div>
     </div>

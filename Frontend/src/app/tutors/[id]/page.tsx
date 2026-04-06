@@ -7,7 +7,7 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import {
   ArrowLeft, AlertCircle, Globe, Wifi, Layers,
-  BookOpen, MessageSquare, GraduationCap, Video, Sparkles, UserCheck2,
+  BookOpen, MessageSquare, GraduationCap, Video, Sparkles, UserCheck2, Clock,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
@@ -32,13 +32,13 @@ export default function PublicTutorProfilePage() {
   const [tutor, setTutor] = useState<Tutor | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [modalState, setModalState] = useState<{ open: boolean; type: "question" | "live_class" | "multi_class" }>({
-    open: false, type: "question"
+  const [modalState, setModalState] = useState<{ open: boolean; type: "live_class" | "multi_class" }>({
+    open: false, type: "live_class"
   });
 
   const [isPaying, setIsPaying] = useState(false);
 
-  const handleProtectedBooking = async (type: "question" | "live_class" | "multi_class") => {
+  const handleProtectedBooking = async (type: "live_class" | "multi_class") => {
     if (!user) {
       const currentPath = window.location.pathname;
       router.push(`/auth/signin?redirect=${encodeURIComponent(currentPath)}`);
@@ -52,7 +52,7 @@ export default function PublicTutorProfilePage() {
     if (plan === 'FREE' && !hasPaid) {
       try {
         setIsPaying(true);
-        const { url } = await import("@/services/paymentService").then(m => m.createTutorPayment(id));
+        const { url } = await import("@/services/paymentService").then(m => m.createTutorPayment(id, type === "multi_class"));
         window.location.href = url;
         return;
       } catch (err) {
@@ -161,9 +161,6 @@ export default function PublicTutorProfilePage() {
                       <div className="space-y-2">
                          <div className="flex flex-col md:flex-row items-center md:items-baseline gap-3">
                           <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-slate-800">{tutor.name}</h1>
-                          <span className="flex items-center gap-1 px-3 py-1 rounded-full bg-primary/5 border border-primary/10 text-[10px] font-bold text-primary uppercase tracking-widest">
-                             <Sparkles className="h-3 w-3" /> Expert Teacher
-                          </span>
                         </div>
                         <p className="text-xl font-semibold text-primary/80 leading-relaxed italic">
                           {tutor.specialization ?? "Tamil Language & Culture Expert"}
@@ -186,7 +183,7 @@ export default function PublicTutorProfilePage() {
                          <div className="flex items-center gap-2 group cursor-default">
                             <div className={cn("h-2.5 w-2.5 rounded-full", tutor.isTutorAvailable ? "bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.6)]" : "bg-slate-300")} />
                             <span className={cn("text-xs font-bold uppercase tracking-widest", tutor.isTutorAvailable ? "text-emerald-600" : "text-slate-400")}>
-                               {tutor.isTutorAvailable ? "Accepting Students" : "Away"}
+                               {tutor.isTutorAvailable ? "Available" : "Not Available"}
                             </span>
                          </div>
                       </div>
@@ -225,80 +222,84 @@ export default function PublicTutorProfilePage() {
                      </div>
                   </div>
                 </div>
+
+                {tutor.weeklySchedule && (
+                  <div className="rounded-2xl bg-emerald-50 border border-emerald-100 p-8 flex flex-col md:flex-row items-center gap-6 shadow-xl shadow-emerald-200/20">
+                     <div className="h-14 w-14 rounded-2xl bg-white flex items-center justify-center shadow-sm border border-emerald-100">
+                        <Clock className="h-7 w-7 text-emerald-600" />
+                     </div>
+                     <div className="text-center md:text-left">
+                        <p className="text-[10px] font-black text-emerald-700/60 uppercase tracking-[0.2em] mb-1">Standard Operating Hours</p>
+                        <p className="text-lg font-bold text-emerald-900">{tutor.weeklySchedule}</p>
+                     </div>
+                  </div>
+                )}
               </div>
             </div>
 
             {/* ── Right Column: Booking & Actions ── */}
             <div className="lg:col-span-4 flex flex-col gap-8">
               <div className="sticky top-24 space-y-6">
-                <div className="rounded-2xl bg-white p-10 text-white shadow-2xl shadow-primary/20 border border-slate-100 overflow-hidden">
-                  <div className="flex items-center justify-between mb-10 border-b border-slate-100 pb-8">
-                     <div className="space-y-1">
-                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Base Session Fee</p>
-                        <p className="text-4xl font-bold text-slate-800">${tutor.hourlyRate || "10"}</p>
-                     </div>
-                     <div className="h-14 w-14 rounded-2xl bg-primary/5 border border-primary/10 flex items-center justify-center">
-                        <Sparkles className="h-7 w-7 text-secondary" />
-                     </div>
-                  </div>
+                <div className="rounded-3xl bg-white p-10 text-white shadow-2xl shadow-primary/20 border border-slate-100 overflow-hidden relative">
+                   <div className="absolute top-0 right-0 h-32 w-32 bg-primary/5 rounded-full blur-3xl -mr-16 -mt-16" />
+                   
+                   <div className="space-y-6 relative">
+                      <div className="text-center pb-6 border-b border-slate-50">
+                         <h3 className="text-[10px] font-black text-primary uppercase tracking-[0.3em] mb-2">Mentorship Options</h3>
+                         <p className="text-sm font-bold text-slate-500">Select your learning path</p>
+                      </div>
 
-                  <div className="space-y-4">
-                     <button 
-                       onClick={() => handleProtectedBooking("question")}
-                       disabled={!tutor.isTutorAvailable}
-                       className="group w-full flex items-center justify-between gap-4 rounded-2xl bg-slate-50 border border-slate-100 p-5 text-sm font-bold text-slate-800 transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
-                     >
-                        <div className="flex items-center gap-4">
-                           <div className="h-10 w-10 rounded-xl bg-white border border-slate-100 flex items-center justify-center group-hover:bg-primary/10 transition-colors">
-                              <MessageSquare className="h-5 w-5 text-primary" />
-                           </div>
-                           <span>Ask a Question</span>
-                        </div>
-                        <span className="text-[10px] bg-white px-3 py-1 rounded-full text-slate-500 font-black">$10</span>
-                     </button>
+                      <button 
+                        onClick={() => handleProtectedBooking("live_class")}
+                        disabled={!tutor.isTutorAvailable}
+                        className="group w-full flex items-center justify-between gap-4 rounded-[2rem] border border-slate-100 bg-white p-6 shadow-xl shadow-slate-200/20 transition-all hover:scale-[1.05] active:scale-[0.98] disabled:opacity-50"
+                      >
+                         <div className="flex items-center gap-5">
+                            <div className="h-12 w-12 rounded-2xl bg-primary/5 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-all duration-500">
+                               <Video className="h-6 w-6" />
+                            </div>
+                            <div className="text-left">
+                               <p className="text-[9px] font-black uppercase tracking-widest text-primary/60 mb-0.5">High Intensity</p>
+                               <p className="text-sm font-black text-slate-800">1h Class</p>
+                            </div>
+                         </div>
+                         <div className="flex flex-col items-end text-primary">
+                            <span className="text-xl font-black">${tutor.oneClassFee || "30"}</span>
+                            <span className="text-[8px] font-black uppercase tracking-widest">per class</span>
+                         </div>
+                      </button>
 
-                     <button 
-                       onClick={() => handleProtectedBooking("live_class")}
-                       disabled={!tutor.isTutorAvailable}
-                       className="group w-full flex items-center justify-between gap-4 rounded-2xl border border-slate-100 bg-slate-50 p-5 text-sm font-bold text-slate-800 transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
-                     >
-                        <div className="flex items-center gap-4">
-                           <div className="h-10 w-10 rounded-xl bg-white border border-slate-100 flex items-center justify-center group-hover:bg-primary/10 transition-colors">
-                              <Video className="h-5 w-5 text-secondary" />
-                           </div>
-                           <span>Live 1:1 Class</span>
-                        </div>
-                        <span className="text-[10px] bg-white px-3 py-1 rounded-full text-slate-500 font-black">$30</span>
-                     </button>
+                      <button 
+                        onClick={() => handleProtectedBooking("multi_class")}
+                        disabled={!tutor.isTutorAvailable}
+                        className="group w-full flex items-center justify-between gap-4 rounded-[2rem] border border-slate-100 bg-primary p-6 shadow-xl shadow-primary/20 transition-all hover:scale-[1.05] active:scale-[0.98] disabled:opacity-50 text-white"
+                      >
+                         <div className="flex items-center gap-5">
+                            <div className="h-12 w-12 rounded-2xl bg-white/20 flex items-center justify-center text-white group-hover:bg-white group-hover:text-primary transition-all duration-500">
+                               <Layers className="h-6 w-6" />
+                            </div>
+                            <div className="text-left">
+                               <p className="text-[9px] font-black uppercase tracking-widest text-white/70 mb-0.5">Best Value</p>
+                               <p className="text-sm font-black">8-Class Package</p>
+                            </div>
+                         </div>
+                         <div className="flex flex-col items-end">
+                            <span className="text-xl font-black text-white">${tutor.eightClassFee || "200"}</span>
+                            <span className="text-[8px] font-black text-white/70 uppercase tracking-widest">total bundle</span>
+                         </div>
+                      </button>
 
-                     <button 
-                       onClick={() => handleProtectedBooking("multi_class")}
-                       disabled={!tutor.isTutorAvailable}
-                       className="group w-full flex items-center justify-between gap-4 rounded-2xl border border-slate-100 bg-slate-50 p-5 text-sm font-bold text-slate-800 transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
-                     >
-                        <div className="flex items-center gap-4">
-                           <div className="h-10 w-10 rounded-xl bg-white border border-slate-100 flex items-center justify-center group-hover:bg-primary/10 transition-colors">
-                              <Layers className="h-5 w-5 text-secondary" />
-                           </div>
-                           <span>5-Session Package</span>
-                        </div>
-                        <span className="text-[10px] bg-white px-3 py-1 rounded-full text-slate-500 font-black">$100</span>
-                     </button>
-                  </div>
-
-                  <div className="mt-10 pt-8 border-t border-slate-100 text-center">
-                     <p className="text-[11px] text-slate-500 font-medium leading-relaxed">
-                        Teachers usually respond within {tutor.responseTime || "24 hours"}. Credits are fully refunded if your request is declined.
-                     </p>
-                  </div>
+                      <div className="pt-4 flex flex-col items-center gap-3">
+                         <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-50 border border-emerald-100 font-sans">
+                            <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                            <span className="text-[9px] font-black text-emerald-700 uppercase tracking-[0.2em]">Secure Stripe Checkout</span>
+                         </div>
+                         <p className="text-[10px] text-center text-slate-400 font-medium px-4 leading-relaxed">
+                            Once payment is confirmed, your session schedule will be unlocked immediately.
+                         </p>
+                      </div>
+                   </div>
                 </div>
-
-                <Link 
-                  href="/student/tutors/my-requests" 
-                  className="flex items-center justify-center gap-3 w-full rounded-2xl border border-slate-100 bg-white py-5 text-xs font-bold text-slate-600 transition-all hover:border-primary hover:text-primary shadow-xl shadow-slate-200/20"
-                >
-                   <ArrowLeft className="h-4 w-4" /> My Tutor Requests
-                </Link>
               </div>
             </div>
           </div>

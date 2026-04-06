@@ -65,6 +65,7 @@ export async function evaluateAnswersAndSaveProgress(userId, lessonId, answers) 
     // 3. Evaluate score
     let score = 0;
     let totalPossibleScore = 0;
+    const weakAreas = new Set();
 
     const questionMap = new Map();
     questions.forEach(q => {
@@ -82,6 +83,9 @@ export async function evaluateAnswersAndSaveProgress(userId, lessonId, answers) 
 
             if (isCorrectChoice || isCorrectSpeaking || isCorrectWriting) {
                 score += q.scoreValue || 10;
+            } else {
+                // TRACK WEAK AREAS
+                weakAreas.add(q.type);
             }
         }
     }
@@ -123,6 +127,8 @@ export async function evaluateAnswersAndSaveProgress(userId, lessonId, answers) 
 
     let progress = await Progress.findOne({ userId, lessonId });
 
+    const weakAreasList = Array.from(weakAreas);
+
     if (!progress) {
         progress = await Progress.create({
             userId,
@@ -130,6 +136,7 @@ export async function evaluateAnswersAndSaveProgress(userId, lessonId, answers) 
             score,
             totalPossibleScore,
             accuracy: Math.round(passPercentage),
+            weakAreas: weakAreasList,
             isCompleted: passed,
             completedAt: passed ? new Date() : undefined
         });
@@ -138,6 +145,7 @@ export async function evaluateAnswersAndSaveProgress(userId, lessonId, answers) 
         if (score > progress.score) {
             progress.score = score;
             progress.accuracy = Math.round(passPercentage);
+            progress.weakAreas = weakAreasList;
         }
         
         if (!progress.isCompleted && passed) {

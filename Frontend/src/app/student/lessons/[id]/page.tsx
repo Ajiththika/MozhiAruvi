@@ -285,7 +285,15 @@ export default function LessonInteractiveSession() {
               />
             )}
           </div>
-          <div className="w-10" />
+          <div className="flex items-center gap-3">
+            <button 
+              onClick={() => setShowAskPanel(true)}
+              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-50 text-amber-600 border border-amber-200 hover:bg-amber-100 transition-colors font-black text-[10px] uppercase tracking-wider"
+            >
+              <HelpCircle size={16} />
+              Need Help?
+            </button>
+          </div>
         </div>
       </header>
 

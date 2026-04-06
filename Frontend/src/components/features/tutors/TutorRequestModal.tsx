@@ -8,7 +8,7 @@ import {
 import { Tutor, requestTutor, RequestTutorPayload } from "@/services/tutorService";
 import { cn } from "@/lib/utils";
 
-type RequestType = "question" | "live_class" | "multi_class";
+type RequestType = "live_class" | "multi_class";
 
 interface TutorRequestModalProps {
   tutor: Tutor;
@@ -16,31 +16,24 @@ interface TutorRequestModalProps {
   initialType?: RequestType;
 }
 
-const REQUEST_INFO = {
-  question: {
-    label: "Ask a Question",
-    icon: MessageSquare,
-    price: 10,
-    description: "Brief question or clarification ($10)",
-    placeholder: "Type your Tamil learning question here…",
-  },
+const REQUEST_INFO = (tutor: Tutor) => ({
   live_class: {
-    label: "Live 1-on-1 Class",
+    label: "1h Class",
     icon: Video,
-    price: 30,
-    description: "Request a 45-min live session ($30)",
-    placeholder: "What would you like to learn in this session?",
+    price: tutor.oneClassFee || 30,
+    description: `Private 1-hour session with ${tutor.name} ($${tutor.oneClassFee || 30})`,
+    placeholder: "What specific Tamil topics would you like to cover in this session?",
   },
   multi_class: {
-    label: "Multi-Session Package",
+    label: "8-Class Mastery Hub",
     icon: Layers,
-    price: 100,
-    description: "Intensive 5-session package ($100)",
-    placeholder: "Describe your learning goals for this package…",
+    price: tutor.eightClassFee || 200,
+    description: `Intensive 8-session deep dive ($${tutor.eightClassFee || 200})`,
+    placeholder: "Describe your long-term learning goals for this 8-class journey…",
   },
-};
+});
 
-export function TutorRequestModal({ tutor, onClose, initialType = "question" }: TutorRequestModalProps) {
+export function TutorRequestModal({ tutor, onClose, initialType = "live_class" }: TutorRequestModalProps) {
   const [type, setType] = useState<RequestType>(initialType);
   const [content, setContent] = useState("");
   const [metadata, setMetadata] = useState<{
@@ -66,20 +59,20 @@ export function TutorRequestModal({ tutor, onClose, initialType = "question" }: 
         content: content.trim(),
         metadata: {
           ...metadata,
-          sessionsCount: type === "multi_class" ? 5 : undefined,
+          sessionsCount: type === "multi_class" ? 8 : undefined,
         }
       };
       
       await requestTutor(payload);
       setSent(true);
     } catch (e: any) {
-      setError(e?.response?.data?.message || "Failed to send request. Check your balance.");
+      setError(e?.response?.data?.message || "Failed to initiate payment. Please check your Stripe status.");
     } finally {
       setSending(false);
     }
   };
 
-  const info = REQUEST_INFO[type];
+  const info = REQUEST_INFO(tutor)[type];
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-white/60 backdrop-blur-sm animate-in fade-in duration-200">
@@ -126,9 +119,9 @@ export function TutorRequestModal({ tutor, onClose, initialType = "question" }: 
 
             <div className="p-8 space-y-8">
               {/* Type Selection */}
-              <div className="grid grid-cols-3 gap-4">
-                {(Object.keys(REQUEST_INFO) as RequestType[]).map((key) => {
-                  const item = REQUEST_INFO[key];
+              <div className="grid grid-cols-2 gap-4">
+                {(Object.keys(REQUEST_INFO(tutor)) as RequestType[]).map((key) => {
+                  const item = REQUEST_INFO(tutor)[key];
                   const Icon = item.icon;
                   const active = type === key;
                   return (
@@ -136,16 +129,21 @@ export function TutorRequestModal({ tutor, onClose, initialType = "question" }: 
                       key={key}
                       onClick={() => setType(key)}
                       className={cn(
-                        "group/type flex flex-col items-center gap-3 p-4 rounded-[1.5rem] border-2 transition-all text-center",
+                        "group/type flex flex-col items-center gap-3 p-5 rounded-[2rem] border-2 transition-all text-center",
                         active 
                           ? "border-primary bg-primary/5 ring-4 ring-primary/5" 
                           : "border-slate-50 hover:border-slate-100 hover:bg-slate-50/50"
                       )}
                     >
-                      <Icon className={cn("h-5 w-5 transition-transform group-hover/type:scale-110", active ? "text-primary" : "text-primary/60")} />
-                      <span className={cn("text-[10px] font-bold uppercase tracking-wider", active ? "text-primary" : "text-primary/70")}>
-                        {key.replace("_", " ")}
-                      </span>
+                      <Icon className={cn("h-6 w-6 transition-transform group-hover/type:scale-110", active ? "text-primary" : "text-primary/60")} />
+                      <div className="space-y-0.5">
+                         <span className={cn("block text-[10px] font-black uppercase tracking-[0.2em]", active ? "text-primary" : "text-primary/40")}>
+                           {key.replace("_", " ")}
+                         </span>
+                         <span className={cn("block text-[8px] font-bold", active ? "text-primary/60" : "text-slate-400")}>
+                           ${item.price}
+                         </span>
+                      </div>
                     </button>
                   );
                 })}
@@ -186,7 +184,7 @@ export function TutorRequestModal({ tutor, onClose, initialType = "question" }: 
                       <div className="space-y-1.5">
                         <label className="text-xs font-bold text-primary/70 uppercase tracking-widest">Sessions</label>
                         <div className="w-full rounded-xl bg-slate-100 dark:bg-slate-800 px-4 py-2.5 text-sm font-bold text-slate-600 dark:text-primary/40">
-                          5 Sessions
+                          8 Sessions
                         </div>
                       </div>
                       <div className="space-y-1.5">

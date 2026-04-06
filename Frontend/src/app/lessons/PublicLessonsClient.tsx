@@ -107,10 +107,10 @@ export default function PublicLessonsClient({ initialLessons }: { initialLessons
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-white/10 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/3 pointer-events-none" />
         
         <div className="relative z-10 flex flex-col justify-center items-center text-center">
-          <h2 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tighter text-white uppercase drop-shadow-md">
+          <h2 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tighter text-white uppercase drop-shadow-md">
             Start Learning
           </h2>
-          <p className="mt-5 text-base sm:text-xl font-medium text-white/80 max-w-2xl mx-auto leading-relaxed">
+          <p className="mt-3 md:mt-5 text-sm sm:text-xl font-medium text-white/80 max-w-2xl mx-auto leading-relaxed px-4">
             Effectively build your conversational skills to confidently connect with your relatives. Choose a path below to begin.
           </p>
         </div>

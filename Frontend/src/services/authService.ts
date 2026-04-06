@@ -37,6 +37,9 @@ export interface SafeUser {
   specialization?: string;
   experience?: string;
   hourlyRate?: number;
+  oneClassFee?: number;
+  eightClassFee?: number;
+  weeklySchedule?: string;
   isPremium?: boolean;
   progress?: {
     energy: number;

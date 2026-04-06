@@ -213,17 +213,18 @@ export async function createEventPaymentSession(req, res, next) {
  */
 export async function createTutorPaymentSession(req, res, next) {
     try {
-        const { tutorId } = req.body;
+        const { tutorId, isPackage } = req.body; // isPackage: true for 8-class bundle
         const user = await User.findById(req.user.sub);
         const tutor = await User.findById(tutorId);
         if (!tutor) return res.status(404).json({ message: "Tutor not found" });
 
-        const amount = tutor.hourlyRate || 10;
+        const amount = isPackage ? (tutor.eightClassFee || 200) : (tutor.oneClassFee || tutor.hourlyRate || 30);
 
         const session = await stripeService.createPaymentSession(user, amount, 'tutor_session', {
             tutorId,
-            name: `Private Class with ${tutor.name}`,
-            successPath: `student/tutors/success?tutorId=${tutorId}`,
+            isPackage: String(!!isPackage),
+            name: isPackage ? `8-Class Mastery Bundle with ${tutor.name}` : `Private Class with ${tutor.name}`,
+            successPath: `student/tutors/success?tutorId=${tutorId}&package=${!!isPackage}`,
             cancelPath: `student/tutors/${tutorId}`
         });
 
@@ -232,7 +233,7 @@ export async function createTutorPaymentSession(req, res, next) {
             stripeSessionId: session.id,
             amount,
             paymentType: 'tutor_session',
-            metadata: { tutorId }
+            metadata: { tutorId, isPackage }
         });
 
         res.json({ url: session.url });

@@ -29,7 +29,10 @@ export interface Tutor {
   bio?: string;
   experience?: string;
   specialization?: string;
+  weeklySchedule?: string;
   hourlyRate?: number;
+  oneClassFee?: number;
+  eightClassFee?: number;
   teachingMode?: "online" | "offline" | "both";
   languages?: string[];
   profilePhoto?: string | null;
@@ -42,10 +45,10 @@ export interface TutorRequest {
   _id: string;
   teacherId: string | { _id: string; name: string; email: string; profilePhoto?: string };
   studentId?: string | { _id: string; name: string; email: string };
-  lessonId?: string | { _id: string; title: string; moduleNumber?: number };
-  requestType: "question" | "live_class" | "multi_class";
+  lessonId: string | { _id: string; title: string; moduleNumber?: number };
+  requestType: "doubt" | "speaking" | "practice" | "question" | "live_class" | "multi_class";
   content: string;
-  status: "pending" | "accepted" | "declined" | "replied" | "resolved";
+  status: "pending" | "accepted" | "declined" | "replied" | "resolved" | "answered" | "scheduled";
   
   /** Threaded conversation messages */
   messages?: {
@@ -64,13 +67,18 @@ export interface TutorRequest {
     additionalNotes?: string;
     lessonTitle?: string;
     lessonModule?: number;
+    studentProgress?: {
+      score?: number;
+      accuracy?: number;
+      weakAreas?: string[];
+    };
   };
 }
 
 export interface RequestTutorPayload {
-  teacherId: string;
+  teacherId?: string; // Optional for auto-assignment
   lessonId?: string;
-  requestType: "question" | "live_class" | "multi_class";
+  requestType: "doubt" | "speaking" | "practice" | "question" | "live_class" | "multi_class";
   content: string;
   metadata?: {
     topics?: string[];
@@ -87,7 +95,10 @@ export interface TutorProfilePayload {
   experience?: string;
   specialization?: string;
   schedule?: unknown;
+  weeklySchedule?: string;
   hourlyRate?: number;
+  oneClassFee?: number;
+  eightClassFee?: number;
   languages?: string[];
   teachingMode?: "online" | "offline" | "both";
   profilePhoto?: string | null;

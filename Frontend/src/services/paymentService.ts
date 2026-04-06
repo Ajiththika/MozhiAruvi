@@ -10,8 +10,8 @@ export async function createEventPayment(eventId: string) {
   return res.data;
 }
 
-export async function createTutorPayment(tutorId: string) {
-  const res = await api.post<{ url: string }>("/payments/create-tutor-payment", { tutorId });
+export async function createTutorPayment(tutorId: string, isPackage?: boolean) {
+  const res = await api.post<{ url: string }>("/payments/create-tutor-payment", { tutorId, isPackage });
   return res.data;
 }
 

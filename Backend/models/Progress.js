@@ -6,6 +6,7 @@ const progressSchema = new mongoose.Schema({
     score: { type: Number, required: true },
     totalPossibleScore: { type: Number, default: 0 },
     accuracy: { type: Number, default: 0 },
+    weakAreas: [{ type: String }],
     isCompleted: { type: Boolean, default: true },
     completedAt: { type: Date, default: Date.now }
 }, { timestamps: true });

@@ -119,37 +119,37 @@ export default function Hero() {
         </div>
 
         {/* Headline */}
-        <div className="space-y-6">
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-800 tracking-tight leading-tight">
+        <div className="space-y-4 md:space-y-6">
+          <h1 className="text-3xl md:text-5xl font-bold text-gray-800 tracking-tight leading-tight">
             <span className="block text-primary">வாழ்க தமிழ் வளர்க கலை</span>
-            <span className="block text-2xl md:text-3xl mt-4 text-gray-800">
+            <span className="block text-xl md:text-3xl mt-2 md:mt-4 text-gray-800">
               Long Live Tamil Flourish the Arts
             </span>
           </h1>
         </div>
 
         {/* Description */}
-        <p className="mt-8 text-base text-gray-600 max-w-xl mx-auto leading-relaxed font-medium">
+        <p className="mt-6 md:mt-8 text-sm md:text-base text-gray-600 max-w-xl mx-auto leading-relaxed font-medium px-2">
           Join us in preserving and celebrating this beautiful
           language through interactive lessons, expert tutors, and a vibrant
           community.
         </p>
 
         {/* Tamil quote card */}
-        <div className="mt-12 max-w-xl mx-auto p-8 bg-white/70 rounded-3xl border border-gray-100 shadow-md backdrop-blur">
-          <p className="text-lg font-bold text-primary mb-3">
+        <div className="mt-8 md:mt-12 max-w-xl mx-auto p-6 md:p-8 bg-white/70 rounded-3xl border border-gray-100 shadow-md backdrop-blur">
+          <p className="text-base md:text-lg font-bold text-primary mb-2 md:mb-3">
             &ldquo;யாதும் ஊரே யாவரும் கேளிர்&rdquo;
           </p>
-          <p className="text-base text-gray-700 mb-3 leading-relaxed font-bold">
+          <p className="text-sm md:text-base text-gray-700 mb-2 md:mb-3 leading-relaxed font-bold">
             &ldquo;To us all towns are one, all men our kin.&rdquo;
           </p>
-          <div className="flex items-center justify-center gap-2 mt-4 text-[10px] text-gray-500 font-bold border-t border-gray-50 pt-4 tracking-tight">
+          <div className="flex items-center justify-center gap-2 mt-3 md:mt-4 text-[10px] text-gray-500 font-bold border-t border-gray-50 pt-4 tracking-tight">
             - Kaniyan Pungundranar, Purananuru
           </div>
         </div>
 
         {/* CTA buttons */}
-        <div className="mt-12">
+        <div className="mt-8 md:mt-12">
           <p className="text-sm font-semibold text-gray-800 mb-6">
             Ready to Begin Your Tamil Journey?
           </p>
