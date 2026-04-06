@@ -146,48 +146,50 @@ export default function EventsPage() {
                               : `linear-gradient(to bottom right, #4f46e5, #0ea5e9)`
                           }}
                         />
-                        {/* Optimized High-Contrast Overlay */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-indigo-950/95 via-indigo-950/40 to-transparent" />
+                        {/* Multi-layer Cinematic Overlay System */}
+                        <div className="absolute inset-0 bg-slate-950/40" /> {/* 1. Base Darkening Tint */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" /> {/* 2. Bottom-up Vignette */}
+                        <div className="absolute inset-0 bg-gradient-to-b from-slate-950/60 via-transparent to-transparent opacity-60" /> {/* 3. Decorative Top Glow */}
                         
                         {/* Visual Decorative Layer */}
-                        <div className="absolute top-0 right-0 p-12 opacity-[0.03] font-black text-[30rem] text-white leading-none select-none pointer-events-none rotate-12">
+                        <div className="absolute bottom-0 right-0 p-12 opacity-[0.05] font-black text-[25rem] text-white leading-none select-none pointer-events-none translate-x-20 translate-y-20 rotate-12">
                            க
                         </div>
 
                         {/* Content Overlay */}
-                        <div className="absolute inset-0 flex flex-col justify-end p-8 md:p-20 animate-in fade-in slide-in-from-bottom-8 duration-700 fill-mode-both">
-                          <div className="max-w-4xl space-y-8">
-                            <div className="inline-flex items-center gap-3 px-5 py-2.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-xs font-bold text-white uppercase tracking-wider shadow-sm">
-                              <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse border border-emerald-400/50 shadow-lg shadow-emerald-400/30" />
+                        <div className="absolute inset-0 flex flex-col justify-center md:justify-end p-6 md:p-12 animate-in fade-in slide-in-from-bottom-8 duration-700 fill-mode-both">
+                          <div className="max-w-2xl p-8 md:p-10 rounded-[2.5rem] backdrop-blur-md bg-white/5 border border-white/10 space-y-6 shadow-2xl shadow-indigo-950/20 backdrop-saturate-150">
+                            <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-white/10 backdrop-blur-xl border border-white/20 text-[10px] font-black text-white uppercase tracking-[0.2em] shadow-sm">
+                              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse border border-emerald-400/50 shadow-lg shadow-emerald-400/30" />
                               Platform Spotlight
                             </div>
 
-                            <h2 className="text-4xl md:text-7xl lg:text-8xl font-black text-white tracking-tight leading-[1] drop-shadow-2xl">
+                            <h2 className="text-3xl md:text-5xl lg:text-6xl font-black text-white tracking-tighter leading-[1.1] drop-shadow-2xl">
                               {event.title}
                             </h2>
 
-                            <div className="flex flex-wrap items-center gap-10 text-white/90 font-bold text-xs md:text-base pt-2">
-                              <span className="flex items-center gap-3">
-                                <Calendar className="w-5 h-5 text-emerald-400" />
-                                {new Date(event.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                            <div className="flex flex-wrap items-center gap-6 text-white/80 font-bold text-[10px] md:text-xs pt-2 uppercase tracking-widest">
+                              <span className="flex items-center gap-2">
+                                <Calendar className="w-4 h-4 text-emerald-400" />
+                                {new Date(event.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                               </span>
-                              <span className="flex items-center gap-3">
-                                <Clock className="w-5 h-5 text-emerald-400" />
+                              <span className="flex items-center gap-2">
+                                <Clock className="w-4 h-4 text-emerald-400" />
                                 {event.time}
                               </span>
-                              <span className="flex items-center gap-3">
-                                <MapPin className="w-5 h-5 text-emerald-400" />
+                              <span className="flex items-center gap-2">
+                                <MapPin className="w-4 h-4 text-emerald-400" />
                                 {event.location}
                               </span>
                             </div>
 
-                            <div className="pt-10">
+                            <div className="pt-6">
                               <button
                                 onClick={() => handleOpenRegistration(event)}
-                                className="inline-flex items-center gap-8 bg-white text-indigo-900 px-12 py-6 rounded-2xl font-bold uppercase tracking-widest text-xs hover:bg-emerald-400 hover:text-white transition-all shadow-2xl shadow-indigo-900/50 active:scale-95 group/btn border-none"
+                                className="inline-flex items-center gap-6 bg-white text-indigo-900 px-10 py-5 rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] hover:bg-emerald-400 hover:text-white transition-all shadow-2xl shadow-indigo-900/50 active:scale-95 group/btn border-none"
                               >
                                 Reserve Experience
-                                <ChevronRight className="w-5 h-5 group-hover:translate-x-1.5 transition-transform" />
+                                <ChevronRight className="w-4 h-4 group-hover:translate-x-1.5 transition-transform" />
                               </button>
                             </div>
                           </div>

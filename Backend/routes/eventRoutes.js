@@ -89,7 +89,7 @@ router.get('/', authenticateOptional, eventController.listEvents);
 router.get('/my-requests', authenticate, eventController.getMyJoinRequests);
 
 // GET /api/events/my-events — tutor sees their own created events
-router.get('/my-events', authenticate, authorizeRoles(ROLES.TEACHER), eventController.getMyEvents);
+router.get('/my-events', authenticate, authorizeRoles(ROLES.TEACHER, ROLES.TUTOR), eventController.getMyEvents);
 
 // GET /api/events/:id — single event detail
 router.get('/:id', authenticateOptional, eventController.getEvent);

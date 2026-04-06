@@ -18,6 +18,10 @@ export async function getOrCreateCustomer(user) {
     return user.subscription.stripeCustomerId;
   }
 
+  if (!user.subscription) {
+    user.subscription = { plan: 'FREE' };
+  }
+
   const customer = await stripe.customers.create({
     email: user.email,
     name: user.name,
@@ -32,10 +36,18 @@ export async function getOrCreateCustomer(user) {
 /**
  * Creates a Checkout Session for Subscription.
  */
-export async function createSubscriptionSession(user, priceId, planName, cycle) {
+export async function createSubscriptionSession(user, priceId, planName, cycle, seats) {
+  if (!priceId || priceId.includes('placeholder')) {
+     throw new Error('Stripe Price ID is not configured. Please update your .env file with actual Price IDs.');
+  }
+
+  if (!priceId.startsWith('price_')) {
+     throw new Error(`Invalid Stripe Price ID: "${priceId}". Please ensure you use a Price ID (starting with "price_"), not a Product ID (starting with "prod_").`);
+  }
+
   const customerId = await getOrCreateCustomer(user);
 
-  return await stripe.checkout.sessions.create({
+  const sessionData = {
     customer: customerId,
     mode: 'subscription',
     payment_method_types: ['card'],
@@ -49,14 +61,20 @@ export async function createSubscriptionSession(user, priceId, planName, cycle) 
       userId: user._id.toString(),
       plan: planName,
       billingCycle: cycle,
-      ...(arguments[4] ? { seats: arguments[4] } : {}) // passed as 5th argument if business
-    },
-    subscription_data: {
-      trial_period_days: 7,
+      ...(seats ? { seats } : {}) 
     },
     success_url: `${process.env.FRONTEND_ORIGIN}/student/subscription/success?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${process.env.FRONTEND_ORIGIN}/student/subscription`,
-  });
+  };
+
+  // Only apply trial if user has NOT used it before
+  if (!user.subscription?.hasUsedTrial) {
+    sessionData.subscription_data = {
+      trial_period_days: 7,
+    };
+  }
+
+  return await stripe.checkout.sessions.create(sessionData);
 }
 
 /**

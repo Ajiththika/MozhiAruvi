@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import User from '../models/User.js';
+import Lesson from '../models/Lesson.js';
 import TutorRequest from '../models/TutorRequest.js';
 import * as aiService from './aiChatService.js';
 import mozhiEvents from '../events/eventEmitter.js';
@@ -62,8 +63,8 @@ export async function getAvailableTutors(page = 1, limit = 6, filters = {}) {
 }
 
 export async function getTutorById(tutorId) {
-    const tutor = await User.findOne({ _id: tutorId, role: 'teacher', isActive: true })
-        .select('name bio experience specialization hourlyRate oneClassFee eightClassFee languages email schedule teachingMode profilePhoto levelSupport responseTime isTutorAvailable');
+    const tutor = await User.findOne({ _id: tutorId, role: { $in: ['teacher', 'tutor'] }, isActive: true })
+        .select('name bio experience specialization hourlyRate weeklySchedule oneClassFee eightClassFee languages email schedule teachingMode profilePhoto levelSupport responseTime isTutorAvailable');
     if (!tutor) {
         const err = new Error('Tutor not found or unavailable'); err.status = 404; err.code = 'NOT_FOUND'; throw err;
     }
@@ -118,39 +119,64 @@ export async function createRequest(studentId, data) {
         }
     }
 
-    if (!teacherId) {
-        const err = new Error('No tutors currently available for this lesson.'); err.status = 404; err.code = 'NO_TUTORS_AVAILABLE'; throw err;
+    if (!teacherId || !mongoose.Types.ObjectId.isValid(teacherId)) {
+        const err = new Error('No valid tutors current available for this lesson.'); err.status = 404; err.code = 'NO_TUTORS_AVAILABLE'; throw err;
     }
 
     const tutor = await User.findById(teacherId);
-    if (!tutor || tutor.role !== 'teacher' || !tutor.isActive) {
+    if (!tutor || !['teacher', 'tutor'].includes(tutor.role) || !tutor.isActive) {
         const err = new Error('Selected tutor is no longer available.'); err.status = 404; err.code = 'UNAVAILABLE_TUTOR'; throw err;
     }
 
     // Dynamic pricing based on request type
     const pricing = {
-        'doubt': 10,
-        'speaking': 20,
-        'practice': 15,
-        'question': 10,
-        'live_class': tutor.oneClassFee || 30,
-        'multi_class': tutor.eightClassFee || 200
+        'doubt': 0, // Free within limits
+        'speaking': 0, // Free within limits
+        'practice': 0, // Free within limits
+        'question': 0, // Free within limits
     };
-    const priceCredits = pricing[data.requestType || 'doubt'] || 10;
+    const priceCredits = pricing[data.requestType || 'doubt'] ?? 0;
 
-    const student = await User.findById(studentId);
-    if (student.credits < priceCredits && !student.isPremium) {
+    const student = await User.findById(studentId).select('+subscription +isPremium +credits');
+    
+    // ── SUBSCRIPTION LIMITS ──────────────────────────────────────────────────
+    const plan = student.subscription?.plan || 'FREE';
+    let limit = 10; 
+    if (plan === 'PRO') limit = 50;
+    if (plan === 'PREMIUM') limit = 100;
+
+    // Reset usage if period ended (Check currentPeriodEnd for Pro/Premium)
+    if (plan !== 'FREE' && student.subscription?.currentPeriodEnd && new Date() > student.subscription.currentPeriodEnd) {
+        student.subscription.tutorSupportUsed = 0;
+    }
+
+    if ((student.subscription?.tutorSupportUsed || 0) >= limit) {
+        const message = plan === 'FREE' 
+            ? "You've reached your monthly limit of 10 free requests. Please upgrade to Pro or Premium to continue asking questions!"
+            : `You've reached your monthly limit of ${limit} requests for the ${plan} plan.`;
+        const err = new Error(message); 
+        err.status = 402; 
+        err.code = 'LIMIT_REACHED'; 
+        err.redirect = "/student/subscription";
+        throw err;
+    }
+
+    if (priceCredits > 0 && student.credits < priceCredits && !student.isPremium) {
         const err = new Error(`Insufficient credits. You need ${priceCredits} tokens for this expert intervention.`); err.status = 402; err.code = 'NOT_ENOUGH_CREDITS'; throw err;
     }
 
     // Capture student progress for teacher visibility
     const progress = await mongoose.model('Progress').findOne({ userId: studentId, lessonId: data.lessonId });
 
-    // Deduct credits immediately
-    if (!student.isPremium) {
+    // Deduct credits ONLY IF priceCredits > 0 (for legacy support if needed)
+    if (priceCredits > 0 && !student.isPremium) {
         student.credits -= priceCredits;
-        await student.save();
     }
+    
+    // Increment usage
+    if (!student.subscription) student.subscription = { plan: 'FREE', tutorSupportUsed: 0 };
+    student.subscription.tutorSupportUsed = (student.subscription.tutorSupportUsed || 0) + 1;
+    await student.save();
 
     const helpRequest = await TutorRequest.create({
         studentId,

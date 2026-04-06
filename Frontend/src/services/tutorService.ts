@@ -80,6 +80,10 @@ export interface RequestTutorPayload {
   lessonId?: string;
   requestType: "doubt" | "speaking" | "practice" | "question" | "live_class" | "multi_class";
   content: string;
+  studentName?: string;
+  studentAge?: string | number;
+  studentEmail?: string;
+  studentCountry?: string;
   metadata?: {
     topics?: string[];
     preferredTime?: string;

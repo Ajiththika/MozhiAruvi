@@ -45,24 +45,6 @@ export default function PublicTutorProfilePage() {
       return;
     }
 
-    // Check if user has premium plan or has already paid for this tutor
-    const plan = user.subscription?.plan || 'FREE';
-    const hasPaid = user.subscription?.paidTutors?.includes(id);
-
-    if (plan === 'FREE' && !hasPaid) {
-      try {
-        setIsPaying(true);
-        const { url } = await import("@/services/paymentService").then(m => m.createTutorPayment(id, type === "multi_class"));
-        window.location.href = url;
-        return;
-      } catch (err) {
-        console.error(err);
-        alert("Failed to initiate payment. Please try again.");
-      } finally {
-        setIsPaying(false);
-      }
-    }
-
     setModalState({ open: true, type });
   };
 
@@ -251,8 +233,7 @@ export default function PublicTutorProfilePage() {
 
                       <button 
                         onClick={() => handleProtectedBooking("live_class")}
-                        disabled={!tutor.isTutorAvailable}
-                        className="group w-full flex items-center justify-between gap-4 rounded-[2rem] border border-slate-100 bg-white p-6 shadow-xl shadow-slate-200/20 transition-all hover:scale-[1.05] active:scale-[0.98] disabled:opacity-50"
+                        className="group w-full flex items-center justify-between gap-4 rounded-[2rem] border border-slate-100 bg-white p-6 shadow-xl shadow-slate-200/20 transition-all hover:scale-[1.05] active:scale-[0.98]"
                       >
                          <div className="flex items-center gap-5">
                             <div className="h-12 w-12 rounded-2xl bg-primary/5 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-all duration-500">
@@ -271,8 +252,7 @@ export default function PublicTutorProfilePage() {
 
                       <button 
                         onClick={() => handleProtectedBooking("multi_class")}
-                        disabled={!tutor.isTutorAvailable}
-                        className="group w-full flex items-center justify-between gap-4 rounded-[2rem] border border-slate-100 bg-primary p-6 shadow-xl shadow-primary/20 transition-all hover:scale-[1.05] active:scale-[0.98] disabled:opacity-50 text-white"
+                        className="group w-full flex items-center justify-between gap-4 rounded-[2rem] border border-slate-100 bg-primary p-6 shadow-xl shadow-primary/20 transition-all hover:scale-[1.05] active:scale-[0.98] text-white"
                       >
                          <div className="flex items-center gap-5">
                             <div className="h-12 w-12 rounded-2xl bg-white/20 flex items-center justify-center text-white group-hover:bg-white group-hover:text-primary transition-all duration-500">

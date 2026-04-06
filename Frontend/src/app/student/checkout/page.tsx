@@ -78,7 +78,7 @@ function CheckoutContent() {
     <div className="min-h-screen bg-slate-50/50 py-12 lg:py-20 px-4 sm:px-6">
       <div className="max-w-5xl mx-auto">
         <div className="flex items-center gap-2 text-primary/60 font-black uppercase tracking-widest text-[10px] mb-8">
-           <Lock size={12} className="text-emerald-500" /> Secure Checkout
+           Checkout
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
@@ -175,21 +175,11 @@ function CheckoutContent() {
                      >
                         Complete Order ${price.toFixed(2)}
                      </Button>
-                     <p className="text-center text-[10px] font-bold text-primary/60 leading-relaxed max-w-sm mx-auto">
-                        Your transaction is secured with industry-standard 256-bit encryption. Payment processing is managed by <strong className="text-slate-600">Stripe</strong>.
-                     </p>
                   </div>
                </Card>
             </div>
 
-            <div className="flex items-center justify-center gap-8 py-4 opacity-40">
-               <div className="grayscale contrast-125 brightness-75 flex items-center gap-2">
-                  <Shield size={16} /> <span className="text-[9px] font-black uppercase tracking-widest">PCI Compliant</span>
-               </div>
-               <div className="grayscale contrast-125 brightness-75 flex items-center gap-2">
-                  <Lock size={16} /> <span className="text-[9px] font-black uppercase tracking-widest">SSL Encrypted</span>
-               </div>
-            </div>
+
           </div>
 
           {/* RIGHT SIDE: ORDER SUMMARY */}

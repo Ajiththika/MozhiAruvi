@@ -17,8 +17,7 @@ const FEATURES = [
   { name: "Full Lessons Access", free: false, pro: true, premium: true, business: true },
   { name: "Up to 10 Categories", free: false, pro: true, premium: true, business: true },
   { name: "Unlimited Categories", free: false, pro: false, premium: true, business: true },
-  { name: "Tutor Support Days", free: "0", pro: "2/mo", premium: "8/mo", business: "8/mo" },
-  { name: "Free Premium Events", free: "0", pro: "1/mo", premium: "5/mo", business: "5/mo" },
+  { name: "Ask-a-Tutor Questions", free: "10 (Total)", pro: "50/mo", premium: "100/mo", business: "100/mo" },
   { name: "Team Invitations", free: false, pro: false, premium: false, business: true },
 ];
 
@@ -152,14 +151,14 @@ export default function StudentPremiumPage() {
                    <span className="text-xs font-bold text-primary/70 uppercase ml-2 tracking-widest">/ {isMonthly ? "mo" : "yr"}</span>
                 </div>
                 {!userStats?.user?.hasUsedTrial ? (
-                   <div className="mt-4 flex items-center gap-2">
-                     <div className="px-3 py-1 bg-emerald-500 text-white text-[9px] font-black uppercase tracking-widest rounded-full animate-pulse">
-                        7-Day Free Trial Attached
-                     </div>
-                   </div>
-                ) : (
-                   <p className="text-xs font-bold text-slate-600 mt-2 text-left">Billed {isMonthly ? "monthly" : "annually"}. Cancel anytime.</p>
-                )}
+                    <div className="mt-4 flex items-center gap-2">
+                      <div className="px-3 py-1 bg-emerald-500 text-white text-[9px] font-black uppercase tracking-widest rounded-full animate-pulse">
+                         7-Day Free Trial Attached
+                      </div>
+                    </div>
+                 ) : (
+                    <p className="text-xs font-bold text-slate-600 mt-4 text-left uppercase tracking-tighter">Billed {isMonthly ? "monthly" : "annually"}. Cancel anytime.</p>
+                 )}
              </div>
 
              <div className="space-y-6 mb-12 flex-1">
@@ -175,101 +174,102 @@ export default function StudentPremiumPage() {
                    </div>
                 ))}
              </div>
-
-             <div className="mt-auto">
-               {!userStats?.user?.hasUsedTrial && (
-                  <p className="text-[10px] font-bold text-emerald-600 mb-4 uppercase tracking-tighter text-center">
-                    You will not be charged for the first 7 days
-                  </p>
-               )}
-               <Button 
-                 onClick={() => handleUpgrade(selectedTier.toUpperCase() as any)}
-                 className={cn(
-                   "w-full py-7 rounded-2xl text-xs font-bold uppercase tracking-widest shadow-2xl transition-all",
-                   selectedTier === 'pro' ? "bg-primary shadow-primary/25" : "bg-slate-900 shadow-slate-900/25"
-                 )}
-                 disabled={currentPlan === selectedTier.toUpperCase() || !!loadingPlan}
-               >
-                  {loadingPlan === selectedTier.toUpperCase() ? (
-                    <Loader2 className="animate-spin" />
-                  ) : (
-                    currentPlan === selectedTier.toUpperCase() 
-                      ? "Current Plan" 
-                      : (!userStats?.user?.hasUsedTrial ? "Start 7-Day Free Trial" : "Empower Myself")
-                  )}
-               </Button>
-             </div>
-          </Card>
-
-          {/* BUSINESS / BUNDLE CARD */}
-          <Card 
-            variant="elevated" 
-            className="group relative flex flex-col p-10 rounded-[2.5rem] border-2 border-indigo-100 bg-slate-50 transition-all duration-500 hover:border-indigo-300 hover:shadow-2xl hover:shadow-indigo-900/15 overflow-hidden"
-          >
-             <div className="absolute top-0 right-0 p-8 opacity-10 text-indigo-600">
-                <Building className="w-32 h-32" />
-             </div>
-             <div className="absolute -top-4 -right-4 bg-indigo-600 text-white text-[10px] font-black uppercase tracking-widest px-8 py-3 rounded-bl-3xl shadow-xl animate-pulse">
-                Bundle Efficiency
-             </div>
-
-             <div className="mb-12">
-                <div className="w-14 h-14 rounded-2xl bg-indigo-600 flex items-center justify-center mb-6 text-white shadow-xl shadow-indigo-600/30">
-                   <Users className="w-7 h-7" />
-                </div>
-                <h4 className="text-3xl font-black text-primary tracking-tight uppercase">Institutional {selectedTier === 'pro' ? "Plus" : "Elite"}</h4>
-                <p className="text-sm font-bold text-indigo-600 mt-2 uppercase tracking-widest">Teams & Classes (30 Students)</p>
-             </div>
-
-             <div className="mb-12">
-                <div className="flex items-baseline gap-1">
-                   <span className="text-xl font-bold text-primary/70">$</span>
-                   <span className="text-6xl font-black text-indigo-600 tracking-tighter">
-                      {selectedTier === 'pro' ? (isMonthly ? "85.50" : "855") : (isMonthly ? "170" : "1700")}
-                   </span>
-                   <span className="text-xs font-bold text-primary/70 uppercase ml-2 tracking-widest">/ {isMonthly ? "mo" : "yr"}</span>
-                </div>
-                {!userStats?.user?.hasUsedTrial ? (
-                   <p className="mt-4 text-[10px] font-black text-emerald-600 uppercase tracking-widest">7-Day Free Organization Trial Available</p>
-                ) : (
-                   <p className="text-xs font-bold text-slate-600 mt-2">Perfect for language schools and community centers.</p>
+              <div className="mt-auto">
+                {!userStats?.user?.hasUsedTrial && (
+                   <p className="text-[10px] font-bold text-emerald-600 mb-4 uppercase tracking-tighter text-center">
+                     You will not be charged for the first 7 days
+                   </p>
                 )}
-             </div>
-
-             <div className="space-y-6 mb-12 flex-1 text-left">
-                <div className="flex gap-4">
-                   <div className="h-5 w-5 rounded-full bg-indigo-600 text-white flex items-center justify-center shrink-0 mt-0.5 shadow-sm">
-                      <Check className="h-3 w-3 stroke-[3]" />
-                   </div>
-                   <div className="flex flex-col">
-                      <span className="text-sm font-bold text-primary tracking-tight">30 Student Licenses Managed</span>
-                      <span className="text-[10px] font-bold text-indigo-600 uppercase">Universal Shared Access</span>
-                   </div>
-                </div>
-                {FEATURES.slice(0, 8).map((feat) => (
-                   <div key={feat.name} className="flex gap-4 text-left">
-                      <div className="h-5 w-5 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center shrink-0 mt-0.5 shadow-sm">
-                         <Check className="h-3 w-3 stroke-[3]" />
-                      </div>
-                      <span className="text-sm font-bold text-primary tracking-tight">{feat.name}</span>
-                   </div>
-                ))}
-             </div>
-
-             <div className="mt-auto">
-               <Button 
-                 onClick={() => handleUpgrade('BUSINESS', selectedTier === 'pro' ? 30 : 60)}
-                 className="w-full py-7 rounded-2xl text-xs font-bold uppercase tracking-widest bg-indigo-600 shadow-2xl shadow-indigo-600/30 text-white border-none"
-                 disabled={!!loadingPlan}
-               >
-                  {loadingPlan === 'BUSINESS' ? (
-                    <Loader2 className="animate-spin" />
-                  ) : (
-                    !userStats?.user?.hasUsedTrial ? "Start Team Free Trial" : "Deploy for My Team"
+                <Button 
+                  onClick={() => handleUpgrade(selectedTier.toUpperCase() as any)}
+                  className={cn(
+                    "w-full py-7 rounded-2xl text-xs font-bold uppercase tracking-widest shadow-2xl transition-all",
+                    selectedTier === 'pro' ? "bg-primary shadow-primary/25" : "bg-slate-900 shadow-slate-900/25"
                   )}
-               </Button>
-             </div>
-          </Card>
+                  disabled={currentPlan === selectedTier.toUpperCase() || !!loadingPlan}
+                >
+                   {loadingPlan === selectedTier.toUpperCase() ? (
+                     <Loader2 className="animate-spin" />
+                   ) : (
+                     currentPlan === selectedTier.toUpperCase() 
+                       ? "Current Plan" 
+                       : (!userStats?.user?.hasUsedTrial ? "Start 7 Days Free Trial" : "Empower Myself")
+                   )}
+                </Button>
+              </div>
+           </Card>
+
+           {/* BUSINESS / BUNDLE CARD */}
+           <Card 
+             variant="elevated" 
+             className="group relative flex flex-col p-10 rounded-[2.5rem] border-2 border-indigo-100 bg-slate-50 transition-all duration-500 hover:border-indigo-300 hover:shadow-2xl hover:shadow-indigo-900/15 overflow-hidden"
+           >
+              <div className="absolute top-0 right-0 p-8 opacity-10 text-indigo-600">
+                 <Building className="w-32 h-32" />
+              </div>
+              {!userStats?.user?.hasUsedTrial && (
+                <div className="absolute top-4 right-4 bg-indigo-600/10 text-indigo-600 text-[8px] font-black uppercase tracking-widest px-3 py-1 rounded-full border border-indigo-600/20">
+                   Trial Available
+                </div>
+              )}
+
+              <div className="mb-12 text-left">
+                 <div className="w-14 h-14 rounded-2xl bg-indigo-600 flex items-center justify-center mb-6 text-white shadow-xl shadow-indigo-600/30">
+                    <Users className="w-7 h-7" />
+                 </div>
+                 <h4 className="text-3xl font-black text-primary tracking-tight uppercase">Institutional {selectedTier === 'pro' ? "Plus" : "Elite"}</h4>
+                 <p className="text-sm font-bold text-indigo-600 mt-2 uppercase tracking-widest">Teams & Classes (30 Students)</p>
+              </div>
+
+              <div className="mb-12">
+                 <div className="flex items-baseline gap-1">
+                    <span className="text-xl font-bold text-primary/70">$</span>
+                    <span className="text-6xl font-black text-indigo-600 tracking-tighter">
+                       {selectedTier === 'pro' ? (isMonthly ? "85.50" : "855") : (isMonthly ? "170" : "1700")}
+                    </span>
+                    <span className="text-xs font-bold text-primary/70 uppercase ml-2 tracking-widest">/ {isMonthly ? "mo" : "yr"}</span>
+                 </div>
+                 {!userStats?.user?.hasUsedTrial ? (
+                    <p className="mt-4 text-[10px] font-black text-emerald-600 uppercase tracking-widest">7-Day Free Organization Trial Available</p>
+                 ) : (
+                    <p className="text-xs font-bold text-slate-600 mt-4 text-left uppercase tracking-tighter">Perfect for schools and centers.</p>
+                 )}
+              </div>
+
+              <div className="mb-12 flex-1 space-y-6 text-left">
+                 <div className="flex gap-4">
+                    <div className="h-5 w-5 rounded-full bg-indigo-600 text-white flex items-center justify-center shrink-0 mt-0.5 shadow-sm">
+                       <Check className="h-3 w-3 stroke-[3]" />
+                    </div>
+                    <div className="flex flex-col text-left">
+                       <span className="text-sm font-bold text-primary tracking-tight">30 Student Licenses Managed</span>
+                       <span className="text-[10px] font-bold text-indigo-600 uppercase">Universal Shared Access</span>
+                    </div>
+                 </div>
+                 {FEATURES.slice(0, 8).map((feat) => (
+                    <div key={feat.name} className="flex gap-4 text-left">
+                       <div className="h-5 w-5 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center shrink-0 mt-0.5 shadow-sm">
+                          <Check className="h-3 w-3 stroke-[3]" />
+                       </div>
+                       <span className="text-sm font-bold text-primary tracking-tight">{feat.name}</span>
+                    </div>
+                 ))}
+              </div>
+
+              <div className="mt-auto">
+                 <Button 
+                   onClick={() => handleUpgrade('BUSINESS', selectedTier === 'pro' ? 30 : 60)}
+                   className="w-full py-7 rounded-2xl text-xs font-bold uppercase tracking-widest bg-indigo-600 shadow-2xl shadow-indigo-600/30 text-white border-none"
+                   disabled={!!loadingPlan}
+                 >
+                    {loadingPlan === 'BUSINESS' ? (
+                      <Loader2 className="animate-spin" />
+                    ) : (
+                      !userStats?.user?.hasUsedTrial ? "Start Team Free Trial" : "Deploy for My Team"
+                    )}
+                 </Button>
+               </div>
+           </Card>
         </div>
 
         {/* Comparison Table Link */}

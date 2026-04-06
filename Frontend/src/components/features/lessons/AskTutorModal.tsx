@@ -6,6 +6,7 @@ import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import { Loader2, User, AlertCircle, CheckCircle2, Send, Zap } from "lucide-react";
 import { getAvailableTutors, requestTutor, Tutor } from "@/services/tutorService";
+import { useAuth } from "@/context/AuthContext";
 import { cn } from "@/lib/utils";
 
 interface AskTutorModalProps {
@@ -17,6 +18,7 @@ interface AskTutorModalProps {
 }
 
 export function AskTutorModal({ isOpen, onClose, lessonId, lessonTitle, lessonModule }: AskTutorModalProps) {
+  const { user } = useAuth();
   const [tutors, setTutors] = useState<Tutor[]>([]);
   const [tutorsLoading, setTutorsLoading] = useState(false);
   const [selectedTutorId, setSelectedTutorId] = useState<string | null>(null); // null means auto-assign
@@ -55,6 +57,10 @@ export function AskTutorModal({ isOpen, onClose, lessonId, lessonTitle, lessonMo
         lessonId,
         requestType: requestType,
         content: askQuestion.trim(),
+        studentName: user?.name,
+        studentEmail: user?.email,
+        studentAge: user?.age,
+        studentCountry: user?.country,
         metadata: {
           lessonTitle: lessonTitle || "Unknown",
           lessonModule: lessonModule || 0,
@@ -70,6 +76,11 @@ export function AskTutorModal({ isOpen, onClose, lessonId, lessonTitle, lessonMo
       }, 3000);
     } catch (e: any) {
       setAskError(e.response?.data?.error?.message || e.response?.data?.message || "Failed to send question.");
+      if (e.response?.data?.code === 'LIMIT_REACHED' || e.response?.status === 402) {
+        setTimeout(() => {
+          window.location.href = "/student/subscription";
+        }, 2000);
+      }
     } finally {
       setAskSubmitting(false);
     }
@@ -97,21 +108,21 @@ export function AskTutorModal({ isOpen, onClose, lessonId, lessonTitle, lessonMo
       isOpen={isOpen}
       onClose={onClose}
       title="Expert Intervention"
-      description="Connect with Mozhi Aruvi scholars to resolve linguistic complexity."
-      size="lg"
+      description="Resolve linguistic complexity with Mozhi Aruvi scholars."
+      size="md"
     >
-      <div className="space-y-10">
+      <div className="space-y-6">
         {/* Help Type Selection */}
-        <div className="space-y-6">
-          <h4 className="text-[10px] font-black uppercase tracking-widest text-text-secondary">Intervention Type</h4>
-          <div className="grid grid-cols-3 gap-4">
+        <div className="space-y-3">
+          <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400">Intervention Type</h4>
+          <div className="flex flex-wrap gap-2">
              {(['doubt', 'speaking', 'practice'] as const).map(type => (
                <button
                 key={type}
                 onClick={() => setRequestType(type)}
                 className={cn(
-                  "p-4 rounded-2xl border-2 transition-all font-black text-xs uppercase tracking-tight",
-                  requestType === type ? "bg-primary text-white border-primary shadow-lg shadow-primary/20" : "bg-white border-slate-100 text-slate-400 hover:border-primary/30"
+                  "px-6 py-2.5 rounded-xl border-2 transition-all font-black text-[10px] uppercase tracking-wider",
+                  requestType === type ? "bg-primary text-white border-primary shadow-md shadow-primary/10" : "bg-white border-slate-100 text-slate-400 hover:border-primary/20"
                 )}
                >
                 {type}
@@ -120,23 +131,23 @@ export function AskTutorModal({ isOpen, onClose, lessonId, lessonTitle, lessonMo
           </div>
         </div>
 
-        <div className="space-y-6">
-          <h4 className="text-[10px] font-black uppercase tracking-widest text-text-secondary">Scholarly Selection</h4>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+        <div className="space-y-3">
+          <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400">Scholarly Selection</h4>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
             {/* Auto Assign Card */}
             <button
                   onClick={() => setSelectedTutorId(null)}
                   className={cn(
-                    "flex flex-col items-center justify-center gap-4 p-6 rounded-3xl border-2 transition-all duration-300 group",
-                    selectedTutorId === null ? "bg-primary/5 border-primary shadow-lg shadow-primary/10" : "bg-white border-slate-100 hover:border-primary/30"
+                    "flex items-center gap-3 p-3 rounded-2xl border-2 transition-all duration-300 group",
+                    selectedTutorId === null ? "bg-primary/5 border-primary shadow-md shadow-primary/10" : "bg-white border-slate-100 hover:border-primary/20"
                   )}
             >
-                <div className="h-16 w-16 rounded-2xl bg-primary text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                   <Zap size={32} />
+                <div className="h-10 w-10 rounded-xl bg-primary text-white flex items-center justify-center shadow-sm shrink-0">
+                   <Zap size={20} />
                 </div>
-                <div className="text-center">
-                   <p className="text-sm font-black text-slate-800 mb-1 uppercase tracking-tight">Auto-Assign</p>
-                   <p className="text-[8px] font-black uppercase text-primary tracking-widest">Recommended</p>
+                <div className="text-left leading-tight">
+                   <p className="text-[10px] font-black text-slate-800 uppercase tracking-tight">Auto-Assign</p>
+                   <p className="text-[8px] font-black uppercase text-primary tracking-widest">Speed</p>
                 </div>
             </button>
 
@@ -145,61 +156,55 @@ export function AskTutorModal({ isOpen, onClose, lessonId, lessonTitle, lessonMo
                   key={t._id}
                   onClick={() => setSelectedTutorId(t._id)}
                   className={cn(
-                    "flex flex-col items-center gap-4 p-6 rounded-3xl border-2 transition-all duration-300 group",
-                    selectedTutorId === t._id ? "bg-primary/5 border-primary shadow-lg shadow-primary/10" : "bg-white border-slate-100 hover:border-primary/30"
+                    "flex items-center gap-3 p-3 rounded-2xl border-2 transition-all duration-300 group",
+                    selectedTutorId === t._id ? "bg-primary/5 border-primary shadow-md shadow-primary/10" : "bg-white border-slate-100 hover:border-primary/20"
                   )}
                 >
-                  <div className="h-16 w-16 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center p-1 group-hover:scale-110 transition-transform overflow-hidden">
+                  <div className="h-10 w-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center p-0.5 shrink-0 overflow-hidden">
                     {t.profilePhoto ? (
-                      <img src={t.profilePhoto} alt={t.name} className="w-full h-full object-cover rounded-xl" />
+                      <img src={t.profilePhoto} alt={t.name} className="w-full h-full object-cover rounded-lg" />
                     ) : (
-                      <div className="h-full w-full bg-slate-200 flex items-center justify-center"><User className="h-8 w-8 text-primary/40" /></div>
+                      <div className="h-full w-full bg-slate-200 flex items-center justify-center"><User className="h-5 w-5 text-primary/40" /></div>
                     )}
                   </div>
-                  <div className="text-center">
-                     <p className="text-sm font-black text-slate-800 mb-1 uppercase tracking-tight truncate w-24">{t.name}</p>
-                     <p className="text-[9px] font-black uppercase text-primary tracking-widest bg-primary/5 px-2 py-0.5 rounded-md truncate w-24">{t.specialization || "Expert"}</p>
+                  <div className="text-left leading-tight truncate">
+                     <p className="text-[10px] font-black text-slate-800 uppercase tracking-tight truncate">{t.name}</p>
+                     <p className="text-[8px] font-black uppercase text-primary/60 tracking-widest truncate">{t.specialization || "Expert"}</p>
                   </div>
                 </button>
             ))}
-
-            {tutorsLoading && [1,2].map(i => (
-               <div key={i} className="h-40 rounded-3xl bg-slate-50 animate-pulse border border-slate-100" />
-            ))}
           </div>
         </div>
 
-        <div className="space-y-6">
+        <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <h4 className="text-[10px] font-black uppercase tracking-widest text-text-secondary">Your Linguistic Challenge</h4>
-            <span className="text-[8px] font-black text-amber-500 uppercase tracking-widest">Cost: {requestType === 'speaking' ? 20 : requestType === 'practice' ? 15 : 10} Tokens</span>
+            <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400">Linguistic Challenge</h4>
+            <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-100">
+               <CheckCircle2 size={10} className="shrink-0" />
+               <span className="text-[8px] font-black uppercase tracking-widest leading-none">
+                 {10 - (user?.subscription?.tutorSupportUsed || 0)} FREE LINKS LEFT
+               </span>
+            </div>
           </div>
-          <Input
-            multiline
-            rows={4}
+          <textarea
+            rows={3}
             placeholder="Describe your difficulty clearly..."
             value={askQuestion}
             onChange={(e) => setAskQuestion(e.target.value)}
-            className="text-lg font-medium bg-slate-50 border-transparent focus:bg-white"
+            className="w-full p-4 text-sm font-bold bg-slate-50 border-2 border-transparent focus:border-primary/10 rounded-2xl outline-none focus:bg-white transition-all placeholder:text-slate-300"
           />
         </div>
 
-        <div className="pt-8 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-6">
-          {askError && (
-            <p className="text-xs font-bold text-red-500 flex items-center gap-2 bg-red-50 px-4 py-2 rounded-full">
-              <AlertCircle size={14} /> {askError}
-            </p>
-          )}
+        <div className="pt-4 border-t border-slate-50 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-4 ml-auto w-full sm:w-auto">
-            <Button variant="ghost" onClick={onClose} className="font-black uppercase tracking-widest text-[10px] hidden sm:flex">Abort</Button>
+            <Button variant="ghost" onClick={onClose} className="font-black uppercase tracking-widest text-[9px] hover:bg-slate-100 h-11 px-6">CANCEL</Button>
             <Button
               onClick={handleAskSubmit}
               isLoading={askSubmitting}
               disabled={!askQuestion.trim()}
-              size="xl"
-              className="w-full sm:w-auto px-12 rounded-3xl shadow-2xl shadow-primary/30"
+              className="flex-1 sm:flex-none h-11 px-8 rounded-xl shadow-xl shadow-primary/20 text-[10px] font-black uppercase tracking-[0.2em]"
             >
-              Launch Query <Send size={16} className="ml-3" />
+              ASK QUESTION <Send size={14} className="ml-2" />
             </Button>
           </div>
         </div>

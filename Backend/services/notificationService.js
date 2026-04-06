@@ -58,7 +58,7 @@ mozhiEvents.on('HELP_REQUEST_CREATED', async ({ student, teacher, request }) => 
         <h3>Hi ${teacher.name},</h3>
         <p>A student (${student.name}) needs your expert guidance on a lesson.</p>
         <p><b>Question:</b> ${request.content}</p>
-        <p><a href="${process.env.FRONTEND_URL}/tutor/questions">Attend to Student</a></p>
+        <p><a href="${process.env.FRONTEND_ORIGIN}/tutor/questions">Attend to Student</a></p>
     `);
 });
 
@@ -67,7 +67,7 @@ mozhiEvents.on('HELP_REQUEST_REPLIED', async ({ student, teacher, request, messa
         <h3>Hi ${student.name},</h3>
         <p>Expert ${teacher.name} has responded to your inquiry.</p>
         <p><b>Response:</b> ${message}</p>
-        <p><a href="${process.env.FRONTEND_URL}/student/lessons">View Response</a></p>
+        <p><a href="${process.env.FRONTEND_ORIGIN}/student/lessons">View Response</a></p>
     `);
 });
 

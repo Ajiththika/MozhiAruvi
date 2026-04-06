@@ -21,8 +21,6 @@ export async function createSubscriptionSession(req, res, next) {
             priceId = cycle === 'yearly' ? process.env.STRIPE_PRO_YEARLY_PRICE_ID : process.env.STRIPE_PRO_MONTHLY_PRICE_ID;
         } else if (plan === 'PREMIUM') {
             priceId = cycle === 'yearly' ? process.env.STRIPE_PREMIUM_YEARLY_PRICE_ID : process.env.STRIPE_PREMIUM_MONTHLY_PRICE_ID;
-        } else if (plan === 'BUSINESS') {
-            priceId = seats === 60 ? process.env.STRIPE_BUSINESS_60_PRICE_ID : process.env.STRIPE_BUSINESS_30_PRICE_ID;
         } else {
             return res.status(400).json({ message: "Invalid plan" });
         }
@@ -65,19 +63,6 @@ export async function stripeWebhook(req, res, next) {
                         'subscription.currentPeriodEnd': new Date(subscription.current_period_end * 1000),
                         'subscription.hasUsedTrial': true,
                     };
-
-                    if (plan === 'BUSINESS') {
-                        updateData.roleInOrg = 'owner';
-                        // Create Organization
-                        const org = await Organization.create({
-                            name: `${session.customer_details.name}'s Organization`,
-                            owner: userId,
-                            stripeSubscriptionId: session.subscription,
-                            plan: seats === '60' ? 'BUSINESS_60' : 'BUSINESS_30',
-                            maxSeats: parseInt(seats) || 30
-                        });
-                        updateData.organizationId = org._id;
-                    }
 
                     await User.findByIdAndUpdate(userId, updateData);
                 } else if (session.mode === 'payment') {

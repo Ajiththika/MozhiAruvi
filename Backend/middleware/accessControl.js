@@ -121,12 +121,12 @@ export const checkTutorAccess = async (req, res, next) => {
         if (req.user.role === 'admin') return next();
 
         const user = await User.findById(req.user.sub);
-        const tutorId = req.params.id || req.body.tutorId;
+        const tutorId = req.params.id || req.body.tutorId || req.body.teacherId;
         const planName = user.subscription?.plan || 'FREE';
         const settings = await PlanSettings.findOne({ plan: planName });
 
         // Check if user has explicitly paid for this tutor/session
-        const hasPaid = user.subscription?.paidTutors?.some(id => id.toString() === tutorId.toString());
+        const hasPaid = tutorId && user.subscription?.paidTutors?.some(id => id.toString() === tutorId.toString());
         if (hasPaid) return next();
 
         if (!settings) return next();

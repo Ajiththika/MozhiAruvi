@@ -70,7 +70,7 @@ export function Sidebar({ items, basePath }: SidebarProps) {
 
   const getProfileLink = () => {
     if (user?.role === 'admin') return '/admin/profile';
-    if (user?.role === 'teacher') return '/tutor/profile';
+    if (user?.role === 'teacher' || user?.role === 'tutor') return '/tutor/profile';
     return '/student/profile';
   };
 

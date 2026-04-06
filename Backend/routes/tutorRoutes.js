@@ -12,9 +12,9 @@ import { z } from 'zod';
 const router = Router();
 
 const requestTutorSchema = z.object({
-    teacherId: z.string().min(1, 'Teacher ID needed'),
+    teacherId: z.string().optional(),
     lessonId: z.string().optional(),
-    requestType: z.enum(['question', 'live_class', 'multi_class']).default('question'),
+    requestType: z.enum(['doubt', 'speaking', 'practice', 'question', 'live_class', 'multi_class']).default('doubt'),
     content: z.string().min(1, 'Message content cannot be empty'),
     question: z.string().optional(), // for backward compatibility
     metadata: z.object({
@@ -41,7 +41,10 @@ const updateTutorProfileSchema = z.object({
     experience: z.string().optional(),
     specialization: z.string().optional(),
     schedule: z.any().optional(),
+    weeklySchedule: z.string().optional(),
     hourlyRate: z.string().or(z.number()).optional(),
+    oneClassFee: z.string().or(z.number()).optional(),
+    eightClassFee: z.string().or(z.number()).optional(),
     languages: z.any().optional(),
     teachingMode: z.enum(['online', 'offline', 'both']).optional(),
     levelSupport: z.any().optional(),
@@ -72,22 +75,22 @@ router.post('/request', authenticate, checkTutorAccess, validate(requestTutorSch
 // ── Tutor Specific ───────────────────────────────────────────────────────────
 
 // Update tutor profile
-router.patch('/me', authenticate, authorizeRoles(ROLES.TEACHER), upload.single('profilePhoto'), validate(updateTutorProfileSchema), tutorController.updateTutorProfile);
-router.patch('/me/availability', authenticate, authorizeRoles(ROLES.TEACHER), validate(updateAvailabilitySchema), tutorController.updateTutorAvailability);
+router.patch('/me', authenticate, authorizeRoles(ROLES.TEACHER, ROLES.TUTOR), upload.single('profilePhoto'), validate(updateTutorProfileSchema), tutorController.updateTutorProfile);
+router.patch('/me/availability', authenticate, authorizeRoles(ROLES.TEACHER, ROLES.TUTOR), validate(updateAvailabilitySchema), tutorController.updateTutorAvailability);
 
 // Tutor request management ← before /:id
-router.get('/pending', authenticate, authorizeRoles(ROLES.TEACHER), tutorController.getTutorPendingRequests);
-router.patch('/requests/:id/accept', authenticate, authorizeRoles(ROLES.TEACHER), tutorController.acceptRequest);
-router.patch('/requests/:id/decline', authenticate, authorizeRoles(ROLES.TEACHER), tutorController.declineRequest);
-router.patch('/requests/:id/resolve', authenticate, authorizeRoles(ROLES.TEACHER), validate(respondTutorSchema), tutorController.resolveRequest);
+router.get('/pending', authenticate, authorizeRoles(ROLES.TEACHER, ROLES.TUTOR), tutorController.getTutorPendingRequests);
+router.patch('/requests/:id/accept', authenticate, authorizeRoles(ROLES.TEACHER, ROLES.TUTOR), tutorController.acceptRequest);
+router.patch('/requests/:id/decline', authenticate, authorizeRoles(ROLES.TEACHER, ROLES.TUTOR), tutorController.declineRequest);
+router.patch('/requests/:id/resolve', authenticate, authorizeRoles(ROLES.TEACHER, ROLES.TUTOR), validate(respondTutorSchema), tutorController.resolveRequest);
 
 // Consolidated messaging for doubt-solving flow
 router.post('/requests/:id/message', authenticate, tutorController.addMessage);
 
 // ── Finance (Stripe Connect) ─────────────────────────────────────────────────
-router.get('/me/stripe/onboard', authenticate, authorizeRoles(ROLES.TEACHER), tutorController.startStripeOnboarding);
-router.get('/me/stripe/finalize', authenticate, authorizeRoles(ROLES.TEACHER), tutorController.finalizeStripeOnboarding);
-router.get('/me/financials', authenticate, authorizeRoles(ROLES.TEACHER), tutorController.getTutorFinancialStatus);
+router.get('/me/stripe/onboard', authenticate, authorizeRoles(ROLES.TEACHER, ROLES.TUTOR), tutorController.startStripeOnboarding);
+router.get('/me/stripe/finalize', authenticate, authorizeRoles(ROLES.TEACHER, ROLES.TUTOR), tutorController.finalizeStripeOnboarding);
+router.get('/me/financials', authenticate, authorizeRoles(ROLES.TEACHER, ROLES.TUTOR), tutorController.getTutorFinancialStatus);
 
 // Get specific tutor by ID ← dynamic route LAST
 router.get('/:id', authenticate, tutorController.getTutorById);

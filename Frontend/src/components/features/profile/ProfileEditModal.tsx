@@ -109,12 +109,13 @@ export default function ProfileEditModal({ user, setUser, onClose, role }: Profi
         fd.append("profilePhoto", selectedFile);
       }
 
-      const endpoint = role === 'teacher' ? "/tutors/me" : "/users/me";
+      const isMentor = role === 'teacher' || (user as any).role === 'tutor' || (user as any).role === 'teacher';
+      const endpoint = isMentor ? "/tutors/me" : "/users/me";
       const res = await api.patch(endpoint, fd, {
         headers: { "Content-Type": "multipart/form-data" }
       });
       
-      const updatedUser = role === 'teacher' ? res.data.tutor : res.data.user;
+      const updatedUser = isMentor ? res.data.tutor : res.data.user;
       setUser(updatedUser);
       onClose();
     } catch (err: unknown) {

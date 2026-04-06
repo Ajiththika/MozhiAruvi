@@ -10,7 +10,7 @@ const plans = [
     yearlyPrice: 0,
     levelLimit: ['Basic', 'Beginner', 'Elementary', 'Intermediate', 'Advanced'], // All levels accessible but only first cat is free
     categoryLimit: 1, // ONLY 1 CATEGORY IS FREE
-    tutorSupportLimit: 1,
+    tutorSupportLimit: 10,
     eventLimit: 1,
     isEnabled: true
   },
@@ -20,7 +20,7 @@ const plans = [
     yearlyPrice: 42,
     levelLimit: ['Basic', 'Beginner', 'Elementary', 'Intermediate', 'Advanced'],
     categoryLimit: 10,
-    tutorSupportLimit: 2,
+    tutorSupportLimit: 50,
     eventLimit: 1,
     isEnabled: true,
     stripeMonthlyPriceId: process.env.STRIPE_PRO_MONTHLY_PRICE_ID,
@@ -32,33 +32,11 @@ const plans = [
     yearlyPrice: 90,
     levelLimit: ['Basic', 'Beginner', 'Elementary', 'Intermediate', 'Advanced'],
     categoryLimit: null, // unlimited
-    tutorSupportLimit: 8,
+    tutorSupportLimit: 100,
     eventLimit: 5,
     isEnabled: true,
     stripeMonthlyPriceId: process.env.STRIPE_PREMIUM_MONTHLY_PRICE_ID,
     stripeYearlyPriceId: process.env.STRIPE_PREMIUM_YEARLY_PRICE_ID
-  },
-  {
-    plan: 'BUSINESS_30',
-    monthlyPrice: 85.50,
-    yearlyPrice: 855.00,
-    levelLimit: ['Basic', 'Beginner', 'Elementary', 'Intermediate', 'Advanced'],
-    categoryLimit: null,
-    tutorSupportLimit: 8,
-    eventLimit: 5,
-    isEnabled: true,
-    stripeMonthlyPriceId: process.env.STRIPE_BUSINESS_30_PRICE_ID
-  },
-  {
-    plan: 'BUSINESS_60',
-    monthlyPrice: 170.00,
-    yearlyPrice: 1700.00,
-    levelLimit: ['Basic', 'Beginner', 'Elementary', 'Intermediate', 'Advanced'],
-    categoryLimit: null,
-    tutorSupportLimit: 8,
-    eventLimit: 5,
-    isEnabled: true,
-    stripeMonthlyPriceId: process.env.STRIPE_BUSINESS_60_PRICE_ID
   }
 ];
 

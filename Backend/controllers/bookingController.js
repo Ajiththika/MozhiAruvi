@@ -9,21 +9,27 @@ import * as communication from '../services/communicationService.js';
  */
 export async function createBookingSession(req, res, next) {
     try {
-        const { tutorId, date, startTime, endTime, duration } = req.body;
+        const { tutorId, date, startTime, endTime, duration, requestType, isPackage } = req.body;
         const student = await User.findById(req.user.sub);
         const tutor = await User.findById(tutorId);
 
         if (!tutor || !tutor.isStripeVerified) {
-            return res.status(400).json({ message: "Tutor is not verified for payments yet." });
+            return res.status(400).json({ message: "Mentor is not verified for payments yet." });
         }
 
-        const amount = (tutor.hourlyRate || 20) * (duration / 60);
+        // Determine amount based on type
+        let amount = tutor.hourlyRate || 30;
+        if (requestType === 'live_class') amount = tutor.oneClassFee || 30;
+        if (requestType === 'multi_class') amount = tutor.eightClassFee || 200;
 
         const metadata = {
             date,
             startTime,
-            endTime,
-            duration: String(duration),
+            endTime: endTime || "TBD",
+            duration: String(duration || 60),
+            requestType,
+            isPackage: String(!!isPackage),
+            name: `${student.name} - ${requestType === 'multi_class' ? '8-Class Bundle' : '1h Class'}`,
         };
 
         const session = await stripeConnect.createSpitPaymentSession(student, tutor, amount, metadata);
