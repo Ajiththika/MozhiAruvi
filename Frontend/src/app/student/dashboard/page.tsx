@@ -96,10 +96,10 @@ export default function StudentDashboard() {
           <span className="text-xs font-bold text-primary tracking-widest uppercase">Learning Hub</span>
         </div>
         <div className="max-w-3xl">
-          <h1 className="text-2xl md:text-3xl lg:text-3xl font-black text-primary tracking-tight leading-tight">
+          <h1 className="text-xl md:text-2xl font-black text-primary tracking-tight leading-tight">
             Vanakkam, {user?.name?.split(" ")[0]}!
           </h1>
-          <p className="text-base md:text-lg text-slate-600 font-semibold leading-relaxed mt-4">
+          <p className="text-sm md:text-base text-slate-600 font-semibold leading-relaxed mt-4">
             Continuing your journey into the world's oldest living classical language. Here's your current progress and curriculum milestones.
           </p>
         </div>

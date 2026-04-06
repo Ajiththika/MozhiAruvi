@@ -164,7 +164,7 @@ function StudentCategoryGroup({
             <BookOpen className="w-6 h-6 sm:w-8 sm:h-8" />
           </div>
           <div>
-            <h2 className="text-lg sm:text-2xl font-black text-slate-800 uppercase tracking-tight">{category}</h2>
+            <h2 className="text-base sm:text-xl font-black text-slate-800 uppercase tracking-tight">{category}</h2>
             <p className="text-[10px] sm:text-xs font-bold text-primary/60 uppercase tracking-widest mt-0.5 sm:mt-1">
                {lessons.length} {lessons.length === 1 ? 'Level' : 'Levels'}
             </p>
@@ -178,9 +178,9 @@ function StudentCategoryGroup({
       </div>
       
       {expanded && (
-        <div className="border-t border-slate-50 bg-slate-50/20 p-6 sm:p-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {lessons.map((lesson) => {
+        <div className="border-t border-slate-50 bg-slate-50/20 p-8 sm:p-12">
+          <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-10 py-4">
+            {lessons.map((lesson, index) => {
               const status = lessonStatus.get(lesson._id) || "locked";
               const isPaidPlan = user?.subscription?.plan && ['PRO', 'PREMIUM', 'BUSINESS'].includes(user.subscription.plan);
               const isPremiumUser = user?.isPremium || isPaidPlan;
@@ -196,57 +196,50 @@ function StudentCategoryGroup({
                     lesson,
                     status: isDone ? "completed" : "unlocked"
                   })}
-                  className={cn(
-                    "group flex flex-col gap-5 rounded-[2.5rem] border p-8 transition-all duration-500",
-                    isLocked 
-                      ? "bg-slate-50 border-slate-100 opacity-60 grayscale cursor-not-allowed"
-                      : isDone
-                        ? "bg-emerald-50/30 border-emerald-100 hover:-translate-y-2 hover:shadow-2xl hover:shadow-emerald-100/50 cursor-pointer"
-                        : "bg-white border-slate-100 shadow-xl shadow-slate-200/40 hover:border-primary/20 hover:-translate-y-2 hover:shadow-2xl hover:shadow-primary/5 cursor-pointer"
-                  )}
+                  className="group relative flex flex-col items-center gap-3 cursor-pointer"
                 >
-                  <div className="flex items-start justify-between">
-                    <div className={cn(
-                      "h-14 w-14 rounded-2xl border flex items-center justify-center transition-all duration-500",
-                      isLocked ? "bg-slate-200 text-slate-400" : isDone ? "bg-emerald-500 text-white shadow-lg shadow-emerald-500/20" : "bg-primary text-white shadow-lg shadow-primary/20 group-hover:rotate-12"
-                    )}>
-                      {isDone ? <CheckCircle2 className="w-8 h-8" /> : isLocked ? <Lock className="w-6 h-6" /> : <BookOpen className="w-8 h-8" />}
+                  {/* The Level Node (Game Style) */}
+                  <div 
+                    className={cn(
+                      "relative h-16 w-16 sm:h-20 sm:w-20 rounded-full border-4 flex items-center justify-center transition-all duration-500 shadow-xl",
+                      isLocked 
+                        ? "bg-slate-800/80 border-slate-700 text-slate-500 cursor-not-allowed opacity-80" 
+                        : isDone
+                          ? "bg-gradient-to-br from-emerald-400 to-emerald-600 border-emerald-200 text-white shadow-emerald-500/40 hover:scale-110 active:scale-95"
+                          : "bg-gradient-to-br from-primary to-secondary border-white text-white shadow-primary/30 hover:scale-110 active:scale-95 ring-4 ring-primary/10"
+                    )}
+                  >
+                    {/* Inner Ring for "gaming" feel */}
+                    <div className="absolute inset-1 rounded-full border border-white/20 pointer-events-none" />
+
+                    {isDone ? (
+                      <CheckCircle2 className="w-8 h-8 sm:w-10 sm:h-10" />
+                    ) : isLocked ? (
+                      <Lock className="w-6 h-6 sm:w-8 sm:h-8" />
+                    ) : (
+                      <span className="text-xl sm:text-2xl font-black">{lesson.orderIndex || (index + 1)}</span>
+                    )}
+
+                    {/* Glowing indicator for current level */}
+                    {isCurrent && (
+                        <div className="absolute -inset-2 bg-primary/30 rounded-full animate-ping -z-10" />
+                    )}
+                  </div>
+
+                  {/* Level Number Label (Optional, but helps clarity) */}
+                  <span className={cn(
+                    "text-[10px] font-black uppercase tracking-widest transition-colors",
+                    isLocked ? "text-slate-400" : "text-slate-800"
+                  )}>
+                    Lv.{lesson.orderIndex}
+                  </span>
+
+                  {/* Premium Badge */}
+                  {lesson.isPremiumOnly && !isLocked && (
+                    <div className="absolute -top-1 -right-1 bg-amber-400 text-[8px] font-bold px-1.5 py-0.5 rounded-md shadow-sm text-slate-900 border border-white">
+                      ★
                     </div>
-                    <span className={cn(
-                      "text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full border",
-                      "text-indigo-600 bg-indigo-50 border-indigo-100"
-                    )}>
-                      {activeLevel} - LEVEL {lesson.orderIndex}
-                    </span>
-                  </div>
-
-                  <div className="space-y-3">
-                    <h3 className={cn(
-                      "text-lg sm:text-xl font-black uppercase tracking-tight leading-tight",
-                      isLocked ? "text-slate-400" : "text-slate-800"
-                    )}>
-                      {!isNaN(Number(lesson.title)) && lesson.title.trim() !== "" ? `Level ${lesson.title}` : lesson.title}
-                    </h3>
-                    {lesson.description && (
-                      <p className="text-sm font-medium text-slate-500 line-clamp-2 leading-relaxed">
-                        {lesson.description}
-                      </p>
-                    )}
-                  </div>
-
-                  <div className="flex items-center gap-3">
-                    <span className={cn(
-                      "text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full border",
-                      lesson.isPremiumOnly ? "text-amber-600 bg-amber-50 border-amber-100" : "text-emerald-600 bg-emerald-50 border-emerald-100"
-                    )}>
-                      {lesson.isPremiumOnly ? "★ Premium" : "✓ Free"}
-                    </span>
-                    {isDone && (
-                      <span className="text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full bg-emerald-100 text-emerald-600 border border-emerald-200">
-                        Mastered
-                      </span>
-                    )}
-                  </div>
+                  )}
                 </div>
               );
             })}
@@ -379,7 +372,7 @@ export default function StudentLessonsPage() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto space-y-8 animate-in fade-in zoom-in-95 duration-500 pb-20 pt-6 px-4">
+    <div className="max-w-5xl mx-auto space-y-8 animate-in fade-in zoom-in-95 duration-500 pb-20 pt-6 px-4">
 
       {/* Preview Modal */}
       {previewLesson && (
@@ -396,16 +389,16 @@ export default function StudentLessonsPage() {
 
       {/* Sticky Stats Bar */}
       <div className="sticky top-0 z-20 bg-white/80 backdrop-blur-md rounded-2xl shadow-xl shadow-slate-200/50 border border-slate-100 p-4 flex items-center justify-between mx-2 sm:mx-0">
-        <div className="flex items-center gap-3 text-primary font-bold text-lg">
-          <span className="p-2.5 bg-primary/10 rounded-xl shadow-inner">
-            <BookOpen className="w-5 h-5" />
+        <div className="flex items-center gap-3 text-primary font-bold text-base">
+          <span className="p-2 bg-primary/10 rounded-xl shadow-inner">
+            <BookOpen className="w-4 h-4" />
           </span>
           <span className="hidden sm:inline tracking-tight">Curriculum Path</span>
         </div>
         <div className="flex items-center gap-8 font-bold">
           <div className="flex items-center gap-2 text-orange-600" title="Daily Streak">
-            <Flame className="w-6 h-6 fill-current drop-shadow-sm" /> 
-            <span className="text-xl font-black">{user?.progress?.currentStreak || 0}</span>
+            <Flame className="w-5 h-5 fill-current drop-shadow-sm" /> 
+            <span className="text-lg font-black">{user?.progress?.currentStreak || 0}</span>
           </div>
           <div
             className={cn(
@@ -414,9 +407,9 @@ export default function StudentLessonsPage() {
             )}
             title="Training Energy"
           >
-            <Zap className="w-6 h-6 fill-current drop-shadow-sm" />
-            <span className="text-xl font-bold">{powers}</span>
-            <span className="text-sm font-bold opacity-40">/25</span>
+            <Zap className="w-5 h-5 fill-current drop-shadow-sm" />
+            <span className="text-lg font-bold">{powers}</span>
+            <span className="text-xs font-bold opacity-40">/25</span>
           </div>
         </div>
       </div>

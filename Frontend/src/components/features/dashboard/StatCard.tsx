@@ -54,7 +54,7 @@ export function StatCard({
           {title}
         </p>
         <div className="flex items-baseline gap-1">
-          <h3 className="text-3xl font-black tracking-tight text-slate-900">
+          <h3 className="text-2xl font-black tracking-tight text-slate-900">
             {value}
           </h3>
           {trend === "up" && <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse ml-2" />}

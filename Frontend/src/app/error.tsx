@@ -3,6 +3,8 @@
 import React, { useEffect } from "react";
 import { AlertCircle } from "lucide-react";
 
+import Link from "next/link";
+
 export default function ErrorBoundary({
   error,
   reset,
@@ -30,12 +32,12 @@ export default function ErrorBoundary({
         >
           Attempt Recovery
         </button>
-        <a 
+        <Link 
           href="/" 
           className="block w-full py-4 rounded-xl font-bold border border-slate-200 text-slate-700 hover:bg-slate-50 transition-colors"
         >
           Return to Hub
-        </a>
+        </Link>
       </div>
     </div>
   );

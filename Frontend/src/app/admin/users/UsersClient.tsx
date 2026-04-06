@@ -61,8 +61,9 @@ export default function UsersClient() {
         ? await deactivateUser(user._id)
         : await activateUser(user._id);
       queryClient.invalidateQueries({ queryKey: ["admin", "users"] });
-    } catch (err: any) {
-      alert(err.response?.data?.message || "Failed to update user status");
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Failed to update user status";
+      alert(message);
     } finally {
       setActioning(null);
     }
@@ -76,7 +77,7 @@ export default function UsersClient() {
     setActiveSettingsTab('identity'); // Reset to first tab
   };
 
-  const handleEditChange = (e: any) => {
+  const handleEditChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     if (name.startsWith('subscription.')) {
       const field = name.split('.')[1];
@@ -103,8 +104,9 @@ export default function UsersClient() {
       await updateUserAdmin(editingUser._id, editFormData);
       queryClient.invalidateQueries({ queryKey: ["admin", "users"] });
       setEditingUser(null);
-    } catch (err: any) {
-      alert(err.response?.data?.message || "Failed to update user");
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Failed to update user";
+      alert(message);
     } finally {
       setIsSaving(false);
     }

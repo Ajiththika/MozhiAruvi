@@ -27,8 +27,8 @@ export default function StatusPage() {
         } else if (updatedUser.tutorStatus === "rejected") {
           setUser(updatedUser);
         }
-      } catch (err) {
-        console.error("Failed to poll status:", err);
+      } catch (err: unknown) {
+        console.error("Failed to poll status:", err instanceof Error ? err.message : String(err));
       }
     }, 10000);
 
@@ -43,8 +43,8 @@ export default function StatusPage() {
       if (updatedUser.tutorStatus === "approved") {
         router.push("/tutor/dashboard");
       }
-    } catch (err) {
-      console.error("Manual refresh failed:", err);
+    } catch (err: unknown) {
+      console.error("Manual refresh failed:", err instanceof Error ? err.message : String(err));
     } finally {
       setIsRefreshing(false);
     }

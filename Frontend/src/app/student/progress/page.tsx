@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Award, Flame, Target, Trophy, TrendingUp, Loader2, AlertCircle } from "lucide-react";
+import { Award, Flame, Target, TrendingUp, Loader2, AlertCircle } from "lucide-react";
 import StatCard from "@/components/features/dashboard/StatCard";
 import { useAuth } from "@/context/AuthContext";
 import { getLessons, Lesson, Progress } from "@/services/lessonService";

@@ -9,6 +9,7 @@ import Link from "next/link";
 import { getLessons, Lesson, getLessonQuestions, Question } from "@/services/lessonService";
 import { getCategories, updateCategory, deleteCategory, createCategory, Category as DBCategory } from "@/services/categoryService";
 import { api } from "@/lib/api";
+import axios from "axios";
 
 // ── Heuristics ────────────────────────────────────────────────────────────────
 
@@ -787,12 +788,12 @@ export default function AdminLessonsPage() {
       });
 
       const allNames = Array.from(new Set(visibleLessons.map(l => {
-        let cat = l.category || "Uncategorized";
+        const cat = l.category || "Uncategorized";
         if (cat.toLowerCase() === (l.level || "").toLowerCase() || cat === "General") return l.title || "Uncategorized";
         return cat;
       })));
 
-      let fullList = allNames.map(name => {
+      const fullList = allNames.map(name => {
         const dbC = dbCategories.find(c => c.name.toLowerCase() === name.toLowerCase());
         return {
           id: dbC?._id || name,
@@ -820,13 +821,14 @@ export default function AdminLessonsPage() {
       newList[findIndex] = targetItem;
       newList[targetIdx] = originItem;
 
-      const resolveId = async (item: any) => {
+      interface CategoryMoveItem { isVirtual: boolean; name: string; orderIndex: number; _id?: string; id: string; }
+      const resolveId = async (item: CategoryMoveItem): Promise<string> => {
         if (item.isVirtual) {
           try {
             const res = await createCategory({ name: item.name.trim(), orderIndex: item.orderIndex });
             return res._id;
-          } catch (err: any) {
-             if (err.response?.status === 400 && err.response?.data?.message?.toLowerCase().includes("exists")) {
+          } catch (err: unknown) {
+             if (axios.isAxiosError(err) && err.response?.status === 400 && (err.response.data as { message?: string })?.message?.toLowerCase().includes("exists")) {
                 const refreshed = await getCategories();
                 const matched = refreshed.find(c => c.name.trim().toLowerCase() === item.name.trim().toLowerCase());
                 if (matched) return matched._id;
@@ -885,11 +887,20 @@ export default function AdminLessonsPage() {
 
       if (!editingCategory._id) {
         // Create new category in DB
-        await createCategory({
-          name: newName,
-          description: catFormData.description,
-          orderIndex: newOrder
-        });
+        try {
+          await createCategory({
+            name: newName,
+            description: catFormData.description,
+            orderIndex: newOrder
+          });
+        } catch (err: any) {
+           if (err.response?.status === 400 && err.response?.data?.message?.toLowerCase().includes("exists")) {
+              // It exists already, the UI just didn't catch it so it's "Virtual"
+              // That's fine, we can just proceed to sync the oldName/newName logic below
+           } else {
+             throw err;
+           }
+        }
       } else {
         // Update existing category document
         await updateCategory(editingCategory._id, {
