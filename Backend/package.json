@@ -15,6 +15,7 @@
     "@google-cloud/text-to-speech": "^6.4.0",
     "bcryptjs": "^2.4.3",
     "cloudinary": "^1.41.3",
+    "compression": "^1.8.1",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
@@ -34,5 +35,11 @@
     "stripe": "^21.0.1",
     "zod": "^3.22.4"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "eslint": "^9.39.4",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-promise": "^7.2.1"
+  }
 }

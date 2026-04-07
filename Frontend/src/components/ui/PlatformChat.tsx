@@ -70,8 +70,8 @@ export default function PlatformChat() {
 
       {/* Cinematic Chat Panel */}
       <div className={cn(
-          "absolute bottom-0 right-0 w-[400px] bg-white border border-slate-100 rounded-[2.5rem] shadow-[0_40px_100px_-20px_rgba(0,0,0,0.1)] overflow-hidden transition-all duration-700 origin-bottom-right flex flex-col",
-          isOpen ? "opacity-100 scale-100 translate-y-0" : "opacity-0 scale-50 translate-y-20 pointer-events-none"
+          "absolute bottom-0 right-0 w-[92vw] sm:w-[400px] bg-white border border-slate-100 rounded-[2rem] sm:rounded-[2.5rem] shadow-[0_40px_100px_-20px_rgba(0,0,0,0.1)] overflow-hidden transition-all duration-700 origin-bottom-right flex flex-col z-[10000]",
+          isOpen ? "opacity-100 scale-100 translate-y-0 translate-x-0" : "opacity-0 scale-50 translate-y-20 translate-x-10 pointer-events-none"
       )}>
         {/* Header - Industrial Polish */}
         <div className="bg-primary p-7 flex items-center justify-between">

@@ -26,6 +26,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // We still set isLoading to false if we have a cache to show the UI immediately
         setIsLoading(false); 
       }
+    } else {
+      // If no session hint, we are almost certainly logged out. 
+      // Show the Sign In button immediately rather than waiting for initAuth.
+      setIsLoading(false);
     }
 
     async function initAuth() {

@@ -194,6 +194,26 @@ export default function LessonInteractiveSession() {
       }
   };
 
+  const [countdown, setCountdown] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (phase === "completed" && score?.nextLessonId && score.passed) {
+      setCountdown(3);
+      const timer = setInterval(() => {
+        setCountdown((prev) => (prev !== null && prev > 0 ? prev - 1 : 0));
+      }, 1000);
+      
+      const redirect = setTimeout(() => {
+        router.push(`/student/lessons/${score.nextLessonId}`);
+      }, 3000);
+ 
+      return () => {
+        clearInterval(timer);
+        clearTimeout(redirect);
+      };
+    }
+  }, [phase, score, router]);
+
   if (phase === "loading") {
     return (
       <div className="flex h-screen items-center justify-center bg-background">
@@ -239,26 +259,6 @@ export default function LessonInteractiveSession() {
        </div>
     );
   }
-
-  const [countdown, setCountdown] = useState<number | null>(null);
-
-  useEffect(() => {
-    if (phase === "completed" && score?.nextLessonId && score.passed) {
-      setCountdown(3);
-      const timer = setInterval(() => {
-        setCountdown((prev) => (prev !== null && prev > 0 ? prev - 1 : 0));
-      }, 1000);
-      
-      const redirect = setTimeout(() => {
-        router.push(`/student/lessons/${score.nextLessonId}`);
-      }, 3000);
-
-      return () => {
-        clearInterval(timer);
-        clearTimeout(redirect);
-      };
-    }
-  }, [phase, score, router]);
 
   if (phase === "completed") {
     return (

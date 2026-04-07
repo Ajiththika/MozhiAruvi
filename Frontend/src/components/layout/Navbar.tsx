@@ -154,7 +154,12 @@ export default function Navbar() {
                 )}
               </div>
             ) : (
-              <Button href="/auth/signin" variant="primary" size="md" className="hidden md:flex rounded-full px-8 py-2.5">
+              <Button 
+                href="/auth/signin" 
+                variant="primary" 
+                size="md" 
+                className="rounded-full px-6 md:px-8 py-2 md:py-2.5 text-[10px] md:text-xs"
+              >
                 Sign In
               </Button>
             )}
@@ -162,9 +167,9 @@ export default function Navbar() {
             {/* Mobile Menu Button */}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="flex md:hidden h-12 w-12 items-center justify-center rounded-2xl bg-slate-50 border border-slate-100 text-slate-600 hover:bg-white hover:border-primary/20 transition-all active:scale-90"
+              className="flex md:hidden h-10 w-10 items-center justify-center rounded-xl bg-slate-50 border border-slate-100 text-slate-600 hover:bg-white hover:border-primary/20 transition-all active:scale-95"
             >
-              {isMobileMenuOpen ? <X size={24} className="text-primary" /> : <Menu size={24} />}
+              {isMobileMenuOpen ? <X size={20} className="text-primary" /> : <Menu size={20} />}
             </button>
           </div>
         </div>
