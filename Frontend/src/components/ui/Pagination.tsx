@@ -81,29 +81,29 @@ export function Pagination({
   };
 
   return (
-    <nav className={cn("flex items-center justify-center gap-2 py-8", className)}>
+    <nav className={cn("flex items-center justify-center gap-1.5", className)}>
       <Button
-        variant="outline"
-        size="md"
+        variant="ghost"
+        size="sm"
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage <= 1}
-        className="w-10 h-10 p-0"
+        className="w-8 h-8 p-0 rounded-lg border border-slate-100 hover:bg-slate-50 disabled:opacity-30"
         aria-label="Previous page"
       >
-        <ChevronLeft className="h-4 w-4" />
+        <ChevronLeft className="h-3.5 w-3.5" />
       </Button>
 
       <div className="flex items-center gap-1">{renderPageNumbers()}</div>
 
       <Button
-        variant="outline"
-        size="md"
+        variant="ghost"
+        size="sm"
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage >= totalPages}
-        className="w-10 h-10 p-0"
+        className="w-8 h-8 p-0 rounded-lg border border-slate-100 hover:bg-slate-50 disabled:opacity-30"
         aria-label="Next page"
       >
-        <ChevronRight className="h-4 w-4" />
+        <ChevronRight className="h-3.5 w-3.5" />
       </Button>
     </nav>
   );
@@ -123,11 +123,13 @@ function PageButton({
   return (
     <Button
       variant={active ? "primary" : "ghost"}
-      size="md"
+      size="sm"
       onClick={onClick}
       className={cn(
-        "min-w-[40px] h-10 p-0 text-sm",
-        active ? "shadow-md" : "text-slate-600 hover:bg-slate-100"
+        "min-w-[32px] h-8 p-0 text-[10px] font-black uppercase tracking-tighter rounded-lg transition-all",
+        active 
+          ? "bg-primary text-white shadow-lg shadow-primary/20 scale-105" 
+          : "text-slate-500 hover:bg-slate-100/80"
       )}
     >
       {page}

@@ -156,7 +156,7 @@ export default function UsersClient() {
       cell: (row) => (
         <span className={cn(
           "inline-flex text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full border",
-          row.subscription?.plan === 'FREE' ? "bg-slate-50 text-primary/60 border-slate-100" : "bg-amber-50 text-amber-600 border-amber-100"
+          row.subscription?.plan === 'FREE' ? "bg-slate-50 text-primary/60 border-slate-100" : "bg-indigo-50 text-indigo-600 border-indigo-100"
         )}>
           {row.subscription?.plan || 'FREE'}
         </span>
@@ -228,14 +228,18 @@ export default function UsersClient() {
            <p className="text-[10px] font-black text-primary/40 uppercase tracking-widest">Querying database...</p>
         </div>
       ) : (
-        <div className="space-y-8">
-           <DataTable title={`Directory Intelligence (${totalItems} entities)`} columns={columns} data={users} />
-           <Pagination 
-             currentPage={currentPage}
-             totalPages={totalPages}
-             onPageChange={setCurrentPage}
-           />
-        </div>
+        <DataTable 
+          title="Access Directory" 
+          columns={columns} 
+          data={users} 
+          pagination={
+            <Pagination 
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+            />
+          }
+        />
       )}
 
       {/* Optimized User Modal with Tabs */}

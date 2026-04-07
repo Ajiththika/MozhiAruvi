@@ -484,16 +484,19 @@ function AdminEventsClient() {
           <Loader2 className="h-5 w-5 animate-spin" /> Loading records...
         </div>
       ) : (
-        <div className="space-y-8">
-           <DataTable title={`All Scheduled Events (${totalEvents})`} columns={columns} data={events} onSearch={() => {}} />
-           <div className="pt-8 border-t border-slate-100">
-              <Pagination 
-                currentPage={currentPage}
-                totalPages={totalPages}
-                onPageChange={setCurrentPage}
-              />
-           </div>
-        </div>
+        <DataTable 
+          title="Scheduled Events" 
+          columns={columns} 
+          data={events} 
+          onSearch={() => {}} 
+          pagination={
+            <Pagination 
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+            />
+          }
+        />
       )}
       {adjustImage && (
         <ImageAdjuster 

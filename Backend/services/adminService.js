@@ -1,6 +1,7 @@
 import MentorApplication from '../models/MentorApplication.js';
 import User from '../models/User.js';
 import Event from '../models/Event.js';
+import mozhiEvents from '../events/eventEmitter.js';
 
 // Get users with pagination
 export async function getAllUsers(page = 1, limit = 6) {
@@ -59,6 +60,15 @@ export async function warnUser(userId) {
     }
     user.warnings = (user.warnings || 0) + 1;
     await user.save();
+
+    // Multi-Channel Notification Orchestration
+    mozhiEvents.emit('USER_WARNED', {
+        _id: user._id, 
+        name: user.name, 
+        email: user.email, 
+        warnings: user.warnings 
+    });
+
     return user;
 }
 

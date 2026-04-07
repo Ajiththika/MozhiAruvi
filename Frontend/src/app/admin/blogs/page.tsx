@@ -11,7 +11,7 @@ import Button from "@/components/ui/Button";
 const statusConfig: Record<string, { label: string; className: string }> = {
   published: { label: "Published",  className: "bg-emerald-50 text-emerald-600 border-emerald-100" },
   draft:     { label: "Draft",      className: "bg-gray-50 text-gray-500 border-gray-100" },
-  pending:   { label: "Pending",    className: "bg-amber-50 text-amber-600 border-amber-100" },
+  pending:   { label: "Pending",    className: "bg-indigo-50 text-indigo-600 border-indigo-100" },
   rejected:  { label: "Rejected",   className: "bg-red-50 text-red-600 border-red-100" },
 };
 
@@ -101,9 +101,6 @@ export default function AdminBlogsPage() {
         </div>
       </div>
 
-
-
-      {/* Error / Loading */}
       {error && (
         <div className="mb-12 flex items-center gap-6 rounded-[2rem] border border-red-100 bg-red-50 p-8 text-sm font-bold text-red-700">
           <AlertCircle className="h-6 w-6 shrink-0" /> {error}
@@ -148,7 +145,7 @@ export default function AdminBlogsPage() {
                     const inConfirmDelete = confirmDeleteId === blog._id;
                     return (
                       <tr key={blog._id} className="hover:bg-gray-50/30 transition-colors">
-                        <td className="px-8 py-6 max-w-sm">
+                        <td className="px-8 py-6 max-sm:px-4">
                           <p className="font-bold text-gray-800 line-clamp-1 text-base tracking-tight">{blog.title}</p>
                           <div className="flex items-center gap-2 mt-2">
                             <span className="text-[10px] font-bold text-primary px-2 py-0.5 rounded-md bg-primary/5 border border-primary/10">{blog.category || "General"}</span>
@@ -219,30 +216,16 @@ export default function AdminBlogsPage() {
                 </tbody>
               </table>
             </div>
+            <div className="px-10 py-6 bg-white border-t border-border flex justify-center">
+              <Pagination 
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={setCurrentPage}
+              />
+            </div>
           </div>
-          {totalPages > 1 && (
-            <Pagination 
-              currentPage={currentPage}
-              totalPages={totalPages}
-              onPageChange={setCurrentPage}
-            />
-          )}
         </div>
       )}
     </div>
   );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -90,8 +90,16 @@ export default function StudentDashboard() {
           <span className="text-xs font-bold text-primary tracking-widest uppercase">Learning Hub</span>
         </div>
         <div className="max-w-3xl">
-          <h1 className="text-xl md:text-2xl font-black text-primary tracking-tight leading-tight">
+          <h1 className="text-xl md:text-2xl font-black text-primary tracking-tight leading-tight flex items-center gap-3">
             Vanakkam, {user?.name?.split(" ")[0]}!
+            {user?.subscription?.plan && user.subscription.plan !== 'FREE' && (
+              <span className={cn(
+                "px-2 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-tighter border shadow-sm",
+                user.subscription.plan === 'PREMIUM' ? "bg-amber-400 border-amber-500 text-slate-900 shadow-amber-500/20" : "bg-emerald-500 border-emerald-600 text-white shadow-emerald-500/20"
+              )}>
+                {user.subscription.plan}
+              </span>
+            )}
           </h1>
           <p className="text-sm md:text-base text-slate-600 font-semibold leading-relaxed mt-4">
             Continuing your journey into the world's oldest living classical language. Here's your current progress and curriculum milestones.
@@ -149,15 +157,15 @@ export default function StudentDashboard() {
         />
         <StatCard
           title="Current Plan"
-          value={user?.subscription?.plan !== 'FREE' && (new Date(user?.subscription?.currentPeriodEnd || 0) > new Date(Date.now() + 2 * 24 * 60 * 60 * 1000)) ? `${plan} (Trial)` : plan}
+          value={user?.subscription?.status === 'trialing' ? `${plan} (Trial)` : plan}
           description={
             user?.subscription?.plan !== 'FREE' 
-              ? `Ends on ${new Date(user?.subscription?.currentPeriodEnd || 0).toLocaleDateString("en-GB", { day: 'numeric', month: 'short' })}`
+              ? `Period ends on ${new Date(user?.subscription?.currentPeriodEnd || 0).toLocaleDateString("en-GB", { day: 'numeric', month: 'short' })}`
               : "Basic access"
           }
           icon={Crown}
           trend={user?.subscription?.plan !== 'FREE' ? "up" : "neutral"}
-          trendValue={user?.subscription?.plan !== 'FREE' ? "Premium" : "Free"}
+          trendValue={user?.subscription?.plan !== 'FREE' ? "Active" : "Free"}
         />
       </div>
 

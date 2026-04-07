@@ -129,17 +129,17 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="space-y-10 animate-in fade-in duration-700">
-      <div className="mb-0 flex flex-col md:flex-row md:items-end md:justify-between gap-10">
-        <div className="space-y-6">
-           <div className="flex items-center gap-3">
-              <div className="h-2 w-10 rounded-full bg-secondary shadow-lg shadow-secondary/20" />
-              <span className="text-[10px] font-black text-secondary tracking-[0.2em] uppercase">Control Center</span>
+    <div className="space-y-16 animate-in fade-in duration-700">
+      <div className="mb-14 flex flex-col md:flex-row md:items-end md:justify-between gap-10">
+        <div className="space-y-10">
+           <div className="flex items-center gap-4">
+              <div className="h-2 w-12 rounded-full bg-indigo-600 shadow-xl shadow-indigo-500/30" />
+               <span className="text-[12px] font-black text-indigo-600 tracking-[0.3em] uppercase">Control Center</span>
            </div>
-           <div>
-               <h1 className="text-2xl md:text-3xl font-black text-text-primary tracking-tighter leading-none mb-4">Command Deck</h1>
-              <p className="text-lg text-primary/70 font-medium leading-relaxed max-w-2xl opacity-80">
-                Orchestrating the ecosystem of classical Tamil learning. Managed by <strong className="text-primary">{admin?.name}</strong>.
+           <div className="space-y-4">
+               <h1 className="text-4xl md:text-5xl font-black text-slate-800 tracking-tighter leading-none">Command Deck</h1>
+              <p className="text-xl text-primary/70 font-medium leading-relaxed max-w-3xl opacity-80">
+                Orchestrating the ecosystem of classical Tamil learning. Managed by <strong className="text-indigo-600 underline underline-offset-8 decoration-2 decoration-indigo-600/20">{admin?.name}</strong>.
               </p>
            </div>
         </div>
@@ -188,7 +188,7 @@ export default function AdminDashboard() {
               value={String(blogs.length)}
               description="Editorial queue"
               icon={BookOpen}
-              className={blogs.length > 0 ? "border-amber-100 bg-amber-50/50" : ""}
+              className={blogs.length > 0 ? "border-indigo-100 bg-indigo-50/50 shadow-lg shadow-indigo-200/20" : ""}
             />
             <StatCard
               title="Live Events"
@@ -215,7 +215,7 @@ export default function AdminDashboard() {
                         applications.slice(0, 4).map((app) => (
                           <tr key={app._id} className="hover:bg-slate-50/50 transition-all">
                             <td className="px-10 py-6 flex items-center gap-5">
-                               <div className="h-12 w-12 rounded-2xl bg-amber-50 flex items-center justify-center font-black text-amber-600 text-sm border border-amber-100">{(app.cleanName || app.name || "U").charAt(0)}</div>
+                               <div className="h-12 w-12 rounded-2xl bg-indigo-50 flex items-center justify-center font-black text-indigo-600 text-sm border border-indigo-100">{(app.cleanName || app.name || "U").charAt(0)}</div>
                                <div>
                                   <p className="text-sm font-black text-text-primary">{app.cleanName || app.name}</p>
                                   <p className="text-[10px] font-bold text-primary/60 uppercase tracking-widest">{app.specialization || "Pending Review"}</p>
@@ -337,7 +337,7 @@ export default function AdminDashboard() {
                        <tr>
                           <th className="px-10 py-6 text-[10px] font-black text-primary/70 uppercase tracking-widest">Plan Identity</th>
                           <th className="px-10 py-6 text-[10px] font-black text-primary/70 uppercase tracking-widest">Monthly / Yearly ($)</th>
-                          <th className="px-10 py-6 text-[10px] font-black text-primary/70 uppercase tracking-widest">Limits (Cat/Tutor/Evt)</th>
+                          <th className="px-10 py-6 text-[10px] font-black text-primary/70 uppercase tracking-widest">Category Limit</th>
                           <th className="px-10 py-6 text-[10px] font-black text-primary/70 uppercase tracking-widest">Stripe Integration</th>
                           <th className="px-10 py-6 text-[10px] font-black text-primary/70 uppercase tracking-widest text-right">Admin Control</th>
                        </tr>
@@ -365,9 +365,7 @@ export default function AdminDashboard() {
                              </td>
                              <td className="px-10 py-6">
                                 <div className="flex gap-2">
-                                   <input type="number" title="Cat" className="w-12 p-2 text-xs border rounded-lg" onChange={e => setEditFormData({...editFormData, categoryLimit: Number(e.target.value)})}/>
-                                   <input type="number" title="Tut" className="w-12 p-2 text-xs border rounded-lg" onChange={e => setEditFormData({...editFormData, tutorSupportLimit: Number(e.target.value)})}/>
-                                   <input type="number" title="Evt" className="w-12 p-2 text-xs border rounded-lg" onChange={e => setEditFormData({...editFormData, eventLimit: Number(e.target.value)})}/>
+                                   <input type="number" title="Cat" className="w-20 p-2 text-xs border rounded-lg" placeholder="CAT LIMIT" onChange={e => setEditFormData({...editFormData, categoryLimit: Number(e.target.value)})}/>
                                 </div>
                              </td>
                              <td className="px-10 py-6">
@@ -385,7 +383,7 @@ export default function AdminDashboard() {
                              </td>
                           </tr>
                        )}
-                       {planSettings.map(plan => {
+                       {planSettings.filter(p => !p.plan.includes('BUSINESS')).map(plan => {
                           const isEditing = editingPlan === plan._id;
                           return (
                              <tr key={plan._id} className="hover:bg-slate-50/30 transition-all group">
@@ -437,26 +435,12 @@ export default function AdminDashboard() {
                                             title="Categories"
                                             value={editFormData.categoryLimit ?? 0} 
                                             onChange={(e) => setEditFormData({...editFormData, categoryLimit: Number(e.target.value)})}
-                                            className="w-12 p-2 text-xs font-bold border rounded-lg"
-                                         />
-                                         <input 
-                                            type="number" 
-                                            title="Tutor Sessions"
-                                            value={editFormData.tutorSupportLimit} 
-                                            onChange={(e) => setEditFormData({...editFormData, tutorSupportLimit: Number(e.target.value)})}
-                                            className="w-12 p-2 text-xs font-bold border rounded-lg"
-                                         />
-                                         <input 
-                                            type="number" 
-                                            title="Events"
-                                            value={editFormData.eventLimit} 
-                                            onChange={(e) => setEditFormData({...editFormData, eventLimit: Number(e.target.value)})}
-                                            className="w-12 p-2 text-xs font-bold border rounded-lg"
+                                            className="w-20 p-2 text-xs font-bold border rounded-lg"
                                          />
                                       </div>
                                    ) : (
                                       <span className="text-[10px] font-black text-primary/60 uppercase tracking-widest">
-                                         {plan.categoryLimit ?? '∞'} Cat · {plan.tutorSupportLimit} Tut · {plan.eventLimit} Evt
+                                         {plan.categoryLimit ?? '∞'} Categories
                                       </span>
                                    )}
                                 </td>
@@ -503,16 +487,16 @@ export default function AdminDashboard() {
 
       {activeTab === 'premium' && (
         <div className="animate-in slide-in-from-bottom-4 duration-700">
-          <div className="rounded-[3rem] border border-amber-100 bg-gradient-to-br from-amber-50/60 via-white to-orange-50/30 overflow-hidden shadow-2xl shadow-amber-200/10">
-            <div className="flex items-center justify-between border-b border-amber-100 px-10 py-10">
+          <div className="rounded-[3rem] border border-indigo-100 bg-gradient-to-br from-indigo-50/40 via-white to-slate-50/30 overflow-hidden shadow-2xl shadow-indigo-200/10">
+            <div className="flex items-center justify-between border-b border-indigo-50 px-10 py-10">
               <div className="flex items-center gap-6">
-                <div className="h-16 w-16 rounded-[1.5rem] bg-amber-100 flex items-center justify-center border-2 border-white shadow-xl shadow-amber-200/40">
-                  <Crown className="h-8 w-8 text-amber-600 stroke-[2.5]" />
+                <div className="h-16 w-16 rounded-[1.5rem] bg-indigo-600 flex items-center justify-center border-2 border-white shadow-xl shadow-indigo-200/40">
+                  <Crown className="h-8 w-8 text-white stroke-[2.5]" />
                 </div>
                 <div>
                    <h3 className="text-xl font-black text-slate-800 tracking-tighter uppercase">Elite Collective</h3>
-                  <p className="text-xs font-black text-amber-600 uppercase tracking-[0.3em] flex items-center gap-2 mt-1">
-                     <span className="h-1 w-1 bg-amber-400 rounded-full animate-pulse" />
+                  <p className="text-xs font-black text-indigo-600 uppercase tracking-[0.3em] flex items-center gap-2 mt-1">
+                     <span className="h-1 w-1 bg-indigo-400 rounded-full animate-pulse" />
                      {premiumUsers.length} High-Tier Pulse Members
                   </p>
                 </div>
@@ -520,36 +504,41 @@ export default function AdminDashboard() {
               <div className="flex gap-4">
                  <div className="hidden md:flex flex-col text-right">
                     <span className="text-[10px] font-black text-primary/60 uppercase tracking-widest">Active Revenue Nodes</span>
-                    <span className="text-xl font-black text-slate-800 tracking-tight">${premiumUsers.reduce((acc, u) => acc + (u.subscription?.plan === 'PREMIUM' ? 7.94 : 3.81), 0).toFixed(2)} / mo</span>
+                    <span className="text-xl font-black text-slate-800 tracking-tight text-indigo-600">${premiumUsers.reduce((acc, u) => acc + (u.subscription?.plan === 'PREMIUM' ? 7.94 : 3.81), 0).toFixed(2)} / mo</span>
                  </div>
               </div>
             </div>
 
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
-                <thead className="bg-amber-50/50 border-b border-amber-100/60">
+                <thead className="bg-slate-50/50 border-b border-indigo-50/60">
                   <tr>
-                    <th className="px-10 py-6 text-[10px] font-black text-amber-700/60 uppercase tracking-widest">Subscriber Identity</th>
-                    <th className="px-10 py-6 text-[10px] font-black text-amber-700/60 uppercase tracking-widest">Access Tier</th>
-                    <th className="px-10 py-6 text-[10px] font-black text-amber-700/60 uppercase tracking-widest">Cycle Node</th>
-                    <th className="px-10 py-6 text-[10px] font-black text-amber-700/60 uppercase tracking-widest">Exp Date</th>
-                    <th className="px-10 py-6 text-[10px] font-black text-amber-700/60 uppercase tracking-widest">Geographic Pulse</th>
-                    <th className="px-10 py-6 text-[10px] font-black text-amber-700/60 uppercase tracking-widest text-right">Node Logic</th>
+                    <th className="px-10 py-6 text-[10px] font-black text-indigo-700/60 uppercase tracking-widest">Subscriber Identity</th>
+                    <th className="px-10 py-6 text-[10px] font-black text-indigo-700/60 uppercase tracking-widest">Access Tier</th>
+                    <th className="px-10 py-6 text-[10px] font-black text-indigo-700/60 uppercase tracking-widest">Cycle Node</th>
+                    <th className="px-10 py-6 text-[10px] font-black text-indigo-700/60 uppercase tracking-widest">Exp Date</th>
+                    <th className="px-10 py-6 text-[10px] font-black text-indigo-700/60 uppercase tracking-widest">Geographic Pulse</th>
+                    <th className="px-10 py-6 text-[10px] font-black text-indigo-700/60 uppercase tracking-widest text-right">Node Logic</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-amber-100/40">
+                <tbody className="divide-y divide-indigo-50/40">
                   {premiumUsers.length === 0 ? (
                     <tr>
-                      <td colSpan={6} className="py-24 text-center">
-                        <p className="text-xs font-black text-primary/40 uppercase tracking-[0.4em]">No active elite members</p>
+                      <td colSpan={6} className="py-32 text-center">
+                        <div className="flex flex-col items-center gap-4">
+                           <div className="h-12 w-12 rounded-full bg-slate-50 flex items-center justify-center text-slate-300 border border-slate-100">
+                              <Star className="h-6 w-6" />
+                           </div>
+                           <p className="text-[10px] font-black text-primary/30 uppercase tracking-[0.4em]">Propagating Elite Nodes...</p>
+                        </div>
                       </td>
                     </tr>
                   ) : (
                     premiumUsers.map((pu) => (
-                      <tr key={pu._id} className="hover:bg-amber-50/40 transition-all group">
+                      <tr key={pu._id} className="hover:bg-indigo-50/20 transition-all group">
                         <td className="px-10 py-6">
                            <div className="flex items-center gap-5">
-                              <div className="h-12 w-12 rounded-2xl bg-amber-100 flex items-center justify-center font-black text-amber-700 text-sm border border-amber-200 group-hover:scale-110 transition-transform duration-500 shadow-lg shadow-amber-200/20">{pu.name?.charAt(0)}</div>
+                              <div className="h-12 w-12 rounded-2xl bg-indigo-50 flex items-center justify-center font-black text-indigo-700 text-sm border border-indigo-100 group-hover:scale-110 transition-transform duration-500 shadow-lg shadow-indigo-200/20">{pu.name?.charAt(0)}</div>
                               <div>
                                  <p className="text-sm font-black text-slate-800 tracking-tight">{pu.name}</p>
                                  <p className="text-[10px] font-bold text-primary/60 mt-0.5">{pu.email}</p>
@@ -558,10 +547,10 @@ export default function AdminDashboard() {
                         </td>
                         <td className="px-10 py-6">
                            <span className={cn(
-                              "inline-flex items-center gap-2 rounded-xl px-4 py-2 text-[9px] font-black uppercase tracking-[0.15em] border transition-all",
-                              pu.subscription?.plan === 'PREMIUM' ? 'bg-amber-100 text-amber-700 border-amber-200 shadow-md shadow-amber-200/10' : 'bg-primary/5 text-primary border-primary/10'
+                              "inline-flex items-center gap-2 rounded-xl px-4 py-2 text-[9px] font-black uppercase tracking-[0.15em] border transition-all shadow-sm",
+                              pu.subscription?.plan === 'PREMIUM' ? 'bg-indigo-600 text-white border-indigo-700' : 'bg-primary/5 text-primary border-primary/10'
                            )}>
-                              <Star className={cn("h-3 w-3", pu.subscription?.plan === 'PREMIUM' ? 'fill-amber-600' : 'fill-primary')} />
+                              <Star className={cn("h-3 w-3", pu.subscription?.plan === 'PREMIUM' ? 'fill-white' : 'fill-primary')} />
                               {pu.subscription?.plan}
                            </span>
                         </td>
@@ -577,8 +566,8 @@ export default function AdminDashboard() {
                            <span className="text-[10px] font-black text-primary/60 font-serif">{pu.country || 'Global'}</span>
                         </td>
                         <td className="px-10 py-6 text-right">
-                           <span className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-[9px] font-black uppercase tracking-widest bg-emerald-50 text-emerald-600 border border-emerald-100">
-                              <div className="h-1 w-1 bg-emerald-500 rounded-full animate-pulse" />
+                           <span className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-[9px] font-black uppercase tracking-widest bg-indigo-50 text-indigo-600 border border-indigo-100">
+                              <div className="h-1 w-1 bg-indigo-500 rounded-full animate-pulse" />
                               Active Node
                            </span>
                         </td>
@@ -594,19 +583,3 @@ export default function AdminDashboard() {
     </div>
   );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

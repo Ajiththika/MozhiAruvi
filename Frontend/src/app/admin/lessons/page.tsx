@@ -1130,9 +1130,8 @@ export default function AdminLessonsPage() {
                   )}
                 </div>
 
-                {/* Pagination Controls */}
                 {totalPages > 1 && (
-                  <div className="mt-16 flex items-center justify-center gap-4">
+                  <div className="mt-16 flex items-center justify-center gap-1 px-8 py-6 bg-white rounded-[2rem] border border-slate-100 shadow-sm">
                     <button
                       disabled={currentPage === 1}
                       onClick={() => setCurrentPage(p => p - 1)}

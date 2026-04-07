@@ -76,7 +76,8 @@ const userSchema = new mongoose.Schema({
     freeEventsUsedThisCycle: { type: Number, default: 0 },
     tutorSupportUsed: { type: Number, default: 0 },
     eventUsageCount: { type: Number, default: 0 },
-    hasUsedTrial: { type: Boolean, default: false }
+    hasUsedTrial: { type: Boolean, default: false },
+    status: { type: String, enum: ['trialing', 'active', 'canceled', 'none'], default: 'none' }
   },
 
   organizationId: { type: mongoose.Schema.Types.ObjectId, ref: 'Organization' },

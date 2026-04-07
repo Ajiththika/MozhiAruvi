@@ -18,6 +18,8 @@ export interface DataTableProps<T> {
   description?: string;
   onSearch?: (value: string) => void;
   isLoading?: boolean;
+  hideFooter?: boolean;
+  pagination?: React.ReactNode;
 }
 
 export function DataTable<T>({
@@ -27,9 +29,11 @@ export function DataTable<T>({
   description,
   onSearch,
   isLoading,
+  hideFooter,
+  pagination,
 }: DataTableProps<T>) {
   return (
-    <div className="flex flex-col overflow-hidden rounded-responsive border border-border bg-surface shadow-sm transition-all duration-300">
+    <div className="flex flex-col overflow-hidden rounded-[2.5rem] border border-border bg-surface shadow-sm transition-all duration-300">
       {(title || description || onSearch) && (
         <div className="flex flex-col gap-6 border-b border-border/40 px-8 py-6 md:flex-row md:items-center md:justify-between bg-surface-soft/30">
           <div>
@@ -116,15 +120,23 @@ export function DataTable<T>({
         </table>
       </div>
 
-      <div className="flex items-center justify-between border-t border-border/40 px-8 py-5 bg-surface-soft/20">
-         <span className="text-[10px] font-black uppercase tracking-widest text-text-tertiary">
-             Total Sequence Records: <span className="text-primary">{data.length}</span>
-         </span>
-         <div className="flex items-center gap-1.5">
-            <div className="h-1.5 w-1.5 rounded-full bg-primary/40 animate-pulse" />
-            <span className="text-[9px] font-black uppercase tracking-widest text-text-tertiary">Real-time Sync Active</span>
-         </div>
-      </div>
+      {!hideFooter && !pagination && (
+        <div className="flex items-center justify-between border-t border-border/40 px-8 py-5 bg-surface-soft/20">
+           <span className="text-[10px] font-black uppercase tracking-widest text-text-tertiary">
+               Total Sequence Records: <span className="text-primary">{data.length}</span>
+           </span>
+           <div className="flex items-center gap-1.5">
+              <div className="h-1.5 w-1.5 rounded-full bg-primary/40 animate-pulse" />
+              <span className="text-[9px] font-black uppercase tracking-widest text-text-tertiary">Real-time Sync Active</span>
+           </div>
+        </div>
+      )}
+
+      {pagination && (
+        <div className="flex items-center justify-center border-t border-border/40 px-6 py-4 bg-surface">
+           {pagination}
+        </div>
+      )}
     </div>
   );
 }

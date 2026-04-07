@@ -17,10 +17,10 @@ import Button from "@/components/ui/Button";
 
 function StatusBadge({ status }: { status: TeacherApplication["status"] }) {
   const map: Record<string, string> = {
-    pending: "bg-amber-50 text-amber-700 border border-amber-200",
+    pending: "bg-indigo-50 text-indigo-700 border border-indigo-200",
     approved: "bg-emerald-50 text-emerald-700 border border-emerald-200",
     rejected: "bg-red-50 text-red-700 border border-red-200",
-    needs_revision: "bg-orange-50 text-orange-700 border border-orange-200",
+    needs_revision: "bg-slate-50 text-slate-700 border border-slate-200",
   };
   const labels: Record<string, string> = {
     pending: "Pending",
@@ -320,12 +320,14 @@ export default function AdminTeachersPage() {
              <p className="text-primary/60 font-bold max-w-sm">No linguistic applications match your current filtration logic. All records are processed.</p>
           </div>
         ) : (
-          <div className="space-y-12 animate-in slide-in-from-bottom-8 duration-700">
-            <DataTable title={`Linguistic Fleet Intelligence (${totalItems} entities)`} columns={columns} data={applications} />
-            <div className="pt-10 border-t border-slate-100">
+          <DataTable 
+            title="Linguistic Fleet" 
+            columns={columns} 
+            data={applications} 
+            pagination={
               <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
-            </div>
-          </div>
+            }
+          />
         )}
       </div>
     </>

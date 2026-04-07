@@ -104,10 +104,20 @@ export function Sidebar({ items, basePath }: SidebarProps) {
             )}
             <div className="absolute bottom-0 right-0 h-2.5 w-2.5 bg-emerald-500 border-2 border-white rounded-full" />
           </div>
-          <div className="min-w-0">
-            <p className="text-[9px] font-black text-purple-400 uppercase tracking-widest leading-none mb-1">
-              {pathname.startsWith('/admin') ? 'Admin' : pathname.startsWith('/tutor') ? 'Teacher' : 'Student'}
-            </p>
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-2 mb-1">
+              <p className="text-[9px] font-black text-purple-400 uppercase tracking-widest leading-none">
+                {pathname.startsWith('/admin') ? 'Admin' : pathname.startsWith('/tutor') ? 'Teacher' : 'Student'}
+              </p>
+              {user?.subscription?.plan && user.subscription.plan !== 'FREE' && (
+                <span className={cn(
+                  "px-1.5 py-0.5 rounded-md text-[8px] font-black uppercase tracking-tighter border shadow-sm",
+                  user.subscription.plan === 'PREMIUM' ? "bg-amber-400 border-amber-500 text-slate-900" : "bg-emerald-500 border-emerald-600 text-white"
+                )}>
+                  {user.subscription.plan}
+                </span>
+              )}
+            </div>
             <h4 className="text-xs font-black text-text-primary truncate pr-2">
               {user?.name || "Member"}
             </h4>
@@ -152,7 +162,10 @@ export function Sidebar({ items, basePath }: SidebarProps) {
       </nav>
 
       {/* Promo Section: 1-time Trial offer (Students Only) */}
-      {user?.role === 'student' && user?.subscription?.plan === 'FREE' && !user?.hasUsedTrial && (
+      {user?.role === 'student' && 
+       user?.subscription?.plan === 'FREE' && 
+       !user?.subscription?.stripeSubscriptionId &&
+       !user?.hasUsedTrial && (
         <div className="px-5 py-6 shrink-0">
           <div className="bg-slate-50 rounded-[2rem] p-5 relative overflow-hidden group/promo border border-indigo-100 shadow-xl shadow-indigo-100/20">
              <div className="absolute -right-6 -top-6 opacity-20 rotate-12 group-hover/promo:scale-110 group-hover/promo:rotate-6 transition-all duration-700">

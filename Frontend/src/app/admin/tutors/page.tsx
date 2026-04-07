@@ -246,7 +246,7 @@ export default function AdminTutorsPage() {
       ),
     },
     {
-      header: "Trust Score",
+      header: "Account Access",
       accessorKey: "isActive",
       cell: (row) => (
         <div className="flex flex-col gap-2">
@@ -259,8 +259,8 @@ export default function AdminTutorsPage() {
             {row.isActive ? <ShieldCheck className="h-3.5 w-3.5" /> : <XCircle className="h-3.5 w-3.5" />}
             {row.isActive ? "Verified Active" : "Suspended"}
           </span>
-          {row.warnings && row.warnings > 0 && (
-            <span className="inline-flex items-center gap-1.5 text-[9px] font-black text-amber-500 uppercase tracking-tighter bg-amber-50 px-2 py-0.5 rounded-lg border border-amber-100 w-fit">
+          {(row.warnings ?? 0) > 0 && (
+            <span className="inline-flex items-center gap-1.5 text-[9px] font-black text-indigo-500 uppercase tracking-tighter bg-indigo-50 px-2 py-0.5 rounded-lg border border-indigo-100 w-fit">
                <AlertTriangle className="h-3 w-3" /> {row.warnings} Warning Nodes
             </span>
           )}
@@ -346,9 +346,9 @@ export default function AdminTutorsPage() {
       {/* SUBMISSION QUEUE (From image 2 style) */}
       <div className="space-y-8">
         <div className="flex items-center gap-4">
-           <Hourglass className="h-5 w-5 text-yellow-500" />
+           <Hourglass className="h-5 w-5 text-secondary" />
            <h2 className="text-xl font-black text-slate-800 uppercase tracking-tight">Submission Queue</h2>
-           <span className="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-lg text-[10px] font-black">
+           <span className="bg-secondary/10 text-secondary px-3 py-1 rounded-full text-[10px] font-black border border-secondary/5">
               {applicationsData?.length || 0} PENDING NODES
            </span>
         </div>
@@ -359,35 +359,33 @@ export default function AdminTutorsPage() {
                <p className="text-[10px] font-black text-primary/30 uppercase tracking-widest">Scanning requests...</p>
             </div>
         ) : applicationsData?.length === 0 ? (
-            <div className="rounded-[2.5rem] border border-slate-100 bg-white p-16 text-center shadow-xl shadow-slate-200/20 group hover:border-emerald-100 transition-all">
-               <CheckCircle2 className="h-16 w-16 text-emerald-500 mx-auto mb-6 group-hover:scale-110 transition-transform" />
+            <div className="rounded-[2.5rem] border border-slate-100 bg-white p-16 text-center shadow-xl shadow-slate-200/20 group hover:border-primary/20 transition-all">
+               <CheckCircle2 className="h-16 w-16 text-primary mx-auto mb-6 group-hover:scale-110 transition-transform" />
                <h3 className="text-xl font-black text-slate-800 uppercase">Queue Synchronized</h3>
                <p className="text-xs font-bold text-primary/40 uppercase mt-2 tracking-widest">All applications have been processed.</p>
             </div>
         ) : (
-            <div className="rounded-[2.5rem] overflow-hidden border border-slate-100 bg-white shadow-2xl shadow-slate-200/30">
-               <DataTable 
-                 title={`Pending Evaluations`} 
-                 columns={appColumns} 
-                 data={applicationsData || []} 
-               />
-               <div className="px-10 py-6 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
-                  <span className="text-[10px] font-black text-primary/40 uppercase tracking-widest">Total Sequence Records: {applicationsData?.length}</span>
-                  <div className="flex items-center gap-2">
-                     <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Real-time sync active</span>
-                  </div>
-               </div>
-            </div>
+             <DataTable 
+               title="Evaluating Experts" 
+               columns={appColumns} 
+               data={applicationsData || []} 
+               pagination={
+                 <Pagination 
+                   currentPage={1}
+                   totalPages={1}
+                   onPageChange={() => {}}
+                 />
+               }
+             />
         )}
       </div>
 
       {/* EXPERT DIRECTORY */}
       <div className="space-y-8 pt-10">
         <div className="flex items-center gap-4">
-           <GraduationCap className="h-5 w-5 text-emerald-500" />
+           <GraduationCap className="h-5 w-5 text-secondary" />
            <h2 className="text-xl font-black text-slate-800 uppercase tracking-tight">Expert Directory intelligence</h2>
-           <span className="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-lg text-[10px] font-black lowercase">
+           <span className="bg-secondary/10 text-secondary px-3 py-1 rounded-full text-[10px] font-black border border-secondary/5">
               {directoryData?.totalItems || 0} active entries
            </span>
         </div>
@@ -398,20 +396,18 @@ export default function AdminTutorsPage() {
             </div>
         ) : (
             <div className="space-y-12">
-               <div className="rounded-[3rem] overflow-hidden border border-slate-100 bg-white shadow-2xl shadow-slate-200/30">
-                  <DataTable 
-                    title="Authenticated Network Nodes" 
-                    columns={dirColumns} 
-                    data={directoryData?.tutors || []} 
-                  />
-                  <div className="px-10 py-10 bg-slate-50 border-t border-slate-100">
+                <DataTable 
+                  title="Validated Networks" 
+                  columns={dirColumns} 
+                  data={directoryData?.tutors || []} 
+                  pagination={
                     <Pagination 
                       currentPage={currentPage}
                       totalPages={directoryData?.totalPages || 1}
                       onPageChange={setCurrentPage}
                     />
-                  </div>
-               </div>
+                  }
+                />
             </div>
         )}
       </div>

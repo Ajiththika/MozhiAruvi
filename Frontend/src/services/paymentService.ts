@@ -15,3 +15,8 @@ export async function createTutorPayment(tutorId: string, isPackage?: boolean) {
   return res.data;
 }
 
+export async function verifySubscriptionSession(sessionId: string) {
+  const res = await api.get<{ message: string, user: any, accessToken?: string }>(`/payments/verify-session?sessionId=${sessionId}`);
+  return res.data;
+}
+

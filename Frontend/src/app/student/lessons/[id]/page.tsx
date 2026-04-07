@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Play, HelpCircle, Loader2, AlertCircle, Zap, BookOpen, User, CheckCircle2, XCircle, Volume2, Trophy } from "lucide-react";
+import { ArrowLeft, ArrowRight, Play, HelpCircle, Loader2, AlertCircle, Zap, BookOpen, User, CheckCircle2, XCircle, Volume2, Trophy } from "lucide-react";
 import { getLessonById, getLessonQuestions, submitAnswers, generateSpeech, Lesson, Question, SubmitAnswerItem } from "@/services/lessonService";
 import { getMe, SafeUser } from "@/services/authService";
 import { cn } from "@/lib/utils";
@@ -240,26 +240,74 @@ export default function LessonInteractiveSession() {
     );
   }
 
+  const [countdown, setCountdown] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (phase === "completed" && score?.nextLessonId && score.passed) {
+      setCountdown(3);
+      const timer = setInterval(() => {
+        setCountdown((prev) => (prev !== null && prev > 0 ? prev - 1 : 0));
+      }, 1000);
+      
+      const redirect = setTimeout(() => {
+        router.push(`/student/lessons/${score.nextLessonId}`);
+      }, 3000);
+
+      return () => {
+        clearInterval(timer);
+        clearTimeout(redirect);
+      };
+    }
+  }, [phase, score, router]);
+
   if (phase === "completed") {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center p-6">
-        <Card className="max-w-2xl w-full text-center p-12 space-y-10">
-           <Trophy className="h-24 w-24 text-emerald-500 mx-auto animate-bounce" />
-           <h1 className="text-5xl font-black">Level Complete!</h1>
+        <Card className="max-w-2xl w-full text-center p-12 space-y-10 animate-in fade-in zoom-in duration-500 rounded-[3rem] border shadow-2xl">
+           <div className="relative">
+              <div className="absolute inset-0 bg-emerald-400/20 blur-3xl rounded-full" />
+              <Trophy className="h-32 w-32 text-emerald-500 mx-auto relative animate-bounce" />
+           </div>
+           
+           <div className="space-y-4">
+              <h1 className="text-5xl font-black tracking-tight">Level Complete!</h1>
+              <p className="text-slate-500 font-medium">Excellent work! You've mastered this module.</p>
+           </div>
+
            <div className="flex justify-center gap-8">
-              <div className="p-6 bg-gray-50 rounded-2xl">
-                 <p className="text-sm font-bold text-gray-400">Score</p>
-                 <p className="text-4xl font-black text-primary">{score?.score}/{score?.total}</p>
+              <div className="p-8 bg-slate-50 rounded-[2rem] border border-slate-100 shadow-inner">
+                 <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">Total Score</p>
+                 <p className="text-5xl font-black text-primary">{score?.score}/{score?.total}</p>
+                 <div className="h-1.5 w-full bg-slate-200 rounded-full mt-4 overflow-hidden">
+                    <div className="h-full bg-emerald-500 rounded-full" style={{ width: `${(score?.score || 0) / (score?.total || 1) * 100}%` }} />
+                 </div>
               </div>
            </div>
+
            <div className="flex flex-col sm:flex-row gap-4">
-              <Button href="/student/lessons" variant="outline" size="xl" className="flex-1 rounded-2xl">Course Path</Button>
+              <Button href="/student/lessons" variant="outline" size="xl" className="flex-1 rounded-2xl h-16 text-xs font-black uppercase tracking-widest border-2">Course Path</Button>
               <Button 
-                href={score?.nextLessonId ? `/student/lessons/${score.nextLessonId}` : "/student/dashboard"} 
+                onClick={() => router.push(score?.nextLessonId ? `/student/lessons/${score.nextLessonId}` : "/student/dashboard")}
                 size="xl" 
-                className={cn("flex-1 rounded-2xl shadow-xl", score?.passed ? "bg-emerald-500 shadow-emerald-500/20" : "")}
+                className={cn(
+                  "flex-1 rounded-2xl h-16 shadow-2xl text-xs font-black uppercase tracking-widest relative overflow-hidden transition-all hover:scale-105 active:scale-95", 
+                  score?.passed ? "bg-emerald-500 hover:bg-emerald-600 shadow-emerald-500/20" : "bg-primary"
+                )}
               >
-                {score?.nextLessonId ? "Next Activity" : "Main Dashboard"}
+                <div className="relative z-10 flex items-center justify-center gap-3">
+                  {score?.nextLessonId ? (
+                    <>
+                      {countdown !== null && countdown > 0 ? `Next Level (${countdown}s)` : "Next Activity"} 
+                      <ArrowRight className="w-4 h-4" />
+                    </>
+                  ) : "Main Dashboard"}
+                </div>
+                {countdown !== null && (
+                   <div 
+                     className="absolute bottom-0 left-0 h-1 bg-white/30 transition-all duration-1000 ease-linear" 
+                     style={{ width: `${(countdown / 3) * 100}%` }} 
+                   />
+                )}
               </Button>
            </div>
         </Card>

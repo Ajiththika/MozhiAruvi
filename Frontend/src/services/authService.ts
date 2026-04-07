@@ -61,6 +61,7 @@ export interface SafeUser {
     freeEventsUsedThisCycle?: number;
     tutorSupportUsed?: number;
     eventUsageCount?: number;
+    status?: "trialing" | "active" | "canceled" | "none";
   };
   organizationId?: string;
   roleInOrg?: "owner" | "member";

@@ -1,4 +1,5 @@
 import User from '../models/User.js';
+import jwt from 'jsonwebtoken';
 import Payment from '../models/Payment.js';
 import Event from '../models/Event.js';
 import Organization from '../models/Organization.js';
@@ -62,6 +63,7 @@ export async function stripeWebhook(req, res, next) {
                         'subscription.stripeSubscriptionId': session.subscription,
                         'subscription.currentPeriodEnd': new Date(subscription.current_period_end * 1000),
                         'subscription.hasUsedTrial': true,
+                        'subscription.status': subscription.status,
                     };
 
                     await User.findByIdAndUpdate(userId, updateData);
@@ -135,7 +137,8 @@ export async function stripeWebhook(req, res, next) {
                             'subscription.currentPeriodEnd': new Date(subscription.current_period_end * 1000),
                             'subscription.freeEventsUsedThisCycle': 0, // Reset event usage on renewal
                             'subscription.tutorSupportUsed': 0, // Reset usage
-                            'subscription.eventUsageCount': 0 // Reset usage
+                            'subscription.eventUsageCount': 0, // Reset usage
+                            'subscription.status': subscription.status
                         }
                     );
                 }
@@ -216,6 +219,61 @@ export async function createEventPaymentSession(req, res, next) {
 /**
  * Handle One-time payment for Tutor session.
  */
+/**
+ * Proactive check for subscription status (fallback for delayed webhooks).
+ */
+export async function verifySubscriptionSession(req, res, next) {
+    try {
+        const { sessionId } = req.query;
+        if (!sessionId) return res.status(400).json({ message: "Session ID required" });
+
+        const session = await stripeService.stripe.checkout.sessions.retrieve(sessionId);
+        if (!session || session.status !== 'complete') {
+            return res.status(400).json({ message: "Session not completed" });
+        }
+
+        const userId = session.metadata.userId;
+        const plan = session.metadata.plan;
+        const billingCycle = session.metadata.billingCycle;
+
+        const user = await User.findById(userId);
+        if (!user) return res.status(404).json({ message: "User not found" });
+
+        // If skip processing if already handled by webhook
+        if (user.subscription?.stripeSubscriptionId === session.subscription && user.subscription.plan !== 'FREE') {
+            return res.json({ message: "Subscription already active", user: user.toSafeObject() });
+        }
+
+        // Retrieve subscription details
+        const subscription = await stripeService.stripe.subscriptions.retrieve(session.subscription);
+
+        const updateData = {
+            'subscription.plan': plan,
+            'subscription.billingCycle': billingCycle,
+            'subscription.stripeSubscriptionId': session.subscription,
+            'subscription.currentPeriodEnd': new Date(subscription.current_period_end * 1000),
+            'subscription.hasUsedTrial': true,
+            'subscription.status': subscription.status,
+            'subscription.stripeCustomerId': session.customer
+        };
+
+        const updatedUser = await User.findByIdAndUpdate(userId, updateData, { new: true });
+        
+        // Generate a fresh access token to prevent session expiration issues after returning from Stripe
+        const accessToken = jwt.sign(
+            { sub: updatedUser._id, role: updatedUser.role },
+            process.env.JWT_SECRET,
+            { expiresIn: process.env.JWT_EXPIRES_IN || '1h' }
+        );
+
+        res.json({ 
+            message: "Subscription verified successfully", 
+            user: updatedUser.toSafeObject(),
+            accessToken 
+        });
+    } catch (e) { next(e); }
+}
+
 export async function createTutorPaymentSession(req, res, next) {
     try {
         const { tutorId, isPackage } = req.body; // isPackage: true for 8-class bundle

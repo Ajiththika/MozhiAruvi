@@ -6,6 +6,7 @@ const router = express.Router();
 
 // Subscription
 router.post('/create-subscription-session', authenticate, paymentController.createSubscriptionSession);
+router.get('/verify-session', authenticate, paymentController.verifySubscriptionSession);
 
 // One-time payments
 router.post('/create-event-payment', authenticate, paymentController.createEventPaymentSession);

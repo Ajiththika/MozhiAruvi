@@ -3,6 +3,7 @@ import * as lessonService from '../services/lessonService.js';
 import * as eventService from '../services/eventService.js';
 import * as blogService from '../services/blogService.js';
 import * as tutorService from '../services/tutorService.js';
+import { getUserNotifications } from '../services/notificationService.js';
 
 export async function getProfile(req, res, next) {
     try {
@@ -69,13 +70,14 @@ export async function getStudentDashboardData(req, res, next) {
             }
         };
 
-        const [user, lessonsData, progress, joinRequests, blogs, questions] = await Promise.all([
+        const [user, lessonsData, progress, joinRequests, blogs, questions, notifications] = await Promise.all([
             userService.getUserInfo(userId),
             saferFetch(lessonService.getAllLessons()),
             saferFetch(lessonService.getUserProgressList(userId)),
             saferFetch(eventService.getMyJoinRequests(userId)),
             saferFetch(blogService.getUserBlogs(userId)),
-            saferFetch(tutorService.getStudentRequests(userId))
+            saferFetch(tutorService.getStudentRequests(userId)),
+            saferFetch(getUserNotifications(userId))
         ]);
 
         const allLessons = Array.isArray(lessonsData) ? lessonsData : (lessonsData.lessons || []);
@@ -113,6 +115,7 @@ export async function getStudentDashboardData(req, res, next) {
             progress,
             joinRequests,
             blogs,
+            notifications,
             questions: questions.slice(0, 5),
             statistics: {
                 totalLessons,
