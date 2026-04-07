@@ -4,7 +4,7 @@
  * Centralized Error handling with standard JSON Response architecture.
  */
 export function errorHandler(err, req, res, _next) {
-    let status = err.status || 500;
+    let status = err.status || err.statusCode || 500;
     let message = err.message || 'An unexpected error occurred.';
     let code = err.code || 'SERVER_ERROR';
 

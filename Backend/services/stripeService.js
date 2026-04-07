@@ -29,6 +29,7 @@ export async function getOrCreateCustomer(user) {
   });
 
   user.subscription.stripeCustomerId = customer.id;
+  user.markModified('subscription');
   await user.save();
   return customer.id;
 }
@@ -37,12 +38,16 @@ export async function getOrCreateCustomer(user) {
  * Creates a Checkout Session for Subscription.
  */
 export async function createSubscriptionSession(user, priceId, planName, cycle, seats) {
-  if (!priceId || priceId.includes('placeholder')) {
-     throw new Error('Stripe Price ID is not configured. Please update your .env file with actual Price IDs.');
+  if (!STRIPE_KEY || STRIPE_KEY.includes('dummy')) {
+     throw new Error('Stripe API Key is not configured. Please add STRIPE_SECRET_KEY to your .env file.');
+  }
+
+  if (!priceId || priceId.includes('placeholder') || priceId === 'undefined') {
+     throw new Error('Stripe Price ID is not configured correctly in the .env file. Please ensure Price IDs start with "price_".');
   }
 
   if (!priceId.startsWith('price_')) {
-     throw new Error(`Invalid Stripe Price ID: "${priceId}". Please ensure you use a Price ID (starting with "price_"), not a Product ID (starting with "prod_").`);
+     throw new Error(`Invalid Stripe Price ID format: "${priceId}". Expected a Price ID (e.g. price_...), but received something else.`);
   }
 
   const customerId = await getOrCreateCustomer(user);
@@ -61,7 +66,7 @@ export async function createSubscriptionSession(user, priceId, planName, cycle, 
       userId: user._id.toString(),
       plan: planName,
       billingCycle: cycle,
-      ...(seats ? { seats } : {}) 
+      ...(seats ? { seats: String(seats) } : {}) // Ensure seats is a string
     },
     success_url: `${process.env.FRONTEND_ORIGIN}/student/subscription/success?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${process.env.FRONTEND_ORIGIN}/student/subscription`,

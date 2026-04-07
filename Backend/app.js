@@ -20,10 +20,14 @@ import bookingRoutes from './routes/bookingRoutes.js';
 import { stripeWebhook } from './controllers/paymentController.js';
 import { testSmtpConnection } from './services/mailService.js';
 import { errorHandler } from './middleware/error.js';
+import { connectDB } from './config/db.js';
 
 import rateLimit from 'express-rate-limit';
 
 const app = express();
+
+// Initialize DB for Serverless environment
+connectDB();
 
 // ── Rate Limiting (SaaS Standard) ─────────────────────────────────────────────
 const globalLimiter = rateLimit({

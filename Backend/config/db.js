@@ -19,6 +19,7 @@ export async function connectDB() {
     const mongoUri = process.env.MONGODB_URI;
 
     try {
+        if (mongoose.connection.readyState >= 1) return;
         await mongoose.connect(mongoUri, options);
         console.log('✅ [DATABASE] MongoDB Atlas connected successfully.');
     } catch (err) {
