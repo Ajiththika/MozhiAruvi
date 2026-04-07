@@ -18,8 +18,9 @@ export default function StripeOnboardingNotice({ isVerified }: Props) {
     try {
       const { url } = await startStripeOnboarding();
       window.location.href = url;
-    } catch (err) {
-      alert("Failed to start onboarding. Please try again.");
+    } catch (err: any) {
+      const msg = err.response?.data?.message || err.message || "Failed to start onboarding.";
+      alert(`Stripe Error: ${msg}`);
       setLoading(false);
     }
   };

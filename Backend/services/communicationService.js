@@ -10,51 +10,54 @@ export async function notifyBookingSuccess(student, tutor, bookingDetails) {
   // 1. Notify Student (Email + In-App)
   await mailService.sendEmail(
     student.email,
-    'Booking Confirmed - Mozhi Aruvi',
+    'Payment Confirmed - Mozhi Aruvi',
     `
     <div style="font-family: sans-serif; max-width: 600px; padding: 20px; border: 1px solid #eee; border-radius: 12px;">
-      <h2 style="color: #4F46E5;">Booking Successful!</h2>
-      <p>Hello ${student.name}, your session with <strong>${tutor.name}</strong> is scheduled.</p>
+      <h2 style="color: #4F46E5;">Class Officially Booked!</h2>
+      <p>Hello ${student.name}, your payment for the session with <strong>${tutor.name}</strong> was successful.</p>
       <div style="background: #f9f9f9; padding: 15px; border-radius: 8px; margin: 20px 0;">
         <p><strong>Date:</strong> ${new Date(date).toDateString()}</p>
         <p><strong>Time:</strong> ${startTime}</p>
-        <p><strong>Amount Paid:</strong> $${amount}</p>
+        <p><strong>Status:</strong> Paid & Confirmed</p>
       </div>
-      <p>Please wait for the tutor to confirm the session. You will receive another notification once confirmed.</p>
+      <p>Your mentor will provide the meeting link shortly. Check your dashboard for updates.</p>
     </div>
     `
   );
 
   await Notification.create({
     user: student._id,
-    title: "Payment Successful",
-    message: `Your booking with ${tutor.name} for ${startTime} is pending tutor confirmation.`,
-    type: 'payment_success'
+    title: "Class Booked Successfully",
+    message: `Your payment was accepted! Session with ${tutor.name} is now active.`,
+    type: 'payment_success',
+    bookingId: bookingDetails._id
   });
 
   // 2. Notify Tutor (Email + In-App)
   await mailService.sendEmail(
     tutor.email,
-    'New Booking Received! - Mozhi Aruvi',
+    'Payment Received! - Mozhi Aruvi',
     `
     <div style="font-family: sans-serif; max-width: 600px; padding: 20px; border: 1px solid #eee; border-radius: 12px;">
-      <h2 style="color: #10B981;">New Booking!</h2>
-      <p>Hello ${tutor.name}, student <strong>${student.name}</strong> has booked a session with you.</p>
+      <h2 style="color: #10B981;">Payment Confirmed!</h2>
+      <p>Hello ${tutor.name}, student <strong>${student.name}</strong> has paid for their session.</p>
       <div style="background: #f9f9f9; padding: 15px; border-radius: 8px; margin: 20px 0;">
-        <p><strong>Requested Date:</strong> ${new Date(date).toDateString()}</p>
-        <p><strong>Requested Time:</strong> ${startTime}</p>
+        <p><strong>Date:</strong> ${new Date(date).toDateString()}</p>
+        <p><strong>Time:</strong> ${startTime}</p>
+        <p><strong>Earnings:</strong> Paid to your Stripe account</p>
       </div>
-      <p>Please log in to your dashboard to <strong>Confirm</strong> or <strong>Reschedule</strong> this session.</p>
-      <a href="${process.env.FRONTEND_ORIGIN}/tutor/dashboard" style="display:inline-block; padding: 10px 20px; background:#10B981; color:white; text-decoration:none; border-radius:6px; font-weight:bold;">View Dashboard</a>
+      <p>Please share the meeting link with the student from your "My Schedule" portal.</p>
+      <a href="${process.env.FRONTEND_ORIGIN}/tutor/schedule" style="display:inline-block; padding: 10px 20px; background:#10B981; color:white; text-decoration:none; border-radius:6px; font-weight:bold;">Tutor Schedule</a>
     </div>
     `
   );
 
   await Notification.create({
     user: tutor._id,
-    title: "New Booking Request",
-    message: `${student.name} has booked a session for ${startTime}.`,
-    type: 'new_booking'
+    title: "Student Payment Received",
+    message: `${student.name} has paid for the session on ${new Date(date).toLocaleDateString()}. Provide class link now.`,
+    type: 'payment_success',
+    bookingId: bookingDetails._id
   });
 }
 

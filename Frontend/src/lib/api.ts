@@ -109,10 +109,14 @@ api.interceptors.response.use(
     }
 
     // 2. Logging and Final reject
-    console.error("[API ERROR]:", error.response?.data || error.message);
-
-    if (!error.response) {
-      console.error("Server not reachable");
+    // Suppress logging for 401 responses on the refresh endpoint (this is expected when session expires)
+    const isRefresh401 = error.response?.status === 401 && originalRequest?.url?.includes("/auth/refresh");
+    
+    if (!isRefresh401) {
+      console.error("[API ERROR]:", error.response?.data || error.message);
+      if (!error.response) {
+        console.error("Server not reachable");
+      }
     }
 
     return Promise.reject(error);

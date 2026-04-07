@@ -63,8 +63,8 @@ export default function TutorDashboard() {
   return (
     <div className="mx-auto max-w-6xl space-y-10 animate-in fade-in slide-in-from-bottom-2 duration-500 pb-20">
       <div className="space-y-6">
-        {user?.stripeAccountId && (
-           <StripeOnboardingNotice isVerified={user.isStripeVerified || false} />
+        {!user?.isStripeVerified && (
+           <StripeOnboardingNotice isVerified={false} />
         )}
 
         <div className="mb-0 flex flex-col md:flex-row md:items-end md:justify-between gap-10 border-b border-slate-100 pb-12">
@@ -176,12 +176,54 @@ export default function TutorDashboard() {
                            </div>
                         </div>
                      </div>
-                     <div className="mt-6 md:mt-0">
+                     <div className="mt-6 md:mt-0 flex flex-wrap gap-4 items-center justify-center">
                         {booking.status === 'pending' && (
-                          <Button variant="primary" size="sm" className="px-8 h-12 shadow-xl shadow-primary/20">Confirm Class</Button>
+                          <>
+                            <Button 
+                              variant="primary" 
+                              size="sm" 
+                              className="px-8 h-12 shadow-xl shadow-primary/20 bg-emerald-600 hover:bg-emerald-700"
+                              onClick={async () => {
+                                try {
+                                  const { confirmBooking: apiAccept } = await import("@/services/bookingService");
+                                  await apiAccept(booking._id);
+                                  setBookings(prev => prev.map(b => b._id === booking._id ? { ...b, status: 'confirmed' } : b));
+                                } catch (e) {
+                                  alert("Failed to accept booking.");
+                                }
+                              }}
+                            >
+                              Accept Class
+                            </Button>
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              className="px-8 h-12 border-red-200 text-red-500 hover:bg-red-50 hover:border-red-300"
+                              onClick={async () => {
+                                if (confirm("Are you sure you want to decline this request?")) {
+                                  try {
+                                    const { declineBooking: apiDecline } = await import("@/services/bookingService");
+                                    await apiDecline(booking._id);
+                                    setBookings(prev => prev.filter(b => b._id !== booking._id));
+                                  } catch (e) {
+                                    alert("Failed to decline booking.");
+                                  }
+                                }
+                              }}
+                            >
+                              Decline
+                            </Button>
+                          </>
                         )}
                         {booking.status === 'confirmed' && (
-                          <Button variant="outline" size="sm" className="px-8 h-12 border-primary/20 text-primary">Pre-Session Brief</Button>
+                          <div className="flex flex-col items-center gap-2">
+                             <Button variant="outline" size="sm" className="px-8 h-12 border-primary/20 text-primary">Pre-Session Brief</Button>
+                             {booking.paymentStatus === 'paid' ? (
+                               <span className="text-[8px] font-black text-emerald-600 uppercase tracking-widest bg-emerald-50 px-3 py-1 rounded-full border border-emerald-100">Ready to Start</span>
+                             ) : (
+                               <span className="text-[8px] font-black text-amber-600 uppercase tracking-widest bg-amber-50 px-3 py-1 rounded-full border border-amber-100">Awaiting Payment</span>
+                             )}
+                          </div>
                         )}
                      </div>
                   </div>

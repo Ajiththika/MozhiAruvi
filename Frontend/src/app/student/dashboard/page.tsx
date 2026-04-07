@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import StatCard from "@/components/features/dashboard/StatCard";
-import { BookOpen, Trophy, AlertCircle, ArrowRight, Clock, BookMarked, Flame, Zap, Crown, Calendar, Headphones, Hourglass } from "lucide-react";
+import { BookOpen, Trophy, AlertCircle, ArrowRight, Clock, BookMarked, Flame, Zap, Crown, Calendar, Headphones, Hourglass, Loader2 } from "lucide-react";
 import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
 import { getDashboardData } from "@/services/authService";
@@ -13,6 +13,7 @@ import { DashboardSkeleton } from "./DashboardSkeleton";
 import WeeklyProgressChart from "@/components/features/dashboard/WeeklyProgressChart";
 
 export default function StudentDashboard() {
+  const [submitingPay, setSubmitingPay] = useState<string | null>(null);
   const { data, isLoading, isError, error: queryError } = useQuery({
     queryKey: ["student", "dashboard"],
     queryFn: async () => {
@@ -33,14 +34,7 @@ export default function StudentDashboard() {
   
   // Subscription stats
   const plan = user?.subscription?.plan || "FREE";
-  const tutorUsed = user?.subscription?.tutorSupportUsed || 0;
-  const eventsUsed = user?.subscription?.freeEventsUsedThisCycle || 0;
   
-  let tutorLimit = 0;
-  let eventLimit = 0;
-  if (plan === 'PRO') { tutorLimit = 2; eventLimit = 1; }
-  else if (plan === 'PREMIUM' || plan === 'BUSINESS') { tutorLimit = 8; eventLimit = 5; }
-
   // Energy Timer logic
   const EnergyTimer = ({ initialMs, isPremium, energy, max }: { initialMs: number, isPremium: boolean, energy: number, max: number }) => {
     const [timeLeft, setTimeLeft] = React.useState(initialMs);
@@ -239,7 +233,51 @@ export default function StudentDashboard() {
                    </div>
                    <div className="bg-slate-50/50 px-8 py-4 border-t border-slate-50 flex items-center justify-between">
                       <p className="text-[10px] font-bold text-slate-400 capitalize">{booking.tutorId.specialization || "Language Session"}</p>
-                      <button className="text-[10px] font-black text-primary uppercase tracking-widest hover:text-secondary transition-colors">Join Class</button>
+                      <div className="flex gap-3">
+                         {booking.status === 'confirmed' && booking.paymentStatus !== 'paid' && (
+                            !booking.tutorId.stripeAccountId ? (
+                               <div className="flex items-center gap-1.5 text-amber-500">
+                                   <AlertCircle className="w-3 h-3" />
+                                   <span className="text-[9px] font-black uppercase tracking-widest">Teacher Setup Pending</span>
+                               </div>
+                            ) : (
+                               <button 
+                                  disabled={submitingPay === booking._id}
+                                  onClick={async (e) => {
+                                     e.preventDefault();
+                                     setSubmitingPay(booking._id);
+                                     try {
+                                        const { payBooking: apiPay } = await import("@/services/bookingService");
+                                        const { url } = await apiPay(booking._id);
+                                        if (url) window.location.href = url;
+                                        else throw new Error("No URL received");
+                                     } catch (e) {
+                                        alert("Mentor has not finished Stripe account setup yet. Please try again later.");
+                                     } finally {
+                                        setSubmitingPay(null);
+                                     }
+                                  }}
+                                  className={cn(
+                                     "text-[10px] font-black text-secondary uppercase tracking-widest hover:text-primary transition-colors flex items-center gap-1.5 cursor-pointer disabled:opacity-50",
+                                     submitingPay === booking._id && "animate-pulse"
+                                  )}
+                               >
+                                  {submitingPay === booking._id ? (
+                                     <Loader2 className="h-3 w-3 animate-spin" />
+                                  ) : (
+                                     <Zap className="h-3 w-3 fill-current" />
+                                  )}
+                                  <span>{submitingPay === booking._id ? "Initializing..." : "Pay Now"}</span>
+                               </button>
+                            )
+                         )}
+                         {(booking.status === 'confirmed' && booking.paymentStatus === 'paid') && (
+                            <button className="text-[10px] font-black text-primary uppercase tracking-widest hover:text-secondary transition-colors cursor-default">Join Class</button>
+                         )}
+                         {booking.status === 'pending' && (
+                            <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Awaiting Tutor...</span>
+                         )}
+                      </div>
                    </div>
                 </Card>
               ))}
@@ -323,16 +361,3 @@ export default function StudentDashboard() {
     </div>
   );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-

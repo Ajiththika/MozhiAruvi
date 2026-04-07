@@ -20,10 +20,15 @@ const bookingSchema = new mongoose.Schema({
   // Financial Audit Trail (Stripe Connect)
   paymentIntentId: { type: String },
   transferId: { type: String },
-  amount: { type: Number, required: true },          // Total paid by student
-  platformFee: { type: Number, required: true },      // Commission taken by Mozhi Aruvi
-  tutorEarnings: { type: Number, required: true },    // Net earnings for tutor
+  amount: { type: Number },          // Total paid by student
+  platformFee: { type: Number },      // Commission taken by Mozhi Aruvi
+  tutorEarnings: { type: Number },    // Net earnings for tutor
   currency: { type: String, default: 'usd' },
+  paymentStatus: { 
+    type: String, 
+    enum: ['unpaid', 'paid'], 
+    default: 'unpaid' 
+  },
   
   // Feedback Engine
   review: {

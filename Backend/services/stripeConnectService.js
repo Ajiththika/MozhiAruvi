@@ -40,7 +40,10 @@ export async function generateAccountLink(accountId) {
 /**
  * ── Split Payment Session (Destination Charges) ──────────────────────────────
  */
-export async function createSpitPaymentSession(student, tutor, amount, bookingMetadata) {
+export async function createSplitPaymentSession(student, tutor, amount, bookingMetadata) {
+  if (!tutor.stripeAccountId) {
+    throw new Error('This mentor does not have a connected Stripe account yet.');
+  }
   // Platform takes fee percent from ENV or default 20%
   const platformFeePercent = parseFloat(process.env.PLATFORM_FEE_PERCENT || '20') / 100;
   const platformFeeAmount = Math.round(amount * platformFeePercent * 100); // cents
@@ -71,7 +74,7 @@ export async function createSpitPaymentSession(student, tutor, amount, bookingMe
       type: 'tutor_booking',
       ...bookingMetadata
     },
-    success_url: `${process.env.FRONTEND_ORIGIN}/student/bookings/success?session_id={CHECKOUT_SESSION_ID}`,
+    success_url: `${process.env.FRONTEND_ORIGIN}/student/tutors/my-requests?success=true&session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${process.env.FRONTEND_ORIGIN}/tutors/${tutor._id}`,
   });
 

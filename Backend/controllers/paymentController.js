@@ -75,30 +75,50 @@ export async function stripeWebhook(req, res, next) {
                         await User.findByIdAndUpdate(userId, { $addToSet: { 'subscription.paidTutors': tutorId } });
                         await Payment.findOneAndUpdate({ stripeSessionId: session.id }, { status: 'completed' });
                     } else if (type === 'tutor_booking' && tutorId) {
-                        // Official Marketplace Booking Flow
-                        const totalAmount = session.amount_total / 100; // to dollars
+                        // Official Marketplace Booking Flow (Split Payments)
+                        const bookingId = session.metadata.bookingId;
+                        const totalAmount = (session.amount_total || 0) / 100; // to dollars
                         const feePercent = parseFloat(process.env.PLATFORM_FEE_PERCENT || '20') / 100;
                         const platformFee = totalAmount * feePercent;
                         const tutorEarnings = totalAmount - platformFee;
 
-                        const booking = await Booking.create({
-                            studentId: userId,
-                            tutorId,
-                            date: new Date(session.metadata.date),
-                            startTime: session.metadata.startTime,
-                            endTime: session.metadata.endTime,
-                            duration: parseInt(session.metadata.duration),
-                            amount: totalAmount,
-                            platformFee,
-                            tutorEarnings,
-                            paymentIntentId: session.payment_intent,
-                            status: 'pending' // pending tutor confirmation
-                        });
+                        let booking;
+
+                        if (bookingId) {
+                            // Request-First Flow: Update existing booking
+                            booking = await Booking.findById(bookingId);
+                            if (booking) {
+                                booking.paymentStatus = 'paid';
+                                booking.paymentIntentId = session.payment_intent;
+                                booking.amount = totalAmount;
+                                booking.platformFee = platformFee;
+                                booking.tutorEarnings = tutorEarnings;
+                                await booking.save();
+                            }
+                        } else {
+                            // Legacy Immediate-Payment Flow: Create new booking
+                            booking = await Booking.create({
+                                studentId: userId,
+                                tutorId,
+                                date: new Date(session.metadata.date),
+                                startTime: session.metadata.startTime,
+                                endTime: session.metadata.endTime || "TBD",
+                                duration: parseInt(session.metadata.duration || '60'),
+                                amount: totalAmount,
+                                platformFee,
+                                tutorEarnings,
+                                paymentIntentId: session.payment_intent,
+                                paymentStatus: 'paid',
+                                status: 'confirmed'
+                            });
+                        }
 
                         // Trigger Automated Communications
                         const student = await User.findById(userId);
                         const tutor = await User.findById(tutorId);
-                        await communication.notifyBookingSuccess(student, tutor, booking);
+                        if (booking) {
+                            await communication.notifyBookingSuccess(student, tutor, booking);
+                        }
                     }
                 }
                 break;

@@ -63,20 +63,19 @@ export function TutorRequestModal({ tutor, onClose, initialType = "live_class" }
     setSending(true);
     setError(null);
     try {
-      const { data } = await api.post('/bookings/initiate', {
+      await api.post('/bookings/request', {
         tutorId: tutor._id,
         requestType: type,
         content: content.trim(),
         date: new Date().toISOString(),
         startTime: metadata.preferredTime || "TBD",
         duration: type === "multi_class" ? 45 : 60,
-        isPackage: type === "multi_class",
         ...metadata,
       });
 
-      if (data.url) window.location.href = data.url;
+      setSent(true);
     } catch (e: any) {
-      setError(e?.response?.data?.message || "Failed to initiate payment. Please check your Stripe status.");
+      setError(e?.response?.data?.message || "Failed to send request. Please try again later.");
     } finally {
       setSending(false);
     }
@@ -262,8 +261,8 @@ export function TutorRequestModal({ tutor, onClose, initialType = "live_class" }
                     <p className="text-sm font-black text-slate-700">${info.price} USD</p>
                  </div>
                  {(error && typeof error === 'string' && error.length > 0) && (
-                   <div className="flex items-center gap-1 text-red-500 font-black text-[9px] bg-red-50 px-2 py-1 rounded-lg border border-red-100 shrink-0 animate-pulse">
-                     <AlertCircle className="h-3 w-3" /> Error
+                   <div className="flex items-center gap-1 text-red-500 font-extrabold text-[8px] bg-red-50/80 px-2.5 py-1.5 rounded-xl border border-red-100 shrink-0 animate-in fade-in zoom-in duration-300">
+                     <AlertCircle className="h-3 w-3" /> {error}
                    </div>
                  )}
                </div>
@@ -281,8 +280,8 @@ export function TutorRequestModal({ tutor, onClose, initialType = "live_class" }
                    disabled={sending || !content.trim()}
                    className="flex-[2] flex items-center justify-center gap-3 rounded-[1.5rem] bg-primary py-4 text-[10px] font-black uppercase tracking-widest text-white shadow-xl shadow-primary/20 hover:scale-[1.02] hover:bg-secondary active:scale-[0.98] disabled:opacity-30 transition-all"
                  >
-                    {sending ? <Loader2 className="h-5 w-5 animate-spin" /> : <div className="h-5 w-5 rounded-full border-2 border-white/40 flex items-center justify-center text-[10px] font-bold">$</div>}
-                    {sending ? "Processing..." : `Pay & Book Now`}
+                    {sending ? <Loader2 className="h-5 w-5 animate-spin" /> : <Send className="h-4 w-4" />}
+                    {sending ? "Sending Request..." : `Send Request Message`}
                  </button>
                </div>
             </div>

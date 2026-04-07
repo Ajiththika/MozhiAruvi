@@ -8,21 +8,27 @@ import User from '../models/User.js';
 export async function startStripeOnboarding(req, res, next) {
     try {
         const tutor = await User.findById(req.user.sub);
-        if (!tutor || tutor.role !== 'teacher') {
+        if (!tutor || (tutor.role !== 'teacher' && tutor.role !== 'tutor')) {
+            console.warn(`[Stripe Connect] Unauthorized onboarding attempt for user ${req.user.sub} (role: ${tutor?.role})`);
             return res.status(403).json({ message: 'Only approved tutors can access onboarding.' });
         }
 
         let accountId = tutor.stripeAccountId;
         if (!accountId) {
+            console.log(`[Stripe Connect] Creating new Express Account for ${tutor.email}`);
             const account = await stripeConnect.createTutorExpressAccount(tutor);
             accountId = account.id;
             tutor.stripeAccountId = accountId;
             await tutor.save();
         }
 
+        console.log(`[Stripe Connect] Generating onboarding link for ${accountId}`);
         const onboardingLink = await stripeConnect.generateAccountLink(accountId);
         res.json({ url: onboardingLink.url });
-    } catch (e) { next(e); }
+    } catch (e) { 
+        console.error(`[Stripe Connect] Onboarding error: ${e.message}`, e);
+        res.status(500).json({ message: e.message || "Failed to start Stripe onboarding." });
+    }
 }
 
 export async function finalizeStripeOnboarding(req, res, next) {
