@@ -10,7 +10,7 @@ import Button from "@/components/ui/Button";
 import { ImageAdjuster } from "@/components/ui/ImageAdjuster";
 
 const EventStatusBadge = ({ isActive, date }: { isActive: boolean, date: string }) => {
-   const isPast = new Date(date) < new Date().setHours(0,0,0,0);
+   const isPast = new Date(date).getTime() < new Date().setHours(0,0,0,0);
    
    if (isPast) {
       return <span className="inline-flex rounded-full bg-slate-100 px-2 py-1 text-[10px] font-black uppercase tracking-widest text-slate-500 border border-slate-200">Completed</span>;
@@ -494,7 +494,7 @@ function AdminEventsClient() {
           <DataTable 
             title="Upcoming Community Events" 
             columns={columns} 
-            data={events.filter(e => new Date(e.date) >= new Date().setHours(0,0,0,0))} 
+            data={events.filter(e => new Date(e.date).getTime() >= new Date().setHours(0,0,0,0))} 
             onSearch={() => {}} 
             pagination={
               <Pagination 
@@ -506,12 +506,12 @@ function AdminEventsClient() {
           />
 
           {/* Past Events Section */}
-          {events.some(e => new Date(e.date) < new Date().setHours(0,0,0,0)) && (
+          {events.some(e => new Date(e.date).getTime() < new Date().setHours(0,0,0,0)) && (
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
                <DataTable 
                 title="Past & Completed Events" 
                 columns={columns} 
-                data={events.filter(e => new Date(e.date) < new Date().setHours(0,0,0,0))} 
+                data={events.filter(e => new Date(e.date).getTime() < new Date().setHours(0,0,0,0))} 
                 hideFooter={true}
               />
             </div>

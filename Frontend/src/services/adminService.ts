@@ -74,6 +74,10 @@ export interface MentorApplicationResult {
   hourlyRate?: number;
   teachingMode?: string;
   languages?: string[];
+  email?: string;
+  phone?: string;
+  userId?: { _id: string; name: string; email: string; phoneNumber?: string };
+  bio?: string;
   createdAt: string;
 }
 
