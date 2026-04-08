@@ -61,8 +61,11 @@ export async function consumeCredit(req, res, next) {
 export async function getStudentDashboardData(req, res, next) {
     try {
         const userId = req.user.sub;
+        const user = await userService.getUserInfo(userId);
+        if (!user) throw new Error("User not found");
+
+        const userLevel = user.level || 'Beginner';
         
-        // Wrap individual promises to handle partial failures
         const saferFetch = async (promise, fallback = []) => {
             try { return await promise; } catch (e) { 
                 console.error("Dashboard sub-fetch failed:", e.message);
@@ -70,40 +73,19 @@ export async function getStudentDashboardData(req, res, next) {
             }
         };
 
-        const [user, lessonsData, progress, joinRequests, blogs, questions, notifications] = await Promise.all([
-            userService.getUserInfo(userId),
-            saferFetch(lessonService.getAllLessons()),
+        const [lessonsList, progress, joinRequests, blogs, questions, notifications] = await Promise.all([
+            saferFetch(lessonService.getLessonsForDashboard(userLevel)),
             saferFetch(lessonService.getUserProgressList(userId)),
             saferFetch(eventService.getMyJoinRequests(userId)),
             saferFetch(blogService.getUserBlogs(userId)),
-            saferFetch(tutorService.getStudentRequests(userId)),
+            saferFetch(tutorService.getStudentRequests(userId, 10)),
             saferFetch(getUserNotifications(userId))
         ]);
 
-        const allLessons = Array.isArray(lessonsData) ? lessonsData : (lessonsData.lessons || []);
-
-        // Normalize the user's current level for curriculum matching. 
-        // If not set, we default to the starting path ('Beginner' or 'Basic').
-        let userLevel = user.level || 'Beginner';
-        if (userLevel === 'Not Set' || !userLevel) userLevel = 'Beginner';
-
-        // Filter lessons by level (with Beginner/Basic equivalence)
-        let lessonsList = allLessons.filter(l => {
-            const lessonLevel = l.level || 'Basic';
-            return lessonLevel.toLowerCase() === userLevel.toLowerCase() || 
-                   (userLevel === 'Beginner' && lessonLevel === 'Basic') ||
-                   (userLevel === 'Basic' && lessonLevel === 'Beginner');
-        });
-
-        // No fallback here to ensure students only see their authorized level.
-        // If lessonsList is empty, the student will see a 'No lessons' state on frontend.
-
-        // Backend-driven metric computation (level-filtered)
         const totalLessons = lessonsList.length;
         const completedCount = progress.filter(p => p.isCompleted).length;
         const progressPercentage = totalLessons > 0 ? Math.round((completedCount / totalLessons) * 100) : 0;
 
-        // Next lesson: first uncompleted lesson that matches the user's level
         const nextLesson = lessonsList.find(l => {
             const p = progress.find(pr => String(pr.lessonId) === String(l._id));
             return !p || !p.isCompleted;
@@ -111,12 +93,12 @@ export async function getStudentDashboardData(req, res, next) {
 
         res.json({
             user: user.toSafeObject(),
-            lessons: lessonsList,  // only send level-matched lessons
+            lessons: lessonsList,
             progress,
             joinRequests,
-            blogs,
+            blogs: blogs.slice(0, 3),
             notifications,
-            questions: questions.slice(0, 5),
+            questions,
             statistics: {
                 totalLessons,
                 completedCount,

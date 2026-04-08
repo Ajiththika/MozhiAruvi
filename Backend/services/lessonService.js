@@ -6,11 +6,23 @@ import User from '../models/User.js';
 // ── Lesons (Public/User) ──────────────────────────────────────────────────────
 export async function getAllLessons() {
     try {
-        return await Lesson.find().sort({ moduleNumber: 1, orderIndex: 1 });
+        // Optimization: Exclude heavy 'content' field for list views
+        return await Lesson.find().select('-content').sort({ moduleNumber: 1, orderIndex: 1 });
     } catch (e) {
         if (e.name === 'MongooseError' || e.message.includes('timeout') || e.message.includes('buffering')) return [];
         throw e;
     }
+}
+
+/** 
+ * Targeted fetch for dashboard: minimizes data transfer by level 
+ */
+export async function getLessonsForDashboard(level = 'Basic') {
+    return Lesson.find({ 
+        level: { $regex: new RegExp(`^${level}$`, 'i') } 
+    })
+    .select('_id title description category moduleNumber orderIndex level isPremiumOnly')
+    .sort({ moduleNumber: 1, orderIndex: 1 });
 }
 
 export async function getLessonById(lessonId) {
@@ -22,7 +34,8 @@ export async function getLessonById(lessonId) {
 }
 
 export async function getUserProgressList(userId) {
-    return Progress.find({ userId });
+    // Optimization: Only return core progress fields (exclude weakAreas unless needed)
+    return Progress.find({ userId }).select('lessonId isCompleted score accuracy');
 }
 
 // ── Questions (Public/User) ───────────────────────────────────────────────────

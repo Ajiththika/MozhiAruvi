@@ -189,7 +189,8 @@ export async function getMyBookings(req, res, next) {
         const bookings = await Booking.find(filter)
             .populate('studentId', 'name email profilePhoto')
             .populate('tutorId', 'name email profilePhoto specialization')
-            .sort({ date: -1 });
+            .sort({ date: -1 })
+            .limit(50); // Optimization: Prevent massive payloads
         res.json({ bookings });
     } catch (e) { next(e); }
 }

@@ -219,11 +219,12 @@ export async function createRequest(studentId, data) {
     return helpRequest;
 }
 
-export async function getStudentRequests(studentId) {
+export async function getStudentRequests(studentId, limit = 50) {
     return TutorRequest.find({ studentId })
         .populate('teacherId', 'name email profilePhoto')
         .populate('lessonId', 'title moduleNumber')
-        .sort('-createdAt');
+        .sort('-createdAt')
+        .limit(limit);
 }
 
 export async function getTutorRequests(teacherId, status) {
@@ -241,9 +242,10 @@ export async function getActiveTutorRequests(teacherId) {
         teacherId,
         status: { $in: ['pending', 'accepted'] }
     })
-        .populate('studentId', 'name email')
-        .populate('lessonId', 'title moduleNumber')
-        .sort('createdAt');
+    .populate('studentId', 'name email')
+    .populate('lessonId', 'title moduleNumber')
+    .sort({ createdAt: 1 })
+    .limit(20); // Optimization: Fetch only most urgent
 }
 
 export async function updateRequestStatus(teacherId, requestId, status) {

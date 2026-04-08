@@ -61,6 +61,7 @@ export default function Navbar() {
                   alt="Mozhi Aruvi Logo"
                   fill
                   className="object-contain"
+                  sizes="40px"
                   priority
                 />
               </div>

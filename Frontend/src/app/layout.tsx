@@ -2,7 +2,12 @@ import type { Metadata } from "next";
 import { Outfit, Inter } from "next/font/google";
 import "./globals.css";
 import Providers from "@/components/Providers";
-import PlatformChat from "@/components/ui/PlatformChat";
+import dynamic from "next/dynamic";
+
+const PlatformChat = dynamic(() => import("@/components/ui/PlatformChat"), { 
+  ssr: false,
+  loading: () => null 
+});
 
 const outfit = Outfit({
   variable: "--font-outfit",
@@ -25,7 +30,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
         className={`${outfit.variable} ${inter.variable} font-sans antialiased`}
       >
