@@ -113,86 +113,108 @@ export default function EventsPage() {
       <Navbar />
 
       <main className="flex-1">
-        {/* ── 1. Modern Horizontal Event Showcase ──────────────────────── */}
-        <section className="relative w-full bg-white pt-6 pb-12 px-4 sm:px-6 lg:px-8">
+        {/* ── 1. Cinematic Horizontal Event Showcase (Ultra-Premium) ───────── */}
+        <section className="relative w-full bg-white pt-8 pb-16 px-4 sm:px-6 lg:px-8">
           <div className="max-w-7xl mx-auto">
-            <div className="relative w-full h-[350px] md:h-[500px] rounded-[2.5rem] overflow-hidden shadow-2xl shadow-indigo-900/30 group border border-slate-100">
+            <div className="relative w-full h-[450px] md:h-[600px] rounded-[3rem] overflow-hidden shadow-[0_50px_100px_-20px_rgba(30,27,75,0.3)] group border border-white/20">
               
               {loadingUpcoming ? (
                 <div className="w-full h-full bg-slate-50 flex items-center justify-center">
-                  <Loader2 className="h-10 w-10 animate-spin text-primary/30" />
+                  <div className="flex flex-col items-center gap-4">
+                     <Loader2 className="h-10 w-10 animate-spin text-primary/30" />
+                     <p className="text-[10px] font-black uppercase tracking-[0.3em] text-primary/40">Curating Moments</p>
+                  </div>
                 </div>
               ) : spotlightEvents.length === 0 ? (
-                <div className="w-full h-full bg-slate-50 flex flex-col items-center justify-center p-12 text-center space-y-4">
-                  <Calendar size={48} className="text-slate-200" />
-                  <p className="text-sm font-bold text-primary/60 uppercase tracking-widest leading-loose">
-                    No community spotlights <br /> currently scheduled
-                  </p>
+                <div className="w-full h-full bg-slate-50 flex flex-col items-center justify-center p-12 text-center space-y-6">
+                  <div className="w-20 h-20 rounded-full bg-white shadow-xl flex items-center justify-center">
+                     <Calendar size={32} className="text-slate-300" />
+                  </div>
+                  <div className="space-y-2">
+                    <p className="text-sm font-black text-primary uppercase tracking-[0.2em]">The Horizon is Clear</p>
+                    <p className="text-xs font-bold text-slate-400">No community spotlights currently scheduled.</p>
+                  </div>
                 </div>
               ) : (
                 <>
                   <div 
-                    className="absolute inset-0 w-full h-full flex transition-transform duration-1000 ease-[cubic-bezier(0.23,1,0.32,1)]"
+                    className="absolute inset-0 w-full h-full flex transition-transform duration-[1200ms] ease-[cubic-bezier(0.2,1,0.2,1)]"
                     style={{ transform: `translateX(-${activeSlide * 100}%)` }}
                   >
                     {spotlightEvents.map((event, idx) => (
                       <div key={event._id} className="min-w-full h-full relative shrink-0">
-                        {/* Background Media */}
+                        {/* Background Media with Parallax-like Slow Zoom */}
                         <div
-                          className="absolute inset-0 bg-cover bg-center transition-transform duration-[15000ms] ease-linear group-hover:scale-110"
+                          className="absolute inset-0 bg-cover bg-center transition-transform duration-[20000ms] ease-linear group-hover:scale-110"
                           style={{
                             backgroundImage: event.image
                               ? `url(${event.image})`
-                              : `linear-gradient(to bottom right, #4f46e5, #0ea5e9)`
+                              : `linear-gradient(135deg, #1e1b4b 0%, #312e81 100%)`
                           }}
                         />
-                        {/* Multi-layer Cinematic Overlay System */}
-                        <div className="absolute inset-0 bg-slate-950/40" /> {/* 1. Base Darkening Tint */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" /> {/* 2. Bottom-up Vignette */}
-                        <div className="absolute inset-0 bg-gradient-to-b from-slate-950/60 via-transparent to-transparent opacity-60" /> {/* 3. Decorative Top Glow */}
                         
-                        {/* Visual Decorative Layer */}
-                        <div className="absolute bottom-0 right-0 p-12 opacity-[0.05] font-black text-[25rem] text-white leading-none select-none pointer-events-none translate-x-20 translate-y-20 rotate-12">
-                           க
-                        </div>
-
-                        {/* Content Overlay */}
-                        <div className="absolute inset-0 flex flex-col justify-center md:justify-end p-6 md:p-12 animate-in fade-in slide-in-from-bottom-8 duration-700 fill-mode-both">
-                          <div className="max-w-2xl p-8 md:p-10 rounded-[2.5rem] backdrop-blur-md bg-white/5 border border-white/10 space-y-6 shadow-2xl shadow-indigo-950/20 backdrop-saturate-150">
-                            <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-white/10 backdrop-blur-xl border border-white/20 text-[10px] font-black text-white uppercase tracking-[0.2em] shadow-sm">
-                              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse border border-emerald-400/50 shadow-lg shadow-emerald-400/30" />
+                        {/* Advanced Layered Overlay System */}
+                        <div className="absolute inset-0 bg-indigo-950/40 mix-blend-multiply" /> 
+                        <div className="absolute inset-0 bg-gradient-to-r from-indigo-950 via-indigo-950/60 to-transparent z-10" /> 
+                        <div className="absolute inset-0 bg-gradient-to-t from-indigo-950 via-transparent to-transparent z-10" /> 
+                        
+                        {/* Cinematic Floating Content */}
+                        <div className="absolute inset-0 flex items-center p-8 md:p-20 z-20">
+                          <div className="max-w-xl space-y-8 animate-in fade-in slide-in-from-left-12 duration-1000">
+                            
+                            <div className="inline-flex items-center gap-3 px-5 py-2.5 rounded-2xl bg-white/10 backdrop-blur-3xl border border-white/20 text-[10px] font-black text-white uppercase tracking-[0.3em] shadow-lg">
+                              <span className="relative flex h-2 w-2">
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400"></span>
+                              </span>
                               Platform Spotlight
                             </div>
 
-                            <h2 className="text-3xl md:text-5xl lg:text-6xl font-black text-white tracking-tighter leading-[1.1] drop-shadow-2xl">
-                              {event.title}
-                            </h2>
-
-                            <div className="flex flex-wrap items-center gap-6 text-white/80 font-bold text-[10px] md:text-xs pt-2 uppercase tracking-widest">
-                              <span className="flex items-center gap-2">
-                                <Calendar className="w-4 h-4 text-emerald-400" />
-                                {new Date(event.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                              </span>
-                              <span className="flex items-center gap-2">
-                                <Clock className="w-4 h-4 text-emerald-400" />
-                                {event.time}
-                              </span>
-                              <span className="flex items-center gap-2">
-                                <MapPin className="w-4 h-4 text-emerald-400" />
-                                {event.location}
-                              </span>
+                            <div className="space-y-4">
+                              <h2 className="text-4xl md:text-6xl lg:text-7xl font-black text-white tracking-tighter leading-[0.95] drop-shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
+                                {event.title}
+                              </h2>
+                              <div className="h-1.5 w-24 bg-emerald-400 rounded-full shadow-[0_0_20px_rgba(52,211,153,0.5)]" />
                             </div>
 
-                            <div className="pt-6">
+                            <div className="flex flex-wrap items-center gap-8 text-white/90 font-bold text-[10px] md:text-xs pt-4 uppercase tracking-[0.1em]">
+                              <div className="flex items-center gap-3 group/info">
+                                <div className="p-2 rounded-lg bg-white/10 border border-white/10 group-hover/info:bg-emerald-400/20 group-hover/info:border-emerald-400/30 transition-colors">
+                                  <Calendar className="w-4 h-4 text-emerald-400" />
+                                </div>
+                                <span className="text-white drop-shadow-md">
+                                  {new Date(event.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-3 group/info">
+                                <div className="p-2 rounded-lg bg-white/10 border border-white/10 group-hover/info:bg-emerald-400/20 group-hover/info:border-emerald-400/30 transition-colors">
+                                  <Clock className="w-4 h-4 text-emerald-400" />
+                                </div>
+                                <span className="text-white drop-shadow-md">{event.time}</span>
+                              </div>
+                              <div className="flex items-center gap-3 group/info">
+                                <div className="p-2 rounded-lg bg-white/10 border border-white/10 group-hover/info:bg-emerald-400/20 group-hover/info:border-emerald-400/30 transition-colors">
+                                  <MapPin className="w-4 h-4 text-emerald-400" />
+                                </div>
+                                <span className="text-white drop-shadow-md">{event.location}</span>
+                              </div>
+                            </div>
+
+                            <div className="pt-10">
                               <button
                                 onClick={() => handleOpenRegistration(event)}
-                                className="inline-flex items-center gap-6 bg-white text-indigo-900 px-10 py-5 rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] hover:bg-emerald-400 hover:text-white transition-all shadow-2xl shadow-indigo-900/50 active:scale-95 group/btn border-none"
+                                className="inline-flex items-center gap-4 bg-white text-indigo-950 px-12 py-6 rounded-[2rem] font-black uppercase tracking-[0.2em] text-[11px] hover:bg-emerald-400 hover:text-white transition-all duration-500 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.3)] active:scale-95 group/btn border-none"
                               >
                                 Reserve Experience
-                                <ChevronRight className="w-4 h-4 group-hover:translate-x-1.5 transition-transform" />
+                                <ChevronRight className="w-5 h-5 group-hover:translate-x-2 transition-transform duration-500" />
                               </button>
                             </div>
                           </div>
+                        </div>
+
+                        {/* Background Floating Glyph */}
+                        <div className="absolute top-1/2 right-0 -translate-y-1/2 opacity-[0.03] font-black text-[40rem] text-white leading-none select-none pointer-events-none translate-x-1/4">
+                           க
                         </div>
                       </div>
                     ))}

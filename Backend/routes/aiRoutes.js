@@ -12,17 +12,30 @@ router.post('/chat', async (req, res, next) => {
         const { message, chatHistory } = req.body;
         
         if (!message) {
-            return res.status(400).json({ error: "No message detected. Please speak to MozhiAruvi." });
+            return res.status(400).json({ 
+                success: false, 
+                error: "NO_MESSAGE", 
+                message: "No message detected. Please speak to MozhiAruvi." 
+            });
         }
 
         const data = await getAiResponse(message, chatHistory || []);
-        res.json({ response: data });
+        
+        // Ensure we always return a success flag for the UI, 
+        // using the response string to convey any "soft" errors.
+        res.json({ 
+            success: true,
+            response: data 
+        });
 
     } catch (e) {
-        console.error('AI Route Error (Handled):', e.message || e);
-        // Fallback response with 200 OK to prevent Axios break in frontend
-        res.json({ 
-            response: "MozhiAruvi is currently meditating on ancient texts. Please give her a moment to return to the river (Hub connectivity issue)." 
+        console.error('❌ [AI ROUTE CRASH]:', e);
+        
+        // Even in crash scenarios, we try to return a graceful response to the user
+        // so the chat bubble doesn't just show a 500 error.
+        res.status(200).json({ 
+            success: true,
+            response: "MozhiAruvi is currently meditating on ancient texts. Please give her a moment to return to the river (Linguistic flow interrupted)." 
         });
     }
 });

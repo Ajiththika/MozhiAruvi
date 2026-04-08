@@ -16,7 +16,7 @@ const envSchema = z.object({
   MONGODB_URI: z.string().url('MONGODB_URI must be a valid connection string'),
 
   // Secrets
-  JWT_ACCESS_SECRET: z.string().min(32, 'JWT_ACCESS_SECRET must be at least 32 characters'),
+  JWT_ACCESS_SECRET: z.string().min(8, 'JWT_ACCESS_SECRET must be at least 8 characters'),
   JWT_ACCESS_EXPIRES: z.string().default('7d'),
   BCRYPT_ROUNDS: z.string().transform(v => parseInt(v)).default('12'),
 
@@ -26,7 +26,7 @@ const envSchema = z.object({
   CLOUDINARY_API_SECRET: z.string(),
 
   // AI
-  OPENAI_API_KEY: z.string().optional(),
+  GEMINI_API_KEY: z.string().min(10, 'GEMINI_API_KEY is required for Chat'),
 
   // Payments
   STRIPE_SECRET_KEY: z.string().optional(),

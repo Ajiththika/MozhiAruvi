@@ -14,18 +14,22 @@ import { authStore } from "./authStore";
 
 // ── 1. Create instance ────────────────────────────────────────────────────────
 
-const rawBaseUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5000/api";
-let apiBaseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl.slice(0, -1) : rawBaseUrl;
-
-// Ensure the URL ends with /api if it's missing (helps prevent configuration errors)
-if (!apiBaseUrl.toLowerCase().endsWith('/api')) {
-  apiBaseUrl = `${apiBaseUrl}/api`;
-}
+// In the browser, always use the Next.js rewrite proxy (/api → backend).
+// This avoids CORS-blocked cross-origin requests.
+// On the server (SSR/RSC), use the absolute backend URL from the env var.
+const isBrowser = typeof window !== "undefined";
+const apiBaseUrl = isBrowser
+  ? "/api"
+  : (() => {
+      const raw = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5000/api";
+      const trimmed = raw.endsWith('/') ? raw.slice(0, -1) : raw;
+      return trimmed.toLowerCase().endsWith('/api') ? trimmed : `${trimmed}/api`;
+    })();
 
 const api = axios.create({
   baseURL: apiBaseUrl,
   withCredentials: true,
-  timeout: 10000,
+  timeout: 30000,
   headers: { "Content-Type": "application/json" },
 });
 
@@ -40,6 +44,7 @@ api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
 });
 
 // ── Dedicated client for token refresh (no interceptors, avoids ∞ loop) ──────
+// Uses the same context-aware baseURL so refresh requests also go through the proxy
 const refreshClient = axios.create({
   baseURL: apiBaseUrl,
   withCredentials: true,
@@ -108,15 +113,22 @@ api.interceptors.response.use(
       }
     }
 
-    // 2. Logging and Final reject
-    // Suppress logging for 401 responses on the refresh endpoint (this is expected when session expires)
+    // 2. Selective logging — only log errors that are genuinely unexpected.
     const isRefresh401 = error.response?.status === 401 && originalRequest?.url?.includes("/auth/refresh");
-    
-    if (!isRefresh401) {
-      console.error("[API ERROR]:", error.response?.data || error.message);
-      if (!error.response) {
-        console.error("Server not reachable");
-      }
+    const isAuthWait = (error.response?.status === 401 || error.response?.status === 403) && (
+      originalRequest?.url?.includes("/auth/me") || 
+      originalRequest?.url?.includes("/auth/refresh")
+    );
+    const isNetworkError = !error.response;
+    const isServiceDown = error.response?.status === 503;
+
+    if (!isRefresh401 && !isAuthWait && !isNetworkError && !isServiceDown) {
+      const errorBody = error.response?.data;
+      const displayError = (errorBody && typeof errorBody === 'object' && Object.keys(errorBody).length > 0)
+        ? errorBody
+        : (error.message || "Unknown Connection Failure");
+
+      console.error(`[API ERROR] ${error.response?.status || 'Network'}:`, displayError);
     }
 
     return Promise.reject(error);

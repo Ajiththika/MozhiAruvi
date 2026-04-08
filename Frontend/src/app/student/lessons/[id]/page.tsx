@@ -55,32 +55,53 @@ export default function LessonInteractiveSession() {
       } else if (text) {
         try {
           const { audioUrl } = await generateSpeech(id as string, text);
-          const audio = new Audio(audioUrl);
-          audio.onended = () => setPlayingAudioId(null);
-          audio.onerror = () => setPlayingAudioId(null);
-          await audio.play();
-        } catch (backendErr) {
-          console.warn("Backend TTS failed, falling back to Browser TTS", backendErr);
           
+          if (audioUrl) {
+            // Backend TTS succeeded — use it
+            const audio = new Audio(audioUrl);
+            audio.onended = () => setPlayingAudioId(null);
+            audio.onerror = () => setPlayingAudioId(null);
+            await audio.play();
+            return;
+          }
+          // audioUrl is null → backend has no TTS configured, fall through to browser TTS
+        } catch {
+          // Backend unreachable or errored → fall through to browser TTS
+        }
+
+        // ── Browser TTS Fallback ─────────────────────────────────────────────
+        const speak = () => {
           const utterance = new SpeechSynthesisUtterance(text);
           // Explicit Tamil Voice Seek
           const voices = window.speechSynthesis.getVoices();
-          const taVoice = voices.find(v => v.lang.startsWith('ta'));
-          if (taVoice) utterance.voice = taVoice;
+          const taVoices = voices.filter(v => v.lang.startsWith('ta'));
+          
+          // Try to find a high-quality Tamil voice, or just the first one
+          if (taVoices.length > 0) {
+            utterance.voice = taVoices.find(v => v.name.includes('Google')) || taVoices[0];
+          }
           
           utterance.lang = "ta-IN";
           utterance.rate = 0.9;
-          utterance.onend = () => { setPlayingAudioId(null); delete (window as any)._activeUtterance; };
-          utterance.onerror = () => { setPlayingAudioId(null); delete (window as any)._activeUtterance; };
+          utterance.onend = () => { setPlayingAudioId(null); (window as any)._activeUtterance = null; };
+          utterance.onerror = () => { setPlayingAudioId(null); (window as any)._activeUtterance = null; };
           
           // Prevent Chrome garbage collection bug
           (window as any)._activeUtterance = utterance;
-          
           window.speechSynthesis.speak(utterance);
-          
-          // Safety timeout
-          setTimeout(() => setPlayingAudioId(null), 3000);
+        };
+
+        if (window.speechSynthesis.getVoices().length === 0) {
+          window.speechSynthesis.onvoiceschanged = () => {
+            speak();
+            window.speechSynthesis.onvoiceschanged = null; // one-time listener
+          };
+        } else {
+          speak();
         }
+        
+        // Safety timeout in case callback never fires
+        setTimeout(() => setPlayingAudioId(null), 5000);
       }
     } catch (err) {
       console.error("Critical TTS failure:", err);

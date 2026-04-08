@@ -274,7 +274,7 @@ export async function updateRequestStatus(teacherId, requestId, status) {
         User.findById(request.studentId),
         User.findById(request.teacherId)
     ]);
-    mozhiEvents.emit('HELP_REQUEST_REPLIED', { student, teacher, request, message: responseText });
+    mozhiEvents.emit('HELP_REQUEST_REPLIED', { student, teacher, request, message: "Request updated to " + status });
 
     return request;
 }

@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { getAllBlogsForAdmin, updateBlogStatusAdmin, adminDeleteBlog, Blog } from "@/services/blogService";
-import { Trash2, CheckCircle, XCircle, Loader2, RefreshCw, AlertCircle, ExternalLink, Filter, Plus } from "lucide-react";
+import { Trash2, CheckCircle, XCircle, Loader2, AlertCircle, ExternalLink, Filter, Plus } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import Pagination from "@/components/ui/Pagination";
@@ -72,15 +72,17 @@ export default function AdminBlogsPage() {
   const filtered = statusFilter === "all" ? blogs : blogs.filter((b) => b.status === statusFilter);
 
   return (
-    <div className="animate-in fade-in duration-700 max-w-7xl mx-auto py-10">
+    <div className="animate-in fade-in duration-700 max-w-7xl mx-auto pb-10">
       <div className="mb-16 flex flex-col md:flex-row md:items-end justify-between gap-12 pb-14 border-b border-border">
         <div className="space-y-6">
            <div className="flex items-center gap-4">
-              <div className="h-0.5 w-10 bg-primary/40 rounded-full" />
-              <span className="text-[10px] font-black text-gray-400 uppercase tracking-[0.25em]">Central Archive Control</span>
+              <div className="h-1.5 w-6 rounded-full bg-primary" />
+              <span className="text-[10px] font-black text-primary/60 tracking-[0.3em] uppercase">Central Archive Control</span>
            </div>
-           <h1 className="text-4xl font-black text-text-primary tracking-tighter leading-none">Content Moderation</h1>
-           <p className="text-gray-400 font-bold max-w-lg tracking-tight">Audit and orchestrate community contributions to maintain architectural and cultural excellence.</p>
+           <h1 className="text-4xl md:text-5xl font-black text-slate-800 tracking-tighter leading-none">Our Blogs</h1>
+           <p className="text-lg text-primary/70 font-medium leading-relaxed max-w-2xl">
+              Audit and orchestrate community contributions to maintain architectural and cultural excellence.
+           </p>
         </div>
         
         <div className="flex items-center gap-6">
@@ -92,12 +94,6 @@ export default function AdminBlogsPage() {
           >
             <Plus className="w-5 h-5 mr-3" /> Write
           </Button>
-          <button
-            onClick={() => fetchBlogs(currentPage)}
-            className="flex items-center gap-3 rounded-[2rem] border border-border bg-white h-16 px-10 text-[10px] font-black uppercase tracking-widest text-gray-600 hover:bg-gray-50 transition-all shadow-sm group"
-          >
-            <RefreshCw className={cn("h-4 w-4 transition-transform group-hover:rotate-180 duration-700", loading && "animate-spin")} /> Refresh Log
-          </button>
         </div>
       </div>
 
@@ -135,7 +131,7 @@ export default function AdminBlogsPage() {
                     <th className="px-12 py-8 text-[10px] font-black text-gray-400 uppercase tracking-widest hidden md:table-cell">Contributor</th>
                     <th className="px-12 py-8 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">Current State</th>
                     <th className="px-12 py-8 text-[10px] font-black text-gray-400 uppercase tracking-widest hidden lg:table-cell">Audit Stamp</th>
-                    <th className="px-12 py-8 text-[10px] font-black text-gray-400 uppercase tracking-widest text-right">Moderation Logic</th>
+                    <th className="px-12 py-8 text-[10px] font-black text-gray-400 uppercase tracking-widest text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">

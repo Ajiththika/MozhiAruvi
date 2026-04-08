@@ -4,6 +4,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getMe, SafeUser } from "@/services/authService";
 import { getRoleDashboardRoute } from "@/lib/roleUtils";
+import { authStore } from "@/lib/authStore";
 import { Loader2 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 
@@ -53,10 +54,25 @@ export function RoleProtectedRoute({ children, allowedRoles }: RoleProtectedRout
         } else {
           router.replace(getRoleDashboardRoute(user.role, user.tutorStatus));
         }
-      } catch {
+      } catch (error: any) {
         if (!isMounted.current) return;
-        const currentPath = window.location.pathname;
-        router.replace(`/auth/signin?redirect=${encodeURIComponent(currentPath)}`);
+
+        const status = error?.response?.status;
+        const isNetworkError = !error?.response; // timeout / server unreachable
+
+        if (isNetworkError || status === 503) {
+          // Backend temporarily down — don't redirect to login.
+          // If there's a cached user, trust it and allow access.
+          const cached = authStore.getCachedUser?.();
+          if (cached && allowedRoles.includes(cached.role)) {
+            setIsAuthorized(true);
+          }
+          // If no cache, fall through — loading will end and null will show (no redirect)
+        } else {
+          // Genuine auth failure (401, 403) — send to signin
+          const currentPath = window.location.pathname;
+          router.replace(`/auth/signin?redirect=${encodeURIComponent(currentPath)}`);
+        }
       } finally {
         if (isMounted.current) setLoading(false);
       }

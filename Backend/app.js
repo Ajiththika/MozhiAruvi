@@ -26,8 +26,13 @@ import rateLimit from 'express-rate-limit';
 
 const app = express();
 
-// Initialize DB for Serverless environment
-connectDB();
+
+
+// ── Trust Proxy ───────────────────────────────────────────────────────────────
+// Required so express-rate-limit can correctly read the real client IP from
+// the X-Forwarded-For header added by the Next.js rewrite proxy (and Vercel).
+// '1' means we trust exactly one upstream proxy hop.
+app.set('trust proxy', 1);
 
 // ── Rate Limiting (SaaS Standard) ─────────────────────────────────────────────
 const globalLimiter = rateLimit({

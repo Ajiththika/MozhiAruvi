@@ -8,6 +8,27 @@ import * as stripeService from '../services/stripeService.js';
 import * as communication from '../services/communicationService.js';
 import { stripe } from '../services/stripeConnectService.js';
 
+async function provisionBusinessAccount(userId, plan, seats, subscriptionId) {
+    const owner = await User.findById(userId);
+    if (!owner) return;
+
+    // Create the organization record
+    const org = await Organization.create({
+        name: `${owner.name}'s Organization`,
+        owner: owner._id,
+        stripeSubscriptionId: subscriptionId,
+        plan: `BUSINESS_${seats === 60 ? '60' : '30'}`,
+        maxSeats: seats || 30,
+        members: [owner._id]
+    });
+
+    // Link owner to organization
+    await User.findByIdAndUpdate(userId, {
+        organizationId: org._id,
+        roleInOrg: 'owner'
+    });
+}
+
 /**
  * Endpoint for creating a Stripe Checkout Session for Subscription.
  */
@@ -22,6 +43,10 @@ export async function createSubscriptionSession(req, res, next) {
             priceId = cycle === 'yearly' ? process.env.STRIPE_PRO_YEARLY_PRICE_ID : process.env.STRIPE_PRO_MONTHLY_PRICE_ID;
         } else if (plan === 'PREMIUM') {
             priceId = cycle === 'yearly' ? process.env.STRIPE_PREMIUM_YEARLY_PRICE_ID : process.env.STRIPE_PREMIUM_MONTHLY_PRICE_ID;
+        } else if (plan === 'BUSINESS') {
+            priceId = cycle === 'yearly' 
+                ? (process.env.STRIPE_BUSINESS_YEARLY_PRICE_ID || process.env.STRIPE_PREMIUM_YEARLY_PRICE_ID) 
+                : (process.env.STRIPE_BUSINESS_MONTHLY_PRICE_ID || process.env.STRIPE_PREMIUM_MONTHLY_PRICE_ID);
         } else {
             return res.status(400).json({ message: "Invalid plan" });
         }
@@ -67,6 +92,11 @@ export async function stripeWebhook(req, res, next) {
                     };
 
                     await User.findByIdAndUpdate(userId, updateData);
+
+                    // If Business plan, provision organization
+                    if (plan === 'BUSINESS') {
+                        await provisionBusinessAccount(userId, plan, parseInt(seats || '30'), session.subscription);
+                    }
                 } else if (session.mode === 'payment') {
                     // One-time payment (Event or Tutor Class)
                     if (type === 'event' && eventId) {
@@ -259,11 +289,16 @@ export async function verifySubscriptionSession(req, res, next) {
 
         const updatedUser = await User.findByIdAndUpdate(userId, updateData, { new: true });
         
+        // If Business plan and org doesn't exist yet, provision it
+        if (plan === 'BUSINESS' && !updatedUser.organizationId) {
+            await provisionBusinessAccount(userId, plan, parseInt(session.metadata.seats || '30'), session.subscription);
+        }
+        
         // Generate a fresh access token to prevent session expiration issues after returning from Stripe
         const accessToken = jwt.sign(
-            { sub: updatedUser._id, role: updatedUser.role },
-            process.env.JWT_SECRET,
-            { expiresIn: process.env.JWT_EXPIRES_IN || '1h' }
+            { sub: updatedUser._id.toString(), role: updatedUser.role, sid: 'session_verified_sync' },
+            process.env.JWT_ACCESS_SECRET,
+            { expiresIn: process.env.JWT_ACCESS_EXPIRES || '1h' }
         );
 
         res.json({ 

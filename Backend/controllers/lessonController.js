@@ -129,7 +129,7 @@ function logGoogleError(type, err) {
         const msg = `[${new Date().toISOString()}] [${type}] ${err.message}\n` + (err.stack ? `${err.stack}\n` : '');
         if (!fs.existsSync('logs')) fs.mkdirSync('logs');
         fs.appendFileSync(logFile, msg);
-    } catch(e) { }
+    } catch(e) { console.error("Google Log Failure", e.message); }
 }
 
 function getSpeechClient() {
@@ -201,11 +201,17 @@ export async function evaluateSpeaking(req, res, next) {
 
         const similarity = stringSimilarity(normalizedExpected, normalizedUser);
         const score = similarity * 100;
-        const passed = score >= 70;
+        
+        // Lowered threshold to 60 for better user experience
+        const passed = score >= 60;
 
-        const feedback = passed
-            ? (score > 90 ? "Excellent pronunciation!" : "Good job! Almost perfect.")
-            : "Not quite. Listen and try again.";
+        let feedback = "";
+        if (passed) {
+            if (score > 85) feedback = "Excellent pronunciation!";
+            else feedback = "Good job! You're very close.";
+        } else {
+            feedback = `Not quite. Did you say "${transcription}"? Try to say "${expectedText}" clearly.`;
+        }
 
         res.json({
             isCorrect: passed,
@@ -248,8 +254,9 @@ export async function generateSpeech(req, res, next) {
             }
         }
 
-        // No TTS configured — inform client gracefully
-        return res.status(503).json({ message: 'Speech synthesis is not configured on this server.' });
+        // No TTS configured — return null so the client silently falls back to browser TTS.
+        // Using 200 (not 503) so Axios doesn't treat this as an error and log it.
+        return res.json({ audioUrl: null, fallback: true });
     } catch (e) { next(e); }
 }
 

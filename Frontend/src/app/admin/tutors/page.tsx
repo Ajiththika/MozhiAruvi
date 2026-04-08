@@ -317,29 +317,20 @@ export default function AdminTutorsPage() {
   ];
 
   return (
-    <div className="space-y-12 animate-in fade-in duration-700 max-w-7xl mx-auto py-10 lg:py-20">
+    <div className="space-y-12 animate-in fade-in duration-700 max-w-7xl mx-auto pb-12">
       {/* Header Section */}
-      <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-10 border-b border-slate-100 pb-16">
+      <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-10 border-b border-slate-100 pb-12">
         <div className="space-y-6">
            <div className="flex items-center gap-3">
-              <span className="h-1 w-16 rounded-full bg-primary" />
-              <span className="text-[10px] font-black text-primary uppercase tracking-[0.5em]">Mentor Core</span>
+              <span className="h-1.5 w-6 rounded-full bg-primary" />
+              <span className="text-[10px] font-black text-primary/60 uppercase tracking-[0.3em]">Expert Directory</span>
            </div>
-           <h1 className="text-3xl font-black text-slate-800 tracking-tighter leading-none uppercase">Expert Ecosystem</h1>
-           <p className="text-lg text-slate-500 font-medium max-w-2xl leading-relaxed">
+           <h1 className="text-4xl md:text-5xl font-black text-slate-800 tracking-tighter leading-none">Our Tutors</h1>
+           <p className="text-lg text-primary/70 font-medium leading-relaxed max-w-2xl">
              Orchestrate the authenticated network of Tamil language mentors. Review incoming requests and manage verified directory nodes.
            </p>
         </div>
         <div className="flex gap-4">
-          <Button
-            onClick={() => { refetchDirectory(); refetchApps(); }}
-            isLoading={isDirectoryLoading || isAppsLoading}
-            variant="outline"
-            size="lg"
-            className="uppercase tracking-widest text-[10px] font-black px-12 border-2 rounded-2xl hover:bg-slate-50 transition-all h-14"
-          >
-            Sync Intelligence
-          </Button>
         </div>
       </div>
 

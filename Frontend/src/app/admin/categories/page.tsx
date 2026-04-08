@@ -106,13 +106,13 @@ export default function AdminCategoriesPage() {
       
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm shadow-slate-200/50">
-        <div>
+        <div className="space-y-6">
           <div className="flex items-center gap-2 mb-2">
-            <span className="h-2 w-10 rounded-full bg-primary/20" />
-            <span className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">Taxonomy Manager</span>
+            <span className="h-1.5 w-6 rounded-full bg-primary" />
+            <span className="text-[10px] font-black text-primary/60 uppercase tracking-[0.3em]">Taxonomy Manager</span>
           </div>
-          <h1 className="text-4xl font-black text-primary tracking-tight">Categories</h1>
-          <p className="text-primary/70 font-medium mt-1">Organize your lessons by topic and difficulty.</p>
+          <h1 className="text-4xl md:text-5xl font-black text-slate-800 tracking-tighter leading-none">Categories</h1>
+          <p className="text-lg text-primary/70 font-medium leading-relaxed max-w-2xl">Organize your lessons by topic and difficulty.</p>
         </div>
         <Button
           onClick={() => { setShowCreate(true); setEditingId(null); }}

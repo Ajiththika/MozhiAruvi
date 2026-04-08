@@ -10,7 +10,7 @@ import { seedPlans } from './utils/seedPlans.js';
 import { initNotificationService } from './services/notificationService.js';
 import { initCronJobs } from './jobs/cronJobs.js';
 
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
 
 // Catch unhandled rejections globally to prevent server crashes
 process.on('unhandledRejection', (reason) => {

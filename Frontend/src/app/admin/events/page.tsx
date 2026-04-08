@@ -247,13 +247,13 @@ function AdminEventsClient() {
   return (
     <div className="space-y-8 animate-in fade-in zoom-in-95 duration-500 pb-12">
       <div className="mb-0 flex flex-col md:flex-row md:items-end md:justify-between gap-6 border-b border-slate-100 pb-8">
-        <div>
+        <div className="space-y-6">
            <div className="flex items-center gap-2 mb-2">
-              <span className="h-1.5 w-6 rounded-full bg-secondary" />
-              <span className="text-[10px] font-black text-secondary uppercase tracking-[0.3em]">Administrator</span>
+              <span className="h-1.5 w-6 rounded-full bg-primary" />
+              <span className="text-[10px] font-black text-primary/60 uppercase tracking-[0.3em]">Administrator</span>
            </div>
-           <h1 className="text-3xl md:text-4xl font-black text-slate-800 uppercase tracking-tight">Events Moderation</h1>
-           <p className="mt-2 text-primary/70 font-medium">Monitor and create community events.</p>
+           <h1 className="text-4xl md:text-5xl font-black text-slate-800 tracking-tighter leading-none">Our Events</h1>
+           <p className="text-lg text-primary/70 font-medium leading-relaxed max-w-2xl">Monitor and create community events.</p>
         </div>
         <button
           onClick={() => {

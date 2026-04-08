@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import DataTable, { ColumnDef } from "@/components/ui/DataTable";
-import { Loader2, AlertCircle, ShieldCheck, ShieldAlert, CheckCircle2, XCircle, Edit2, User, Globe, Phone, Hash, Users, Calendar, Activity, GraduationCap } from "lucide-react";
+import { Loader2, AlertCircle, ShieldCheck, ShieldAlert, CheckCircle2, XCircle, Edit2, User, Globe, Phone, Hash, Users, Calendar, GraduationCap } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   getAllUsers,
@@ -57,9 +57,11 @@ export default function UsersClient() {
   const handleToggle = async (user: BaseUser) => {
     setActioning(user._id);
     try {
-      user.isActive
-        ? await deactivateUser(user._id)
-        : await activateUser(user._id);
+      if (user.isActive) {
+        await deactivateUser(user._id);
+      } else {
+        await activateUser(user._id);
+      }
       queryClient.invalidateQueries({ queryKey: ["admin", "users"] });
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Failed to update user status";
@@ -195,25 +197,18 @@ export default function UsersClient() {
   ];
 
   return (
-    <div className="space-y-12 animate-in fade-in duration-700 max-w-7xl mx-auto py-8 lg:py-12">
+    <div className="space-y-12 animate-in fade-in duration-700 max-w-7xl mx-auto pb-8 lg:pb-12">
       <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-8 border-b border-slate-100 pb-10">
         <div className="space-y-4">
            <div className="flex items-center gap-3">
-              <span className="h-2 w-10 rounded-full bg-secondary" />
-              <span className="text-[10px] font-black text-secondary uppercase tracking-[0.3em]">Administrator</span>
+              <span className="h-1.5 w-6 rounded-full bg-primary" />
+              <span className="text-[10px] font-black text-primary/60 uppercase tracking-[0.3em]">Administrator</span>
            </div>
-           <h1 className="text-4xl md:text-4xl font-black text-slate-800 tracking-tight">Access Control</h1>
-           <p className="text-lg text-primary/70 font-medium max-w-xl">Unified management system for student and mentor accounts across the MozhiAruvi network.</p>
+           <h1 className="text-4xl md:text-5xl font-black text-slate-800 tracking-tighter leading-none">Access Control</h1>
+           <p className="text-lg text-primary/70 font-medium leading-relaxed max-w-2xl">
+              Unified management system for student and mentor accounts across the MozhiAruvi network.
+           </p>
         </div>
-        <Button
-          onClick={() => refetch()}
-          isLoading={isLoading}
-          variant="outline"
-          size="lg"
-          className="uppercase tracking-widest text-[10px] font-black px-8"
-        >
-          Synchronize Data
-        </Button>
       </div>
 
       {isError && (

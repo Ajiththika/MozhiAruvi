@@ -129,17 +129,17 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="space-y-16 animate-in fade-in duration-700">
-      <div className="mb-14 flex flex-col md:flex-row md:items-end md:justify-between gap-10">
-        <div className="space-y-10">
+    <div className="space-y-10 animate-in fade-in duration-700">
+      <div className="mb-10 flex flex-col md:flex-row md:items-end md:justify-between gap-10">
+        <div className="space-y-6">
            <div className="flex items-center gap-4">
-              <div className="h-2 w-12 rounded-full bg-indigo-600 shadow-xl shadow-indigo-500/30" />
-               <span className="text-[12px] font-black text-indigo-600 tracking-[0.3em] uppercase">Control Center</span>
+              <div className="h-1.5 w-6 rounded-full bg-primary" />
+               <span className="text-[10px] font-black text-primary/60 tracking-[0.3em] uppercase">Control Center</span>
            </div>
-           <div className="space-y-4">
+           <div className="space-y-2">
                <h1 className="text-4xl md:text-5xl font-black text-slate-800 tracking-tighter leading-none">Command Deck</h1>
-              <p className="text-xl text-primary/70 font-medium leading-relaxed max-w-3xl opacity-80">
-                Orchestrating the ecosystem of classical Tamil learning. Managed by <strong className="text-indigo-600 underline underline-offset-8 decoration-2 decoration-indigo-600/20">{admin?.name}</strong>.
+              <p className="text-lg text-primary/70 font-medium leading-relaxed max-w-3xl">
+                Orchestrating the ecosystem of classical Tamil learning. Managed by <strong className="text-primary underline underline-offset-8 decoration-2 decoration-primary/20">{admin?.name}</strong>.
               </p>
            </div>
         </div>
@@ -184,7 +184,7 @@ export default function AdminDashboard() {
               icon={GraduationCap}
             />
             <StatCard
-              title="Moderate Stories"
+              title="Audit Stories"
               value={String(blogs.length)}
               description="Editorial queue"
               icon={BookOpen}
@@ -198,8 +198,8 @@ export default function AdminDashboard() {
             />
           </div>
 
-          <div className="grid grid-cols-1 gap-10 lg:grid-cols-3">
-            <div className="lg:col-span-2 space-y-10">
+          <div className="grid grid-cols-1 gap-10 lg:grid-cols-1">
+            <div className="lg:col-span-1 space-y-10">
               {/* Applications Table */}
               <div className="rounded-[2.5rem] border border-slate-100 bg-white shadow-2xl shadow-slate-200/20 overflow-hidden flex flex-col">
                 <div className="flex items-center justify-between border-b border-slate-50 px-10 py-8">
@@ -237,8 +237,8 @@ export default function AdminDashboard() {
               {/* Stories Table */}
               <div className="rounded-[2.5rem] border border-slate-100 bg-white shadow-2xl shadow-slate-200/20 overflow-hidden flex flex-col">
                 <div className="flex items-center justify-between border-b border-slate-50 px-10 py-8">
-                  <h3 className="text-xl font-black text-text-primary tracking-tight">Editorial Moderation</h3>
-                  <Button href="/admin/blogs" variant="ghost" className="text-[10px] font-black uppercase tracking-widest text-primary border border-primary/10 rounded-xl">Open Editor</Button>
+                  <h3 className="text-xl font-black text-text-primary tracking-tight">Our Events</h3>
+                  <Button href="/admin/blogs" variant="ghost" className="text-[10px] font-black uppercase tracking-widest text-primary border border-primary/10 rounded-xl">Manage</Button>
                 </div>
                 <div className="overflow-x-auto">
                   <table className="w-full text-left border-collapse">
@@ -256,7 +256,7 @@ export default function AdminDashboard() {
                                </div>
                             </td>
                             <td className="px-10 py-6 text-right">
-                               <Button href="/admin/blogs" variant="ghost" size="sm" className="h-10 px-6 text-[10px] font-black uppercase tracking-widest text-primary border border-primary/10 rounded-xl">Moderate</Button>
+                               <Button href="/admin/blogs" variant="ghost" size="sm" className="h-10 px-6 text-[10px] font-black uppercase tracking-widest text-primary border border-primary/10 rounded-xl">Review</Button>
                             </td>
                           </tr>
                         ))
@@ -264,52 +264,6 @@ export default function AdminDashboard() {
                     </tbody>
                   </table>
                 </div>
-              </div>
-            </div>
-
-            <div className="space-y-10">
-              {/* Quick Actions */}
-              <div className="rounded-[2.5rem] bg-white p-10 text-text-primary shadow-2xl shadow-slate-200/20 relative overflow-hidden group border border-slate-100">
-                 <div className="absolute top-0 right-0 w-64 h-64 bg-primary opacity-[0.03] rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-1000" />
-                 <h3 className="text-xs font-black text-primary uppercase tracking-[0.4em] mb-10">Executive Suite</h3>
-                 <div className="space-y-4 relative z-10">
-                    {[
-                      { label: "Manage Directory", href: "/admin/users", icon: Users },
-                      { label: "Curriculum Forge", href: "/admin/lessons", icon: BookOpen },
-                      { label: "Asset Center", href: "/admin/events", icon: Calendar },
-                      { label: "Financial Models", onClick: () => setActiveTab('plans'), icon: Settings, isRole: true },
-                      { label: "Revenue Base", onClick: () => setActiveTab('premium'), icon: Crown, isRole: true },
-                    ].map((item) => (
-                      item.href ? (
-                        <Link key={item.label} href={item.href} className="flex items-center justify-between p-5 rounded-2xl bg-slate-50/50 border border-slate-100/50 hover:bg-white hover:border-primary/20 hover:shadow-xl hover:shadow-primary/5 transition-all group/btn">
-                           <div className="flex items-center gap-4">
-                              <item.icon className="h-5 w-5 text-primary/60 group-hover/btn:text-primary transition-colors" />
-                              <span className="text-xs font-black uppercase tracking-widest text-primary/70 group-hover/btn:text-primary transition-colors">{item.label}</span>
-                           </div>
-                           <ArrowRight className="h-4 w-4 text-primary/40 group-hover/btn:text-primary transition-all group-hover/btn:translate-x-1" />
-                        </Link>
-                      ) : (
-                        <button key={item.label} onClick={item.onClick} className="w-full flex items-center justify-between p-5 rounded-2xl bg-slate-50/50 border border-slate-100/50 hover:bg-white hover:border-primary/20 hover:shadow-xl hover:shadow-primary/5 transition-all group/btn">
-                           <div className="flex items-center gap-4">
-                              <item.icon className="h-5 w-5 text-primary/60 group-hover/btn:text-primary transition-colors" />
-                              <span className="text-xs font-black uppercase tracking-widest text-primary/70 group-hover/btn:text-primary transition-colors">{item.label}</span>
-                           </div>
-                           <ArrowRight className="h-4 w-4 text-primary/40 group-hover/btn:text-primary transition-all group-hover/btn:translate-x-1" />
-                        </button>
-                      )
-                    ))}
-                 </div>
-              </div>
-
-              {/* Notification / Alert */}
-              <div className="rounded-[2.5rem] bg-indigo-600 p-10 text-white shadow-2xl shadow-indigo-600/30 overflow-hidden relative">
-                 <Globe className="absolute -bottom-10 -right-10 h-48 w-48 text-white/10" />
-                 <h4 className="text-lg font-black tracking-tight mb-4 leading-tight uppercase">System Health</h4>
-                 <p className="text-xs font-bold text-indigo-100/70 leading-relaxed mb-6">Secure nodes active. Encryption protocols version 4.2 active. Webhook sync at 100%.</p>
-                 <div className="flex items-center gap-3">
-                    <div className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-                    <span className="text-[10px] font-black uppercase tracking-widest">Network Stable</span>
-                 </div>
               </div>
             </div>
           </div>

@@ -42,9 +42,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setUser(userData);
           authStore.saveUser(userData);
         }
-      } catch (error) {
-        authStore.clear();
-        setUser(null);
+      } catch (error: any) {
+        const status = error?.response?.status;
+        const isNetworkError = !error?.response; // timeout / server down / no response
+
+        if (status === 401) {
+          // Truly unauthorized — clear session so user goes to signin
+          authStore.clear();
+          setUser(null);
+        } else if (isNetworkError || status === 503) {
+          // Backend temporarily unreachable (DB down, cold start, etc.)
+          // Keep any cached user so the UI doesn't flash to login screen
+          const cached = authStore.getCachedUser();
+          if (cached) setUser(cached);
+          // Silently swallow — not a logout event
+        } else {
+          // Unknown error — clear to be safe
+          authStore.clear();
+          setUser(null);
+        }
       } finally {
         setIsLoading(false);
       }

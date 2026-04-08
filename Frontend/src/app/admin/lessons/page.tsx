@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import {
   BookOpen, Plus, Loader2, Trash2, X, ChevronDown, ChevronUp,
-  Mic, AlertCircle, Settings, ArrowRight, LibraryBig, Tag, ArrowUpDown
+  Mic, AlertCircle, Settings, Tag, ArrowUpDown
 } from "lucide-react";
 import Link from "next/link";
 import { getLessons, Lesson, getLessonQuestions, Question } from "@/services/lessonService";
@@ -474,7 +474,7 @@ function AdminCategoryGroup({
             onClick={e => { e.stopPropagation(); onAddLesson(categoryName, lessons.length + 1); }}
             className="hidden sm:flex items-center gap-2 px-6 py-4 text-[10px] font-black uppercase tracking-[0.2em] text-white bg-primary rounded-2xl hover:scale-105 active:scale-95 shadow-xl shadow-primary/20 transition-all ml-2"
           >
-            <Plus className="w-4 h-4" /> Lesson
+            <Plus className="w-4 h-4" /> Levels
           </button>
 
           <div className={`p-4 rounded-full transition-all duration-300 ${expanded ? "bg-primary/10 text-primary" : "text-slate-300"}`}>
@@ -941,19 +941,19 @@ export default function AdminLessonsPage() {
       
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm shadow-slate-200/50">
-        <div>
+        <div className="space-y-6">
           <div className="flex items-center gap-2 mb-2">
-            <span className="h-2 w-10 rounded-full bg-primary/20" />
-            <span className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">Curriculum Master</span>
+            <span className="h-1.5 w-6 rounded-full bg-primary" />
+            <span className="text-[10px] font-black text-primary/60 uppercase tracking-[0.3em]">Curriculum Master</span>
           </div>
-          <h1 className="text-2xl font-black text-primary tracking-tight">Manage Categories</h1>
-          <p className="text-primary/70 font-medium mt-1 text-sm">Organize your learning path and levels.</p>
+          <h1 className="text-4xl md:text-5xl font-black text-slate-800 tracking-tighter leading-none">Manage Categories</h1>
+          <p className="text-lg text-primary/70 font-medium leading-relaxed max-w-2xl">Organize your learning path and levels.</p>
         </div>
         <button
           onClick={() => openAddLesson()}
-          className="flex items-center justify-center gap-3 rounded-2xl bg-primary px-8 py-4 text-xs font-black uppercase tracking-widest text-white shadow-xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all"
+          className="flex items-center justify-center gap-3 rounded-2xl bg-primary px-10 py-5 text-[10px] font-black uppercase tracking-widest text-white shadow-xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all"
         >
-          <Plus className="h-5 w-5" /> + ADD NEW CATEGORY
+          <Plus className="h-5 w-5" /> ADD NEW CATEGORY
         </button>
       </div>
 
@@ -965,7 +965,7 @@ export default function AdminLessonsPage() {
                {isAddingToExisting ? <Plus className="w-6 h-6" /> : <BookOpen className="w-6 h-6" />}
             </div>
             <div>
-              <h2 className="text-xl font-black text-slate-800 uppercase tracking-tight">{isAddingToExisting ? `Add Lesson to ${formData.category}` : "Create New Category"}</h2>
+              <h2 className="text-xl font-black text-slate-800 uppercase tracking-tight">{isAddingToExisting ? `Add Level to ${formData.category}` : "Create New Category"}</h2>
               <p className="text-xs font-bold text-primary/40 uppercase tracking-widest mt-0.5">Define your curriculum structure</p>
             </div>
           </div>
@@ -1022,7 +1022,7 @@ export default function AdminLessonsPage() {
             <div className="flex justify-end gap-4 pt-2">
               <button type="button" onClick={() => setShowCreate(false)} className="px-8 py-4 font-black uppercase tracking-widest text-[10px] text-primary/60">Cancel</button>
               <button type="submit" disabled={creating} className="px-10 py-4 bg-primary text-white font-black uppercase tracking-widest text-[10px] rounded-2xl shadow-xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all">
-                {creating ? <Loader2 className="w-4 h-4 animate-spin" /> : (isAddingToExisting ? "Add Lesson" : "Create Category")}
+                {creating ? <Loader2 className="w-4 h-4 animate-spin" /> : (isAddingToExisting ? "Add Level" : "Create Category")}
               </button>
             </div>
           </form>
@@ -1174,7 +1174,7 @@ export default function AdminLessonsPage() {
         <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-white/40 backdrop-blur-md animate-in fade-in duration-300">
           <div className="bg-white p-8 rounded-[2.5rem] shadow-2xl shadow-slate-200/40 border border-primary/10 max-w-2xl w-full mx-auto animate-in zoom-in-95 duration-300">
             <div className="flex items-center justify-between mb-8">
-              <h3 className="text-xl font-black text-slate-800">Edit Lesson</h3>
+              <h3 className="text-xl font-black text-slate-800">Edit Level</h3>
               <button onClick={() => setEditingLessonId(null)} className="p-2 hover:bg-slate-100 rounded-full transition-colors">
                 <X className="w-6 h-6 text-primary/60" />
               </button>
@@ -1192,7 +1192,7 @@ export default function AdminLessonsPage() {
                   />
                 </div>
                 <div>
-                  <label className={labelCls}>Lesson Number</label>
+                  <label className={labelCls}>Level Number</label>
                   <input
                     type="text"
                     required
@@ -1323,7 +1323,7 @@ export default function AdminLessonsPage() {
                       <div className="p-12 text-center border-2 border-dashed border-slate-100 rounded-[2rem] mb-4">
                         <BookOpen className="w-10 h-10 text-slate-100 mx-auto mb-3" />
                         <p className="text-primary/60 text-sm font-bold mb-1">No questions yet.</p>
-                        <p className="text-primary/40 text-xs font-medium">Click "+ Add Question" to get started.</p>
+                        <p className="text-primary/40 text-xs font-medium">Click &quot;+ Add Question&quot; to get started.</p>
                       </div>
                     )}
 
