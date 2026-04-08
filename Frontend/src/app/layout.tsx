@@ -20,6 +20,10 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "MozhiAruvi - Learn Tamil Language & Culture",
   description: "A modern platform for learning Tamil language and culture with interactive lessons and expert teachers.",
+  icons: {
+    icon: '/logo.png',
+    apple: '/logo.png',
+  }
 };
 
 export default function RootLayout({
