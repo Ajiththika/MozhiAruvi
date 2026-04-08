@@ -2,12 +2,6 @@ import type { Metadata } from "next";
 import { Outfit, Inter } from "next/font/google";
 import "./globals.css";
 import Providers from "@/components/Providers";
-import dynamic from "next/dynamic";
-
-const PlatformChat = dynamic(() => import("@/components/ui/PlatformChat"), { 
-  ssr: false,
-  loading: () => null 
-});
 
 const outfit = Outfit({
   variable: "--font-outfit",
@@ -35,8 +29,7 @@ export default function RootLayout({
         className={`${outfit.variable} ${inter.variable} font-sans antialiased`}
       >
         <Providers>
-          {children}
-          <PlatformChat />
+        {children}
         </Providers>
       </body>
     </html>

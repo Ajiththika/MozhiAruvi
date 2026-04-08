@@ -3,6 +3,12 @@
 import React, { useState } from "react";
 import { AuthProvider } from "@/context/AuthContext";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import dynamic from "next/dynamic";
+
+const PlatformChat = dynamic(() => import("@/components/ui/PlatformChat"), {
+  ssr: false,
+  loading: () => null,
+});
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
@@ -22,6 +28,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         {children}
+        <PlatformChat />
       </AuthProvider>
     </QueryClientProvider>
   );
