@@ -10,12 +10,9 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         {/* Simple Top Nav */}
         <div className="p-4 lg:px-12 lg:py-6 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2 group hover:opacity-90 transition-opacity">
-            <div className="relative w-9 h-9">
+            <div className="relative w-12 h-12">
               <img src="/logo.png" alt="Mozhi Aruvi" className="object-contain" />
             </div>
-            <span className="text-xl md:text-2xl font-black text-primary tracking-tighter flex items-center gap-1">
-              Mozhi<span className="text-secondary">Aruvi</span>
-            </span>
           </Link>
         </div>
         

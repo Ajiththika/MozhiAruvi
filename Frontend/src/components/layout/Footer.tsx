@@ -12,17 +12,14 @@ export default function Footer() {
           {/* Brand Column */}
           <div className="lg:col-span-2 space-y-5 flex flex-col items-center md:items-start text-center md:text-left">
             <Link href="/" className="inline-flex items-center gap-3 group hover:opacity-90 transition-opacity">
-              <div className="relative w-10 h-10">
+              <div className="relative w-16 h-16">
                 <Image
                   src="/logo.png"
-                  alt="Mozhi Aruvi Logo"
+                  alt="Mozhi Aruvi"
                   fill
                   className="object-contain"
                 />
               </div>
-              <span className="text-2xl font-black text-primary tracking-tighter flex items-center gap-1">
-                Mozhi<span className="text-secondary">Aruvi</span>
-              </span>
             </Link>
             
             <p className="text-slate-600 max-w-md text-sm leading-relaxed font-semibold">

@@ -79,12 +79,9 @@ export function Sidebar({ items, basePath }: SidebarProps) {
       {/* Brand Section */}
       <div className="flex h-16 items-center px-8 shrink-0">
         <Link href="/" className="flex items-center gap-2.5 transition-all duration-300 hover:opacity-80">
-          <div className="relative h-7 w-7 md:h-10 md:w-10 overflow-hidden">
-            <Image src="/logo.png" alt="Mozhi Aruvi Logo" fill className="object-contain" />
+          <div className="relative h-10 w-10 overflow-hidden">
+            <Image src="/logo.png" alt="Mozhi Aruvi" fill className="object-contain" />
           </div>
-          <span className="text-base md:text-xl font-black tracking-tighter text-primary flex items-center gap-1">
-            Mozhi<span className="text-secondary">Aruvi</span>
-          </span>
         </Link>
       </div>
 

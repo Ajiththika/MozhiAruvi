@@ -55,19 +55,16 @@ export default function Navbar() {
               href="/"
               className="flex items-center gap-2 group hover:opacity-90 transition-opacity"
             >
-              <div className="relative w-10 h-10">
+              <div className="relative w-14 h-14">
                 <Image
                   src="/logo.png"
-                  alt="Mozhi Aruvi Logo"
+                  alt="Mozhi Aruvi"
                   fill
                   className="object-contain"
-                  sizes="40px"
+                  sizes="56px"
                   priority
                 />
               </div>
-              <span className="text-xl md:text-2xl font-black text-primary tracking-tighter flex items-center gap-1">
-                Mozhi<span className="text-secondary">Aruvi</span>
-              </span>
             </Link>
           </div>
 
