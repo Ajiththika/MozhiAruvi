@@ -2,6 +2,7 @@
  * server.js
  *
  * App Entry Point.
+ * Owner: Ajiththika (ajiththika17@gmail.com)
  */
 import './config/env.js'; // MUST BE FIRST: Load and validate env
 import app from './app.js';

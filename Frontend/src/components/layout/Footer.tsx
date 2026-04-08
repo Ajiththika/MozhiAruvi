@@ -5,14 +5,14 @@ import { Mail, Phone, MapPin, Sparkles } from "lucide-react";
 
 export default function Footer() {
   return (
-    <footer className="bg-slate-50/50 py-10 md:py-12 border-t border-slate-200 px-6 md:px-12 lg:px-20">
+    <footer className="bg-slate-50/50 py-4 md:py-6 border-t border-slate-200 px-6 md:px-12 lg:px-20">
       <div className="max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 mb-10 text-center md:text-left items-start">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6 text-center md:text-left items-start">
           
           {/* Brand Column */}
-          <div className="lg:col-span-2 space-y-5 flex flex-col items-center md:items-start text-center md:text-left">
-            <Link href="/" className="inline-flex items-center gap-3 group hover:opacity-90 transition-opacity">
-              <div className="relative w-16 h-16">
+          <div className="lg:col-span-2 space-y-3 flex flex-col items-center md:items-start text-center md:text-left">
+            <Link href="/" className="inline-flex items-center transition-opacity">
+              <div className="relative w-60 h-16 md:w-60 md:h-16">
                 <Image
                   src="/logo.png"
                   alt="Mozhi Aruvi"
@@ -27,7 +27,7 @@ export default function Footer() {
               Bridging the gap between ancient heritage and modern technology.
             </p>
 
-            <div className="flex flex-col sm:flex-row items-center gap-6">
+            <div className="flex flex-col sm:flex-row items-center gap-4">
               <div className="flex items-center gap-3 text-slate-800 font-bold group">
                 <div className="h-8 w-8 rounded-xl bg-primary/5 flex items-center justify-center text-primary group-hover:scale-110 transition-transform shrink-0">
                   <Mail className="h-4 w-4" />
@@ -42,7 +42,7 @@ export default function Footer() {
               </div>
             </div>
 
-            <div className="pt-2">
+            <div className="pt-1">
               <Link
                 href="/auth/signup"
                 className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] shadow-xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all"
@@ -54,9 +54,9 @@ export default function Footer() {
           </div>
 
           {/* Links Column 1 */}
-          <div className="space-y-5">
+          <div className="space-y-3">
             <h4 className="font-black text-primary text-[10px] tracking-widest uppercase">Learn Portal</h4>
-            <ul className="space-y-3">
+            <ul className="space-y-2">
               <li>
                 <Link href="/lessons" className="text-slate-600 hover:text-primary transition-colors text-sm font-bold">
                   Interactive Lessons
@@ -71,25 +71,25 @@ export default function Footer() {
           </div>
 
           {/* Links Column 2 */}
-          <div className="space-y-5">
+          <div className="space-y-3">
             <h4 className="font-black text-primary text-[10px] tracking-widest uppercase">Ecosystem</h4>
-            <ul className="space-y-3">
+            <ul className="space-y-2">
               <li>
                 <Link href="/events" className="text-slate-600 hover:text-primary transition-colors text-sm font-bold">
                   Latest Events
                 </Link>
               </li>
               <li>
-                 <Link href="/blogs" className="text-slate-600 hover:text-primary transition-colors text-sm font-bold">
-                   Culture Blog
-                 </Link>
+                <Link href="/blogs" className="text-slate-600 hover:text-primary transition-colors text-sm font-bold">
+                  Culture Blog
+                </Link>
               </li>
             </ul>
           </div>
 
         </div>
 
-        <div className="flex flex-col md:flex-row items-center justify-between pt-8 border-t border-slate-100 gap-6">
+        <div className="flex flex-col md:flex-row items-center justify-between pt-4 border-t border-slate-100 gap-6">
           {/* Copyright */}
           <p className="text-[9px] md:text-[10px] text-primary/80 font-black uppercase tracking-widest text-center md:text-left">
             &copy; 2026 Mozhi Aruvi. Heritage of Excellence.

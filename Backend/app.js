@@ -20,7 +20,6 @@ import bookingRoutes from './routes/bookingRoutes.js';
 import { stripeWebhook } from './controllers/paymentController.js';
 import { testSmtpConnection } from './services/mailService.js';
 import { errorHandler } from './middleware/error.js';
-import { connectDB } from './config/db.js';
 
 import rateLimit from 'express-rate-limit';
 
@@ -76,7 +75,19 @@ app.use(cors({
 app.post('/api/payments/webhook', express.raw({ type: 'application/json' }), stripeWebhook);
 
 app.use(express.json());
-app.use(cookieParser());
+app.use(cookieParser(process.env.JWT_ACCESS_SECRET)); // Added secret for signed cookies if needed
+
+// Standardize cookie settings for security
+app.use((req, res, next) => {
+    const isProd = process.env.NODE_ENV === 'production';
+    req.cookieOptions = {
+        httpOnly: true,
+        secure: isProd,
+        sameSite: isProd ? 'strict' : 'lax',
+        maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days default
+    };
+    next();
+});
 
 // ── Google OAuth (passport) ───────────────────────────────────────────────────
 initGoogle(app);

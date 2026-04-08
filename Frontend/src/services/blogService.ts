@@ -93,7 +93,7 @@ export async function getAllBlogsForAdmin(page = 1, limit = 6): Promise<Paginate
   return res.data;
 }
 
-export async function updateBlogStatusAdmin(id: string, status: string): Promise<Blog> {
+export async function updateBlogStatusAdmin(id: string, status: 'draft' | 'pending' | 'published' | 'rejected'): Promise<Blog> {
   const res = await api.patch<{ blog: Blog }>(`/blogs/${id}/status`, { status });
   return res.data.blog;
 }

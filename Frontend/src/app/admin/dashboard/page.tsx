@@ -18,7 +18,8 @@ import {
   createPlanSettings,
   deletePlanSettings,
   PlanSettings,
-  getMentorApplications
+  getMentorApplications,
+  MentorApplicationResult
 } from "@/services/adminService";
 import { getEvents, MozhiEvent } from "@/services/eventService";
 import { getMe, SafeUser } from "@/services/authService";
@@ -33,7 +34,7 @@ export default function AdminDashboard() {
   const [users, setUsers] = useState<BaseUser[]>([]);
   const [tutors, setTutors] = useState<BaseUser[]>([]);
   const [blogs, setBlogs] = useState<Blog[]>([]);
-  const [applications, setApplications] = useState<any[]>([]);
+  const [applications, setApplications] = useState<MentorApplicationResult[]>([]);
   const [events, setEvents] = useState<MozhiEvent[]>([]);
   const [premiumUsers, setPremiumUsers] = useState<PremiumUser[]>([]);
   const [planSettings, setPlanSettings] = useState<PlanSettings[]>([]);
@@ -89,7 +90,7 @@ export default function AdminDashboard() {
         setPlanSettings(prev => prev.map(p => p._id === editingPlan ? updated : p));
         setEditingPlan(null);
       }
-    } catch (err) {
+    } catch {
       alert("Failed to update plan settings.");
     }
   };
@@ -115,7 +116,7 @@ export default function AdminDashboard() {
     try {
       await deletePlanSettings(id);
       setPlanSettings(prev => prev.filter(p => p._id !== id));
-    } catch (err) {
+    } catch {
       alert("Failed to delete plan.");
     }
   };

@@ -45,7 +45,7 @@ export function AskTutorModal({ isOpen, onClose, lessonId, lessonTitle, lessonMo
           .finally(() => setTutorsLoading(false));
       }
     }
-  }, [isOpen]);
+  }, [isOpen, tutors.length]);
 
   const handleAskSubmit = async () => {
     if (!askQuestion.trim()) return;
@@ -57,10 +57,6 @@ export function AskTutorModal({ isOpen, onClose, lessonId, lessonTitle, lessonMo
         lessonId,
         requestType: requestType,
         content: askQuestion.trim(),
-        studentName: user?.name,
-        studentEmail: user?.email,
-        studentAge: user?.age,
-        studentCountry: user?.country,
         metadata: {
           lessonTitle: lessonTitle || "Unknown",
           lessonModule: lessonModule || 0,
@@ -182,7 +178,11 @@ export function AskTutorModal({ isOpen, onClose, lessonId, lessonTitle, lessonMo
             <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-100">
                <CheckCircle2 size={10} className="shrink-0" />
                <span className="text-[8px] font-black uppercase tracking-widest leading-none">
-                 {10 - (user?.subscription?.tutorSupportUsed || 0)} FREE LINKS LEFT
+                 {(() => {
+                    const plan = user?.subscription?.plan || 'FREE';
+                    const limit = plan === 'PREMIUM' ? 100 : (plan === 'PRO' ? 50 : 10);
+                    return `${limit - (user?.subscription?.tutorSupportUsed || 0)} ${plan} LINKS LEFT`;
+                 })()}
                </span>
             </div>
           </div>

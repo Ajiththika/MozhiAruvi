@@ -247,14 +247,14 @@ export default function UsersClient() {
         <div className="flex flex-col h-full overflow-hidden">
           {/* Internal Tab Navigation */}
           <div className="flex items-center gap-1 p-1 bg-slate-50 border border-slate-100 rounded-2xl mb-8 w-fit">
-            {[
+            {([
               { id: 'identity', label: 'Identity', icon: User },
               { id: 'academic', label: 'Academic', icon: GraduationCap },
               { id: 'subscription', label: 'Economic', icon: ShieldCheck }
-            ].map(tab => (
+            ] as const).map(tab => (
               <button
                 key={tab.id}
-                onClick={() => setActiveSettingsTab(tab.id as any)}
+                onClick={() => setActiveSettingsTab(tab.id)}
                 className={cn(
                   "flex items-center gap-2 px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all",
                   activeSettingsTab === tab.id ? "bg-white shadow-xl shadow-black/5 text-primary" : "text-primary/40 hover:text-slate-600"

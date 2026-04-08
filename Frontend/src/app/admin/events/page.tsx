@@ -9,11 +9,16 @@ import Pagination from "@/components/ui/Pagination";
 import Button from "@/components/ui/Button";
 import { ImageAdjuster } from "@/components/ui/ImageAdjuster";
 
-const EventStatusBadge = ({ isActive }: { isActive: boolean }) => {
-   if (isActive) {
-      return <span className="inline-flex rounded-full bg-emerald-100 px-2 py-1 text-xs font-semibold text-emerald-800">Active</span>;
+const EventStatusBadge = ({ isActive, date }: { isActive: boolean, date: string }) => {
+   const isPast = new Date(date) < new Date().setHours(0,0,0,0);
+   
+   if (isPast) {
+      return <span className="inline-flex rounded-full bg-slate-100 px-2 py-1 text-[10px] font-black uppercase tracking-widest text-slate-500 border border-slate-200">Completed</span>;
    }
-   return <span className="inline-flex rounded-full bg-red-100 px-2 py-1 text-xs font-semibold text-red-800">Cancelled / Inactive</span>;
+   if (isActive) {
+      return <span className="inline-flex rounded-full bg-emerald-100 px-2 py-1 text-[10px] font-black uppercase tracking-widest text-emerald-800 border border-emerald-200">Active</span>;
+   }
+   return <span className="inline-flex rounded-full bg-red-100 px-2 py-1 text-[10px] font-black uppercase tracking-widest text-red-800 border border-red-200">Inactive</span>;
 }
 
 export default function AdminEventsPage() {
@@ -217,7 +222,7 @@ function AdminEventsClient() {
          </div>
       )
     },
-    { header: "Status", accessorKey: "isActive", cell: (row) => <EventStatusBadge isActive={row.isActive} /> },
+    { header: "Status", accessorKey: "isActive", cell: (row) => <EventStatusBadge isActive={row.isActive} date={row.date} /> },
     {
       header: "Actions",
       accessorKey: "_id",
@@ -484,19 +489,34 @@ function AdminEventsClient() {
           <Loader2 className="h-5 w-5 animate-spin" /> Loading records...
         </div>
       ) : (
-        <DataTable 
-          title="Scheduled Events" 
-          columns={columns} 
-          data={events} 
-          onSearch={() => {}} 
-          pagination={
-            <Pagination 
-              currentPage={currentPage}
-              totalPages={totalPages}
-              onPageChange={setCurrentPage}
-            />
-          }
-        />
+        <div className="space-y-12">
+          {/* Upcoming Events Section */}
+          <DataTable 
+            title="Upcoming Community Events" 
+            columns={columns} 
+            data={events.filter(e => new Date(e.date) >= new Date().setHours(0,0,0,0))} 
+            onSearch={() => {}} 
+            pagination={
+              <Pagination 
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={setCurrentPage}
+              />
+            }
+          />
+
+          {/* Past Events Section */}
+          {events.some(e => new Date(e.date) < new Date().setHours(0,0,0,0)) && (
+            <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
+               <DataTable 
+                title="Past & Completed Events" 
+                columns={columns} 
+                data={events.filter(e => new Date(e.date) < new Date().setHours(0,0,0,0))} 
+                hideFooter={true}
+              />
+            </div>
+          )}
+        </div>
       )}
       {adjustImage && (
         <ImageAdjuster 

@@ -61,6 +61,22 @@ export interface JoinRequestAdminView {
   createdAt: string;
 }
 
+export interface MentorApplicationResult {
+  _id: string;
+  fullName: string;
+  name: string;
+  cleanName: string;
+  type: string;
+  status: string;
+  specialization?: string;
+  experience?: string;
+  motivation?: string;
+  hourlyRate?: number;
+  teachingMode?: string;
+  languages?: string[];
+  createdAt: string;
+}
+
 export interface PaginatedResponse<T> {
   totalItems: number;
   totalPages: number;
@@ -95,7 +111,7 @@ export interface PremiumUser {
   _id: string;
   name: string;
   email: string;
-  role: string;
+  role: "student" | "teacher" | "admin" | "tutor";
   isActive: boolean;
   country?: string;
   subscription: {
@@ -261,7 +277,7 @@ export async function uploadAudio(file: File): Promise<{ url: string; public_id:
 }
 
 
-export async function getMentorApplications(): Promise<any[]> {
-  const res = await api.get<{ applications: any[] }>("/admin/mentor-applications");
+export async function getMentorApplications(): Promise<MentorApplicationResult[]> {
+  const res = await api.get<{ applications: MentorApplicationResult[] }>("/admin/mentor-applications");
   return res.data.applications;
 }

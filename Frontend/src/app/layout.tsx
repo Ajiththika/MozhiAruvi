@@ -1,3 +1,7 @@
+/**
+ * Mozhi Aruvi (மொழி அருவி)
+ * Owner: Ajiththika (ajiththika17@gmail.com)
+ */
 import type { Metadata } from "next";
 import { Outfit, Inter } from "next/font/google";
 import "./globals.css";

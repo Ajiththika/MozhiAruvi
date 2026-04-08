@@ -32,6 +32,22 @@ const triggerMonthlyReport = async () => {
     }
 };
 
+// 2. Monthly Support Limit Reset (Runs at 00:00 on the 1st of every month)
+const triggerMonthlyReset = async () => {
+    try {
+        console.log(`[${new Date().toISOString()}] [JOBS] Resetting Monthly Tutor Support Counts for all scholars...`);
+        // Note: Paid users also reset via Stripe Webhook on their specific billing date, 
+        // but this ensures a clean slate for Free users and redundant safety for all.
+        const result = await User.updateMany(
+            {}, 
+            { $set: { 'subscription.tutorSupportUsed': 0 } }
+        );
+        console.log(`[${new Date().toISOString()}] [JOBS] Monthly Reset Finished. Impacted: ${result.modifiedCount} accounts.`);
+    } catch (e) {
+        console.error('Monthly Reset Job Failure:', e);
+    }
+};
+
 // 2. Daily Student Retention Nudge (Runs at 00:00 every day)
 const triggerDailyReminders = async () => {
     try {
@@ -42,17 +58,20 @@ const triggerDailyReminders = async () => {
         const inactiveUsers = await User.find({ 
             lastLogin: { $lt: threeDaysAgo },
             lastReminderSent: { $exists: false } 
-        });
+        }).limit(500);
 
-        for (const user of inactiveUsers) {
-            mozhiEvents.emit('USER_INACTIVE_REMINDER', {
-                name: user.name || 'User',
-                email: user.email
-            });
-            user.lastReminderSent = new Date();
-            await user.save();
+        const BATCH_SIZE = 10;
+        for (let i = 0; i < inactiveUsers.length; i += BATCH_SIZE) {
+            const batch = inactiveUsers.slice(i, i + BATCH_SIZE);
+            await Promise.all(batch.map(async (user) => {
+                mozhiEvents.emit('USER_INACTIVE_REMINDER', {
+                    name: user.name || 'User',
+                    email: user.email
+                });
+                await User.findByIdAndUpdate(user._id, { $set: { lastReminderSent: new Date() } });
+            }));
         }
-        console.log(`[${new Date().toISOString()}] [JOBS] Daily Reminders Processed for ${inactiveUsers.length} users.`);
+        console.log(`[${new Date().toISOString()}] [JOBS] Daily Reminders processed in batches for ${inactiveUsers.length} users.`);
     } catch (e) {
         console.error('Daily Job Failure:', e);
     }
@@ -68,9 +87,10 @@ export const initCronJobs = () => {
         await triggerDailyReminders();
     });
 
-    // 2. Monthly Pulse (Midnight on the 1st)
+    // 2. Monthly Pulse & Count Reset (Midnight on the 1st)
     cron.schedule('0 0 1 * *', async () => {
         await triggerMonthlyReport();
+        await triggerMonthlyReset();
     });
 
     // 3. Health Heartbeat (Every hour for logging stabilization)

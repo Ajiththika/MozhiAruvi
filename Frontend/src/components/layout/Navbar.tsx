@@ -49,19 +49,19 @@ export default function Navbar() {
   return (
     <nav className="sticky top-0 z-[100] w-full bg-white/80 backdrop-blur-md border-b border-slate-100">
       <div className="max-w-7xl mx-auto px-4 md:px-8 lg:px-12">
-        <div className="flex justify-between items-center h-20 md:h-16">
-          <div className="flex-shrink-0 flex items-center">
+        <div className="flex justify-between items-center h-20 md:h-20">
+          <div className="flex-shrink-0">
             <Link
               href="/"
-              className="flex items-center gap-2 group hover:opacity-90 transition-opacity"
+              className="flex items-center gap-3"
             >
-              <div className="relative w-14 h-14">
+              <div className="relative w-60 h-16 md:w-60 md:h-20 flex-shrink-0">
                 <Image
                   src="/logo.png"
                   alt="Mozhi Aruvi"
                   fill
                   className="object-contain"
-                  sizes="56px"
+                  sizes="(max-width: 768px) 240px, 240px"
                   priority
                 />
               </div>
@@ -181,11 +181,10 @@ export default function Navbar() {
         <div className="flex flex-col h-full">
           {/* Header in Drawer */}
           <div className="flex items-center justify-between px-6 h-20 border-b border-slate-100">
-             <div className="flex items-center gap-2">
-                <div className="relative w-8 h-8">
+             <div className="flex items-center gap-3">
+                 <div className="relative w-60 h-16 md:w-60 md:h-16">
                   <Image src="/logo.png" alt="Logo" fill className="object-contain" />
                 </div>
-                <span className="text-lg font-black text-primary tracking-tighter">Mozhi<span className="text-secondary">Aruvi</span></span>
              </div>
              <button
                 onClick={() => setIsMobileMenuOpen(false)}

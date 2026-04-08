@@ -77,9 +77,9 @@ export function Sidebar({ items, basePath }: SidebarProps) {
   return (
     <aside className="hidden w-72 flex-col border-r border-border bg-white md:flex h-screen sticky top-0 overflow-hidden">
       {/* Brand Section */}
-      <div className="flex h-16 items-center px-8 shrink-0">
-        <Link href="/" className="flex items-center gap-2.5 transition-all duration-300 hover:opacity-80">
-          <div className="relative h-10 w-10 overflow-hidden">
+      <div className="flex h-20 items-center px-8 shrink-0">
+        <Link href="/" className="flex items-center">
+          <div className="relative w-60 h-16 md:w-60 md:h-16 flex-shrink-0">
             <Image src="/logo.png" alt="Mozhi Aruvi" fill className="object-contain" />
           </div>
         </Link>

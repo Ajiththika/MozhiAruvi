@@ -7,6 +7,7 @@ import { authenticate, authenticateOptional } from '../middleware/auth.js';
 import { validate } from '../middleware/validate.js';
 import { checkTutorAccess } from '../middleware/accessControl.js';
 import upload from '../middleware/upload.js';
+import { strictLimiter } from '../middleware/rateLimiter.js';
 import { z } from 'zod';
 
 const router = Router();
@@ -70,7 +71,7 @@ router.patch('/application/me', authenticate, mentorApplicationController.update
 router.get('/my-requests', authenticate, tutorController.getLearnerRequests);
 
 // Request a tutor's help
-router.post('/request', authenticate, checkTutorAccess, validate(requestTutorSchema), tutorController.requestTutor);
+router.post('/request', authenticate, checkTutorAccess, strictLimiter, validate(requestTutorSchema), tutorController.requestTutor);
 
 // ── Tutor Specific ───────────────────────────────────────────────────────────
 

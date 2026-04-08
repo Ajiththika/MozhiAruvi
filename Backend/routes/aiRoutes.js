@@ -1,5 +1,6 @@
 import express from 'express';
 import { getAiResponse } from '../services/aiChatService.js';
+import { strictLimiter } from '../middleware/rateLimiter.js';
 
 const router = express.Router();
 
@@ -7,7 +8,7 @@ const router = express.Router();
  * AI Chat Interaction
  * POST /api/ai/chat
  */
-router.post('/chat', async (req, res, next) => {
+router.post('/chat', strictLimiter, async (req, res, next) => {
     try {
         const { message, chatHistory } = req.body;
         
