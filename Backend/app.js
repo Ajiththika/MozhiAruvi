@@ -20,6 +20,9 @@ import bookingRoutes from "./routes/bookingRoutes.js";
 import { stripeWebhook } from "./controllers/paymentController.js";
 import { testSmtpConnection } from "./services/mailService.js";
 import { errorHandler } from "./middleware/error.js";
+import Lesson from './models/Lesson.js';
+import User from './models/User.js';
+import Question from './models/Question.js';
 
 import rateLimit from "express-rate-limit";
 
@@ -31,20 +34,24 @@ const app = express();
 // '1' means we trust exactly one upstream proxy hop.
 app.set("trust proxy", 1);
 
-// ── Rate Limiting (SaaS Standard) ─────────────────────────────────────────────
+// ── Rate Limiting (SaaS Standard - Resilient) ─────────────────────────────────
 const globalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per windowMs
+  max: 1000, // Increased from 100 to 1000 to prevent 429 on busy portals or developer HMR
   message: {
     success: false,
     error: {
       code: "TOO_MANY_REQUESTS",
       message:
-        "Too many requests from this IP, please try again after 15 minutes.",
+        "Too many requests. Please slow down and try again in 15 minutes.",
     },
   },
   standardHeaders: true,
   legacyHeaders: false,
+  handler: (req, res, _next, options) => {
+    console.warn(`[RATE LIMIT] IP ${req.ip} hit global limit. Window: ${options.windowMs}ms`);
+    res.status(429).json(options.message);
+  }
 });
 
 // Apply to all routes
@@ -74,12 +81,20 @@ app.use((req, res, next) => {
 
 app.use(
   cors({
-    origin: [
-      "http://localhost:3000",
-      "http://13.63.20.170:3000",
-      "http://mozhiaruvi.com",
-      "http://www.mozhiaruvi.com",
-    ],
+    origin: (origin, callback) => {
+      const allowedOrigins = [
+        "http://localhost:3000",
+        "https://localhost:3000",
+        ...(process.env.FRONTEND_ORIGIN ? process.env.FRONTEND_ORIGIN.split(",") : []),
+      ];
+      // Allow requests with no origin (like mobile apps or curl)
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        console.warn(`[CORS] Rejected Origin: ${origin}`);
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
   }),
 );
@@ -133,6 +148,20 @@ app.use("/api/payments", paymentRoutes);
 app.use("/api/organizations", organizationRoutes);
 app.use("/api/ai", aiRoutes);
 app.use("/api/bookings", bookingRoutes);
+
+// ── Database Diagnostic Route ────────────────────────────────────────────────
+app.get('/api/db-status', async (req, res) => {
+    try {
+        const counts = {
+            lessons: await Lesson.countDocuments(),
+            users: await User.countDocuments(),
+            questions: await Question.countDocuments(),
+        };
+        res.json({ success: true, data: counts });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
 
 app.get("/health", (_req, res) =>
   res.json({

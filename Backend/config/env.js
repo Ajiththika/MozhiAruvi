@@ -3,7 +3,35 @@
  *
  * Centralized environment variable validation.
  */
-import 'dotenv/config';
+import { fileURLToPath } from 'url';
+import path from 'path';
+import fs from 'fs';
+import dotenv from 'dotenv';
+
+// ── Resolve .env Path ────────────────────────────────────────────────────────
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Check if .env is in CWD (standard) or in Backend/ (development root start)
+const envPaths = [
+  path.resolve(process.cwd(), '.env'),
+  path.resolve(__dirname, '..', '.env'),
+  path.resolve(__dirname, '..', '..', '.env')
+];
+
+let loaded = false;
+for (const p of envPaths) {
+  if (fs.existsSync(p)) {
+    dotenv.config({ path: p });
+    loaded = true;
+    break;
+  }
+}
+
+if (!loaded) {
+  dotenv.config(); // Final attempt with default CWD discovery
+}
+
 import { z } from 'zod';
 
 const envSchema = z.object({

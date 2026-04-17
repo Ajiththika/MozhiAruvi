@@ -3,6 +3,7 @@ import User from '../models/User.js';
 import Session from '../models/Session.js';
 import * as tokenService from './tokenService.js';
 import { sendPasswordResetEmail } from './mailService.js';
+import { getFrontendUrl } from '../utils/urlHelper.js';
 
 function meta(req) {
     return { userAgent: req.headers['user-agent'], ip: req.ip };
@@ -73,24 +74,63 @@ export async function sendForgotEmail(req) {
     const { email } = req.body;
     const user = await User.findOne({ email });
     if (user) {
-        const raw = crypto.randomBytes(32).toString('hex');
-        user.resetPasswordToken = crypto.createHash('sha256').update(raw).digest('hex');
-        user.resetPasswordExpires = new Date(Date.now() + 3_600_000);
+        // Generate a cryptographically strong 64-character hex string
+        const token = crypto.randomBytes(32).toString('hex');
+        
+        user.set({
+            resetPasswordToken: token,
+            resetPasswordExpires: new Date(Date.now() + 600_000) // 10 minutes
+        });
+        
         await user.save();
-        const resetUrl = `${process.env.FRONTEND_ORIGIN}/auth/reset-password?token=${raw}`;
+        
+        const resetUrl = `${getFrontendUrl(req)}/auth/reset-password?token=${token}&email=${encodeURIComponent(email)}`;
+
+        
+        console.log(`[AUTH] Reset email prepared for ${email}. Token: ${token.substring(0, 5)}...`);
+        
         await sendPasswordResetEmail(email, resetUrl);
     }
+
+
 }
 
 export async function doResetPassword(token, password) {
-    const hash = crypto.createHash('sha256').update(token).digest('hex');
-    const user = await User.findOne({ resetPasswordToken: hash, resetPasswordExpires: { $gt: new Date() } });
-    if (!user) {
-        const err = new Error('Token invalid or expired.'); err.status = 400; err.code = 'INVALID_TOKEN'; throw err;
+    if (!token) {
+        const err = new Error('Reset token is missing.'); 
+        err.status = 400; 
+        throw err;
     }
+
+    // Find the user by raw token
+    const user = await User.findOne({ resetPasswordToken: token });
+    
+    if (!user) {
+        console.warn(`[AUTH] Reset attempt with non-existent token: ${token.substring(0, 10)}...`);
+        const err = new Error('This reset link is invalid. Please request a new one.'); 
+        err.status = 400; 
+        err.code = 'INVALID_TOKEN'; 
+        throw err;
+    }
+
+    // Check if it's expired
+    if (user.resetPasswordExpires && user.resetPasswordExpires < new Date()) {
+        console.warn(`[AUTH] Reset attempt with expired token for user: ${user.email}`);
+        const err = new Error('This reset link has expired. Please request a new one.');
+        err.status = 400;
+        err.code = 'EXPIRED_TOKEN';
+        err.email = user.email; // Pass email back so frontend can resend easily
+        throw err;
+    }
+
+
     user.password = password;
     user.resetPasswordToken = undefined;
     user.resetPasswordExpires = undefined;
     await user.save();
+    
+    // Revoke all existing sessions for security after password change
     await Session.updateMany({ userId: user._id }, { revoked: true });
 }
+
+

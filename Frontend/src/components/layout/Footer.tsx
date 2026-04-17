@@ -1,7 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Mail, Phone, MapPin, Sparkles } from "lucide-react";
+import { Mail, Phone, Sparkles } from "lucide-react";
 
 export default function Footer() {
   return (
@@ -18,6 +18,7 @@ export default function Footer() {
                   alt="Mozhi Aruvi"
                   fill
                   className="object-contain"
+                  sizes="(max-width: 768px) 240px, 240px"
                 />
               </div>
             </Link>

@@ -33,14 +33,21 @@ export function AudioRecorder({
 
   const startRecording = async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+          sampleRate: 48000
+        } 
+      });
       const recorder = new MediaRecorder(stream);
       mediaRecorderRef.current = recorder;
       chunksRef.current = [];
 
       recorder.ondataavailable = (e) => chunksRef.current.push(e.data);
       recorder.onstop = async () => {
-        const blob = new Blob(chunksRef.current, { type: mediaRecorderRef.current?.mimeType || "audio/webm" });
+        const blob = new Blob(chunksRef.current, { type: mediaRecorderRef.current?.mimeType || "audio/webm;codecs=opus" });
         await processAudio(blob);
       };
 
@@ -54,8 +61,15 @@ export function AudioRecorder({
 
   const stopRecording = () => {
     if (mediaRecorderRef.current && isRecording) {
-      mediaRecorderRef.current.stop();
-      setIsRecording(false);
+      // Ensure we have at least 500ms of audio to prevent encoding errors
+      setTimeout(() => {
+        if (mediaRecorderRef.current?.state === "recording") {
+          mediaRecorderRef.current.stop();
+          setIsRecording(false);
+          // Stop all tracks to release the microphone
+          mediaRecorderRef.current.stream.getTracks().forEach(track => track.stop());
+        }
+      }, 500);
     }
   };
 
@@ -74,9 +88,10 @@ export function AudioRecorder({
       
       const res = await evaluateSpeaking(lessonId, questionId, base64data);
       onResult(res.isCorrect, res.feedback);
-    } catch (e) {
+    } catch (e: any) {
       console.error(e);
-      onResult(false, "Recognition failed. Try again.");
+      const msg = e.response?.data?.message || "Recognition failed. Please speak clearly and try again.";
+      onResult(false, msg);
     } finally {
       setIsProcessingAudio(false);
     }

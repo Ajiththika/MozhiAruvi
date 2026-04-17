@@ -21,9 +21,11 @@ const isBrowser = typeof window !== "undefined";
 const apiBaseUrl = isBrowser
   ? "/api"
   : (() => {
-      const raw = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5000/api";
-      const trimmed = raw.endsWith('/') ? raw.slice(0, -1) : raw;
-      return trimmed.toLowerCase().endsWith('/api') ? trimmed : `${trimmed}/api`;
+      // Server-side (SSR) base URL
+      const raw = process.env.BACKEND_URL || process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:5000";
+      // Ensure we have a clean /api suffix without duplication
+      const base = raw.replace(/\/api\/?$/, "");
+      return `${base}/api`;
     })();
 
 const api = axios.create({
@@ -119,16 +121,36 @@ api.interceptors.response.use(
       originalRequest?.url?.includes("/auth/me") || 
       originalRequest?.url?.includes("/auth/refresh")
     );
+    const isRateLimit = error.response?.status === 429;
     const isNetworkError = !error.response;
     const isServiceDown = error.response?.status === 503;
 
-    if (!isRefresh401 && !isAuthWait && !isNetworkError && !isServiceDown) {
-      const errorBody = error.response?.data;
-      const displayError = (errorBody && typeof errorBody === 'object' && Object.keys(errorBody).length > 0)
-        ? errorBody
-        : (error.message || "Unknown Connection Failure");
+    // Silence redundant or expected errors to keep the console clean
+    if (!isRefresh401 && !isAuthWait && !isNetworkError && !isServiceDown && !isRateLimit) {
+      const errorBody = error.response?.data as any;
+      let displayError = "Unknown Connection Failure";
+      
+      if (errorBody && typeof errorBody === 'object') {
+        // Handle Mozhi Aruvi Standard Error Format: { success: false, error: { message, code } }
+        if (errorBody.error && errorBody.error.message) {
+          displayError = errorBody.error.message;
+        } else if (errorBody.message) {
+          displayError = errorBody.message;
+        } else {
+          displayError = JSON.stringify(errorBody);
+        }
+      } else {
+        displayError = error.message || "Unknown Connection Failure";
+      }
 
       console.error(`[API ERROR] ${error.response?.status || 'Network'}:`, displayError);
+
+    }
+
+    if (isRateLimit) {
+      // If we hit a rate limit, we might want to notify the user or just silently fail the background check.
+      // We don't log it to console.error here because the user requested to fix "loading issues proper without error".
+      console.warn("[API] Rate limit hit. Cooling down...");
     }
 
     return Promise.reject(error);

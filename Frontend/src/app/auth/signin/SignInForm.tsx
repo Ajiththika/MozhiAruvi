@@ -28,7 +28,10 @@ export default function SignInForm() {
   useEffect(() => {
     if (!isLoading && user) {
       const dest = redirectParam || getRoleDashboardRoute(user.role);
-      router.replace(dest);
+      // Guard against redirect loops
+      if (dest !== '/auth/signin') {
+        router.replace(dest);
+      }
     }
   }, [isLoading, user, router, redirectParam]);
 
@@ -45,14 +48,14 @@ export default function SignInForm() {
             // Quick Apply: Auto-submit with basic info
             try {
                 await submitTutorApplication({
-                    name: res.user.name,
-                    email: res.user.email,
-                    phone: "",
+                    fullName: res.user.name,
                     experience: "Automated Login Applicant",
                     bio: "Interested in joining as a tutor from the platform join button.",
                     languages: [],
-                    availability: "Contact for details",
-                    certifications: ""
+                    specialization: "General Tamil",
+                    hourlyRate: 0,
+                    teachingMode: "online",
+                    motivation: "Interested in joining from quick apply"
                 });
                 setUser({ ...res.user, tutorStatus: 'pending' });
                 router.push('/tutor/apply/status');

@@ -51,7 +51,7 @@ export async function createSubscriptionSession(req, res, next) {
             return res.status(400).json({ message: "Invalid plan" });
         }
 
-        const session = await stripeService.createSubscriptionSession(user, priceId, plan, cycle, seats);
+        const session = await stripeService.createSubscriptionSession(user, priceId, plan, cycle, seats, req);
         res.json({ url: session.url });
     } catch (e) { next(e); }
 }
@@ -231,7 +231,7 @@ export async function createEventPaymentSession(req, res, next) {
             name: `Joining Event: ${event.title}`,
             successPath: `student/events/success?eventId=${eventId}`,
             cancelPath: `student/events/${eventId}`
-        });
+        }, req);
 
         // Track payment session record locally for auditing
         await Payment.create({
@@ -324,7 +324,7 @@ export async function createTutorPaymentSession(req, res, next) {
             name: isPackage ? `8-Class Mastery Bundle with ${tutor.name}` : `Private Class with ${tutor.name}`,
             successPath: `student/tutors/success?tutorId=${tutorId}&package=${!!isPackage}`,
             cancelPath: `student/tutors/${tutorId}`
-        });
+        }, req);
 
         await Payment.create({
             user: user._id,
@@ -335,5 +335,51 @@ export async function createTutorPaymentSession(req, res, next) {
         });
 
         res.json({ url: session.url });
+    } catch (e) { next(e); }
+}
+export async function cancelSubscription(req, res, next) {
+    try {
+        const user = await User.findById(req.user.sub);
+        if (!user || !user.subscription?.stripeSubscriptionId) {
+            return res.status(400).json({ message: "No active subscription found" });
+        }
+
+        await stripeService.cancelSubscription(user.subscription.stripeSubscriptionId);
+        
+        // Update user status locally if needed, or wait for webhook
+        // For now, let's just confirm it's set to cancel at period end
+        res.json({ message: "Subscription will be cancelled at the end of the current billing period" });
+    } catch (e) { next(e); }
+}
+
+export async function upgradeSubscription(req, res, next) {
+    try {
+        const { plan, cycle } = req.body;
+        const user = await User.findById(req.user.sub);
+        if (!user || !user.subscription?.stripeSubscriptionId) {
+            return res.status(400).json({ message: "No active subscription found to upgrade" });
+        }
+
+        let priceId;
+        if (plan === 'PRO') {
+            priceId = cycle === 'yearly' ? process.env.STRIPE_PRO_YEARLY_PRICE_ID : process.env.STRIPE_PRO_MONTHLY_PRICE_ID;
+        } else if (plan === 'PREMIUM') {
+            priceId = cycle === 'yearly' ? process.env.STRIPE_PREMIUM_YEARLY_PRICE_ID : process.env.STRIPE_PREMIUM_MONTHLY_PRICE_ID;
+        } else {
+            return res.status(400).json({ message: "Invalid plan" });
+        }
+
+        const subscription = await stripeService.upgradeSubscription(user.subscription.stripeSubscriptionId, priceId, {
+            plan,
+            billingCycle: cycle
+        });
+
+        // Update local user record
+        user.subscription.plan = plan;
+        user.subscription.billingCycle = cycle;
+        user.subscription.currentPeriodEnd = new Date(subscription.current_period_end * 1000);
+        await user.save();
+
+        res.json({ message: `Successfully upgraded to ${plan}!`, user: user.toSafeObject() });
     } catch (e) { next(e); }
 }

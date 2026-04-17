@@ -1,4 +1,5 @@
 import Stripe from 'stripe';
+import { getFrontendUrl } from '../utils/urlHelper.js';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
   apiVersion: '2023-10-16',
@@ -74,8 +75,8 @@ export async function createSplitPaymentSession(student, tutor, amount, bookingM
       type: 'tutor_booking',
       ...bookingMetadata
     },
-    success_url: `${process.env.FRONTEND_ORIGIN}/student/tutors/my-requests?success=true&session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${process.env.FRONTEND_ORIGIN}/tutors/${tutor._id}`,
+    success_url: `${getFrontendUrl()}/student/tutors/my-requests?success=true&session_id={CHECKOUT_SESSION_ID}`,
+    cancel_url: `${getFrontendUrl()}/tutors/${tutor._id}`,
   });
 
   return session;

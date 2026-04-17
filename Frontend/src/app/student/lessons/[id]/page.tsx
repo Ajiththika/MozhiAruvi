@@ -76,15 +76,33 @@ export default function LessonInteractiveSession() {
           const voices = window.speechSynthesis.getVoices();
           const taVoices = voices.filter(v => v.lang.startsWith('ta'));
           
-          // Try to find a high-quality Tamil voice, or just the first one
+          // Selection Strategy: High-Quality Wavenet > Premium > Standard
           if (taVoices.length > 0) {
-            utterance.voice = taVoices.find(v => v.name.includes('Google')) || taVoices[0];
+            utterance.voice = 
+              taVoices.find(v => v.name.includes('Wavenet')) || 
+              taVoices.find(v => v.name.includes('Premium')) ||
+              taVoices.find(v => v.name.includes('Google')) || 
+              taVoices[0];
           }
           
           utterance.lang = "ta-IN";
-          utterance.rate = 0.9;
-          utterance.onend = () => { setPlayingAudioId(null); (window as any)._activeUtterance = null; };
-          utterance.onerror = () => { setPlayingAudioId(null); (window as any)._activeUtterance = null; };
+          utterance.rate = 1.0;
+          utterance.pitch = 1.0;
+          
+          utterance.onstart = () => {
+             console.log(`[TTS] Speaking via browser fallback (${utterance.voice?.name || 'default'})`);
+          };
+
+          utterance.onend = () => { 
+            setPlayingAudioId(null); 
+            (window as any)._activeUtterance = null; 
+          };
+
+          utterance.onerror = (e) => { 
+            console.error("[TTS Fallback Error]", e);
+            setPlayingAudioId(null); 
+            (window as any)._activeUtterance = null; 
+          };
           
           // Prevent Chrome garbage collection bug
           (window as any)._activeUtterance = utterance;
@@ -92,16 +110,19 @@ export default function LessonInteractiveSession() {
         };
 
         if (window.speechSynthesis.getVoices().length === 0) {
-          window.speechSynthesis.onvoiceschanged = () => {
-            speak();
-            window.speechSynthesis.onvoiceschanged = null; // one-time listener
-          };
+          const checkVoices = setInterval(() => {
+            if (window.speechSynthesis.getVoices().length > 0) {
+              clearInterval(checkVoices);
+              speak();
+            }
+          }, 100);
+          setTimeout(() => clearInterval(checkVoices), 3000);
         } else {
           speak();
         }
         
-        // Safety timeout in case callback never fires
-        setTimeout(() => setPlayingAudioId(null), 5000);
+        // Final safety timeout if all events fail
+        setTimeout(() => setPlayingAudioId(prev => prev === qId ? null : prev), 8000);
       }
     } catch (err) {
       console.error("Critical TTS failure:", err);
@@ -129,6 +150,10 @@ export default function LessonInteractiveSession() {
         setPhase("ready");
       })
       .catch((err) => {
+          if (err.response?.status === 401 || err.response?.status === 403) {
+            // Already handled by redirection above or safe retrieval
+            return;
+          }
           if (err.response?.status === 403 && err.response?.data?.error === 'NO_ENERGY') {
             setPhase("out_of_power");
             return;
@@ -137,7 +162,7 @@ export default function LessonInteractiveSession() {
             router.push(err.response.data.redirect);
             return;
           }
-          console.error("Lesson initialization error:", err);
+          console.error("Lesson initialization failure:", err.message);
           setPhase("error");
       });
   }, [id, router]);

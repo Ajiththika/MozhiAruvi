@@ -183,7 +183,13 @@ export default function Navbar() {
           <div className="flex items-center justify-between px-6 h-20 border-b border-slate-100">
              <div className="flex items-center gap-3">
                  <div className="relative w-60 h-16 md:w-60 md:h-16">
-                  <Image src="/logo.png" alt="Logo" fill className="object-contain" />
+                  <Image
+                    src="/logo.png"
+                    alt="Logo"
+                    fill
+                    className="object-contain"
+                    sizes="(max-width: 768px) 240px, 240px"
+                  />
                 </div>
              </div>
              <button

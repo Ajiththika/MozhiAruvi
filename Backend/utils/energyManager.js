@@ -12,13 +12,14 @@ const REGEN_RATE_MS = 60 * 60 * 1000; // 1 energy per 60 minutes
  * @returns {Boolean} - Whether the user object was modified
  */
 export const regenerateEnergy = (user) => {
+  if (!user) return false;
   if (user.isPremium || (user.subscription && user.subscription.plan !== 'FREE')) {
     user.progress.energy = MAX_ENERGY;
     return false;
   }
 
   const now = Date.now();
-  const lastUpdate = new Date(user.progress.lastEnergyUpdate || now).getTime();
+  const lastUpdate = user.progress?.lastEnergyUpdate ? new Date(user.progress.lastEnergyUpdate).getTime() : now;
   const diff = now - lastUpdate;
   
   const recovered = Math.floor(diff / REGEN_RATE_MS);
@@ -27,7 +28,8 @@ export const regenerateEnergy = (user) => {
     const newEnergy = Math.min(MAX_ENERGY, (user.progress.energy || 0) + recovered);
     
     // Only update timestamp if energy actually changed or is already at max
-    if (newEnergy !== user.progress.energy) {
+    if (newEnergy !== (user.progress?.energy || 0)) {
+      if (!user.progress) user.progress = {};
       user.progress.energy = newEnergy;
       user.progress.lastEnergyUpdate = new Date(now);
       return true;
@@ -43,6 +45,7 @@ export const regenerateEnergy = (user) => {
  * @returns {Object} { canAttempt: Boolean, nextRecoveryIn: Number }
  */
 export const canAttempt = (user) => {
+  if (!user) return { canAttempt: true };
   if (user.isPremium || (user.subscription && user.subscription.plan !== 'FREE')) {
     return { canAttempt: true, energy: MAX_ENERGY };
   }
@@ -68,6 +71,7 @@ export const canAttempt = (user) => {
  * @returns {Object} Updated energy state
  */
 export const consumeEnergy = (user, isCorrect) => {
+  if (!user) return;
   if (user.isPremium || (user.subscription && user.subscription.plan !== 'FREE')) {
     return { energy: MAX_ENERGY, isPremium: true };
   }
@@ -95,6 +99,7 @@ export const consumeEnergy = (user, isCorrect) => {
  * @returns {Object} { currentEnergy, maxEnergy, isPremium, nextRecoveryIn }
  */
 export const getEnergyResponse = (user) => {
+  if (!user) return null;
   const isPremium = user.isPremium || (user.subscription && user.subscription.plan !== 'FREE');
   const now = Date.now();
   const lastUpdate = new Date(user.progress.lastEnergyUpdate || now).getTime();
@@ -107,3 +112,28 @@ export const getEnergyResponse = (user) => {
     nextRecoveryIn: (user.progress.energy || 0) >= MAX_ENERGY ? 0 : nextRecoveryIn
   };
 };
+
+/**
+ * Validates and resets user streak if they missed a day.
+ * @param {Object} user - The mongoose user document
+ * @returns {Boolean} - Whether the user object was modified
+ */
+export const validateStreak = (user) => {
+  if (!user || !user.progress || !user.progress.lastLessonDate) return false;
+  
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const lastDate = new Date(user.progress.lastLessonDate);
+  const lastMidnight = new Date(lastDate.getFullYear(), lastDate.getMonth(), lastDate.getDate());
+  
+  const diffTime = today.getTime() - lastMidnight.getTime();
+  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+  
+  // If they missed yesterday (diffDays > 1), reset streak
+  if (diffDays > 1 && user.progress.currentStreak > 0) {
+    user.progress.currentStreak = 0;
+    return true;
+  }
+  return false;
+};
+

@@ -3,6 +3,7 @@ import * as tokenService from '../services/tokenService.js';
 import { regenerateEnergy } from '../utils/energyManager.js';
 import { emitMozhiEvent } from '../events/eventEmitter.js';
 import User from '../models/User.js';
+import { getFrontendUrl } from '../utils/urlHelper.js';
 
 // ── Register ──────────────────────────────────────────────────────────────────
 export async function register(req, res, next) {
@@ -27,17 +28,28 @@ export async function login(req, res, next) {
         tokenService.setRefreshCookie(res, { raw, sessionId });
 
         // ── Smart Auth Tracking ───────────────────────────────────────────────
-        user.lastLogin = new Date();
-        await user.save();
+        try {
+            user.lastLogin = new Date();
+            await user.save();
+        } catch (saveErr) {
+            console.warn('⚠️ [Login Tracking Failure]: Could not update lastLogin.', saveErr.message);
+            // Non-blocking: we continue even if save fails
+        }
 
         emitMozhiEvent('USER_LOGIN', {
             name: user.name || 'User',
             email: user.email,
-            isNewDevice: false // Logic can be enhanced with IP checks
+            isNewDevice: false
         });
 
-        res.json({ accessToken, user: user.toSafeObject() });
-    } catch (e) { next(e); }
+        res.json({ 
+            accessToken, 
+            user: user.toSafeObject ? user.toSafeObject() : user 
+        });
+    } catch (e) { 
+        console.error('❌ [LOGIN ERROR]:', e.message, e.stack);
+        next(e); 
+    }
 }
 
 // ── Refresh ───────────────────────────────────────────────────────────────────
@@ -99,7 +111,6 @@ export async function resetPassword(req, res, next) {
     } catch (e) { next(e); }
 }
 
-// ── Google OAuth Callback ─────────────────────────────────────────────────────
 export async function googleCallback(req, res, next) {
     try {
         const user = req.user; // set by passport
@@ -108,6 +119,8 @@ export async function googleCallback(req, res, next) {
         });
         const accessToken = tokenService.signAccessToken(user, sessionId);
         tokenService.setRefreshCookie(res, { raw, sessionId });
-        res.redirect(`${process.env.FRONTEND_ORIGIN}/oauth-callback?accessToken=${accessToken}`);
+        
+        const redirectBase = getFrontendUrl(req);
+        res.redirect(`${redirectBase}/oauth-callback?accessToken=${accessToken}`);
     } catch (e) { next(e); }
 }

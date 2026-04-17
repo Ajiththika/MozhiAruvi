@@ -18,18 +18,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // 1. Instant-on: Load user from cache if hint exists
     if (authStore.hasSessionHint()) {
       const cached = authStore.getCachedUser();
       if (cached) {
         setUser(cached);
-        // We still set isLoading to false if we have a cache to show the UI immediately
-        setIsLoading(false); 
       }
-    } else {
-      // If no session hint, we are almost certainly logged out. 
-      // Show the Sign In button immediately rather than waiting for initAuth.
-      setIsLoading(false);
     }
 
     async function initAuth() {
@@ -39,8 +32,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
         if (authStore.get()) {
           const userData = await getMe();
-          setUser(userData);
-          authStore.saveUser(userData);
+          if (userData) {
+            setUser(userData);
+            authStore.saveUser(userData);
+          } else {
+            // Safe retrieval returned null -> unauthenticated
+            authStore.clear();
+            setUser(null);
+          }
         }
       } catch (error: any) {
         const status = error?.response?.status;
@@ -50,6 +49,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           // Truly unauthorized — clear session so user goes to signin
           authStore.clear();
           setUser(null);
+        } else if (status === 429) {
+          // Rate limited — do NOT clear session. Use cached user if possible.
+          const cached = authStore.getCachedUser();
+          if (cached) setUser(cached);
+          console.warn("[AUTH] Rate limit hit during init. Using cached data.");
         } else if (isNetworkError || status === 503) {
           // Backend temporarily unreachable (DB down, cold start, etc.)
           // Keep any cached user so the UI doesn't flash to login screen

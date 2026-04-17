@@ -11,17 +11,26 @@ export const checkLessonAccess = async (req, res, next) => {
         if (!req.params.id) return next();
         if (req.user?.role === 'admin') return next();
 
-        const user = await User.findById(req.user.sub).select('subscription');
-        if (!user) return res.status(401).json({ message: "User not recognized." });
+        const user = await User.findById(req.user?.sub).select('subscription');
+        if (!user) {
+            console.warn('[Access Control] User not found for ID:', req.user?.sub);
+            return res.status(401).json({ message: "User not recognized." });
+        }
 
         const lesson = await Lesson.findById(req.params.id);
-        if (!lesson) return res.status(404).json({ message: "Lesson not found" });
+        if (!lesson) {
+            console.warn('[Access Control] Lesson not found for ID:', req.params.id);
+            return res.status(404).json({ message: "Lesson not found" });
+        }
 
         const planName = user.subscription?.plan || 'FREE';
         const settings = await PlanSettings.findOne({ plan: planName });
         
         // If no settings, allow for safety or restricted logic (let's allow if settings are missing to avoid breaking app)
-        if (!settings) return next();
+        if (!settings) {
+            console.debug(`[Access Control] No PlanSettings found for plan: ${planName}. Defaulting to unrestricted.`);
+            return next();
+        }
 
         // 1. Check Level Limit
         if (settings.levelLimit && settings.levelLimit.length > 0) {
@@ -34,10 +43,10 @@ export const checkLessonAccess = async (req, res, next) => {
         }
 
         // 2. Check Category Limit (1st category free policy)
-        if (settings.categoryLimit !== null) {
+        if (settings.categoryLimit !== null && typeof settings.categoryLimit !== 'undefined') {
             // Find unique categories for the active level
             // Optimization: Get only the category field and sort by moduleNumber/orderIndex
-            const allLessons = await Lesson.find({}, 'category orderIndex').sort({ orderIndex: 1 });
+            const allLessons = await Lesson.find({}, 'category orderIndex').sort({ orderIndex: 1 }).lean();
             const categories = [...new Set(allLessons.map(l => l.category).filter(Boolean))];
             
             const allowedCategories = categories.slice(0, settings.categoryLimit);
@@ -61,9 +70,16 @@ export const checkLessonAccess = async (req, res, next) => {
 
         next();
     } catch (e) {
-        console.error('Access Control Error:', e);
-        // Fallback: Don't crash but maybe restrict?
-        res.status(500).json({ message: "Internal access server error. Please try again later." });
+        console.error('❌ [ACCESS CONTROL ERROR]:', {
+            error: e.message,
+            stack: e.stack,
+            userId: req.user?.sub,
+            lessonId: req.params.id
+        });
+        res.status(500).json({ 
+            message: "Internal access server error.", 
+            error: process.env.NODE_ENV === 'development' ? e.message : undefined 
+        });
     }
 };
 

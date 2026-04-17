@@ -21,13 +21,17 @@ export function errorHandler(err, req, res, _next) {
     }
 
     // ── Logging ───────────────────────────────────────────────────────────
-    if (process.env.NODE_ENV !== 'production' || status >= 500) {
-        console.error(`❌ [ERROR HANDLER] ${status} ${code}: ${message}`);
-        if (err.stack) console.error(err.stack);
+    if (status >= 500 || process.env.NODE_ENV !== 'production') {
+        const timestamp = new Date().toISOString();
+        console.error(`[${timestamp}] ❌ [ERROR HANDLER] ${status} ${code}: ${message}`);
+        console.error(`[${timestamp}] [PATH] ${req.method} ${req.url}`);
+        if (err.stack) {
+            console.error(`[${timestamp}] [STACK]`, err.stack);
+        }
     }
 
     // ── Production Response ───────────────────────────────────────────────
-    // Standard response pattern: success: false, error: { code, message }
+    // Standard response pattern: success: false, error: { code, message, ...details }
     res.status(status).json({
         success: false,
         error: {
@@ -35,6 +39,9 @@ export function errorHandler(err, req, res, _next) {
             message: process.env.NODE_ENV === 'production' && status === 500 
                 ? 'Internal server error. Please try again later.' 
                 : message,
+            ...(err.email && { email: err.email }), // Pass email if provided for recovery
+            ...(err.details && { details: err.details }) // Pass validation details if present
         },
     });
 }
+

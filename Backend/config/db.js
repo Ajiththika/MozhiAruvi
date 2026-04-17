@@ -21,7 +21,8 @@ export async function connectDB() {
     try {
         if (mongoose.connection.readyState >= 1) return;
         await mongoose.connect(mongoUri, options);
-        console.log('✅ [DATABASE] MongoDB Atlas connected successfully.');
+        const { host, name } = mongoose.connection;
+        console.log(`✅ [DATABASE] Connected successfully to ${host}/${name}`);
     } catch (err) {
         console.error('❌ [DATABASE] Initial Connection Failure:', err.message);
         

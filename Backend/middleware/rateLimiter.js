@@ -6,12 +6,12 @@ import rateLimit from 'express-rate-limit';
  */
 export const strictLimiter = rateLimit({
     windowMs: 60 * 60 * 1000, // 1 hour
-    max: 20, // Limit each IP to 20 requests per hour
+    max: 100, // Increased from 20 to 100
     message: {
         success: false,
         error: { 
             code: 'RATE_LIMIT_EXCEEDED', 
-            message: 'You have reached the hourly limit for AI interventions. Please try again later to ensure fair usage for all scholars.' 
+            message: 'You have reached the hourly limit for AI interventions. Please try again later.' 
         }
     },
     standardHeaders: true,
@@ -24,7 +24,7 @@ export const strictLimiter = rateLimit({
  */
 export const authLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 10,
+    max: 50, // Increased from 10 to 50 for better UX
     message: {
         success: false,
         error: { 

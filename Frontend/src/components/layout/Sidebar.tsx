@@ -80,7 +80,14 @@ export function Sidebar({ items, basePath }: SidebarProps) {
       <div className="flex h-20 items-center px-8 shrink-0">
         <Link href="/" className="flex items-center">
           <div className="relative w-60 h-16 md:w-60 md:h-16 flex-shrink-0">
-            <Image src="/logo.png" alt="Mozhi Aruvi" fill className="object-contain" />
+            <Image 
+              src="/logo.png" 
+              alt="Mozhi Aruvi" 
+              fill 
+              className="object-contain" 
+              sizes="(max-width: 768px) 240px, 240px"
+              priority
+            />
           </div>
         </Link>
       </div>
@@ -93,7 +100,13 @@ export function Sidebar({ items, basePath }: SidebarProps) {
         >
           <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-xl bg-white border border-border shadow-sm group-hover:scale-105 transition-transform">
             {user?.profilePhoto ? (
-              <Image src={user.profilePhoto} alt={user.name} fill className="object-cover" />
+              <Image 
+                src={user.profilePhoto} 
+                alt={user.name} 
+                fill 
+                className="object-cover" 
+                sizes="40px"
+              />
             ) : (
               <div className="h-full w-full flex items-center justify-center bg-primary/5">
                 <UserCircle className="h-6 w-6 text-primary/40" />

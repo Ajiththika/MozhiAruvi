@@ -83,7 +83,7 @@ export default function SubscriptionPage() {
       window.location.href = url;
     } catch (err: any) {
       console.error(err);
-      const msg = err.response?.data?.message || err.message || "Failed to initiate checkout. Please check configuration.";
+      const msg = err.response?.data?.error?.message || err.response?.data?.message || err.message || "Failed to initiate checkout. Please check configuration.";
       alert(msg);
     } finally {
       setLoadingPlan(null);

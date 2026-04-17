@@ -1,4 +1,5 @@
 import Stripe from 'stripe';
+import { getFrontendUrl } from '../utils/urlHelper.js';
 
 const STRIPE_KEY = process.env.STRIPE_SECRET_KEY;
 
@@ -37,7 +38,7 @@ export async function getOrCreateCustomer(user) {
 /**
  * Creates a Checkout Session for Subscription.
  */
-export async function createSubscriptionSession(user, priceId, planName, cycle, seats) {
+export async function createSubscriptionSession(user, priceId, planName, cycle, seats, req) {
   if (!STRIPE_KEY || STRIPE_KEY.includes('dummy')) {
      throw new Error('Stripe API Key is not configured. Please add STRIPE_SECRET_KEY to your .env file.');
   }
@@ -68,8 +69,8 @@ export async function createSubscriptionSession(user, priceId, planName, cycle, 
       billingCycle: cycle,
       ...(seats ? { seats: String(seats) } : {}) // Ensure seats is a string
     },
-    success_url: `${process.env.FRONTEND_ORIGIN}/student/subscription/success?session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${process.env.FRONTEND_ORIGIN}/student/subscription`,
+    success_url: `${getFrontendUrl(req)}/student/subscription/success?session_id={CHECKOUT_SESSION_ID}`,
+    cancel_url: `${getFrontendUrl(req)}/student/subscription`,
   };
 
   // Only apply trial if user has NOT used it before
@@ -85,7 +86,7 @@ export async function createSubscriptionSession(user, priceId, planName, cycle, 
 /**
  * Create a Checkout Session for One-time Payment (Event or Tutor Class)
  */
-export async function createPaymentSession(user, amount, type, metadata) {
+export async function createPaymentSession(user, amount, type, metadata, req) {
   const customerId = await getOrCreateCustomer(user);
 
   return await stripe.checkout.sessions.create({
@@ -110,8 +111,33 @@ export async function createPaymentSession(user, amount, type, metadata) {
        type,
        ...metadata
     },
-    success_url: `${process.env.FRONTEND_ORIGIN}/${metadata.successPath}?session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${process.env.FRONTEND_ORIGIN}/${metadata.cancelPath}`,
+    success_url: `${getFrontendUrl(req)}/${metadata.successPath}?session_id={CHECKOUT_SESSION_ID}`,
+    cancel_url: `${getFrontendUrl(req)}/${metadata.cancelPath}`,
+  });
+}
+
+/**
+ * Cancel an active Stripe subscription.
+ */
+export async function cancelSubscription(subscriptionId) {
+  return await stripe.subscriptions.update(subscriptionId, {
+    cancel_at_period_end: true,
+  });
+}
+
+/**
+ * Upgrade an active Stripe subscription to a new price.
+ */
+export async function upgradeSubscription(subscriptionId, newPriceId, metadata) {
+  return await stripe.subscriptions.update(subscriptionId, {
+    items: [{
+      id: (await stripe.subscriptions.retrieve(subscriptionId)).items.data[0].id,
+      price: newPriceId,
+    }],
+    metadata: {
+      ...metadata
+    },
+    proration_behavior: 'always_invoice', // Invoice immediately for the difference
   });
 }
 

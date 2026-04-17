@@ -13,7 +13,7 @@ export function getRoleDashboardRoute(role: string, tutorStatus?: string): strin
     case "admin":
       return "/admin/dashboard";
     default:
-      return "/auth/signin";
+      return "/student/dashboard";
   }
 }
 

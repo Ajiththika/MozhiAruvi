@@ -224,7 +224,7 @@ export interface MentorApplication {
 }
 
 /** Submit a new mentor application */
-export async function submitTutorApplication(payload: any): Promise<MentorApplication> {
+export async function submitTutorApplication(payload: MentorApplicationPayload): Promise<MentorApplication> {
   const res = await api.post<{ application: MentorApplication }>("/tutors/apply", payload);
   return res.data.application;
 }
@@ -234,8 +234,9 @@ export async function getMyMentorApplication(): Promise<MentorApplication | null
   try {
     const res = await api.get<{ application: MentorApplication | null }>("/tutors/application/me");
     return res.data.application;
-  } catch (error: any) {
-    if (error.response?.status === 404) return null;
+  } catch (error: unknown) {
+    const err = error as { response?: { status: number } };
+    if (err.response?.status === 404) return null;
     throw error;
   }
 }
@@ -247,14 +248,14 @@ export async function getTutorApplicationsAdmin(): Promise<MentorApplication[]> 
 }
 
 /** Admin: Approve application */
-export async function approveTutorApplication(id: string): Promise<any> {
-    const res = await api.patch(`/admin/tutors/${id}/approve`);
+export async function approveTutorApplication(id: string): Promise<{ success: boolean; message: string }> {
+    const res = await api.patch<{ success: boolean; message: string }>(`/admin/tutors/${id}/approve`);
     return res.data;
 }
 
 /** Admin: Reject application */
-export async function rejectTutorApplication(id: string, adminNotes?: string): Promise<any> {
-    const res = await api.patch(`/admin/tutors/${id}/reject`, { adminNotes });
+export async function rejectTutorApplication(id: string, adminNotes?: string): Promise<{ success: boolean; message: string }> {
+    const res = await api.patch<{ success: boolean; message: string }>(`/admin/tutors/${id}/reject`, { adminNotes });
     return res.data;
 }
 

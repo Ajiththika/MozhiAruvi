@@ -134,9 +134,16 @@ export async function getDashboardData(): Promise<DashboardData> {
   return res.data;
 }
 
-export async function getMe(): Promise<SafeUser> {
-  const res = await api.get<{ user: SafeUser }>("/auth/me");
-  return res.data.user;
+export async function getMe(): Promise<SafeUser | null> {
+  try {
+    const res = await api.get<{ user: SafeUser }>("/auth/me");
+    return res.data.user;
+  } catch (error: any) {
+    if (error.response?.status === 401 || error.response?.status === 403) {
+      return null;
+    }
+    throw error;
+  }
 }
 
 export async function completeOnboarding(data: {

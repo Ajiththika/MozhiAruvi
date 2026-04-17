@@ -257,7 +257,7 @@ export default function TeacherRequestsPage() {
                          <button
                            onClick={() => handleStatusUpdate(r._id, "accept")}
                            disabled={submitting === r._id}
-                           className="flex w-full items-center justify-center gap-3 rounded-[1.5rem] bg-white py-5 text-xs font-bold text-white shadow-2xl transition-all hover:bg-emerald-600 active:scale-95 disabled:opacity-50"
+                           className="flex w-full items-center justify-center gap-3 rounded-[1.5rem] bg-emerald-600 py-5 text-xs font-bold text-white shadow-xl shadow-emerald-200/50 transition-all hover:bg-emerald-700 active:scale-95 disabled:opacity-50"
                          >
                             <CheckCircle className="h-5 w-5" />
                             Accept Request
@@ -292,7 +292,7 @@ export default function TeacherRequestsPage() {
                         <button
                           onClick={() => handleReply(r._id)}
                           disabled={submitting === r._id || !replies[r._id]?.trim()}
-                          className="flex w-full items-center justify-center gap-3 rounded-[1.5rem] bg-primary py-5 text-sm font-bold text-white shadow-xl shadow-primary/20 hover:bg-white disabled:opacity-50 transition-all active:scale-95"
+                          className="flex w-full items-center justify-center gap-3 rounded-[1.5rem] bg-primary py-5 text-sm font-bold text-white shadow-xl shadow-primary/20 hover:shadow-primary/40 disabled:opacity-50 transition-all active:scale-95"
                         >
                            {submitting === r._id ? <Loader2 className="h-5 w-5 animate-spin" /> : <Send className="h-5 w-5" />}
                            {r.status === "replied" ? "Send Follow-up" : "Submit Interaction"}

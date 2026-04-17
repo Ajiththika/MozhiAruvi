@@ -66,9 +66,10 @@ function CheckoutContent() {
       setLoading(true);
       const { url } = await createSubscriptionSession(planId as any, cycle as any, seats);
       window.location.href = url;
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      alert("Something went wrong with the secure gateway. Please retry.");
+      const msg = err.response?.data?.error?.message || err.response?.data?.message || "Something went wrong with the secure gateway. Please retry.";
+      alert(msg);
     } finally {
       setLoading(false);
     }

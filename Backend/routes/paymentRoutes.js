@@ -11,5 +11,7 @@ router.get('/verify-session', authenticate, paymentController.verifySubscription
 // One-time payments
 router.post('/create-event-payment', authenticate, paymentController.createEventPaymentSession);
 router.post('/create-tutor-payment', authenticate, paymentController.createTutorPaymentSession);
+router.post('/cancel-subscription', authenticate, paymentController.cancelSubscription);
+router.post('/upgrade-subscription', authenticate, paymentController.upgradeSubscription);
 
 export default router;
