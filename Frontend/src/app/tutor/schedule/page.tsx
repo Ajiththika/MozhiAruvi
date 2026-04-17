@@ -156,6 +156,21 @@ export default function TutorSchedulePage() {
                 {/* Actions */}
                 <div className="flex flex-col sm:flex-row items-center gap-4">
                    <button 
+                     onClick={async () => {
+                        try {
+                          const { declineBooking: apiCancel } = await import("@/services/bookingService");
+                          await apiCancel(booking._id);
+                          setBookings(prev => prev.filter(b => b._id !== booking._id));
+                        } catch (e) {
+                          console.error("Cancel Error:", e);
+                        }
+                     }}
+                     className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-red-400 hover:text-red-600 transition-all active:scale-95 px-6 py-3 rounded-xl border border-red-50 hover:bg-red-50"
+                   >
+                      <XCircle className="h-4 w-4" /> Cancel Session
+                   </button>
+
+                   <button 
                      onClick={() => {
                         setEditingId(booking._id);
                         setNewDate(new Date(booking.date).toISOString().split('T')[0]);
@@ -176,6 +191,7 @@ export default function TutorSchedulePage() {
                       <Video className="h-4 w-4" /> 
                       {booking.meetingLink ? "Update Link" : "Share Meet Link"}
                    </button>
+
                 </div>
              </div>
            ))}

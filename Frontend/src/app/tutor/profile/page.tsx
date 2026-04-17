@@ -91,12 +91,13 @@ export default function TutorProfileSettings() {
           <Button 
             onClick={() => setIsEditing(true)}
             variant="secondary" 
-            size="xl" 
-            className="rounded-2xl px-10 shadow-lg shadow-secondary/20 group translate-y-[-10px]"
+            size="md" 
+            className="rounded-xl px-6 shadow-lg shadow-secondary/20 group"
           >
-            <Edit3 className="h-4 w-4 mr-3 group-hover:rotate-12 transition-transform" />
-            Customize Desk
+            <Edit3 className="h-4 w-4 mr-2 group-hover:rotate-12 transition-transform" />
+            Edit
           </Button>
+
         </div>
       </div>
 
@@ -148,61 +149,18 @@ export default function TutorProfileSettings() {
                    </div>
                 </div>
               </div>
-           </div>
+            </div>
+          </div>
 
-           <div className="rounded-2xl bg-white p-8 border border-border shadow-sm">
-              <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/60 mb-6">Expertise Overview</h4>
-              <div className="space-y-5">
-                 <div className="flex items-center gap-4">
-                    <div className="h-10 w-10 rounded-xl bg-surface-soft flex items-center justify-center text-primary">
-                       <Briefcase className="h-4 w-4" />
-                    </div>
-                    <div>
-                       <p className="text-[10px] font-black text-primary/60 uppercase tracking-widest leading-none mb-1">Specialization</p>
-                       <p className="text-sm font-bold text-slate-800">{user.specialization || "General Mentor"}</p>
-                    </div>
-                 </div>
-                 <div className="flex items-center gap-4">
-                    <div className="h-10 w-10 rounded-xl bg-surface-soft flex items-center justify-center text-secondary">
-                       <GraduationCap className="h-4 w-4" />
-                    </div>
-                    <div>
-                       <p className="text-[10px] font-black text-primary/60 uppercase tracking-widest leading-none mb-1">Experience</p>
-                       <p className="text-sm font-bold text-slate-800">{user.experience || "Native Speaker"}</p>
-                    </div>
-                 </div>
-              </div>
-           </div>
 
-           <div className="rounded-2xl bg-white p-8 border border-border shadow-sm">
-              <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/60 mb-6">Weekly Teaching Schedule</h4>
-              {user.weeklySchedule ? (
-                 <div className="flex items-start gap-4">
-                    <div className="h-10 w-10 rounded-xl bg-surface-soft flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-all">
-                       <Clock className="h-4 w-4" />
-                    </div>
-                    <div>
-                       <p className="text-[10px] font-black text-primary/60 uppercase tracking-widest leading-none mb-1">Operating Hours</p>
-                       <p className="text-sm font-bold text-slate-800">{user.weeklySchedule}</p>
-                    </div>
+         {/* ── PROFESSIONAL BACKGROUND ─────────────────────────────────────────── */}
+         <div className="lg:col-span-2 space-y-8">
+            <div className="rounded-2xl bg-white p-10 border border-border shadow-sm min-h-[400px]">
+               <div className="flex items-center gap-4 mb-8">
+                 <div className="h-12 w-12 rounded-2xl bg-primary/5 flex items-center justify-center text-primary">
+                    <Briefcase className="h-5 w-5" />
                  </div>
-              ) : (
-                 <div className="text-center py-4 space-y-2">
-                    <Clock className="h-8 w-8 text-slate-200 mx-auto" />
-                    <p className="text-[10px] font-bold text-slate-400 italic">No specific hours set yet.</p>
-                 </div>
-              )}
-           </div>
-        </div>
-
-        {/* ── PROFESSIONAL BACKGROUND ─────────────────────────────────────────── */}
-        <div className="lg:col-span-2 space-y-8">
-           <div className="rounded-2xl bg-white p-10 border border-border shadow-sm min-h-[400px]">
-              <div className="flex items-center gap-4 mb-8">
-                <div className="h-12 w-12 rounded-2xl bg-primary/5 flex items-center justify-center text-primary">
-                   <Briefcase className="h-5 w-5" />
-                </div>
-                <h3 className="text-2xl font-black tracking-tight text-primary">Academic & Teaching Bio</h3>
+                 <h3 className="text-2xl font-black tracking-tight text-primary">Academic & Teaching Bio</h3>
               </div>
               
               <div className="space-y-8">

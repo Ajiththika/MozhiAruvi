@@ -20,3 +20,13 @@ export async function verifySubscriptionSession(sessionId: string) {
   return res.data;
 }
 
+export async function cancelSubscription() {
+  const res = await api.post<{ message: string }>("/payments/cancel-subscription");
+  return res.data;
+}
+
+export async function upgradeSubscription(plan: 'PRO' | 'PREMIUM', cycle: 'monthly' | 'yearly') {
+  const res = await api.post<{ message: string, user: any }>("/payments/upgrade-subscription", { plan, cycle });
+  return res.data;
+}
+

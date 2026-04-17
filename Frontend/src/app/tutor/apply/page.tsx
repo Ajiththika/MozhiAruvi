@@ -35,10 +35,26 @@ export default function TutorApplicationPage() {
         email: user.email || "",
       }));
 
+      // If they are already a teacher or admin, send them to their dashboard
+      if (user.role === "teacher" || user.role === "mentor") {
+        router.push("/tutor/dashboard");
+        return;
+      }
+      if (user.role === "admin") {
+        router.push("/admin/dashboard");
+        return;
+      }
+
       // If they already have a tutor status, redirect them away
       if (user.tutorStatus === "pending" || user.tutorStatus === "approved" || user.tutorStatus === "rejected") {
-        router.push("/tutor/apply/status");
+        if (user.tutorStatus === "approved") {
+          router.push("/tutor/dashboard");
+        } else {
+          router.push("/tutor/apply/status");
+        }
       }
+
+
     }
   }, [user, router]);
 

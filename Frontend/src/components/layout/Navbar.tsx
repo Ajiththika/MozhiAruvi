@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import {
   User as UserIcon,
@@ -25,8 +25,34 @@ export default function Navbar() {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const router = useRouter();
+  const profileRef = useRef<HTMLDivElement>(null);
+
+  // Auto-close logic for profile menu
+  useEffect(() => {
+    const handleEvents = (event: Event) => {
+      // Check if click was outside the ref
+      if (isProfileOpen && profileRef.current && !profileRef.current.contains(event.target as Node)) {
+        setIsProfileOpen(false);
+      }
+      // Always close on scroll
+      if (isProfileOpen && event.type === 'scroll') {
+        setIsProfileOpen(false);
+      }
+    };
+
+    if (isProfileOpen) {
+      window.addEventListener("mousedown", handleEvents);
+      window.addEventListener("scroll", handleEvents, true); // true for capture to catch all scrolls
+    }
+
+    return () => {
+      window.removeEventListener("mousedown", handleEvents);
+      window.removeEventListener("scroll", handleEvents, true);
+    };
+  }, [isProfileOpen]);
 
   const handleLogout = async () => {
+
     await logoutUser();
     router.push("/");
   };
@@ -34,10 +60,11 @@ export default function Navbar() {
   const getDashboardLink = () => getRoleDashboardRoute(user?.role ?? "student", user?.tutorStatus);
 
   const getProfileLink = () => {
-    if (user?.role === "admin") return "/admin";
-    if (user?.role === "teacher") return "/tutor/profile";
+    if (user?.role === "admin") return "/admin/profile";
+    if (user?.role === "teacher" || user?.role === "tutor") return "/tutor/profile";
     return "/student/profile";
   };
+
 
   const navLinks = [
     { label: "Lessons", href: "/lessons" },
@@ -106,7 +133,7 @@ export default function Navbar() {
                 </button>
 
                 {isProfileOpen && (
-                  <>
+                  <div ref={profileRef}>
                     <div className="absolute right-0 mt-4 w-64 bg-white border border-slate-100 rounded-[1.5rem] shadow-2xl py-2 z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
                       <div className="px-6 py-5 border-b border-slate-100 bg-slate-50/50">
                         <p className="text-sm font-black text-slate-900 truncate">
@@ -135,7 +162,44 @@ export default function Navbar() {
                           <LayoutDashboard size={18} className="text-primary/40 group-hover:text-primary transition-colors" />
                           Dashboard
                         </Link>
+
+                        {user?.isPremium && (
+                          <Link
+                            href="/student/premium"
+                            onClick={() => setIsProfileOpen(false)}
+                            className="group flex items-center gap-3 px-6 py-4 text-xs text-slate-700 font-bold uppercase tracking-widest hover:bg-slate-50 hover:text-primary transition-all"
+                          >
+                            <Award size={18} className="text-amber-400 group-hover:text-amber-500 transition-colors" />
+                            Manage Plan
+                          </Link>
+                        )}
                       </div>
+
+                      {/* Upgrade Plan Block (ChatGPT Style) */}
+                      {!user?.isPremium && (
+                        <div className="px-4 py-3">
+                          <Link
+                            href="/student/premium"
+                            onClick={() => setIsProfileOpen(false)}
+                            className="group relative block w-full overflow-hidden rounded-2xl p-4 transition-all hover:scale-[1.02] active:scale-100"
+                          >
+                            {/* Gradient Background */}
+                            <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary-dark to-slate-900 opacity-90 group-hover:opacity-100 transition-opacity" />
+                            
+                            {/* Content */}
+                            <div className="relative flex items-center gap-4">
+                              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/20 backdrop-blur-md shadow-xl border border-white/20">
+                                <Award className="h-5 w-5 text-white animate-pulse" />
+                              </div>
+                              <div className="flex-1 text-left">
+                                <p className="text-[11px] font-black uppercase tracking-widest text-white/70">Subscription</p>
+                                <p className="text-sm font-black text-white tracking-tight">Upgrade Plan</p>
+                              </div>
+                              <ArrowRight className="h-4 w-4 text-white/50 group-hover:text-white group-hover:translate-x-1 transition-all" />
+                            </div>
+                          </Link>
+                        </div>
+                      )}
 
                       <div className="border-t border-slate-100 mx-4 my-2"></div>
                       <button
@@ -146,9 +210,8 @@ export default function Navbar() {
                         Sign Out
                       </button>
                     </div>
-                    {/* Backdrop for profile menu */}
-                    <div className="fixed inset-0 z-40 bg-transparent" onClick={() => setIsProfileOpen(false)} />
-                  </>
+                  </div>
+
                 )}
               </div>
             ) : (
@@ -161,6 +224,7 @@ export default function Navbar() {
                 Sign In
               </Button>
             )}
+
 
             {/* Mobile Menu Button */}
             <button

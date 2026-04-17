@@ -43,6 +43,12 @@ export function MatchingPairs({ question: q, onResult, isCorrect, questionNumber
   }, [activePairs]);
 
   useEffect(() => {
+    if (matched.size > 0 && matched.size === activePairs.length * 2) {
+      onResult(true);
+    }
+  }, [matched.size, activePairs.length, onResult]);
+
+  useEffect(() => {
     if (selectedLeft && selectedRight) {
       const isMatch = activePairs.some(p => p.left === selectedLeft && p.right === selectedRight);
       if (isMatch) {
@@ -50,10 +56,6 @@ export function MatchingPairs({ question: q, onResult, isCorrect, questionNumber
           const next = new Set(prev);
           next.add(selectedLeft);
           next.add(selectedRight);
-          
-          if (next.size === activePairs.length * 2) {
-            onResult(true);
-          }
           return next;
         });
         setSelectedLeft(null);
@@ -67,7 +69,8 @@ export function MatchingPairs({ question: q, onResult, isCorrect, questionNumber
         }, 1000);
       }
     }
-  }, [selectedLeft, selectedRight, activePairs, onResult]);
+  }, [selectedLeft, selectedRight, activePairs]);
+
 
   return (
     <div className="flex flex-col items-center gap-16 w-full max-w-4xl animate-in slide-in-from-bottom-8 duration-700">

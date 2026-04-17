@@ -91,7 +91,7 @@ export default function StudentDashboard() {
         </div>
         <div className="max-w-3xl">
           <h1 className="text-xl md:text-2xl font-black text-primary tracking-tight leading-tight flex items-center gap-3">
-            Vanakkam, {user?.name?.split(" ")[0]}!
+            Hello, {user?.name?.split(" ")[0]}!
             {user?.subscription?.plan && user.subscription.plan !== 'FREE' && (
               <span className={cn(
                 "px-2 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-tighter border shadow-sm",

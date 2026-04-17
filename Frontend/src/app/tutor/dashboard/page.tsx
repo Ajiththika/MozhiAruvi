@@ -31,7 +31,10 @@ export default function TutorDashboard() {
         setIsAvailable(u.isTutorAvailable ?? false);
         setPendingQs(qs.filter((q) => q.status === "pending" || q.status === "accepted"));
         setEvents(evs.filter(e => e.date >= today));
-        setBookings(bks.bookings || []);
+        // Only show pending or confirmed bookings on the main dashboard
+        const filteredBookings = (bks.bookings || []).filter((b: Booking) => b.status === "pending" || b.status === "confirmed");
+        setBookings(filteredBookings);
+
       })
       .catch(() => setError("Could not load dashboard data."))
       .finally(() => setLoading(false));
@@ -189,7 +192,7 @@ export default function TutorDashboard() {
                                   await apiAccept(booking._id);
                                   setBookings(prev => prev.map(b => b._id === booking._id ? { ...b, status: 'confirmed' } : b));
                                 } catch (e) {
-                                  alert("Failed to accept booking.");
+                                  console.error("Booking Accept Error:", e);
                                 }
                               }}
                             >
@@ -200,14 +203,12 @@ export default function TutorDashboard() {
                               size="sm" 
                               className="px-8 h-12 border-red-200 text-red-500 hover:bg-red-50 hover:border-red-300"
                               onClick={async () => {
-                                if (confirm("Are you sure you want to decline this request?")) {
-                                  try {
-                                    const { declineBooking: apiDecline } = await import("@/services/bookingService");
-                                    await apiDecline(booking._id);
-                                    setBookings(prev => prev.filter(b => b._id !== booking._id));
-                                  } catch (e) {
-                                    alert("Failed to decline booking.");
-                                  }
+                                try {
+                                  const { declineBooking: apiDecline } = await import("@/services/bookingService");
+                                  await apiDecline(booking._id);
+                                  setBookings(prev => prev.filter(b => b._id !== booking._id));
+                                } catch (e) {
+                                  console.error("Booking Decline Error:", e);
                                 }
                               }}
                             >

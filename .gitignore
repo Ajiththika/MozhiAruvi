@@ -1,0 +1,16 @@
+# Google Credentials
+google-credentials.json
+Backend/google-credentials.json
+
+# Environment variables
+.env
+Backend/.env
+Frontend/.env
+
+# Dependencies
+node_modules/
+Backend/node_modules/
+Frontend/node_modules/
+
+# Logs
+*.log

@@ -104,7 +104,7 @@ export function Button({
           ></path>
         </svg>
       )}
-      <span className="flex items-center gap-2">{children}</span>
+      <span className="flex items-center gap-2 text-inherit">{children}</span>
     </button>
   );
 }

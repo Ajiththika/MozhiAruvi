@@ -24,6 +24,7 @@ export default function PlatformChat() {
   const [loading, setLoading] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const chatRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<any>(null);
 
   // Auto-scroll logic
@@ -32,6 +33,35 @@ export default function PlatformChat() {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [chatHistory]);
+
+  // Auto-close logic for chat panel
+  useEffect(() => {
+    const handleEvents = (event: Event) => {
+      // Check if click was outside the chat container
+      if (isOpen && chatRef.current && !chatRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+      // Always close on scroll of the MAIN window (not the chat message box)
+      if (isOpen && event.type === 'scroll') {
+        const target = event.target as HTMLElement;
+        // If the scroll is NOT coming from our message list, close the chat
+        if (target !== scrollRef.current) {
+          setIsOpen(false);
+        }
+      }
+    };
+
+    if (isOpen) {
+      window.addEventListener("mousedown", handleEvents);
+      window.addEventListener("scroll", handleEvents, true);
+    }
+
+    return () => {
+      window.removeEventListener("mousedown", handleEvents);
+      window.removeEventListener("scroll", handleEvents, true);
+    };
+  }, [isOpen]);
+
 
   // Handle Speech Recognition
   useEffect(() => {
@@ -123,7 +153,7 @@ export default function PlatformChat() {
   }, [message, loading, chatHistory, isListening]);
 
   return (
-    <div className="fixed bottom-8 right-8 z-[9999] font-sans">
+    <div ref={chatRef} className="fixed bottom-8 right-8 z-[9999] font-sans">
       {/* Floating Entry Bubble */}
       <button
         onClick={() => setIsOpen(!isOpen)}

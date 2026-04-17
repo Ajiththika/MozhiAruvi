@@ -1,13 +1,13 @@
 "use client";
 
 import React, { useState } from "react";
-import { Check, Star, Zap, ShieldCheck, Users, Sparkles, Loader2, Crown, ArrowRight, Activity, Building, Briefcase } from "lucide-react";
+import { Check, Star, Zap, ShieldCheck, Users, Sparkles, Loader2, Crown, ArrowRight, Activity, Building, Briefcase, XCircle, Settings2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
 import { cn } from "@/lib/utils";
-import { createSubscriptionSession } from "@/services/paymentService";
-import { useQuery } from "@tanstack/react-query";
+import { createSubscriptionSession, cancelSubscription, upgradeSubscription } from "@/services/paymentService";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getDashboardData } from "@/services/authService";
 
 const FEATURES = [
@@ -26,6 +26,7 @@ export default function StudentPremiumPage() {
   const [selectedTier, setSelectedTier] = useState<'pro' | 'premium'>('pro');
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
+  const queryClient = useQueryClient();
 
   const { data: userStats } = useQuery({
     queryKey: ["student", "dashboard"],
@@ -33,11 +34,40 @@ export default function StudentPremiumPage() {
   });
 
   const currentPlan = userStats?.user?.subscription?.plan || 'FREE';
+  const hasEverPaid = currentPlan !== 'FREE';
 
-  const handleUpgrade = (planId: 'PRO' | 'PREMIUM' | 'BUSINESS', seats?: number) => {
-    // We navigate to our custom checkout page first to give a premium confirm experience
-    // like the user requested. The checkout page then handles the Stripe redirect.
-    router.push(`/student/checkout?plan=${planId}&cycle=${billingCycle}&seats=${seats || 0}`);
+  const handleUpgrade = async (planId: 'PRO' | 'PREMIUM' | 'BUSINESS', seats?: number) => {
+    try {
+      setLoadingPlan(planId);
+      
+      if (hasEverPaid && planId !== 'BUSINESS') {
+        // Instant Upgrade for verified users
+        await upgradeSubscription(planId as any, billingCycle);
+        alert(`Successfully upgraded to ${planId}!`);
+        queryClient.invalidateQueries({ queryKey: ["student", "dashboard"] });
+      } else {
+        // Traditional Flow
+        router.push(`/student/checkout?plan=${planId}&cycle=${billingCycle}&seats=${seats || 0}`);
+      }
+    } catch (err: any) {
+      alert(err.response?.data?.message || "Failed to process upgrade.");
+    } finally {
+      setLoadingPlan(null);
+    }
+  };
+
+  const handleCancelClick = async () => {
+    if (!confirm("Are you sure you want to cancel your subscription? You will keep your benefits until expiration.")) return;
+    try {
+      setLoadingPlan('CANCEL');
+      await cancelSubscription();
+      alert("Subscription will be cancelled at the end of the current period.");
+      queryClient.invalidateQueries({ queryKey: ["student", "dashboard"] });
+    } catch (e: any) {
+      alert("Failed to cancel subscription.");
+    } finally {
+      setLoadingPlan(null);
+    }
   };
 
   const isMonthly = billingCycle === 'monthly';
@@ -79,9 +109,9 @@ export default function StudentPremiumPage() {
                 )}
               >
                  <ShieldCheck className={cn("h-6 w-6", selectedTier === 'pro' ? "text-white" : "text-primary")} />
-                 <div className="text-left">
-                    <p className="text-[10px] font-bold uppercase tracking-widest">Tier One</p>
-                    <p className="text-lg font-black tracking-tight">Pro Discovery</p>
+                  <div className="text-left">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-inherit">Tier One</p>
+                    <p className="text-lg font-black tracking-tight text-inherit">Pro Discovery</p>
                  </div>
                  {selectedTier === 'pro' && <div className="absolute -top-3 -right-3 bg-emerald-500 text-white rounded-full p-1.5 shadow-lg"><Check className="w-3 h-3 stroke-[4]" /></div>}
               </button>
@@ -96,9 +126,9 @@ export default function StudentPremiumPage() {
                 )}
               >
                  <Crown className={cn("h-6 w-6", selectedTier === 'premium' ? "text-amber-500 fill-current" : "text-amber-500")} />
-                 <div className="text-left">
-                    <p className="text-[10px] font-bold uppercase tracking-widest">Tier Two</p>
-                    <p className="text-lg font-black tracking-tight">Premium Mastery</p>
+                  <div className="text-left">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-inherit">Tier Two</p>
+                    <p className="text-lg font-black tracking-tight text-inherit">Premium Mastery</p>
                  </div>
                  {selectedTier === 'premium' && <div className="absolute -top-3 -right-3 bg-emerald-500 text-white rounded-full p-1.5 shadow-lg"><Check className="w-3 h-3 stroke-[4]" /></div>}
               </button>
@@ -174,28 +204,43 @@ export default function StudentPremiumPage() {
                    </div>
                 ))}
              </div>
-              <div className="mt-auto">
-                {!userStats?.user?.hasUsedTrial && (
-                   <p className="text-[10px] font-bold text-emerald-600 mb-4 uppercase tracking-tighter text-center">
-                     You will not be charged for the first 7 days
-                   </p>
+              <div className="mt-auto space-y-3">
+                {currentPlan === selectedTier.toUpperCase() ? (
+                   <div className="flex flex-col gap-3">
+                     <Button 
+                       variant="primary"
+                       className="w-full py-7 rounded-2xl text-[10px] items-center gap-3 bg-emerald-500 hover:bg-emerald-600 shadow-emerald-500/20"
+                       disabled
+                     >
+                        <Settings2 className="w-4 h-4" /> Current Version
+                     </Button>
+                     <Button 
+                       variant="outline"
+                       className="w-full py-5 rounded-2xl text-[9px] border-red-100 text-red-500 hover:bg-red-50 hover:border-red-200 gap-2 font-black"
+                       onClick={handleCancelClick}
+                       disabled={loadingPlan === 'CANCEL'}
+                     >
+                        {loadingPlan === 'CANCEL' ? <Loader2 className="w-4 h-4 animate-spin" /> : <XCircle className="w-4 h-4" />} Cancel Subscription
+                     </Button>
+                   </div>
+                ) : (
+                  <Button 
+                    onClick={() => handleUpgrade(selectedTier.toUpperCase() as any)}
+                    className={cn(
+                      "w-full py-7 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-2xl transition-all",
+                      selectedTier === 'pro' ? "bg-primary shadow-primary/25" : "bg-slate-900 shadow-slate-900/25"
+                    )}
+                    disabled={!!loadingPlan}
+                  >
+                     {loadingPlan === selectedTier.toUpperCase() ? (
+                       <Loader2 className="animate-spin text-white" />
+                     ) : (
+                       hasEverPaid 
+                         ? "Upgrade Version" 
+                         : (!userStats?.user?.hasUsedTrial ? "Start 7 Days Free Trial" : "Empower Myself")
+                     )}
+                  </Button>
                 )}
-                <Button 
-                  onClick={() => handleUpgrade(selectedTier.toUpperCase() as any)}
-                  className={cn(
-                    "w-full py-7 rounded-2xl text-xs font-bold uppercase tracking-widest shadow-2xl transition-all",
-                    selectedTier === 'pro' ? "bg-primary shadow-primary/25" : "bg-slate-900 shadow-slate-900/25"
-                  )}
-                  disabled={currentPlan === selectedTier.toUpperCase() || !!loadingPlan}
-                >
-                   {loadingPlan === selectedTier.toUpperCase() ? (
-                     <Loader2 className="animate-spin" />
-                   ) : (
-                     currentPlan === selectedTier.toUpperCase() 
-                       ? "Current Plan" 
-                       : (!userStats?.user?.hasUsedTrial ? "Start 7 Days Free Trial" : "Empower Myself")
-                   )}
-                </Button>
               </div>
            </Card>
 
