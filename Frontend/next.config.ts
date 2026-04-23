@@ -5,9 +5,9 @@ const nextConfig: NextConfig = {
     // reactCompiler: true,
   },
   async rewrites() {
-    let rawUrl = process.env.BACKEND_URL || process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+    let rawUrl = process.env.BACKEND_URL || process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:5000";
     if (rawUrl.startsWith("/")) {
-       rawUrl = "http://localhost:5000";
+       rawUrl = "http://127.0.0.1:5000";
     }
     const backendBase = rawUrl.replace(/\/api\/?$/, "");
     return [

@@ -7,14 +7,17 @@ import mongoose from 'mongoose';
 
 export async function connectDB() {
     const options = {
-        serverSelectionTimeoutMS: 15000, // Wait 15s before saying DB is gone
+        serverSelectionTimeoutMS: 5000, // Reduced from 15s for faster feedback
         connectTimeoutMS: 10000,
-        maxPoolSize: 10, // Maintain pool size
-        socketTimeoutMS: 45000, // Close sockets after 45s if no activity
-        family: 4, // Force IPv4 to avoid resolution issues (Atlas common pitfall)
+        maxPoolSize: 10,
+        socketTimeoutMS: 45000,
+        family: 4, 
         retryWrites: true,
         w: 'majority',
     };
+
+    mongoose.set('bufferCommands', false);
+    mongoose.set('strictQuery', false);
 
     const mongoUri = process.env.MONGODB_URI;
 

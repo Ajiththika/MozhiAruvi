@@ -7,6 +7,7 @@
 
 import { api } from "@/lib/api";
 import { authStore } from "@/lib/authStore";
+import { AxiosError } from "axios";
 import { Lesson, Progress } from "./lessonService";
 import { JoinRequest } from "./eventService";
 import { Blog } from "./blogService";
@@ -138,7 +139,7 @@ export async function getMe(): Promise<SafeUser | null> {
   try {
     const res = await api.get<{ user: SafeUser }>("/auth/me");
     return res.data.user;
-  } catch (error: any) {
+  } catch (error: AxiosError | any) {
     if (error.response?.status === 401 || error.response?.status === 403) {
       return null;
     }

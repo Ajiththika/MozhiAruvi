@@ -14,7 +14,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // ── Read operations ───────────────────────────────────────────────────────────
-export async function listLessons(req, res, next) {
+export async function listLessons(req, res, _next) {
     try {
         if (req.user) {
             const user = await User.findById(req.user.sub);
@@ -29,7 +29,7 @@ export async function listLessons(req, res, next) {
         res.json({ lessons, progress });
     } catch (e) { 
         console.error('❌ [LIST LESSONS ERROR]:', e.message, e.stack);
-        next(e); 
+        _next(e); 
     }
 }
 
@@ -307,7 +307,7 @@ export async function evaluateSpeaking(req, res, next) {
             if (speechClient) {
                 const [sttResponse] = await speechClient.recognize({
                     config: {
-                        encoding: 'OGG_OPUS',
+                        encoding: 'WEBM_OPUS',
                         sampleRateHertz: 48000,
                         languageCode: 'ta-IN',
                         enableAutomaticPunctuation: true,
@@ -344,7 +344,7 @@ export async function evaluateSpeaking(req, res, next) {
         } else {
             try {
                 similarity = stringSimilarity(normalizedExpected, normalizedUser);
-            } catch (simErr) {
+            } catch (_simErr) {
                 similarity = (normalizedUser === normalizedExpected) ? 1.0 : 0.0;
             }
         }
@@ -375,7 +375,7 @@ export async function evaluateSpeaking(req, res, next) {
 }
 
 // ── Speech Synthesis ─────────────────────────────────────────────────────────
-export async function generateSpeech(req, res, next) {
+export async function generateSpeech(req, res, _next) {
     try {
         const { text } = req.body;
         if (!text || typeof text !== 'string') {

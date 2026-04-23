@@ -6,7 +6,7 @@ import Organization from '../models/Organization.js';
 import Booking from '../models/Booking.js';
 import * as stripeService from '../services/stripeService.js';
 import * as communication from '../services/communicationService.js';
-import { stripe } from '../services/stripeConnectService.js';
+// import { stripe } from '../services/stripeConnectService.js';
 import PlanSettings from '../models/PlanSettings.js';
 
 async function provisionBusinessAccount(userId, plan, seats, subscriptionId) {
@@ -33,17 +33,17 @@ async function provisionBusinessAccount(userId, plan, seats, subscriptionId) {
 /**
  * Get all active subscription plans.
  */
-export async function getPlans(req, res, next) {
+export async function getPlans(_req, res, _next) {
     try {
         const plans = await PlanSettings.find({ isEnabled: true });
         res.json(plans);
-    } catch (e) { next(e); }
+    } catch (e) { _next(e); }
 }
 
 /**
  * Endpoint for creating a Stripe Checkout Session for Subscription.
  */
-export async function createSubscriptionSession(req, res, next) {
+export async function createSubscriptionSession(req, res, _next) {
     try {
         const { plan, cycle, seats } = req.body;
         const user = await User.findById(req.user.sub);
@@ -60,13 +60,13 @@ export async function createSubscriptionSession(req, res, next) {
 
         const session = await stripeService.createSubscriptionSession(user, priceId, plan, cycle, seats, req);
         res.json({ url: session.url });
-    } catch (e) { next(e); }
+    } catch (e) { _next(e); }
 }
 
 /**
  * Handle Webhook for Stripe Events.
  */
-export async function stripeWebhook(req, res, next) {
+export async function stripeWebhook(req, res, _next) {
     const sig = req.headers['stripe-signature'];
     let event;
 
@@ -224,7 +224,7 @@ export async function stripeWebhook(req, res, next) {
 /**
  * Handle One-time payment for Event.
  */
-export async function createEventPaymentSession(req, res, next) {
+export async function createEventPaymentSession(req, res, _next) {
     try {
         const { eventId } = req.body;
         const user = await User.findById(req.user.sub);
@@ -250,7 +250,7 @@ export async function createEventPaymentSession(req, res, next) {
         });
 
         res.json({ url: session.url });
-    } catch (e) { next(e); }
+    } catch (e) { _next(e); }
 }
 
 /**
@@ -259,7 +259,7 @@ export async function createEventPaymentSession(req, res, next) {
 /**
  * Proactive check for subscription status (fallback for delayed webhooks).
  */
-export async function verifySubscriptionSession(req, res, next) {
+export async function verifySubscriptionSession(req, res, _next) {
     try {
         const { sessionId } = req.query;
         if (!sessionId) return res.status(400).json({ message: "Session ID required" });
@@ -313,10 +313,10 @@ export async function verifySubscriptionSession(req, res, next) {
             user: updatedUser.toSafeObject(),
             accessToken 
         });
-    } catch (e) { next(e); }
+    } catch (e) { _next(e); }
 }
 
-export async function createTutorPaymentSession(req, res, next) {
+export async function createTutorPaymentSession(req, res, _next) {
     try {
         const { tutorId, isPackage } = req.body; // isPackage: true for 8-class bundle
         const user = await User.findById(req.user.sub);
@@ -342,9 +342,9 @@ export async function createTutorPaymentSession(req, res, next) {
         });
 
         res.json({ url: session.url });
-    } catch (e) { next(e); }
+    } catch (e) { _next(e); }
 }
-export async function cancelSubscription(req, res, next) {
+export async function cancelSubscription(req, res, _next) {
     try {
         const user = await User.findById(req.user.sub);
         if (!user || !user.subscription?.stripeSubscriptionId) {
@@ -356,10 +356,10 @@ export async function cancelSubscription(req, res, next) {
         // Update user status locally if needed, or wait for webhook
         // For now, let's just confirm it's set to cancel at period end
         res.json({ message: "Subscription will be cancelled at the end of the current billing period" });
-    } catch (e) { next(e); }
+    } catch (e) { _next(e); }
 }
 
-export async function upgradeSubscription(req, res, next) {
+export async function upgradeSubscription(req, res, _next) {
     try {
         const { plan, cycle } = req.body;
         const user = await User.findById(req.user.sub);
@@ -388,5 +388,5 @@ export async function upgradeSubscription(req, res, next) {
         await user.save();
 
         res.json({ message: `Successfully upgraded to ${plan}!`, user: user.toSafeObject() });
-    } catch (e) { next(e); }
+    } catch (e) { _next(e); }
 }

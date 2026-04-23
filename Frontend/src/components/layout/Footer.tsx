@@ -39,7 +39,7 @@ export default function Footer() {
                 <div className="h-8 w-8 rounded-xl bg-secondary/5 flex items-center justify-center text-secondary group-hover:scale-110 transition-transform shrink-0">
                   <Phone className="h-4 w-4" />
                 </div>
-                <span className="text-[10px] md:text-xs group-hover:text-secondary transition-colors">0717441977</span>
+                <span className="text-[10px] md:text-xs group-hover:text-secondary transition-colors">077 054 3433</span>
               </div>
             </div>
 

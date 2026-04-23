@@ -22,9 +22,18 @@ const apiBaseUrl = isBrowser
   ? "/api"
   : (() => {
       // Server-side (SSR) base URL
-      let raw = process.env.BACKEND_URL || process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+      const isProd = process.env.NODE_ENV === "production";
+      let raw = process.env.BACKEND_URL || process.env.NEXT_PUBLIC_API_URL;
+
+      if (!raw) {
+        if (isProd) {
+          console.warn("[API] Missing BACKEND_URL in production. API calls may fail.");
+        }
+        raw = "http://127.0.0.1:5000";
+      }
+
       if (raw.startsWith("/")) {
-        raw = "http://localhost:5000";
+        raw = "http://127.0.0.1:5000";
       }
       // Ensure we have a clean /api suffix without duplication
       const base = raw.replace(/\/api\/?$/, "");
@@ -128,9 +137,15 @@ api.interceptors.response.use(
     const isNetworkError = !error.response;
     const isServiceDown = error.response?.status === 503;
 
+    interface ErrorData {
+      success?: boolean;
+      message?: string;
+      error?: { message?: string; code?: string | number };
+    }
+
     // Silence redundant or expected errors to keep the console clean
     if (!isRefresh401 && !isAuthWait && !isNetworkError && !isServiceDown && !isRateLimit) {
-      const errorBody = error.response?.data as any;
+      const errorBody = error.response?.data as ErrorData;
       let displayError = "Unknown Connection Failure";
       
       if (errorBody && typeof errorBody === 'object') {
