@@ -27,8 +27,10 @@ export default function TutorDashboard() {
     const today = new Date().toISOString().split('T')[0];
     Promise.all([getMe(), getPendingRequests(), getMyEvents(), getMyBookings()])
       .then(([u, qs, evs, bks]) => {
-        setUser(u);
-        setIsAvailable(u.isTutorAvailable ?? false);
+        if (u) {
+          setUser(u);
+          setIsAvailable(u.isTutorAvailable ?? false);
+        }
         setPendingQs(qs.filter((q) => q.status === "pending" || q.status === "accepted"));
         setEvents(evs.filter(e => e.date >= today));
         // Only show pending or confirmed bookings on the main dashboard

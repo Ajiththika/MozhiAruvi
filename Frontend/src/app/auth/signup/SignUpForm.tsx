@@ -50,14 +50,14 @@ export default function SignUpForm() {
         // Quick Apply: Auto-submit with basic info
         try {
           await submitTutorApplication({
-            name: res.user.name,
-            email: res.user.email,
-            phone: "",
+            fullName: res.user.name,
             experience: "Automated Registration Applicant",
             bio: "Interested in joining as a tutor from the platform join button.",
+            specialization: "General",
             languages: [],
-            availability: "Contact for details",
-            certifications: ""
+            hourlyRate: 10,
+            teachingMode: "both",
+            motivation: "I want to teach."
           });
           setUser({ ...res.user, tutorStatus: 'pending' });
           router.push('/tutor/apply/status');

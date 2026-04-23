@@ -18,7 +18,7 @@ const updateProfileSchema = z.object({
     age: z.string().or(z.number()).optional(), // handle string-encoded number from FormData
     gender: z.enum(['male', 'female', 'other', 'prefer_not_to_say']).optional(),
     languages: z.any().optional(), // more flexible for FD
-}).strict();
+});
 
 const updatePasswordSchema = z.object({
     currentPassword: z.string().min(1, 'Current password is required'),

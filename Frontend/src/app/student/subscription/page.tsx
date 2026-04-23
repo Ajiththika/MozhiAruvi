@@ -8,6 +8,7 @@ import {
   createSubscriptionSession,
   cancelSubscription,
   upgradeSubscription,
+  getPlans,
 } from "@/services/paymentService";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getDashboardData } from "@/services/authService";
@@ -76,12 +77,32 @@ export default function SubscriptionPage() {
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
   const queryClient = useQueryClient();
 
+  const { data: dbPlans } = useQuery({
+    queryKey: ["subscription", "plans"],
+    queryFn: getPlans,
+  });
+
   const { data: userStats } = useQuery({
     queryKey: ["student", "dashboard"],
     queryFn: getDashboardData,
   });
 
   const currentPlan = userStats?.user?.subscription?.plan || "FREE";
+  const currentCycle = userStats?.user?.subscription?.billingCycle || "monthly";
+
+  // Merge DB plans with local UI metadata
+  const dynamicPlans = PLANS.map((staticPlan) => {
+    const dbPlan = dbPlans?.find((p: any) => p.plan === staticPlan.id);
+    if (dbPlan) {
+      return {
+        ...staticPlan,
+        priceMonthly: dbPlan.monthlyPrice,
+        priceYearly: dbPlan.yearlyPrice,
+      };
+    }
+    return staticPlan;
+  });
+
   const hasEverPaid = currentPlan !== "FREE";
 
   const handlePlanSelection = async (planId: "PRO" | "PREMIUM") => {
@@ -170,8 +191,11 @@ export default function SubscriptionPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {PLANS.map((plan) => {
-          const isActive = currentPlan === plan.id;
+        {dynamicPlans.map((plan) => {
+          const isPlanMatch = currentPlan === plan.id;
+          const isCycleMatch = currentCycle === billingCycle;
+          const isActive = isPlanMatch && isCycleMatch;
+
           const displayPrice =
             billingCycle === "monthly" ? plan.priceMonthly : plan.priceYearly;
 
@@ -184,11 +208,11 @@ export default function SubscriptionPage() {
               variant={plan.highlight ? "elevated" : "outline"}
               className={`relative overflow-hidden flex flex-col p-6 rounded-3xl border-2 transition-all duration-300 ${plan.color} ${plan.highlight ? "shadow-2xl shadow-primary/10 -translate-y-2" : "hover:scale-[1.02]"}`}
             >
-              {(hasTrial || plan.highlight || isActive) && (
+              {(hasTrial || plan.highlight || isPlanMatch) && (
                 <div className="absolute top-2 right-2 flex flex-col items-end gap-1">
-                  {isActive && (
+                  {isPlanMatch && (
                     <span className="bg-emerald-500 text-white text-[8px] font-black uppercase tracking-widest px-2 py-1 rounded-full shadow-lg shadow-emerald-500/30">
-                      Active Plan
+                      {isCycleMatch ? "Active Plan" : `Active (${currentCycle})`}
                     </span>
                   )}
                   {plan.highlight && !isActive && (
@@ -247,34 +271,53 @@ export default function SubscriptionPage() {
               </div>
 
               <div className="mt-auto space-y-3">
-                {hasTrial && !isActive && (
+                {hasTrial && !isPlanMatch && (
                   <p className="text-[9px] font-bold text-emerald-600 text-center mb-2 uppercase tracking-tight">
                     Start today for $0.00 — Charge after 7 days automatically
                   </p>
                 )}
 
-                {isActive && plan.id !== "FREE" ? (
-                  <div className="flex flex-col gap-2">
-                    <Button
-                      variant="ghost"
-                      className="w-full h-14 rounded-xl text-[10px] font-black uppercase tracking-widest bg-emerald-50 text-emerald-600 border-2 border-emerald-100 opacity-70 cursor-default"
-                      disabled
-                    >
-                      Current Version
-                    </Button>
-                    <Button
-                      variant="outline"
-                      className="w-full h-12 rounded-xl text-[9px] font-black uppercase tracking-widest border-red-100 text-red-500 hover:bg-red-50 hover:border-red-200 transition-all gap-2"
-                      onClick={handleCancelClick}
-                      disabled={loadingPlan === "CANCEL"}
-                    >
-                      {loadingPlan === "CANCEL" ? (
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                      ) : (
-                        <XCircle className="w-4 h-4" />
+                 {isPlanMatch && plan.id !== "FREE" ? (
+                  <div className="flex flex-col items-center gap-4 mt-2 w-full">
+                    <p className="text-[14px] font-bold text-primary/60 uppercase tracking-[0.2em]">
+                      {isActive ? "Current plan" : `Current Plan (${currentCycle})`}
+                    </p>
+                    <div className="flex items-center justify-center gap-4 w-full px-2">
+                      {isActive && (
+                        <button
+                          className="flex-1 h-12 rounded-2xl border-2 border-primary/20 bg-[#f5f7ff] text-[12px] font-black uppercase tracking-widest text-primary hover:bg-primary/10 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                          onClick={handleCancelClick}
+                          disabled={loadingPlan === "CANCEL"}
+                        >
+                          {loadingPlan === "CANCEL" ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : (
+                            "Cancel"
+                          )}
+                        </button>
                       )}
-                      Cancel Subscription
-                    </Button>
+                      {(!isActive || plan.id === "PRO") && (
+                        <button
+                          className="flex-1 h-12 rounded-2xl bg-primary text-white text-[12px] font-black uppercase tracking-widest shadow-lg shadow-primary/25 hover:bg-primary/90 hover:scale-[1.02] transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                          onClick={() =>
+                            handlePlanSelection(
+                              plan.id === "PRO" && isActive && billingCycle === "monthly"
+                                ? "PREMIUM"
+                                : (plan.id as any),
+                            )
+                          }
+                          disabled={!!loadingPlan}
+                        >
+                          {loadingPlan === plan.id || loadingPlan === "PREMIUM" ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : isActive && plan.id === "PRO" ? (
+                            "Upgrade"
+                          ) : (
+                            `Switch to ${billingCycle}`
+                          )}
+                        </button>
+                      )}
+                    </div>
                   </div>
                 ) : (
                   <Button

@@ -50,7 +50,7 @@ const updateTutorProfileSchema = z.object({
     teachingMode: z.enum(['online', 'offline', 'both']).optional(),
     levelSupport: z.any().optional(),
     responseTime: z.string().optional(),
-}).strict();
+});
 
 const updateAvailabilitySchema = z.object({
     isTutorAvailable: z.boolean()

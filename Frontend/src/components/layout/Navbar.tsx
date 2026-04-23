@@ -163,43 +163,9 @@ export default function Navbar() {
                           Dashboard
                         </Link>
 
-                        {user?.isPremium && (
-                          <Link
-                            href="/student/premium"
-                            onClick={() => setIsProfileOpen(false)}
-                            className="group flex items-center gap-3 px-6 py-4 text-xs text-slate-700 font-bold uppercase tracking-widest hover:bg-slate-50 hover:text-primary transition-all"
-                          >
-                            <Award size={18} className="text-amber-400 group-hover:text-amber-500 transition-colors" />
-                            Manage Plan
-                          </Link>
-                        )}
                       </div>
 
-                      {/* Upgrade Plan Block (ChatGPT Style) */}
-                      {!user?.isPremium && (
-                        <div className="px-4 py-3">
-                          <Link
-                            href="/student/premium"
-                            onClick={() => setIsProfileOpen(false)}
-                            className="group relative block w-full overflow-hidden rounded-2xl p-4 transition-all hover:scale-[1.02] active:scale-100"
-                          >
-                            {/* Gradient Background */}
-                            <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary-dark to-slate-900 opacity-90 group-hover:opacity-100 transition-opacity" />
-                            
-                            {/* Content */}
-                            <div className="relative flex items-center gap-4">
-                              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/20 backdrop-blur-md shadow-xl border border-white/20">
-                                <Award className="h-5 w-5 text-white animate-pulse" />
-                              </div>
-                              <div className="flex-1 text-left">
-                                <p className="text-[11px] font-black uppercase tracking-widest text-white/70">Subscription</p>
-                                <p className="text-sm font-black text-white tracking-tight">Upgrade Plan</p>
-                              </div>
-                              <ArrowRight className="h-4 w-4 text-white/50 group-hover:text-white group-hover:translate-x-1 transition-all" />
-                            </div>
-                          </Link>
-                        </div>
-                      )}
+
 
                       <div className="border-t border-slate-100 mx-4 my-2"></div>
                       <button

@@ -73,9 +73,15 @@ export default function TutorApplicationPage() {
         .map((lang) => lang.trim())
         .filter((lang) => lang !== "");
 
-      const submissionData = {
-        ...formData,
+      const submissionData: any = {
+        fullName: formData.name,
+        bio: formData.bio || "Interested in joining as a tutor.",
+        experience: formData.experience || "No prior experience provided.",
+        specialization: formData.certifications || "General",
         languages: languagesArray,
+        hourlyRate: 10,
+        teachingMode: "both",
+        motivation: formData.availability || "I want to teach."
       };
 
       await submitTutorApplication(submissionData);

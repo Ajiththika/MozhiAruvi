@@ -21,10 +21,10 @@ export default function StatusPage() {
     const interval = setInterval(async () => {
       try {
         const updatedUser = await getMe();
-        if (updatedUser.tutorStatus === "approved") {
+        if (updatedUser && updatedUser.tutorStatus === "approved") {
           setUser(updatedUser);
           router.push("/tutor/dashboard");
-        } else if (updatedUser.tutorStatus === "rejected") {
+        } else if (updatedUser && updatedUser.tutorStatus === "rejected") {
           setUser(updatedUser);
         }
       } catch (err: unknown) {
@@ -39,9 +39,11 @@ export default function StatusPage() {
     setIsRefreshing(true);
     try {
       const updatedUser = await getMe();
-      setUser(updatedUser);
-      if (updatedUser.tutorStatus === "approved") {
-        router.push("/tutor/dashboard");
+      if (updatedUser) {
+        setUser(updatedUser);
+        if (updatedUser.tutorStatus === "approved") {
+          router.push("/tutor/dashboard");
+        }
       }
     } catch (err: unknown) {
       console.error("Manual refresh failed:", err instanceof Error ? err.message : String(err));

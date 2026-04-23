@@ -7,6 +7,7 @@ import Booking from '../models/Booking.js';
 import * as stripeService from '../services/stripeService.js';
 import * as communication from '../services/communicationService.js';
 import { stripe } from '../services/stripeConnectService.js';
+import PlanSettings from '../models/PlanSettings.js';
 
 async function provisionBusinessAccount(userId, plan, seats, subscriptionId) {
     const owner = await User.findById(userId);
@@ -30,6 +31,16 @@ async function provisionBusinessAccount(userId, plan, seats, subscriptionId) {
 }
 
 /**
+ * Get all active subscription plans.
+ */
+export async function getPlans(req, res, next) {
+    try {
+        const plans = await PlanSettings.find({ isEnabled: true });
+        res.json(plans);
+    } catch (e) { next(e); }
+}
+
+/**
  * Endpoint for creating a Stripe Checkout Session for Subscription.
  */
 export async function createSubscriptionSession(req, res, next) {
@@ -38,17 +49,13 @@ export async function createSubscriptionSession(req, res, next) {
         const user = await User.findById(req.user.sub);
         if (!user) return res.status(404).json({ message: "User not found" });
 
-        let priceId;
-        if (plan === 'PRO') {
-            priceId = cycle === 'yearly' ? process.env.STRIPE_PRO_YEARLY_PRICE_ID : process.env.STRIPE_PRO_MONTHLY_PRICE_ID;
-        } else if (plan === 'PREMIUM') {
-            priceId = cycle === 'yearly' ? process.env.STRIPE_PREMIUM_YEARLY_PRICE_ID : process.env.STRIPE_PREMIUM_MONTHLY_PRICE_ID;
-        } else if (plan === 'BUSINESS') {
-            priceId = cycle === 'yearly' 
-                ? (process.env.STRIPE_BUSINESS_YEARLY_PRICE_ID || process.env.STRIPE_PREMIUM_YEARLY_PRICE_ID) 
-                : (process.env.STRIPE_BUSINESS_MONTHLY_PRICE_ID || process.env.STRIPE_PREMIUM_MONTHLY_PRICE_ID);
-        } else {
-            return res.status(400).json({ message: "Invalid plan" });
+        const planSetting = await PlanSettings.findOne({ plan: plan });
+        if (!planSetting) return res.status(400).json({ message: "Invalid plan" });
+
+        const priceId = cycle === 'yearly' ? planSetting.stripeYearlyPriceId : planSetting.stripeMonthlyPriceId;
+        
+        if (!priceId) {
+            return res.status(400).json({ message: `Stripe Price ID not configured for ${plan} ${cycle}` });
         }
 
         const session = await stripeService.createSubscriptionSession(user, priceId, plan, cycle, seats, req);
@@ -360,13 +367,13 @@ export async function upgradeSubscription(req, res, next) {
             return res.status(400).json({ message: "No active subscription found to upgrade" });
         }
 
-        let priceId;
-        if (plan === 'PRO') {
-            priceId = cycle === 'yearly' ? process.env.STRIPE_PRO_YEARLY_PRICE_ID : process.env.STRIPE_PRO_MONTHLY_PRICE_ID;
-        } else if (plan === 'PREMIUM') {
-            priceId = cycle === 'yearly' ? process.env.STRIPE_PREMIUM_YEARLY_PRICE_ID : process.env.STRIPE_PREMIUM_MONTHLY_PRICE_ID;
-        } else {
-            return res.status(400).json({ message: "Invalid plan" });
+        const planSetting = await PlanSettings.findOne({ plan: plan });
+        if (!planSetting) return res.status(400).json({ message: "Invalid plan" });
+
+        const priceId = cycle === 'yearly' ? planSetting.stripeYearlyPriceId : planSetting.stripeMonthlyPriceId;
+        
+        if (!priceId) {
+            return res.status(400).json({ message: `Stripe Price ID not configured for ${plan} ${cycle}` });
         }
 
         const subscription = await stripeService.upgradeSubscription(user.subscription.stripeSubscriptionId, priceId, {

@@ -5,6 +5,7 @@ import { authenticate } from '../middleware/auth.js';
 const router = express.Router();
 
 // Subscription
+router.get('/plans', authenticate, paymentController.getPlans);
 router.post('/create-subscription-session', authenticate, paymentController.createSubscriptionSession);
 router.get('/verify-session', authenticate, paymentController.verifySubscriptionSession);
 

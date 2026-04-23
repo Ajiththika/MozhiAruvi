@@ -119,7 +119,7 @@ export default function ProfileEditModal({ user, setUser, onClose, role }: Profi
       setUser(updatedUser);
       onClose();
     } catch (err: unknown) {
-      const errorMsg = (err as any).response?.data?.message || "Failed to update profile.";
+      const errorMsg = (err as any).response?.data?.error?.message || (err as any).response?.data?.message || "Failed to update profile.";
       setError(errorMsg);
     } finally {
       setLoading(false);

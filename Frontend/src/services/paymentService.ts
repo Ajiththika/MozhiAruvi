@@ -30,3 +30,8 @@ export async function upgradeSubscription(plan: 'PRO' | 'PREMIUM', cycle: 'month
   return res.data;
 }
 
+export async function getPlans() {
+  const res = await api.get<any[]>("/payments/plans");
+  return res.data;
+}
+

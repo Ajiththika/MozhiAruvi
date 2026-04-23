@@ -89,21 +89,33 @@ export default function StudentDashboard() {
           </div>
           <span className="text-xs font-bold text-primary tracking-widest uppercase">Learning Hub</span>
         </div>
-        <div className="max-w-3xl">
-          <h1 className="text-xl md:text-2xl font-black text-primary tracking-tight leading-tight flex items-center gap-3">
-            Hello, {user?.name?.split(" ")[0]}!
-            {user?.subscription?.plan && user.subscription.plan !== 'FREE' && (
-              <span className={cn(
-                "px-2 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-tighter border shadow-sm",
-                user.subscription.plan === 'PREMIUM' ? "bg-amber-400 border-amber-500 text-slate-900 shadow-amber-500/20" : "bg-emerald-500 border-emerald-600 text-white shadow-emerald-500/20"
-              )}>
-                {user.subscription.plan}
-              </span>
-            )}
-          </h1>
-          <p className="text-sm md:text-base text-slate-600 font-semibold leading-relaxed mt-4">
-            Continuing your journey into the world's oldest living classical language. Here's your current progress and curriculum milestones.
-          </p>
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div className="max-w-3xl">
+            <h1 className="text-xl md:text-2xl font-black text-primary tracking-tight leading-tight flex items-center gap-3">
+              Hello, {user?.name?.split(" ")[0]}!
+              {user?.subscription?.plan && user.subscription.plan !== 'FREE' && (
+                <span className={cn(
+                  "px-2 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-tighter border shadow-sm",
+                  user.subscription.plan === 'PREMIUM' ? "bg-amber-400 border-amber-500 text-slate-900 shadow-amber-500/20" : "bg-emerald-500 border-emerald-600 text-white shadow-emerald-500/20"
+                )}>
+                  {user.subscription.plan}
+                </span>
+              )}
+            </h1>
+            <p className="text-sm md:text-base text-slate-600 font-semibold leading-relaxed mt-4">
+              Continuing your journey into the world's oldest living classical language. Here's your current progress and curriculum milestones.
+            </p>
+          </div>
+
+          {plan === 'FREE' && (
+            <Button 
+              href="/student/subscription"
+              variant="primary"
+              className="h-12 px-8 rounded-2xl shadow-xl shadow-primary/20 text-[10px] font-black uppercase tracking-widest shrink-0 animate-in zoom-in duration-500"
+            >
+              <Crown className="w-4 h-4 mr-2" /> Upgrade to Premium
+            </Button>
+          )}
         </div>
       </div>
 
@@ -331,19 +343,13 @@ export default function StudentDashboard() {
 
                   <div className="flex flex-col sm:flex-row items-center gap-4 pt-4">
                     <Button
-                      href={(user?.progress?.energy ?? 0) <= 0 && !isPremium ? "/student/premium" : "/student/lessons"}
+                      href={"/student/lessons"}
                       className={cn(
                         "h-14 px-10 rounded-2xl shadow-2xl transition-all w-full sm:w-auto",
-                        (user?.progress?.energy ?? 0) <= 0 && !isPremium 
-                          ? "bg-amber-400 text-slate-900 hover:bg-amber-300 shadow-amber-400/30" 
-                          : "bg-white text-primary hover:bg-slate-50"
+                        "bg-white text-primary hover:bg-slate-50"
                       )}
                     >
-                       {(user?.progress?.energy ?? 0) <= 0 && !isPremium ? (
-                         <>Claim Daily Bonus <Zap className="ml-3 h-5 w-5 fill-current" /></>
-                       ) : (
                          <>Start Learning <ArrowRight className="ml-3 h-5 w-5 group-hover:translate-x-1 transition-transform" /></>
-                       )}
                     </Button>
                     <div className="flex items-center gap-3 text-white/70 text-xs font-bold uppercase tracking-widest border border-white/10 rounded-full px-5 py-3.5 bg-white/5 shadow-inner">
                        <span className="">Level: {user?.level || "Beginner"}</span>

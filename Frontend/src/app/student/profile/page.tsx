@@ -91,115 +91,9 @@ export default function StudentProfile() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* ── LEARNING STATS ───────────────────────────────────────────────────── */}
-        <div className="lg:col-span-1 space-y-8">
-           <div className="rounded-2xl bg-slate-900 p-8 text-white shadow-2xl relative overflow-hidden">
-              <div className="absolute top-0 right-0 h-32 w-32 bg-primary/10 rounded-full blur-2xl -mr-16 -mt-16" />
-              <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-white/50 mb-8">Performance Engine</h4>
-              
-              <div className="space-y-6">
-                <div className="flex items-center gap-5 p-5 rounded-3xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
-                   <div className="h-12 w-12 rounded-2xl bg-primary/20 flex items-center justify-center text-primary">
-                      <Zap className="h-6 w-6" />
-                   </div>
-                   <div>
-                      <p className="text-[10px] font-black uppercase tracking-widest text-white/40">Knowledge XP</p>
-                      <p className="text-2xl font-black">{user.xp || 0}</p>
-                   </div>
-                </div>
-
-                <div className="flex items-center gap-5 p-5 rounded-3xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
-                   <div className="h-12 w-12 rounded-2xl bg-secondary/20 flex items-center justify-center text-secondary">
-                      <Award className="h-6 w-6" />
-                   </div>
-                   <div>
-                      <p className="text-[10px] font-black uppercase tracking-widest text-white/40">Tokens / Credits</p>
-                      <p className="text-2xl font-black">{user.credits || 0}</p>
-                   </div>
-                </div>
-
-                <div className="pt-4">
-                   <div className="flex justify-between items-end mb-2">
-                      <p className="text-[10px] font-black uppercase tracking-widest text-white/40">Curriculum progress</p>
-                      <p className="text-sm font-black text-primary">85%</p>
-                   </div>
-                   <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden">
-                      <div className="h-full w-[85%] bg-gradient-to-r from-primary to-secondary" />
-                   </div>
-                </div>
-              </div>
-           </div>
-
-           <div className="rounded-2xl bg-white p-8 border border-border shadow-sm">
-              <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/60 mb-6">Quick Connectivity</h4>
-              <div className="space-y-5">
-                 <div className="flex items-center gap-4">
-                    <div className="h-10 w-10 rounded-xl bg-surface-soft flex items-center justify-center text-primary">
-                       <Phone className="h-4 w-4" />
-                    </div>
-                    <div>
-                       <p className="text-[10px] font-black text-primary/60 uppercase tracking-widest leading-none mb-1">Mobile</p>
-                       <p className="text-sm font-bold text-slate-800">{user.phoneNumber || "Not provided"}</p>
-                    </div>
-                 </div>
-                 <div className="flex items-center gap-4">
-                    <div className="h-10 w-10 rounded-xl bg-surface-soft flex items-center justify-center text-secondary">
-                       <MapPin className="h-4 w-4" />
-                    </div>
-                    <div>
-                       <p className="text-[10px] font-black text-primary/60 uppercase tracking-widest leading-none mb-1">Current Country</p>
-                       <p className="text-sm font-bold text-slate-800">{user.country || "Earth"}</p>
-                    </div>
-                 </div>
-              </div>
-           </div>
-
-           <div className="rounded-2xl bg-gradient-to-br from-primary/10 to-secondary/10 p-8 border border-primary/20 shadow-sm relative overflow-hidden">
-              <div className="absolute -right-4 -bottom-4 opacity-10">
-                 <ShieldCheck className="h-24 w-24" />
-              </div>
-              <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-primary mb-6">Membership Architecture</h4>
-              <div className="space-y-4">
-                 <div>
-                    <p className="text-[10px] font-black text-primary/60 uppercase tracking-widest mb-1">Active Plan</p>
-                    <p className={cn(
-                      "text-xl font-black tracking-tight",
-                      user.subscription?.plan === 'FREE' ? "text-slate-600" : "text-primary"
-                    )}>
-                      {user.subscription?.plan || "FREE"} Account
-                    </p>
-                 </div>
-                 {user.subscription?.plan !== 'FREE' && user.subscription?.currentPeriodEnd && (
-                   <div className="pt-2">
-                      <p className="text-[10px] font-black text-primary/60 uppercase tracking-widest mb-1">
-                        {new Date(user.subscription.currentPeriodEnd) > new Date() ? "Next Billing / Trial End" : "Last Period Ended"}
-                      </p>
-                      <p className="text-sm font-bold text-slate-800">
-                        {new Date(user.subscription.currentPeriodEnd).toLocaleDateString("en-GB", { day: 'numeric', month: 'long', year: 'numeric' })}
-                      </p>
-                      <button 
-                        onClick={() => window.location.href = "/student/subscription"}
-                        className="mt-4 text-[10px] font-black text-primary uppercase tracking-widest hover:underline"
-                      >
-                        Manage Subscription →
-                      </button>
-                   </div>
-                 )}
-                 {user.subscription?.plan === 'FREE' && (
-                    <button 
-                      onClick={() => window.location.href = "/student/subscription"}
-                      className="w-full mt-4 h-12 rounded-xl bg-primary text-white text-[10px] font-black uppercase tracking-widest shadow-lg shadow-primary/20 hover:scale-[1.02] transition-all"
-                    >
-                      Unlock 7-Day Trial
-                    </button>
-                 )}
-              </div>
-           </div>
-        </div>
-
+      <div className="grid grid-cols-1 gap-8">
         {/* ── BIOGRAPHY & INFO ─────────────────────────────────────────────────── */}
-        <div className="lg:col-span-2 space-y-8">
+        <div className="space-y-8">
            <div className="rounded-2xl bg-white p-10 border border-border shadow-sm min-h-[400px]">
               <div className="flex items-center gap-4 mb-8">
                 <div className="h-12 w-12 rounded-2xl bg-secondary/5 flex items-center justify-center text-secondary">
@@ -218,14 +112,22 @@ export default function StudentProfile() {
                     </p>
                  </div>
 
-                 <div className="grid grid-cols-2 gap-8">
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div className="p-6 rounded-3xl border border-border/60 bg-white">
                         <p className="text-[10px] font-black text-primary/60 uppercase tracking-[0.15em] mb-2">Age Identity</p>
-                        <p className="text-lg font-bold text-slate-800">{user.age ? `${user.age} Years Old` : "Confidential"}</p>
+                        <p className="text-lg font-bold text-slate-800">{user.age ? `${user.age} Years Old` : "Not provided"}</p>
                     </div>
                     <div className="p-6 rounded-3xl border border-border/60 bg-white">
                         <p className="text-[10px] font-black text-primary/60 uppercase tracking-[0.15em] mb-2">Gender Perspective</p>
                         <p className="text-lg font-bold text-slate-800 capitalize">{user.gender || "Not specified"}</p>
+                    </div>
+                    <div className="p-6 rounded-3xl border border-border/60 bg-white">
+                        <p className="text-[10px] font-black text-primary/60 uppercase tracking-[0.15em] mb-2">Academic Interest</p>
+                        <p className="text-lg font-bold text-slate-800">Classical Literature</p>
+                    </div>
+                    <div className="p-6 rounded-3xl border border-border/60 bg-white">
+                        <p className="text-[10px] font-black text-primary/60 uppercase tracking-[0.15em] mb-2">Learning Objective</p>
+                        <p className="text-lg font-bold text-slate-800">Advanced Fluency</p>
                     </div>
                  </div>
               </div>

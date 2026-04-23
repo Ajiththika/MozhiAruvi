@@ -5,15 +5,15 @@ const nextConfig: NextConfig = {
     // reactCompiler: true,
   },
   async rewrites() {
-    const backendBase = (
-      process.env.BACKEND_URL ||
-      process.env.NEXT_PUBLIC_API_URL ||
-      "http://localhost:5000"
-    ).replace(/\/api\/?$/, "");
+    let rawUrl = process.env.BACKEND_URL || process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+    if (rawUrl.startsWith("/")) {
+       rawUrl = "http://localhost:5000";
+    }
+    const backendBase = rawUrl.replace(/\/api\/?$/, "");
     return [
       {
         source: "/api/:path*",
-        destination: "http://127.0.0.1:5000/api/:path*",
+        destination: `${backendBase}/api/:path*`,
       },
     ];
   },

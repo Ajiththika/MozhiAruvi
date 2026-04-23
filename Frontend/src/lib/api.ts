@@ -22,7 +22,10 @@ const apiBaseUrl = isBrowser
   ? "/api"
   : (() => {
       // Server-side (SSR) base URL
-      const raw = process.env.BACKEND_URL || process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:5000";
+      let raw = process.env.BACKEND_URL || process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+      if (raw.startsWith("/")) {
+        raw = "http://localhost:5000";
+      }
       // Ensure we have a clean /api suffix without duplication
       const base = raw.replace(/\/api\/?$/, "");
       return `${base}/api`;

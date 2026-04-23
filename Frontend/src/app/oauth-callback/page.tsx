@@ -21,8 +21,12 @@ function CallbackHandler() {
       // Fetch user data and redirect
       getMe()
         .then((userData) => {
-          setUser(userData);
-          router.push(getRoleDashboardRoute(userData.role));
+          if (userData) {
+            setUser(userData);
+            router.push(getRoleDashboardRoute(userData.role));
+          } else {
+            throw new Error("User data not found");
+          }
         })
         .catch(() => {
           authStore.clear();
