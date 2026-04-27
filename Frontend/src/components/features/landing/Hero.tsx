@@ -115,7 +115,7 @@ export default function Hero() {
         {/* Heritage pill badge */}
         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-primary/20 bg-white/60 backdrop-blur-sm text-sm font-semibold text-gray-800 mb-8">
           <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-          One of the oldest living languages - Over 2000 years of heritage
+          One of the oldest living languages - Over 2000+ years of heritage
         </div>
 
         {/* Headline */}

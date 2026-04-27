@@ -6,9 +6,30 @@ import Footer from "@/components/layout/Footer";
 import Button from "@/components/ui/Button";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { getPublicBlogByIdOrSlug, deleteMyBlog, toggleSaveBlog, getPublicBlogs, Blog } from "@/services/blogService";
+import {
+  getPublicBlogByIdOrSlug,
+  deleteMyBlog,
+  toggleSaveBlog,
+  getPublicBlogs,
+  Blog,
+} from "@/services/blogService";
 import { useAuth } from "@/context/AuthContext";
-import { ArrowLeft, Calendar, UserCircle, Clock, Edit2, Trash2, Loader2, BookOpen, Share2, Bookmark, BookmarkCheck, ChevronRight, FileText, Plus } from "lucide-react";
+import {
+  ArrowLeft,
+  Calendar,
+  UserCircle,
+  Clock,
+  Edit2,
+  Trash2,
+  Loader2,
+  BookOpen,
+  Share2,
+  Bookmark,
+  BookmarkCheck,
+  ChevronRight,
+  FileText,
+  Plus,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 
 function readingTime(content: string) {
@@ -18,18 +39,18 @@ function readingTime(content: string) {
 import { hasPermission, ROLES } from "@/lib/roles";
 
 export default function BlogDetailsPage() {
-  const params  = useParams();
-  const router  = useRouter();
+  const params = useParams();
+  const router = useRouter();
   const { user } = useAuth();
   const isAuthenticated = !!user;
-  
-  const [blog, setBlog]       = useState<Blog | null>(null);
+
+  const [blog, setBlog] = useState<Blog | null>(null);
   const [relatedPosts, setRelatedPosts] = useState<Blog[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
-  const [copied, setCopied]   = useState(false);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     const id = params.id as string;
@@ -41,15 +62,20 @@ export default function BlogDetailsPage() {
           setIsSaved(true);
         }
         // Fetch related posts
-        getPublicBlogs(1, 4).then(res => {
-          setRelatedPosts(res.blogs.filter(p => p._id !== b._id).slice(0, 3));
+        getPublicBlogs(1, 4).then((res) => {
+          setRelatedPosts(res.blogs.filter((p) => p._id !== b._id).slice(0, 3));
         });
       })
       .catch(console.error)
       .finally(() => setLoading(false));
   }, [params.id, user]);
 
-  const canManage = user && blog && hasPermission(user.role, [ROLES.ADMIN]) || (user && blog && ((blog.author as any)?._id === user._id || (blog.author as any) === user._id));
+  const canManage =
+    (user && blog && hasPermission(user.role, [ROLES.ADMIN])) ||
+    (user &&
+      blog &&
+      ((blog.author as any)?._id === user._id ||
+        (blog.author as any) === user._id));
 
   const handleDelete = async () => {
     if (!blog) return;
@@ -89,56 +115,75 @@ export default function BlogDetailsPage() {
     }
   };
 
-  if (loading) return (
-    <div className="min-h-screen flex items-center justify-center bg-white dark:bg-white">
-      <Loader2 className="h-10 w-10 animate-spin text-primary" />
-    </div>
-  );
-
-  if (!blog) return (
-    <div className="min-h-screen flex flex-col bg-white dark:bg-white">
-      <Navbar />
-      <div className="flex-1 flex flex-col items-center justify-center text-center gap-6 px-4">
-        <BookOpen className="h-20 w-20 text-slate-100" />
-        <h1 className="text-3xl font-bold text-gray-800 dark:text-white tracking-tight">Post not found</h1>
-        <p className="text-gray-500 max-w-md">This article may have been removed or moved to drafts.</p>
-        <Button href="/blogs" variant="primary">Explore others</Button>
+  if (loading)
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white dark:bg-white">
+        <Loader2 className="h-10 w-10 animate-spin text-primary" />
       </div>
-      <Footer />
-    </div>
-  );
+    );
+
+  if (!blog)
+    return (
+      <div className="min-h-screen flex flex-col bg-white dark:bg-white">
+        <Navbar />
+        <div className="flex-1 flex flex-col items-center justify-center text-center gap-6 px-4">
+          <BookOpen className="h-20 w-20 text-slate-100" />
+          <h1 className="text-3xl font-bold text-gray-800 dark:text-white tracking-tight">
+            Post not found
+          </h1>
+          <p className="text-gray-500 max-w-md">
+            This article may have been removed or moved to drafts.
+          </p>
+          <Button href="/blogs" variant="primary">
+            Explore others
+          </Button>
+        </div>
+        <Footer />
+      </div>
+    );
 
   return (
     <div className="min-h-screen flex flex-col font-sans bg-white">
       <Navbar />
 
       <main className="flex-1 w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-16 animate-in fade-in duration-700">
-        
         {/* Navigation & Actions Top */}
         <div className="flex items-center justify-between mb-12 gap-4 flex-wrap">
-          <Link href="/blogs" className="group flex items-center gap-2 text-xs font-bold text-gray-400 hover:text-primary transition-colors tracking-tight">
-            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" /> Back to feed
+          <Link
+            href="/blogs"
+            className="group flex items-center gap-2 text-xs font-bold text-gray-400 hover:text-primary transition-colors tracking-tight"
+          >
+            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />{" "}
+            Back to feed
           </Link>
-          
+,
           <div className="flex items-center gap-3">
             <button
-               onClick={handleShare}
-               className="flex h-10 w-10 items-center justify-center rounded-full border border-gray-100 bg-white text-gray-600 hover:text-primary transition-all shadow-sm"
-               title="Share post"
+              onClick={handleShare}
+              className="flex h-10 w-10 items-center justify-center rounded-full border border-gray-100 bg-white text-gray-600 hover:text-primary transition-all shadow-sm"
+              title="Share post"
             >
-               {copied ? <Clock className="w-4 h-4 text-emerald-500 animate-pulse" /> : <Share2 className="w-4 h-4" />}
+              {copied ? (
+                <Clock className="w-4 h-4 text-emerald-500 animate-pulse" />
+              ) : (
+                <Share2 className="w-4 h-4" />
+              )}
             </button>
-            
+
             <button
-               onClick={handleToggleSave}
-               className={cn(
-                 "flex h-10 w-10 items-center justify-center rounded-full border transition-all shadow-sm",
-                 isSaved 
-                   ? "bg-white text-white border-slate-900" 
-                   : "bg-white border-gray-100 text-gray-600 hover:text-primary"
-               )}
+              onClick={handleToggleSave}
+              className={cn(
+                "flex h-10 w-10 items-center justify-center rounded-full border transition-all shadow-sm",
+                isSaved
+                  ? "bg-white text-white border-slate-900"
+                  : "bg-white border-gray-100 text-gray-600 hover:text-primary",
+              )}
             >
-               {isSaved ? <BookmarkCheck className="w-4 h-4" /> : <Bookmark className="w-4 h-4" />}
+              {isSaved ? (
+                <BookmarkCheck className="w-4 h-4" />
+              ) : (
+                <Bookmark className="w-4 h-4" />
+              )}
             </button>
 
             {canManage && (
@@ -158,8 +203,19 @@ export default function BlogDetailsPage() {
                   </button>
                 ) : (
                   <div className="flex items-center gap-3 rounded-full border border-red-200 bg-red-50 px-5 py-2.5 text-xs font-bold text-red-700">
-                    <button onClick={handleDelete} disabled={deleting} className="font-bold underline">Confirm</button>
-                    <button onClick={() => setShowConfirm(false)} className="text-gray-400">Cancel</button>
+                    <button
+                      onClick={handleDelete}
+                      disabled={deleting}
+                      className="font-bold underline"
+                    >
+                      Confirm
+                    </button>
+                    <button
+                      onClick={() => setShowConfirm(false)}
+                      className="text-gray-400"
+                    >
+                      Cancel
+                    </button>
                   </div>
                 )}
               </div>
@@ -174,7 +230,8 @@ export default function BlogDetailsPage() {
                 {blog.category || "Community Hub"}
               </span>
               <span className="text-[11px] font-bold text-gray-400 tracking-tight flex items-center gap-1.5">
-                <Clock className="w-3.5 h-3.5" /> {readingTime(blog.content)} min read
+                <Clock className="w-3.5 h-3.5" /> {readingTime(blog.content)}{" "}
+                min read
               </span>
             </div>
 
@@ -187,20 +244,35 @@ export default function BlogDetailsPage() {
                 <UserCircle className="w-7 h-7 text-gray-300" />
               </div>
               <div>
-                 <div className="flex items-center gap-2">
-                    <span className="text-sm font-bold text-gray-800">{blog.author?.name || "Member"}</span>
-                    {blog.author?.role === 'admin' && (
-                      <span className="text-[10px] font-bold text-primary border border-primary/20 bg-primary/5 px-2 py-0.5 rounded-md">Admin</span>
-                    )}
-                 </div>
-                 <span className="text-xs text-gray-500 font-medium">Published on {new Date(blog.createdAt).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-bold text-gray-800">
+                    {blog.author?.name || "Member"}
+                  </span>
+                  {blog.author?.role === "admin" && (
+                    <span className="text-[10px] font-bold text-primary border border-primary/20 bg-primary/5 px-2 py-0.5 rounded-md">
+                      Admin
+                    </span>
+                  )}
+                </div>
+                <span className="text-xs text-gray-500 font-medium">
+                  Published on{" "}
+                  {new Date(blog.createdAt).toLocaleDateString("en-US", {
+                    month: "long",
+                    day: "numeric",
+                    year: "numeric",
+                  })}
+                </span>
               </div>
             </div>
           </header>
 
           <div className="relative mb-14 rounded-2xl overflow-hidden bg-gray-50 border border-gray-100 aspect-[21/9] shadow-2xl shadow-slate-200/20">
             {blog.featuredImage ? (
-              <img src={blog.featuredImage} alt={blog.title} className="w-full h-full object-cover" />
+              <img
+                src={blog.featuredImage}
+                alt={blog.title}
+                className="w-full h-full object-cover"
+              />
             ) : (
               <div className="absolute inset-0 bg-primary/5 flex items-center justify-center">
                 <BookOpen className="h-20 w-20 text-primary/10" />
@@ -212,24 +284,28 @@ export default function BlogDetailsPage() {
             className="prose prose-slate lg:prose-xl max-w-none text-gray-700 leading-relaxed font-medium selection:bg-primary/20 [&_h1]:text-4xl [&_h1]:font-black [&_h1]:tracking-tight [&_h1]:mt-8 [&_h1]:mb-4 [&_h2]:text-3xl [&_h2]:font-bold [&_h2]:tracking-tight [&_h2]:mt-8 [&_h2]:mb-3 [&_h3]:text-2xl [&_h3]:font-bold [&_h3]:mt-6 [&_h3]:mb-3 [&_blockquote]:border-l-4 [&_blockquote]:border-primary/30 [&_blockquote]:pl-6 [&_blockquote]:text-gray-500 [&_blockquote]:my-6 [&_pre]:bg-gray-50 [&_pre]:border [&_pre]:border-gray-100 [&_pre]:rounded-2xl [&_pre]:p-6 [&_pre]:my-6 [&_code]:font-mono [&_code]:text-primary [&_code]:bg-primary/5 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:rounded [&_ul]:pl-8 [&_ul]:list-disc [&_ul]:space-y-2 [&_ol]:pl-8 [&_ol]:list-decimal [&_ol]:space-y-2 [&_p]:mb-4 [&_p]:leading-[1.85] [&_strong]:font-black"
             dangerouslySetInnerHTML={{ __html: blog.content }}
           />
-          
+
           <div className="mt-20 border-t border-gray-100 pt-16">
-             <div className="bg-gray-50 rounded-2xl p-8 md:p-12 flex flex-col md:flex-row items-center justify-between gap-8 border border-gray-100">
-                 <div className="space-y-4 text-center md:text-left">
-                   <h3 className="text-2xl font-bold text-gray-800 tracking-tight">Enjoyed the story?</h3>
-                   <p className="text-gray-500 text-sm font-medium">Capture your own Tamil expertise and share it with our growing community.</p>
-                 </div>
-                 <div className="flex items-center gap-4 shrink-0 flex-col sm:flex-row">
-                   <Button onClick={handleShare} variant="secondary" size="lg" className="rounded-2xl px-8 border-gray-100 dark:border-gray-800">
-                     <Share2 className="w-4 h-4 mr-2" /> Share Link
-                   </Button>
-                   {(hasPermission(user?.role, [ROLES.ADMIN, ROLES.TEACHER]) || !user) && (
-                     <Button href="/student/blogs/create" variant="primary" size="lg" className="rounded-2xl px-12 shadow-xl shadow-primary/20">
-                        <Plus className="w-4 h-4 mr-2" /> Start Writing
-                     </Button>
-                   )}
-                 </div>
-             </div>
+            <div className="bg-gray-50 rounded-2xl p-8 md:p-12 flex flex-col md:flex-row items-center justify-between gap-8 border border-gray-100">
+              <div className="space-y-4 text-center md:text-left">
+                <h3 className="text-2xl font-bold text-gray-800 tracking-tight">
+                  Enjoyed the story?
+                </h3>
+                <p className="text-gray-500 text-sm font-medium">
+                  Capture your own Tamil expertise and share it with our growing
+                  community.
+                </p>
+              </div>
+              <div className="flex items-center gap-4 shrink-0 flex-col sm:flex-row">
+                <Button
+                  onClick={handleShare}
+                  variant="secondary"
+                  size="lg"
+                  className="rounded-2xl px-8 border-gray-100 dark:border-gray-800">
+                  <Share2 className="w-4 h-4 mr-2" /> Share Link
+                </Button>
+              </div>
+            </div>
           </div>
         </article>
 
@@ -237,32 +313,48 @@ export default function BlogDetailsPage() {
         {relatedPosts.length > 0 && (
           <div className="mt-24 pt-20 border-t border-gray-100">
             <div className="flex items-center justify-between mb-12">
-               <h2 className="text-3xl font-bold text-gray-800 tracking-tight">Recommended Stories</h2>
-               <Link href="/blogs" className="text-sm font-bold text-primary hover:text-primary/80 transition-all flex items-center gap-1 group">
-                  View all <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-               </Link>
+              <h2 className="text-3xl font-bold text-gray-800 tracking-tight">
+                Recommended Stories
+              </h2>
+              <Link
+                href="/blogs"
+                className="text-sm font-bold text-primary hover:text-primary/80 transition-all flex items-center gap-1 group"
+              >
+                View all{" "}
+                <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </Link>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-               {relatedPosts.map(post => (
-                 <Link key={post._id} href={`/blogs/${post.slug || post._id}`} className="group space-y-4">
-                    <div className="aspect-[1.6/1] rounded-3xl overflow-hidden bg-gray-50 border border-gray-100">
-                       {post.featuredImage ? (
-                         <img src={post.featuredImage} alt={post.title} className="w-full h-full object-cover transition-transform group-hover:scale-110 duration-500" />
-                       ) : (
-                         <div className="w-full h-full flex items-center justify-center bg-primary/5 text-primary/20">
-                           <FileText className="w-10 h-10" />
-                         </div>
-                       )}
-                    </div>
-                    <div className="space-y-2">
-                       <h4 className="text-lg font-bold text-gray-800 line-clamp-2 leading-tight group-hover:text-primary transition-colors tracking-tight">
-                        {post.title}
-                       </h4>
-                       <span className="text-xs text-gray-500 font-medium">By {post.author?.name || "Member"}</span>
-                    </div>
-                 </Link>
-               ))}
+              {relatedPosts.map((post) => (
+                <Link
+                  key={post._id}
+                  href={`/blogs/${post.slug || post._id}`}
+                  className="group space-y-4"
+                >
+                  <div className="aspect-[1.6/1] rounded-3xl overflow-hidden bg-gray-50 border border-gray-100">
+                    {post.featuredImage ? (
+                      <img
+                        src={post.featuredImage}
+                        alt={post.title}
+                        className="w-full h-full object-cover transition-transform group-hover:scale-110 duration-500"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-primary/5 text-primary/20">
+                        <FileText className="w-10 h-10" />
+                      </div>
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    <h4 className="text-lg font-bold text-gray-800 line-clamp-2 leading-tight group-hover:text-primary transition-colors tracking-tight">
+                      {post.title}
+                    </h4>
+                    <span className="text-xs text-gray-500 font-medium">
+                      By {post.author?.name || "Member"}
+                    </span>
+                  </div>
+                </Link>
+              ))}
             </div>
           </div>
         )}
