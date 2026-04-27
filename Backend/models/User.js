@@ -40,6 +40,8 @@ const userSchema = new mongoose.Schema({
   isStripeVerified: { type: Boolean, default: false },
   rating: { type: Number, default: 4.5 },
   totalReviews: { type: Number, default: 0 },
+  degree: { type: String, trim: true },
+  skills: [{ type: String, trim: true }],
 
   // Credits & Premium
   credits: { type: Number, default: 0 },
@@ -105,8 +107,8 @@ userSchema.methods.comparePassword = function (plain) {
 };
 
 userSchema.methods.toSafeObject = function () {
-  const { _id, name, email, role, tutorStatus, isActive, warnings, adminNotes, isTutorAvailable, isPremium, progress, credits, createdAt, teachingMode, profilePhoto, level, learningCredits, xp, points, power, lastPowerUpdate, badges, hasCompletedOnboarding, lastCreditUpdate, phoneNumber, country, age, gender, bio, experience, specialization, languages, subscription, organizationId, roleInOrg, stripeAccountId, isStripeVerified, hourlyRate, weeklySchedule, oneClassFee, eightClassFee } = this;
-  return { _id, name, email, role, tutorStatus, isActive, warnings, adminNotes, isTutorAvailable, isPremium, progress, credits, createdAt, teachingMode, profilePhoto, level, learningCredits, xp, points, power, lastPowerUpdate, badges, hasCompletedOnboarding, lastCreditUpdate, phoneNumber, country, age, gender, bio, experience, specialization, languages, subscription, organizationId, roleInOrg, hasUsedTrial: subscription?.hasUsedTrial, stripeAccountId, isStripeVerified, hourlyRate, weeklySchedule, oneClassFee, eightClassFee };
+  const { _id, name, email, role, tutorStatus, isActive, warnings, adminNotes, isTutorAvailable, isPremium, progress, credits, createdAt, teachingMode, profilePhoto, level, learningCredits, xp, points, power, lastPowerUpdate, badges, hasCompletedOnboarding, lastCreditUpdate, phoneNumber, country, age, gender, bio, experience, specialization, languages, subscription, organizationId, roleInOrg, stripeAccountId, isStripeVerified, hourlyRate, weeklySchedule, oneClassFee, eightClassFee, rating, totalReviews, degree, skills } = this;
+  return { _id, name, email, role, tutorStatus, isActive, warnings, adminNotes, isTutorAvailable, isPremium, progress, credits, createdAt, teachingMode, profilePhoto, level, learningCredits, xp, points, power, lastPowerUpdate, badges, hasCompletedOnboarding, lastCreditUpdate, phoneNumber, country, age, gender, bio, experience, specialization, languages, subscription, organizationId, roleInOrg, hasUsedTrial: subscription?.hasUsedTrial, stripeAccountId, isStripeVerified, hourlyRate, weeklySchedule, oneClassFee, eightClassFee, rating, totalReviews, degree, skills };
 };
 
 // Indexes for high-performance lookups

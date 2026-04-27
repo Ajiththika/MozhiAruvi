@@ -39,6 +39,10 @@ export interface Tutor {
   isTutorAvailable: boolean;
   levelSupport?: ("beginner" | "intermediate" | "advanced")[];
   responseTime?: string;
+  rating?: number;
+  totalReviews?: number;
+  degree?: string;
+  skills?: string[];
 }
 
 export interface TutorRequest {
@@ -102,6 +106,8 @@ export interface TutorProfilePayload {
   languages?: string[];
   teachingMode?: "online" | "offline" | "both";
   profilePhoto?: string | null;
+  degree?: string;
+  skills?: string[];
 }
 
 export interface PaginatedTutors {

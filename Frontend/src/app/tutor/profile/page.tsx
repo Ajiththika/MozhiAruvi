@@ -115,7 +115,7 @@ export default function TutorProfileSettings() {
                     </div>
                     <div>
                        <p className="text-[10px] font-black uppercase tracking-widest text-white/40">1:1 Session ($)</p>
-                       <p className="text-2xl font-black">${user.oneClassFee || 0}</p>
+                       <p className="text-2xl font-black">$5</p>
                     </div>
                  </div>
 
@@ -125,7 +125,7 @@ export default function TutorProfileSettings() {
                     </div>
                     <div>
                        <p className="text-[10px] font-black uppercase tracking-widest text-white/40">8-Class Bundle ($)</p>
-                       <p className="text-2xl font-black">${user.eightClassFee || 0}</p>
+                       <p className="text-2xl font-black">$36</p>
                     </div>
                  </div>
 

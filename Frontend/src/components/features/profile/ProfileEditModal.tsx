@@ -231,14 +231,7 @@ export default function ProfileEditModal({ user, setUser, onClose, role }: Profi
                        <label className="text-[10px] font-black uppercase tracking-widest text-primary/70 ml-1">Daily Availability Hours</label>
                        <input name="weeklySchedule" value={formData.weeklySchedule} onChange={handleChange} placeholder="e.g., Mon-Fri 9AM - 5PM IST" className="w-full h-14 rounded-2xl bg-surface-soft border border-border px-6 text-sm font-bold text-slate-800 focus:bg-white focus:border-secondary transition-all outline-none" />
                     </div>
-                    <div className="space-y-1">
-                       <label className="text-[10px] font-black uppercase tracking-widest text-primary/70 ml-1">Single Session Fee ($ USD)</label>
-                       <input type="number" name="oneClassFee" value={formData.oneClassFee} onChange={handleChange} className="w-full h-14 rounded-2xl bg-surface-soft border border-border px-6 text-sm font-bold text-slate-800 focus:bg-white focus:border-emerald-500 transition-all outline-none" />
-                    </div>
-                    <div className="space-y-1">
-                       <label className="text-[10px] font-black uppercase tracking-widest text-primary/70 ml-1">8-Class Intensive Fee ($ USD)</label>
-                       <input type="number" name="eightClassFee" value={formData.eightClassFee} onChange={handleChange} className="w-full h-14 rounded-2xl bg-surface-soft border border-border px-6 text-sm font-bold text-slate-800 focus:bg-white focus:border-indigo-500 transition-all outline-none" />
-                    </div>
+
                   </>
                 )}
 

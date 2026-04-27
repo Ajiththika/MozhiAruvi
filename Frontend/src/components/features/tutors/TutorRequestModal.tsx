@@ -22,15 +22,15 @@ const REQUEST_INFO = (tutor: Tutor) => ({
   live_class: {
     label: "1h Class",
     icon: Video,
-    price: tutor.oneClassFee || 30,
-    description: `Private 1-hour session with ${tutor.name} ($${tutor.oneClassFee || 30})`,
+    price: 5,
+    description: `Private 1-hour session with ${tutor.name} ($5)`,
     placeholder: "What specific Tamil topics would you like to cover in this session?",
   },
   multi_class: {
     label: "8-Class Mastery Hub",
     icon: Layers,
-    price: tutor.eightClassFee || 200,
-    description: `Intensive 8-session deep dive ($${tutor.eightClassFee || 200})`,
+    price: 36,
+    description: `Intensive 8-session deep dive ($36)`,
     placeholder: "Describe your long-term learning goals for this 8-class journey…",
   },
 });
@@ -108,7 +108,7 @@ export function TutorRequestModal({ tutor, onClose, initialType = "live_class" }
         ) : (
           <>
             {/* Header */}
-            <div className="bg-slate-50/50 p-5 border-b border-slate-100 flex items-center justify-between">
+            <div className="bg-gradient-to-r from-primary/5 to-secondary/5 p-6 border-b border-slate-100 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="h-10 w-10 rounded-xl bg-white shadow-sm border border-slate-100 flex items-center justify-center">
                   <info.icon className="h-5 w-5 text-primary" />
@@ -128,36 +128,27 @@ export function TutorRequestModal({ tutor, onClose, initialType = "live_class" }
 
             <div className="flex-1 min-h-0 overflow-y-auto p-6 space-y-6 scrollbar-hide" style={{ maxHeight: 'calc(90vh - 200px)' }}>
               {/* Type Selection */}
-              <div className="grid grid-cols-2 gap-3 pb-1">
-                {(Object.keys(REQUEST_INFO(tutor)) as RequestType[]).map((key) => {
-                  const item = REQUEST_INFO(tutor)[key];
-                  const Icon = item.icon;
-                  const active = type === key;
-                  return (
-                    <button
-                      key={key}
-                      onClick={() => setType(key)}
-                      className={cn(
-                        "group/type flex flex-row items-center gap-4 p-4 rounded-2xl border-2 transition-all text-left",
-                        active 
-                          ? "border-primary bg-primary/5 ring-4 ring-primary/5" 
-                          : "border-slate-50 hover:border-slate-100 hover:bg-slate-50/50"
-                      )}
-                    >
-                      <div className={cn("h-10 w-10 rounded-xl flex items-center justify-center transition-colors shadow-sm", active ? "bg-primary text-white" : "bg-white text-primary/40 border border-slate-100")}>
-                         <Icon className="h-5 w-5" />
-                      </div>
-                      <div className="space-y-0.5 min-w-0">
-                         <span className={cn("block text-[10px] font-black uppercase tracking-wider truncate", active ? "text-primary" : "text-primary/40")}>
-                           {key.replace("_", " ")}
-                         </span>
-                         <span className={cn("block text-xs font-black", active ? "text-primary/60" : "text-slate-400")}>
-                           ${item.price}
-                         </span>
-                      </div>
-                    </button>
-                  );
-                })}
+              <div className="space-y-1.5 pb-1">
+                <label className="text-[9px] font-black text-primary/70 uppercase tracking-widest ml-1">Select Mentorship Path</label>
+                <div className="relative">
+                  <select
+                    value={type}
+                    onChange={(e) => setType(e.target.value as RequestType)}
+                    className="w-full h-14 appearance-none rounded-2xl bg-white border-2 border-slate-100 px-5 pr-10 text-sm font-bold text-slate-800 outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 cursor-pointer shadow-sm transition-all"
+                  >
+                    {(Object.keys(REQUEST_INFO(tutor)) as RequestType[]).map((key) => {
+                      const item = REQUEST_INFO(tutor)[key];
+                      return (
+                        <option key={key} value={key} className="font-bold">
+                          {item.label} — ${item.price} USD
+                        </option>
+                      );
+                    })}
+                  </select>
+                  <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-primary bg-primary/5 p-1 rounded-md">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M19 9l-7 7-7-7"></path></svg>
+                  </div>
+                </div>
               </div>
 
               {/* Student Details Verification */}
@@ -250,7 +241,7 @@ export function TutorRequestModal({ tutor, onClose, initialType = "live_class" }
             </div>
 
             {/* Sticky Footnote & Footer */}
-            <div className="bg-slate-50/50 p-6 space-y-4 border-t border-slate-100 shrink-0">
+            <div className="bg-gradient-to-t from-slate-50 to-white p-6 space-y-4 border-t border-slate-100 shrink-0">
                {/* Price Note */}
                <div className="flex items-center gap-3 p-4 rounded-2xl bg-white border border-slate-200 shadow-sm">
                  <div className="h-8 w-8 rounded-lg bg-primary/5 flex items-center justify-center shrink-0">

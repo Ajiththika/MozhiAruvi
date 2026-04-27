@@ -7,7 +7,7 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import {
   ArrowLeft, AlertCircle, Globe, Wifi, Layers,
-  BookOpen, MessageSquare, GraduationCap, Video, Sparkles, UserCheck2, Clock,
+  BookOpen, MessageSquare, GraduationCap, Video, Sparkles, UserCheck2, Clock, Star, Award, BadgeCheck,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
@@ -141,12 +141,36 @@ export default function PublicTutorProfilePage() {
     
                      <div className="flex-1 text-center md:text-left pt-2 space-y-4">
                       <div className="space-y-2">
-                         <div className="flex flex-col md:flex-row items-center md:items-baseline gap-3">
+                        <div className="flex flex-col md:flex-row items-center md:items-baseline gap-3">
                           <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-slate-800">{tutor.name}</h1>
                         </div>
                         <p className="text-xl font-semibold text-primary/80 leading-relaxed italic">
                           {tutor.specialization ?? "Tamil Language & Culture Expert"}
                         </p>
+                        <div className="flex flex-wrap items-center gap-4 pt-1">
+                          <div className="flex items-center gap-2">
+                            {(tutor.totalReviews !== undefined && tutor.totalReviews > 0) ? (
+                              <>
+                                <div className="flex items-center gap-1 bg-amber-50 text-amber-700 px-3 py-1.5 rounded-xl border border-amber-200/50 shadow-sm">
+                                  <Star className="h-4 w-4 fill-amber-500 text-amber-500" />
+                                  <span className="font-bold text-sm">{tutor.rating?.toFixed(1)}</span>
+                                </div>
+                                <span className="text-slate-500 text-sm font-medium underline decoration-slate-200 underline-offset-4 cursor-pointer hover:text-primary transition-colors">
+                                  {tutor.totalReviews} reviews
+                                </span>
+                              </>
+                            ) : (
+                              <span className="text-slate-400 text-sm font-medium italic">
+                                No reviews yet
+                              </span>
+                            )}
+                          </div>
+                          <div className="h-4 w-px bg-slate-200 hidden sm:block" />
+                          <div className="flex items-center gap-2 text-slate-600 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-100">
+                            <GraduationCap className="h-4 w-4 text-primary/60" />
+                            <span className="text-sm font-bold">{tutor.degree || "MA Tamil Linguistics"}</span>
+                          </div>
+                        </div>
                       </div>
 
                       <div className="flex flex-wrap justify-center md:justify-start gap-3 pt-2">
@@ -159,6 +183,15 @@ export default function PublicTutorProfilePage() {
                             {tutor.teachingMode === "online" ? <Wifi className="h-3.5 w-3.5" /> : <Layers className="h-3.5 w-3.5" />}
                             {modeLabel[tutor.teachingMode || "online"]}
                          </span>
+                      </div>
+
+                      <div className="flex flex-wrap gap-2 pt-3">
+                         {(tutor.skills?.length ? tutor.skills : ["Conversational Tamil", "Grammar", "Cultural Insights", "Kids Learning"]).map(skill => (
+                           <span key={skill} className="px-3 py-1.5 bg-white text-slate-600 text-xs font-bold rounded-lg border border-slate-200 shadow-sm flex items-center gap-1.5">
+                             <BadgeCheck className="h-3 w-3 text-emerald-500" />
+                             {skill}
+                           </span>
+                         ))}
                       </div>
 
                       <div className="pt-4 flex items-center justify-center md:justify-start gap-4 border-t border-slate-50 mt-4">
@@ -216,6 +249,8 @@ export default function PublicTutorProfilePage() {
                      </div>
                   </div>
                 )}
+
+
               </div>
             </div>
 
@@ -245,7 +280,7 @@ export default function PublicTutorProfilePage() {
                             </div>
                          </div>
                          <div className="flex flex-col items-end text-primary">
-                            <span className="text-xl font-black">${tutor.oneClassFee || "30"}</span>
+                            <span className="text-xl font-black">$5</span>
                             <span className="text-[8px] font-black uppercase tracking-widest">per class</span>
                          </div>
                       </button>
@@ -264,7 +299,7 @@ export default function PublicTutorProfilePage() {
                             </div>
                          </div>
                          <div className="flex flex-col items-end">
-                            <span className="text-xl font-black text-white">${tutor.eightClassFee || "200"}</span>
+                            <span className="text-xl font-black text-white">$36</span>
                             <span className="text-[8px] font-black text-white/70 uppercase tracking-widest">total bundle</span>
                          </div>
                       </button>

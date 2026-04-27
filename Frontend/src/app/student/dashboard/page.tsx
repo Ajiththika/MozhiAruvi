@@ -11,9 +11,11 @@ import { useQuery } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
 import { DashboardSkeleton } from "./DashboardSkeleton";
 import WeeklyProgressChart from "@/components/features/dashboard/WeeklyProgressChart";
+import { TutorRatingModal } from "@/components/features/tutors/TutorRatingModal";
 
 export default function StudentDashboard() {
   const [submitingPay, setSubmitingPay] = useState<string | null>(null);
+  const [ratingModal, setRatingModal] = useState<{ open: boolean; tutorName: string; tutorImage?: string } | null>(null);
   const { data, isLoading, isError, error: queryError } = useQuery({
     queryKey: ["student", "dashboard"],
     queryFn: async () => {
@@ -79,6 +81,17 @@ export default function StudentDashboard() {
           அ
         </div>
       </div>
+
+      {ratingModal?.open && (
+        <TutorRatingModal
+          tutorName={ratingModal.tutorName}
+          tutorImage={ratingModal.tutorImage}
+          onClose={() => setRatingModal(null)}
+          onSubmit={(data) => {
+            console.log("Submitted rating:", data);
+          }}
+        />
+      )}
 
       <div className="relative z-10 space-y-12 animate-in fade-in duration-700 max-w-7xl mx-auto py-8 lg:py-12 px-2 sm:px-6 lg:px-8">
       {/* Header Section */}
@@ -225,7 +238,7 @@ export default function StudentDashboard() {
            </div>
            
            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
-              {bookings.filter((b: Booking) => b.status === 'confirmed' || b.status === 'pending').slice(0, 2).map((booking: any) => (
+              {bookings.filter((b: Booking) => b.status === 'confirmed' || b.status === 'pending' || b.status === 'completed').slice(0, 4).map((booking: any) => (
                 <Card key={booking._id} variant="elevated" className="group rounded-[2rem] border-slate-50 shadow-xl shadow-slate-200/20 hover:shadow-secondary/20 hover:border-secondary/20 transition-all duration-500 overflow-hidden">
                    <div className="flex items-center gap-6 p-8">
                       <div className="shrink-0 h-20 w-20 rounded-[1.5rem] bg-slate-50 border-4 border-white shadow-xl overflow-hidden group-hover:rotate-3 transition-transform">
@@ -296,6 +309,14 @@ export default function StudentDashboard() {
                          )}
                          {booking.status === 'pending' && (
                             <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Awaiting Tutor...</span>
+                         )}
+                         {booking.status === 'completed' && (
+                            <button 
+                               onClick={() => setRatingModal({ open: true, tutorName: booking.tutorId.name, tutorImage: booking.tutorId.profilePhoto })}
+                               className="text-[10px] font-black text-amber-500 hover:text-amber-600 uppercase tracking-widest transition-colors flex items-center gap-1.5"
+                            >
+                               <Star className="h-3 w-3 fill-current" /> Rate Class
+                            </button>
                          )}
                       </div>
                    </div>

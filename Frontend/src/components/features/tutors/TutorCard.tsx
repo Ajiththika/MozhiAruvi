@@ -87,15 +87,24 @@ export function TutorCard({ tutor }: { tutor: Tutor }) {
               <p className="text-xs font-bold text-primary/80 tracking-tight">
                 {specialization ?? "Language Expert"}
               </p>
-            </div>
-            { (tutor.oneClassFee || tutor.hourlyRate) && (
-              <div className="text-right shrink-0">
-                <div className="flex flex-col items-end">
-                   <span className="text-lg font-black text-slate-800 leading-none">${tutor.oneClassFee || tutor.hourlyRate}</span>
-                   <span className="text-[8px] font-black text-primary/60 uppercase tracking-widest mt-1">per class</span>
-                </div>
+              <div className="flex items-center gap-1 mt-1">
+                {(tutor.totalReviews !== undefined && tutor.totalReviews > 0) ? (
+                  <>
+                    <Star className="h-3.5 w-3.5 fill-amber-500 text-amber-500" />
+                    <span className="text-[11px] font-bold text-slate-700">{tutor.rating?.toFixed(1)}</span>
+                    <span className="text-[11px] font-medium text-slate-500">({tutor.totalReviews})</span>
+                  </>
+                ) : (
+                  <span className="text-[11px] font-medium text-slate-400 italic">No reviews yet</span>
+                )}
               </div>
-            )}
+            </div>
+            <div className="text-right shrink-0">
+              <div className="flex flex-col items-end">
+                 <span className="text-lg font-black text-slate-800 leading-none">$5</span>
+                 <span className="text-[8px] font-black text-primary/60 uppercase tracking-widest mt-1">per class</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>

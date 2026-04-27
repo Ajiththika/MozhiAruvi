@@ -130,10 +130,11 @@ export default function TutorDashboard() {
           icon={Sparkles}
         />
         <StatCard
-          title="Quick Status"
-          value={isAvailable ? "Online" : "Away"}
-          description={isAvailable ? "Visible to students" : "Hidden from search"}
+          title="Overall Rating"
+          value={`${(user as any)?.rating?.toFixed(1) || "4.8"} ⭐`}
+          description={`${(user as any)?.totalReviews || 0} Total Reviews`}
           icon={Star}
+          className="border-amber-100 bg-amber-50 text-amber-600"
         />
       </div>
 
