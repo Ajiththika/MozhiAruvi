@@ -21,6 +21,7 @@ import {
   GraduationCap,
   Shield,
   Crown,
+  X,
 } from "lucide-react";
 
 import { useAuth } from "@/context/AuthContext";
@@ -56,9 +57,11 @@ export interface SidebarItem {
 interface SidebarProps {
   items: SidebarItem[];
   basePath: string;
+  isMobileOpen?: boolean;
+  onClose?: () => void;
 }
 
-export function Sidebar({ items, basePath }: SidebarProps) {
+export function Sidebar({ items, basePath, isMobileOpen, onClose }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const { user, logoutUser } = useAuth();
@@ -75,27 +78,50 @@ export function Sidebar({ items, basePath }: SidebarProps) {
   };
 
   return (
-    <aside className="hidden w-72 flex-col border-r border-border bg-white md:flex h-screen sticky top-0 overflow-hidden">
-      {/* Brand Section */}
-      <div className="flex h-20 items-center px-8 shrink-0">
-        <Link href="/" className="flex items-center">
-          <div className="relative w-60 h-16 md:w-60 md:h-16 flex-shrink-0">
-            <Image 
-              src="/logo.png" 
-              alt="Mozhi Aruvi" 
-              fill 
-              className="object-contain" 
-              sizes="(max-width: 768px) 240px, 240px"
-              priority
-            />
-          </div>
-        </Link>
-      </div>
+    <>
+      {/* Mobile Overlay */}
+      {isMobileOpen && (
+        <div 
+          className="fixed inset-0 z-[90] bg-slate-900/50 backdrop-blur-sm md:hidden" 
+          onClick={onClose} 
+        />
+      )}
+
+      <aside className={cn(
+        "fixed inset-y-0 left-0 z-[100] flex w-72 flex-col border-r border-border bg-white h-screen overflow-hidden transition-transform duration-300 ease-in-out md:sticky md:top-0 md:translate-x-0",
+        isMobileOpen ? "translate-x-0" : "-translate-x-full"
+      )}>
+        {/* Mobile Header */}
+        <div className="flex md:hidden h-20 items-center justify-between px-6 shrink-0 border-b border-slate-100">
+           <Link href="/" onClick={onClose} className="relative w-40 h-10">
+             <Image src="/logo.png" alt="Logo" fill className="object-contain" />
+           </Link>
+           <button onClick={onClose} className="p-2 -mr-2 text-slate-400 hover:text-primary transition-colors">
+             <X className="h-5 w-5" />
+           </button>
+        </div>
+
+        {/* Desktop Brand Section */}
+        <div className="hidden md:flex h-20 items-center px-8 shrink-0">
+          <Link href="/" className="flex items-center">
+            <div className="relative w-60 h-16 md:w-60 md:h-16 flex-shrink-0">
+              <Image 
+                src="/logo.png" 
+                alt="Mozhi Aruvi" 
+                fill 
+                className="object-contain" 
+                sizes="(max-width: 768px) 240px, 240px"
+                priority
+              />
+            </div>
+          </Link>
+        </div>
 
       {/* User Profile Hook */}
       <div className="px-5 mb-4 shrink-0">
         <Link 
           href={getProfileLink()}
+          onClick={onClose}
           className="flex items-center gap-3 p-2.5 rounded-2xl bg-slate-50 border border-slate-100/50 hover:bg-slate-100/50 transition-all duration-300 group"
         >
           <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-xl bg-white border border-border shadow-sm group-hover:scale-105 transition-transform">
@@ -149,6 +175,7 @@ export function Sidebar({ items, basePath }: SidebarProps) {
             <Link
               key={item.name}
               href={item.href}
+              onClick={onClose}
               className={cn(
                 "group flex items-center gap-3.5 px-4 py-3 text-sm font-bold transition-all duration-300 rounded-xl",
                 isActive
@@ -190,7 +217,7 @@ export function Sidebar({ items, basePath }: SidebarProps) {
                  Experience everything <br />7 days for free.
                </h4>
                <button 
-                 onClick={() => router.push('/student/subscription')}
+                 onClick={() => { router.push('/student/subscription'); onClose?.(); }}
                  className="w-full h-10 rounded-xl bg-primary text-white text-[10px] font-black uppercase tracking-widest hover:bg-primary/90 transition-all shadow-xl shadow-primary/20"
                >
                  Go Premium
@@ -203,7 +230,7 @@ export function Sidebar({ items, basePath }: SidebarProps) {
       {/* Footer Actions */}
       <div className="p-5 mt-auto border-t border-slate-100 shrink-0">
         <button
-          onClick={handleLogout}
+          onClick={() => { handleLogout(); onClose?.(); }}
           className="group flex w-full items-center gap-3 px-4 py-3 rounded-xl text-xs font-black text-red-500 hover:bg-red-50 transition-all duration-300"
         >
           <div className="h-8 w-8 rounded-lg bg-red-50 flex items-center justify-center group-hover:bg-red-500 group-hover:text-white transition-all">
@@ -213,6 +240,7 @@ export function Sidebar({ items, basePath }: SidebarProps) {
         </button>
       </div>
     </aside>
+    </>
   );
 }
 
