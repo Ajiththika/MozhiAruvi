@@ -21,7 +21,7 @@ export async function authenticate(req, res, next) {
         const decoded = verifyAccessToken(token);
 
         // Optimization: Lean query for existence check
-        const user = await User.findById(decoded.sub).select('isActive role').lean();
+        const user = await User.findById(decoded.sub).select('isActive role isEmailVerified').lean();
         
         if (!user) {
             const error = new Error('User no longer exists.');
@@ -34,6 +34,13 @@ export async function authenticate(req, res, next) {
             const error = new Error('Your account has been deactivated.');
             error.status = 403;
             error.code = 'ACCOUNT_DEACTIVATED';
+            return next(error);
+        }
+
+        if (user.isEmailVerified === false) {
+            const error = new Error('Email verification required.');
+            error.status = 403;
+            error.code = 'EMAIL_NOT_VERIFIED';
             return next(error);
         }
 

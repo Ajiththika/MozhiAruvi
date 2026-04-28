@@ -70,6 +70,52 @@ export async function sendPasswordResetEmail(to, resetUrl) {
     }
 }
 
+// ── Send Email Verification Email ─────────────────────────────────────────────
+export async function sendVerificationEmail(to, verifyUrl) {
+    let transporter;
+    try {
+        transporter = createTransporter();
+    } catch (configError) {
+        return;
+    }
+
+    const rawFrom = process.env.SMTP_FROM || '';
+    const from = rawFrom.replace(/^["']|["']$/g, '') || `"Mozhi Aruvi" <${process.env.SMTP_USER}>`;
+
+    const mailOptions = {
+        from,
+        to,
+        subject: 'Verify Your Email – Mozhi Aruvi',
+        text: `Welcome to Mozhi Aruvi!\n\nPlease verify your email by clicking the link below:\n\n${verifyUrl}\n\nIf you did not create an account, please ignore this email.`,
+        html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eaeaea; border-radius: 10px; color: #333;">
+                <h2 style="color: #6366f1; text-align: center;">Welcome to Mozhi Aruvi!</h2>
+                <p>Hello,</p>
+                <p>Thank you for joining <strong>Mozhi Aruvi</strong>. To start your journey in learning the world's oldest living classical language, please verify your email address by clicking the button below:</p>
+                <div style="text-align: center; margin: 30px 0;">
+                    <a href="${verifyUrl}" style="display: inline-block; padding: 12px 24px; color: white; background-color: #6366f1; text-decoration: none; border-radius: 5px; font-weight: bold;">Verify Email Address</a>
+                </div>
+                <p>If the button above does not work, copy and paste the following link into your browser:</p>
+                <p style="word-break: break-all;">
+                    <a href="${verifyUrl}" style="color: #6366f1;">${verifyUrl}</a>
+                </p>
+                <p style="font-size: 12px; color: #777;">This link is for your security and to ensure your email is correct.</p>
+                <hr style="border: none; border-top: 1px solid #eaeaea; margin: 30px 0;" />
+                <p style="font-size: 12px; color: #777; text-align: center;">
+                    If you did not create an account with Mozhi Aruvi, you can safely ignore this email.
+                </p>
+            </div>
+        `,
+    };
+
+    try {
+        await transporter.sendMail(mailOptions);
+    } catch (error) {
+        console.error('❌ [MAIL ERROR]: Verification email failed to send to', to, error.message);
+        // Non-blocking: we don't throw here to avoid failing registration if mail fails
+    }
+}
+
 // ── SMTP Connection Test (used by /api/test-email) ───────────────────────────
 export async function testSmtpConnection(to) {
     const transporter = createTransporter();

@@ -14,10 +14,23 @@ export function initGoogle(app) {
             const email = profile.emails?.[0]?.value;
             let user = await User.findOne({ $or: [{ googleId: profile.id }, { email }] });
             if (!user) {
-                user = await User.create({ name: profile.displayName, email, googleId: profile.id });
-            } else if (!user.googleId) {
-                user.googleId = profile.id;
-                await user.save();
+                user = await User.create({ 
+                    name: profile.displayName, 
+                    email, 
+                    googleId: profile.id,
+                    isEmailVerified: true 
+                });
+            } else {
+                let modified = false;
+                if (!user.googleId) {
+                    user.googleId = profile.id;
+                    modified = true;
+                }
+                if (!user.isEmailVerified) {
+                    user.isEmailVerified = true;
+                    modified = true;
+                }
+                if (modified) await user.save();
             }
             done(null, user);
         } catch (e) {

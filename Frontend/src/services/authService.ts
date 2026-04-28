@@ -71,6 +71,7 @@ export interface SafeUser {
   hasUsedTrial?: boolean;
   stripeAccountId?: string;
   isStripeVerified?: boolean;
+  isEmailVerified?: boolean;
 }
 
 export interface AuthResponse {
@@ -172,6 +173,13 @@ export async function resetPassword(data: {
   password: string;
 }): Promise<{ message: string }> {
   const res = await api.post<{ message: string }>("/auth/reset-password", data);
+  return res.data;
+}
+
+// ── Verify email ──────────────────────────────────────────────────────────────
+
+export async function verifyEmail(token: string): Promise<{ message: string }> {
+  const res = await api.get<{ message: string }>(`/auth/verify-email?token=${token}`);
   return res.data;
 }
 

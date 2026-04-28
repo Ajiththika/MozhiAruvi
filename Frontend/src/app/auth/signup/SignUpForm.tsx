@@ -30,49 +30,25 @@ export default function SignUpForm() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
-
+ 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-
+ 
     if (password !== confirmPassword) {
       setError("Passwords do not match");
       return;
     }
-
+ 
     setLoading(true);
-
+ 
     try {
-      const res = await register({ name, email, password });
-      
-      if (redirectParam === '/tutor/apply') {
-        // Quick Apply: Auto-submit with basic info
-        try {
-          await submitTutorApplication({
-            fullName: res.user.name,
-            experience: "Automated Registration Applicant",
-            bio: "Interested in joining as a tutor from the platform join button.",
-            specialization: "General",
-            languages: [],
-            hourlyRate: 10,
-            teachingMode: "both",
-            motivation: "I want to teach."
-          });
-          setUser({ ...res.user, tutorStatus: 'pending' });
-          router.push('/tutor/apply/status');
-        } catch (err) {
-          // If auto-submit fails, just go to the form normally
-          setUser(res.user);
-          router.push(redirectParam);
-        }
-      } else if (redirectParam) {
-        setUser(res.user);
-        router.push(redirectParam);
-      } else {
-        setUser(res.user);
-        router.push('/auth/role-selection');
-      }
+      await register({ name, email, password });
+      setSuccess(true);
+      // We don't call setUser(res.user) here because they aren't verified yet
+      // The middleware will block them anyway
     } catch (err: any) {
       if (isAxiosError(err) && err.response?.data?.error?.message) {
         setError(err.response.data.error.message);
@@ -83,6 +59,34 @@ export default function SignUpForm() {
       setLoading(false);
     }
   };
+
+  if (success) {
+    return (
+      <div className="w-full max-w-sm mx-auto xl:max-w-md text-center">
+        <div className="mb-6">
+          <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            </svg>
+          </div>
+          <h2 className="text-2xl font-black text-text-primary uppercase tracking-tight">Check your email</h2>
+          <p className="mt-2 text-primary/60 font-bold uppercase tracking-widest text-xs">Verification required</p>
+        </div>
+        <p className="text-text-secondary mb-6">
+          We've sent a verification link to <span className="font-bold text-text-primary">{email}</span>. 
+          Please click the link in the email to activate your account.
+        </p>
+        <div className="space-y-4">
+          <Button variant="primary" size="lg" className="w-full" onClick={() => router.push('/auth/signin')}>
+            Go to Sign In
+          </Button>
+          <p className="text-sm text-primary/40 uppercase tracking-tighter font-black">
+            Didn't receive it? Check your spam folder or try again later.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full max-w-sm mx-auto xl:max-w-md">

@@ -2,7 +2,7 @@ import crypto from 'crypto';
 import User from '../models/User.js';
 import Session from '../models/Session.js';
 import * as tokenService from './tokenService.js';
-import { sendPasswordResetEmail } from './mailService.js';
+import { sendPasswordResetEmail, sendVerificationEmail } from './mailService.js';
 import { getFrontendUrl } from '../utils/urlHelper.js';
 
 function meta(req) {
@@ -14,7 +14,23 @@ export async function registerUser(req) {
     if (await User.findOne({ email })) {
         const err = new Error('Email already registered.'); err.status = 409; err.code = 'EMAIL_IN_USE'; throw err;
     }
-    const user = await User.create({ name, email, password });
+    
+    // Generate verification token
+    const verificationToken = crypto.randomBytes(32).toString('hex');
+    const verificationTokenExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+
+    const user = await User.create({ 
+        name, 
+        email, 
+        password,
+        verificationToken,
+        verificationTokenExpires,
+        isEmailVerified: false
+    });
+
+    const verifyUrl = `${getFrontendUrl(req)}/auth/verify-email?token=${verificationToken}`;
+    await sendVerificationEmail(email, verifyUrl);
+
     const { raw, sessionId } = await tokenService.createRefreshToken(user._id, meta(req));
     return { user, accessToken: tokenService.signAccessToken(user, sessionId), raw, sessionId };
 }
@@ -26,6 +42,14 @@ export async function loginUser(req) {
     if (!valid) {
         const err = new Error('Invalid email or password.'); err.status = 401; err.code = 'INVALID_CREDENTIALS'; throw err;
     }
+
+    if (user.isEmailVerified === false) {
+        const err = new Error('Please verify your email before logging in.'); 
+        err.status = 403; 
+        err.code = 'EMAIL_NOT_VERIFIED'; 
+        throw err;
+    }
+
     const { raw, sessionId } = await tokenService.createRefreshToken(user._id, meta(req));
     return { user, accessToken: tokenService.signAccessToken(user, sessionId), raw, sessionId };
 }
@@ -131,6 +155,33 @@ export async function doResetPassword(token, password) {
     
     // Revoke all existing sessions for security after password change
     await Session.updateMany({ userId: user._id }, { revoked: true });
+}
+
+export async function verifyUserEmail(token) {
+    if (!token) {
+        const err = new Error('Verification token is missing.');
+        err.status = 400;
+        throw err;
+    }
+
+    const user = await User.findOne({ 
+        verificationToken: token,
+        verificationTokenExpires: { $gt: new Date() }
+    });
+
+    if (!user) {
+        const err = new Error('Invalid or expired verification token.');
+        err.status = 400;
+        err.code = 'INVALID_VERIFICATION_TOKEN';
+        throw err;
+    }
+
+    user.isEmailVerified = true;
+    user.verificationToken = undefined;
+    user.verificationTokenExpires = undefined;
+    await user.save();
+
+    return user;
 }
 
 

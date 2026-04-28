@@ -19,6 +19,7 @@ router.post('/logout', auth.logout);
 router.get('/me', authenticate, auth.me);
 router.post('/forgot-password', forgotLimiter, validate(forgotSchema), auth.forgotPassword);
 router.post('/reset-password', validate(resetSchema), auth.resetPassword);
+router.get('/verify-email', auth.verifyEmail);
 
 // Google OAuth
 router.get('/google', passport.authenticate('google', { session: false, scope: ['profile', 'email'] }));

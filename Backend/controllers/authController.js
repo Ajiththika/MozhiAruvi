@@ -111,6 +111,15 @@ export async function resetPassword(req, res, next) {
     } catch (e) { next(e); }
 }
 
+// ── Verify Email ──────────────────────────────────────────────────────────────
+export async function verifyEmail(req, res, next) {
+    try {
+        const { token } = req.query;
+        await authService.verifyUserEmail(token);
+        res.json({ message: 'Email verified successfully! You can now log in.' });
+    } catch (e) { next(e); }
+}
+
 export async function googleCallback(req, res, next) {
     try {
         const user = req.user; // set by passport
