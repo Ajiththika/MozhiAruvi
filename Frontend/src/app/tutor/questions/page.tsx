@@ -26,7 +26,7 @@ export default function TeacherRequestsPage() {
   const [replies, setReplies] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState<string | null>(null);
   const [search, setSearch] = useState("");
-  const [filter, setFilter] = useState<"all" | "pending" | "replied" | "resolved" | "answered" | "scheduled">("pending");
+  const [filter, setFilter] = useState<"all" | "pending" | "resolved" | "scheduled">("pending");
 
   useEffect(() => {
     fetchRequests();
@@ -99,13 +99,13 @@ export default function TeacherRequestsPage() {
         </div>
         <div className="flex items-center gap-2">
            <div className="bg-slate-50 rounded-2xl p-1.5 flex gap-1 border border-slate-100 shadow-inner">
-              {(["all", "pending", "replied", "answered", "resolved"] as const).map(t => (
+              {(["all", "pending", "resolved"] as const).map(t => (
                  <button 
                   key={t}
                   onClick={() => setFilter(t)}
                   className={cn(
                     "px-6 py-2.5 rounded-xl text-xs font-bold capitalize transition-all duration-300",
-                    filter === t ? "bg-white text-primary shadow-xl shadow-slate-200/40 border border-slate-100" : "text-primary/60 hover:text-slate-600"
+                    filter === (t as any) ? "bg-white text-primary shadow-xl shadow-slate-200/40 border border-slate-100" : "text-primary/60 hover:text-slate-600"
                   )}
                  >
                     {t}
