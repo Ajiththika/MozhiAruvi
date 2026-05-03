@@ -140,7 +140,7 @@ export default function AdminDashboard() {
                <div className="space-y-2">
                   <h1 className="text-4xl md:text-5xl font-black text-slate-800 tracking-tighter leading-none">Command Deck</h1>
                   <p className="text-lg text-primary/70 font-medium leading-relaxed max-w-3xl">
-                     Orchestrating the ecosystem of classical Tamil learning. Managed by <strong className="text-primary underline underline-offset-8 decoration-2 decoration-primary/20">{admin?.name}</strong>.
+                     Orchestrating the ecosystem of classical Tamil learning. Managed by <strong className="text-primary underline underline-offset-8 decoration-2 decoration-primary/20">{admin?.name || "Administrator"}</strong>.
                   </p>
                </div>
             </div>
@@ -253,7 +253,7 @@ export default function AdminDashboard() {
                                              <div className="h-12 w-12 rounded-2xl bg-primary/5 flex items-center justify-center font-black text-primary text-sm border border-primary/10">{(blog.author?.name || "B").charAt(0)}</div>
                                              <div>
                                                 <p className="text-sm font-black text-text-primary">{blog.title}</p>
-                                                <p className="text-[10px] font-bold text-primary/60 uppercase tracking-widest">By {blog.author?.name}</p>
+                                                <p className="text-[10px] font-bold text-primary/60 uppercase tracking-widest">By {blog.author?.name || "Anonymous"}</p>
                                              </div>
                                           </td>
                                           <td className="px-10 py-6 text-right">

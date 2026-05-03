@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import StatCard from "@/components/features/dashboard/StatCard";
-import { BookOpen, Trophy, AlertCircle, ArrowRight, Clock, BookMarked, Flame, Zap, Crown, Calendar, Headphones, Hourglass, Loader2 } from "lucide-react";
+import { BookOpen, Trophy, AlertCircle, ArrowRight, Clock, BookMarked, Flame, Zap, Crown, Calendar, Headphones, Hourglass, Loader2, Star } from "lucide-react";
 import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
 import { getDashboardData } from "@/services/authService";
@@ -242,11 +242,11 @@ export default function StudentDashboard() {
                 <Card key={booking._id} variant="elevated" className="group rounded-[2rem] border-slate-50 shadow-xl shadow-slate-200/20 hover:shadow-secondary/20 hover:border-secondary/20 transition-all duration-500 overflow-hidden">
                    <div className="flex items-center gap-6 p-8">
                       <div className="shrink-0 h-20 w-20 rounded-[1.5rem] bg-slate-50 border-4 border-white shadow-xl overflow-hidden group-hover:rotate-3 transition-transform">
-                         {booking.tutorId.profilePhoto ? (
+                         {booking.tutorId?.profilePhoto ? (
                            <img src={booking.tutorId.profilePhoto} className="h-full w-full object-cover" />
                          ) : (
                            <div className="h-full w-full bg-secondary/5 flex items-center justify-center text-secondary font-black text-2xl">
-                              {booking.tutorId.name.charAt(0)}
+                              {booking.tutorId?.name?.charAt(0) || 'T'}
                            </div>
                          )}
                       </div>
@@ -260,15 +260,15 @@ export default function StudentDashboard() {
                                {booking.status}
                             </span>
                          </div>
-                         <h4 className="text-xl font-black text-slate-800 tracking-tight">{booking.tutorId.name}</h4>
+                         <h4 className="text-xl font-black text-slate-800 tracking-tight">{booking.tutorId?.name}</h4>
                          <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">{booking.startTime} ({booking.duration} mins)</p>
                       </div>
                    </div>
                    <div className="bg-slate-50/50 px-8 py-4 border-t border-slate-50 flex items-center justify-between">
-                      <p className="text-[10px] font-bold text-slate-400 capitalize">{booking.tutorId.specialization || "Language Session"}</p>
+                      <p className="text-[10px] font-bold text-slate-400 capitalize">{booking.tutorId?.specialization || "Language Session"}</p>
                       <div className="flex gap-3">
                          {booking.status === 'confirmed' && booking.paymentStatus !== 'paid' && (
-                            !booking.tutorId.stripeAccountId ? (
+                            !booking.tutorId?.stripeAccountId ? (
                                <div className="flex items-center gap-1.5 text-amber-500">
                                    <AlertCircle className="w-3 h-3" />
                                    <span className="text-[9px] font-black uppercase tracking-widest">Teacher Setup Pending</span>
@@ -312,7 +312,7 @@ export default function StudentDashboard() {
                          )}
                          {booking.status === 'completed' && (
                             <button 
-                               onClick={() => setRatingModal({ open: true, tutorName: booking.tutorId.name, tutorImage: booking.tutorId.profilePhoto })}
+                               onClick={() => setRatingModal({ open: true, tutorName: booking.tutorId?.name || "Tutor", tutorImage: booking.tutorId?.profilePhoto })}
                                className="text-[10px] font-black text-amber-500 hover:text-amber-600 uppercase tracking-widest transition-colors flex items-center gap-1.5"
                             >
                                <Star className="h-3 w-3 fill-current" /> Rate Class

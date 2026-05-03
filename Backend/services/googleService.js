@@ -9,6 +9,7 @@ export function initGoogle(app) {
         clientID: process.env.GOOGLE_CLIENT_ID,
         clientSecret: process.env.GOOGLE_CLIENT_SECRET,
         callbackURL: process.env.GOOGLE_CALLBACK_URL,
+        proxy: true
     }, async (_at, _rt, profile, done) => {
         try {
             const email = profile.emails?.[0]?.value;

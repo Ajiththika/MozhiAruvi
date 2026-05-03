@@ -160,17 +160,17 @@ export default function TutorDashboard() {
                   <div key={booking._id} className="group flex flex-col md:flex-row items-center justify-between p-6 rounded-2xl border border-slate-100 bg-slate-50/50 hover:bg-white hover:border-primary/20 hover:shadow-xl transition-all duration-500">
                      <div className="flex items-center gap-6">
                         <div className="h-16 w-16 rounded-xl bg-white border border-slate-100 p-1 shadow-sm overflow-hidden flex items-center justify-center">
-                           {booking.studentId.profilePhoto ? (
+                           {booking.studentId?.profilePhoto ? (
                              <img src={booking.studentId.profilePhoto} className="h-full w-full object-cover rounded-lg" />
                            ) : (
                              <div className="h-full w-full bg-primary/5 flex items-center justify-center text-primary font-black uppercase text-xl">
-                               {booking.studentId.name ? (booking.studentId.name as string).charAt(0) : 'S'}
+                               {booking.studentId?.name ? (booking.studentId.name as string).charAt(0) : 'S'}
                              </div>
                            )}
                         </div>
                         <div>
                            <p className="text-[10px] font-black text-primary uppercase tracking-[0.2em] mb-1">{new Date(booking.date).toLocaleDateString()} • {booking.startTime}</p>
-                           <h5 className="text-lg font-black text-slate-800 tracking-tight">{booking.studentId.name}</h5>
+                           <h5 className="text-lg font-black text-slate-800 tracking-tight">{booking.studentId?.name}</h5>
                            <div className="flex items-center gap-4 mt-2">
                               <span className={cn(
                                 "text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full",
