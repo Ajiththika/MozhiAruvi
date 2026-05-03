@@ -46,4 +46,7 @@ router.patch('/me/level', authenticate, validate(setLevelSchema), userController
 router.post('/me/onboarding', authenticate, validate(onboardingSchema), userController.completeOnboarding);
 router.post('/me/consume-credit', authenticate, userController.consumeCredit);
 
+// Public routes
+router.get('/public/stats', userController.getPublicStats);
+
 export default router;

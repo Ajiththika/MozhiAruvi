@@ -1,5 +1,6 @@
 import React from "react";
 import Button from "@/components/ui/Button";
+import { ActiveUsersPill } from "@/components/ui/ActiveUsersPill";
 
 /* ─────────────────────────────────────────────
    Decorative Tamil letter configuration.
@@ -176,6 +177,10 @@ export default function Hero() {
           <p className="mt-4 text-xs text-gray-500">
             No credit card required. Start learning in under 60 seconds.
           </p>
+
+          <div className="mt-8 scale-75 md:scale-100">
+            <ActiveUsersPill />
+          </div>
         </div>
 
       </div>

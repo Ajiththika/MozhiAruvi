@@ -183,3 +183,8 @@ export async function verifyEmail(token: string): Promise<{ message: string }> {
   return res.data;
 }
 
+export async function getPublicStats(): Promise<{ totalUsers: number }> {
+  const res = await api.get<{ totalUsers: number }>("/users/public/stats");
+  return res.data;
+}
+

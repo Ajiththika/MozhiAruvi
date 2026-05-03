@@ -7,8 +7,8 @@ import mongoose from 'mongoose';
 
 export async function connectDB() {
     const options = {
-        serverSelectionTimeoutMS: 5000, // Reduced from 15s for faster feedback
-        connectTimeoutMS: 10000,
+        serverSelectionTimeoutMS: 15000, 
+        connectTimeoutMS: 20000,
         maxPoolSize: 10,
         socketTimeoutMS: 45000,
         family: 4, 
@@ -16,7 +16,6 @@ export async function connectDB() {
         w: 'majority',
     };
 
-    mongoose.set('bufferCommands', false);
     mongoose.set('strictQuery', false);
 
     const mongoUri = process.env.MONGODB_URI;

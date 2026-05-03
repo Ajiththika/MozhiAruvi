@@ -141,3 +141,7 @@ export async function deactivateUserAccount(userId) {
     // Revoke all sessions
     await Session.updateMany({ userId: user._id }, { revoked: true });
 }
+
+export async function getTotalUserCount() {
+    return await User.countDocuments({ isActive: true });
+}
