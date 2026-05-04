@@ -35,6 +35,9 @@ export async function connectDB() {
             process.exit(1);
         }
 
+        if (err.message.includes('ENOTFOUND') || err.message.includes('querySrv')) {
+            console.warn(`💡 [HINT] This looks like a DNS or SRV lookup failure. Your network might be blocking SRV requests. Try using the 'Standard Connection String' (without +srv) from MongoDB Atlas.`);
+        }
         console.warn('⚠️ [DATABASE] Running in degraded mode (Database Offline). Check IP whitelist.');
     }
 

@@ -2,6 +2,7 @@ import { Router } from 'express';
 import rateLimit from 'express-rate-limit';
 import passport from 'passport';
 import * as auth from '../controllers/authController.js';
+import { getOAuthCallbackUrl } from '../utils/urlHelper.js';
 import { authenticate } from '../middleware/auth.js';
 import { validate, registerSchema, loginSchema, forgotSchema, resetSchema } from '../middleware/validate.js';
 import { getFrontendUrl } from '../utils/urlHelper.js';
@@ -24,7 +25,7 @@ router.get('/verify-email', auth.verifyEmail);
 
 // Google OAuth
 router.get('/google', (req, res, next) => {
-    const callbackURL = `${getFrontendUrl(req)}/api/auth/google/callback`;
+    const callbackURL = `${getOAuthCallbackUrl(req)}${req.baseUrl}/google/callback`;
     passport.authenticate('google', { 
         session: false, 
         scope: ['profile', 'email'],
@@ -33,8 +34,8 @@ router.get('/google', (req, res, next) => {
 });
 
 router.get('/google/callback', (req, res, next) => {
-    const redirectBase = getFrontendUrl(req);
-    const callbackURL = `${redirectBase}/api/auth/google/callback`;
+    const redirectBase = getOAuthCallbackUrl(req);
+    const callbackURL = `${redirectBase}${req.baseUrl}/google/callback`;
     passport.authenticate('google', { 
         session: false, 
         failureRedirect: `${redirectBase}/auth/signin?error=OAuth-failed`,

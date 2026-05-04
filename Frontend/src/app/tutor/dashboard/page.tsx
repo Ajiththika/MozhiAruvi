@@ -131,7 +131,7 @@ export default function TutorDashboard() {
         />
         <StatCard
           title="Overall Rating"
-          value={`${(user as any)?.rating?.toFixed(1) || "4.8"} ⭐`}
+          value={`${typeof (user as any)?.rating === 'number' ? (user as any).rating.toFixed(1) : "4.8"} ⭐`}
           description={`${(user as any)?.totalReviews || 0} Total Reviews`}
           icon={Star}
           className="border-amber-100 bg-amber-50 text-amber-600"

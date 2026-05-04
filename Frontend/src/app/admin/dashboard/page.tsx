@@ -47,7 +47,8 @@ export default function AdminDashboard() {
    useEffect(() => {
       (async () => {
          try {
-            const [me, s, ts, bl, mentors, evs, prem, plans] = await Promise.all([
+            // Use allSettled to ensure dashboard loads even if some stats fail
+            const results = await Promise.allSettled([
                getMe(),
                getAdminStats(),
                getAllTutors(1, 4),
@@ -57,16 +58,23 @@ export default function AdminDashboard() {
                getPremiumUsers(1, 10),
                getPlanSettings(),
             ]);
-            setAdmin(me);
-            setStats(s);
-            setTutors(ts.tutors);
-            setBlogs(bl.blogs.filter(b => b.status === 'pending'));
-            setApplications(mentors);
-            setEvents(evs.events);
-            setPremiumUsers(prem.users);
-            setPlanSettings(plans);
+
+            const [me, s, ts, bl, mentors, evs, prem, plans] = results.map(r => r.status === 'fulfilled' ? r.value : null);
+
+            if (me) setAdmin(me);
+            if (s) setStats(s);
+            if (ts) setTutors(ts.tutors);
+            if (bl) setBlogs(bl.blogs.filter(b => b.status === 'pending'));
+            if (mentors) setApplications(mentors);
+            if (evs) setEvents(evs.events);
+            if (prem) setPremiumUsers(prem.users);
+            if (plans) setPlanSettings(plans);
+
+            if (results.some(r => r.status === 'rejected')) {
+               console.warn("Some admin data failed to load. The system is likely in degraded mode.");
+            }
          } catch (err) {
-            setError("Could not load dashboard data. Check backend connection.");
+            setError("Critical dashboard failure. Check backend connectivity.");
          } finally {
             setLoading(false);
          }

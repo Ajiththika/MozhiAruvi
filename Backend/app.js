@@ -134,6 +134,7 @@ app.use(csrfProtection);
 
 // ── Routes ────────────────────────────────────────────────────────────────────
 app.use("/api/auth", authRoutes);
+app.use("/auth", authRoutes); // Added for Google OAuth compatibility
 app.use("/api/admin", adminRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/lessons", lessonRoutes);

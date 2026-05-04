@@ -49,4 +49,28 @@ export function getFrontendUrl(req) {
     return origins[0] || 'http://mozhiaruvi.com';
 }
 
+/**
+ * Specifically for OAuth callbacks (Google, etc.)
+ * Google does NOT allow raw IP addresses as redirect URIs.
+ * This function ensures we use the domain name if available.
+ */
+export function getOAuthCallbackUrl(req) {
+    const host = req?.get('host');
+    const primary = process.env.PRIMARY_SITE_URL;
+    
+    // If we are on localhost, keep using localhost (Google allows this)
+    if (host?.includes('localhost') || host?.includes('127.0.0.1')) {
+        const protocol = req.protocol || 'http';
+        return `${protocol}://${host}`;
+    }
+
+    // Otherwise, FORCE the use of the primary domain if it exists
+    if (primary) {
+        return primary.endsWith('/') ? primary.slice(0, -1) : primary;
+    }
+
+    // Last resort fallback
+    return getFrontendUrl(req);
+}
+
 

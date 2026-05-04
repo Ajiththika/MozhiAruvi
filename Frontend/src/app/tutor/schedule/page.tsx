@@ -117,11 +117,11 @@ export default function TutorSchedulePage() {
                 <div className="flex items-center gap-8">
                    {/* Student Avatar */}
                    <div className="h-20 w-20 shrink-0 rounded-2xl bg-slate-50 border-4 border-white shadow-xl overflow-hidden shadow-slate-200 flex items-center justify-center">
-                      {booking.studentId.profilePhoto ? (
-                        <img src={booking.studentId.profilePhoto} className="h-full w-full object-cover" />
+                      {booking.studentId?.profilePhoto ? (
+                        <img src={booking.studentId?.profilePhoto} className="h-full w-full object-cover" />
                       ) : (
                         <div className="h-full w-full bg-primary/5 flex items-center justify-center text-primary font-black text-2xl">
-                           {(booking.studentId.name as string).charAt(0)}
+                           {booking.studentId?.name ? (booking.studentId.name as string).charAt(0) : "S"}
                         </div>
                       )}
                    </div>
@@ -137,7 +137,7 @@ export default function TutorSchedulePage() {
                             {booking.paymentStatus === 'paid' ? "PAID" : "Awaiting Payment"}
                          </span>
                       </div>
-                      <h4 className="text-2xl font-black text-slate-800 tracking-tight">{booking.studentId.name}</h4>
+                      <h4 className="text-2xl font-black text-slate-800 tracking-tight">{booking.studentId?.name || "Student"}</h4>
                       <p className="flex items-center gap-2 text-sm font-bold text-slate-500">
                          <Clock className="h-4 w-4 text-primary" /> {booking.startTime} ({booking.duration} mins)
                       </p>
