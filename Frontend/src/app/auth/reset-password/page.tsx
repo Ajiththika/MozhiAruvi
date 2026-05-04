@@ -4,6 +4,7 @@ import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { AuthInput } from '../shared';
+import { api } from '@/lib/api';
 import axios from 'axios';
 import Button from '@/components/ui/Button';
 import { ShieldCheck, CheckCircle2, ArrowRight, KeyRound, AlertCircle, Loader2 } from 'lucide-react';
@@ -49,7 +50,7 @@ function ResetPasswordForm() {
         setResending(true);
         setError(null);
         try {
-            await axios.post(`${API_URL}/auth/forgot-password`, { email });
+            await api.post(`/auth/forgot-password`, { email });
             setResendSuccess(true);
             setTimeout(() => setResendSuccess(false), 5000);
         } catch (err: any) {
@@ -76,7 +77,7 @@ function ResetPasswordForm() {
         setError(null);
 
         try {
-            await axios.post(`${API_URL}/auth/reset-password`, { token, password });
+            await api.post(`/auth/reset-password`, { token, password });
             setSuccess(true);
         } catch (err: any) {
             // Enhanced error reporting

@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { AuthInput } from '../shared';
-import axios from 'axios';
+import { api } from '@/lib/api';
 import Button from '@/components/ui/Button';
 import { Mail, ArrowLeft, CheckCircle2 } from 'lucide-react';
 
@@ -21,7 +21,7 @@ export default function ForgotPasswordPage() {
     setError(null);
 
     try {
-      await axios.post(`${API_URL}/auth/forgot-password`, { email });
+      await api.post(`/auth/forgot-password`, { email });
       setSuccess(true);
     } catch (err: any) {
       setError(err.response?.data?.error?.message || "An error occurred. Please try again.");

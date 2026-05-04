@@ -79,15 +79,17 @@ app.use((req, res, next) => {
   next();
 });
 
+const allowedOrigins = [
+  "http://localhost:3000",
+  "https://localhost:3000",
+  "https://mozhiaruvi.com",
+  "https://www.mozhiaruvi.com",
+  ...(process.env.FRONTEND_ORIGIN ? process.env.FRONTEND_ORIGIN.split(",") : []),
+];
+
 app.use(
   cors({
     origin: (origin, callback) => {
-      const allowedOrigins = [
-        "http://localhost:3000",
-        "https://localhost:3000",
-        ...(process.env.FRONTEND_ORIGIN ? process.env.FRONTEND_ORIGIN.split(",") : []),
-      ];
-      // Allow requests with no origin (like mobile apps or curl)
       if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
@@ -98,6 +100,9 @@ app.use(
     credentials: true,
   }),
 );
+
+// Handle preflight requests for all routes
+app.options('*', cors());
 
 // ── Body / Cookie ─────────────────────────────────────────────────────────────
 // Stripe webhook needs raw body for signature verification
