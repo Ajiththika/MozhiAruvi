@@ -135,11 +135,15 @@ import { responseWrapper } from "./middleware/responseWrapper.js";
 import { csrfProtection } from "./middleware/csrf.js";
 
 app.use(responseWrapper);
-app.use(csrfProtection);
 
 // ── Routes ────────────────────────────────────────────────────────────────────
+// Auth routes are excluded from CSRF protection for OAuth/Login stability
 app.use("/api/auth", authRoutes);
-app.use("/auth", authRoutes); // Added for Google OAuth compatibility
+app.use("/auth", authRoutes); 
+
+// Apply CSRF protection to all subsequent routes
+app.use(csrfProtection);
+
 app.use("/api/admin", adminRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/lessons", lessonRoutes);
