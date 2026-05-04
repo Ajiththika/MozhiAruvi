@@ -80,18 +80,27 @@ export default function Navbar() {
           <div className="flex-shrink-0">
             <Link
               href="/"
-              className="flex items-center gap-3"
+              className="flex items-center gap-3 group"
             >
-              <div className="relative w-60 h-16 md:w-60 md:h-20 flex-shrink-0">
+            <div className="flex items-center gap-2">
+              <div className="relative w-12 h-12 md:w-16 md:h-16 flex-shrink-0">
                 <Image
-                  src="/logo.png"
-                  alt="Mozhi Aruvi"
+                  src="/logo1.png"
+                  alt="Mozhi Aruvi Icon"
                   fill
                   className="object-contain"
-                  sizes="(max-width: 768px) 240px, 240px"
                   priority
                 />
               </div>
+              <div className="relative">
+                <span className="text-xl md:text-2xl font-black text-primary tracking-tight transition-all duration-300 group-hover:opacity-0 font-sans">
+                  MozhiAruvi
+                </span>
+                <span className="absolute inset-0 text-xl md:text-2xl font-bold text-primary tracking-tight opacity-0 group-hover:opacity-100 transition-all duration-300 whitespace-nowrap font-tamil">
+                  மொழிஅருவி
+                </span>
+              </div>
+            </div>
             </Link>
           </div>
 
@@ -213,17 +222,28 @@ export default function Navbar() {
         <div className="flex flex-col h-full">
           {/* Header in Drawer */}
           <div className="flex items-center justify-between px-6 h-20 border-b border-slate-100">
-             <div className="flex items-center gap-3">
-                 <div className="relative w-60 h-16 md:w-60 md:h-16">
+              <Link 
+                href="/" 
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="flex items-center gap-3 transition-opacity hover:opacity-80"
+              >
+                <div className="relative w-12 h-12 flex-shrink-0">
                   <Image
-                    src="/logo.png"
-                    alt="Logo"
+                    src="/logo1.png"
+                    alt="Logo Icon"
                     fill
                     className="object-contain"
-                    sizes="(max-width: 768px) 240px, 240px"
                   />
                 </div>
-             </div>
+                <div className="relative">
+                  <span className="text-xl font-black text-primary tracking-tight transition-all duration-300 group-hover:opacity-0 font-sans">
+                    MozhiAruvi
+                  </span>
+                  <span className="absolute inset-0 text-xl font-bold text-primary tracking-tight opacity-0 group-hover:opacity-100 transition-all duration-300 whitespace-nowrap font-tamil">
+                    மொழிஅருவி
+                  </span>
+                </div>
+              </Link>
              <button
                 onClick={() => setIsMobileMenuOpen(false)}
                 className="h-10 w-10 flex items-center justify-center rounded-xl bg-slate-50 text-slate-400 hover:text-primary transition-colors"

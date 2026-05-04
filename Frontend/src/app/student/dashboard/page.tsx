@@ -100,7 +100,7 @@ export default function StudentDashboard() {
           <div className="h-10 w-10 rounded-xl bg-primary/5 flex items-center justify-center p-2 border border-primary/10">
              <Trophy className="text-primary w-5 h-5" />
           </div>
-          <span className="text-xs font-bold text-primary tracking-widest uppercase">Learning Hub</span>
+          <span className="px-3 py-1 rounded-full bg-accent/30 text-[10px] font-black text-primary tracking-[0.2em] uppercase border border-accent/20">Learning Hub</span>
         </div>
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="max-w-3xl">

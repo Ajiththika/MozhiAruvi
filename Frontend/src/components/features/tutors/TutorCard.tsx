@@ -127,7 +127,7 @@ export function TutorCard({ tutor }: { tutor: Tutor }) {
             </span>
           ))}
           {teachingMode && (
-            <span className="rounded-lg bg-sky-50 px-2.5 py-1 text-[10px] font-bold text-sky-700 border border-sky-100 flex items-center gap-1.5">
+            <span className="rounded-lg bg-accent/30 px-2.5 py-1 text-[10px] font-bold text-primary border border-accent/20 flex items-center gap-1.5">
               {teachingMode === "online" ? <Video className="w-3 h-3" /> : <Layers className="w-3 h-3" />}
               {modeLabel[teachingMode]}
             </span>

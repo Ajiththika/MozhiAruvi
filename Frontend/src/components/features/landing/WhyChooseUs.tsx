@@ -70,7 +70,7 @@ export default function WhyChooseUs() {
     <section className="py-10 md:py-14 bg-white px-4 md:px-8 lg:px-12">
       <div className="max-w-7xl mx-auto">
         <div className="text-center max-w-4xl mx-auto mb-16 space-y-6">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent text-xs font-bold text-primary tracking-tight">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent/30 text-xs font-bold text-primary tracking-tight">
             Why choose us
           </div>
           <h2 className="text-3xl md:text-4xl font-bold text-gray-800 tracking-tight leading-tight">

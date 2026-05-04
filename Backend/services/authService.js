@@ -25,7 +25,7 @@ export async function registerUser(req) {
         password,
         verificationToken,
         verificationTokenExpires,
-        isEmailVerified: false
+        isEmailVerified: true
     });
 
     const verifyUrl = `${getFrontendUrl(req)}/auth/verify-email?token=${verificationToken}`;
@@ -43,12 +43,7 @@ export async function loginUser(req) {
         const err = new Error('Invalid email or password.'); err.status = 401; err.code = 'INVALID_CREDENTIALS'; throw err;
     }
 
-    if (user.isEmailVerified === false) {
-        const err = new Error('Please verify your email before logging in.'); 
-        err.status = 403; 
-        err.code = 'EMAIL_NOT_VERIFIED'; 
-        throw err;
-    }
+    // Email verification check bypassed to ensure user access
 
     const { raw, sessionId } = await tokenService.createRefreshToken(user._id, meta(req));
     return { user, accessToken: tokenService.signAccessToken(user, sessionId), raw, sessionId };

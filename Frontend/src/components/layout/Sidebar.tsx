@@ -93,8 +93,18 @@ export function Sidebar({ items, basePath, isMobileOpen, onClose }: SidebarProps
       )}>
         {/* Mobile Header */}
         <div className="flex md:hidden h-20 items-center justify-between px-6 shrink-0 border-b border-slate-100">
-           <Link href="/" onClick={onClose} className="relative w-40 h-10">
-             <Image src="/logo.png" alt="Logo" fill className="object-contain" />
+           <Link href="/" onClick={onClose} className="flex items-center gap-2 group">
+             <div className="relative w-10 h-10 flex-shrink-0">
+               <Image src="/logo1.png" alt="Logo Icon" fill className="object-contain" />
+             </div>
+             <div className="relative">
+               <span className="text-lg font-black text-primary tracking-tight transition-all duration-300 group-hover:opacity-0 font-sans">
+                 MozhiAruvi
+               </span>
+               <span className="absolute inset-0 text-lg font-bold text-primary tracking-tight opacity-0 group-hover:opacity-100 transition-all duration-300 whitespace-nowrap font-tamil">
+                 மொழிஅருவி
+               </span>
+             </div>
            </Link>
            <button onClick={onClose} className="p-2 -mr-2 text-slate-400 hover:text-primary transition-colors">
              <X className="h-5 w-5" />
@@ -103,16 +113,23 @@ export function Sidebar({ items, basePath, isMobileOpen, onClose }: SidebarProps
 
         {/* Desktop Brand Section */}
         <div className="hidden md:flex h-20 items-center px-8 shrink-0">
-          <Link href="/" className="flex items-center">
-            <div className="relative w-60 h-16 md:w-60 md:h-16 flex-shrink-0">
+          <Link href="/" className="flex items-center gap-2 group">
+            <div className="relative w-12 h-12 flex-shrink-0">
               <Image 
-                src="/logo.png" 
-                alt="Mozhi Aruvi" 
+                src="/logo1.png" 
+                alt="Logo Icon" 
                 fill 
                 className="object-contain" 
-                sizes="(max-width: 768px) 240px, 240px"
                 priority
               />
+            </div>
+            <div className="relative">
+              <span className="text-xl font-black text-primary tracking-tight transition-all duration-300 group-hover:opacity-0 font-sans">
+                MozhiAruvi
+              </span>
+              <span className="absolute inset-0 text-xl font-bold text-primary tracking-tight opacity-0 group-hover:opacity-100 transition-all duration-300 whitespace-nowrap font-tamil">
+                மொழிஅருவி
+              </span>
             </div>
           </Link>
         </div>

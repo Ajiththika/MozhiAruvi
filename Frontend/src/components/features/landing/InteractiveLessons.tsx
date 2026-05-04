@@ -9,7 +9,7 @@ export default function InteractiveLessons() {
           
           {/* Left Column */}
           <div className="flex-1">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent text-xs font-bold text-primary tracking-tight">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent/30 text-xs font-bold text-primary tracking-tight">
               Interactive lessons
             </div>
             <h2 className="text-3xl md:text-5xl font-bold text-slate-800 tracking-tight mb-6 leading-tight">

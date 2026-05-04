@@ -37,7 +37,7 @@ export function StatCard({
              "px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border transition-all duration-300",
              trend === "up" ? "bg-emerald-50 text-emerald-600 border-emerald-100 shadow-sm" : 
              trend === "down" ? "bg-red-50 text-red-600 border-red-100 shadow-sm" : 
-             "bg-slate-50 text-primary/60 border-slate-100"
+             "bg-accent/30 text-primary border-accent/20 shadow-sm shadow-accent/5"
            )}>
              <div className="flex items-center gap-1.5">
                 {trend === "up" ? <MoveUpRight className="h-3.5 w-3.5" /> : 

@@ -9,13 +9,21 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
       <div className="w-full md:w-1/2 flex flex-col relative z-10 order-1 shadow-[4px_0_24px_rgba(0,0,0,0.02)] border-r border-border/40">
         {/* Simple Top Nav */}
         {/* Simple Top Nav */}
-        <div className="p-2 lg:px-12 lg:py-2 flex items-center justify-between">
-          <Link href="/" className="flex items-center">
-            <div className="relative w-60 h-16 md:w-60 md:h-16">
-              <img src="/logo.png" alt="Mozhi Aruvi" className="object-contain" />
+          <Link href="/" className="flex items-center transition-opacity group">
+            <div className="flex items-center gap-2">
+              <div className="relative w-12 h-12 md:w-16 md:h-16 flex-shrink-0">
+                <img src="/logo1.png" alt="Icon" className="h-full w-full object-contain" />
+              </div>
+              <div className="relative">
+                <span className="text-xl md:text-2xl font-black text-primary tracking-tight transition-all duration-300 group-hover:opacity-0 font-sans">
+                  MozhiAruvi
+                </span>
+                <span className="absolute inset-0 text-xl md:text-2xl font-bold text-primary tracking-tight opacity-0 group-hover:opacity-100 transition-all duration-300 whitespace-nowrap font-tamil">
+                  மொழிஅருவி
+                </span>
+              </div>
             </div>
           </Link>
-        </div>
         
         {/* Main Form Content */}
         <div className="flex-1 flex flex-col justify-center px-6 sm:px-12 md:px-16 lg:px-24 xl:px-32 py-2 lg:py-4 relative">

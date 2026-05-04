@@ -5,6 +5,7 @@
   /* Design System Fonts */
   --font-sans: var(--font-outfit), sans-serif;
   --font-mono: var(--font-inter), monospace;
+  --font-tamil: var(--font-tamil), cursive;
 
   /* New Accessibility-First Palette (Vibrant Indigo System) */
   --color-primary: #4f46e5;

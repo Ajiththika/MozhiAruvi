@@ -16,7 +16,7 @@ export default function SignUpForm() {
   const searchParams = useSearchParams();
   const redirectParam = searchParams.get('redirect');
   const { user, isLoading, setUser } = useAuth();
-  
+
   // Redirect already logged-in users
   useEffect(() => {
     if (!isLoading && user) {
@@ -24,7 +24,7 @@ export default function SignUpForm() {
       router.replace(dest);
     }
   }, [isLoading, user, router, redirectParam]);
-  
+
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -32,18 +32,18 @@ export default function SignUpForm() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
- 
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
- 
+
     if (password !== confirmPassword) {
       setError("Passwords do not match");
       return;
     }
- 
+
     setLoading(true);
- 
+
     try {
       await register({ name, email, password });
       setSuccess(true);
@@ -73,7 +73,7 @@ export default function SignUpForm() {
           <p className="mt-2 text-primary/60 font-bold uppercase tracking-widest text-xs">Verification required</p>
         </div>
         <p className="text-text-secondary mb-6">
-          We've sent a verification link to <span className="font-bold text-text-primary">{email}</span>. 
+          We've sent a verification link to <span className="font-bold text-text-primary">{email}</span>.
           Please click the link in the email to activate your account.
         </p>
         <div className="space-y-4">
@@ -91,10 +91,9 @@ export default function SignUpForm() {
   return (
     <div className="w-full max-w-sm mx-auto xl:max-w-md">
       <div className="mb-4 text-center md:text-left">
-        <h2 className="text-xl md:text-2xl font-black text-text-primary tracking-tight leading-tight uppercase">
-          Join With Us
+        <h2 className="text-xl md:text-2xl font-primary text-primary tracking-tight leading-tight uppercase">
+          Create New Account
         </h2>
-        <p className="text-sm font-bold text-primary/60 uppercase tracking-widest mt-1">Tamil Cultural Heritage</p>
       </div>
 
       <form className="space-y-2.5" onSubmit={handleSubmit}>
@@ -104,58 +103,58 @@ export default function SignUpForm() {
           </div>
         )}
 
-        <AuthInput 
-          label="Full Name" 
-          type="text" 
-          name="name" 
-          placeholder="John Doe" 
+        <AuthInput
+          label="Full Name"
+          type="text"
+          name="name"
+          placeholder="John Doe"
           autoComplete="name"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          required 
+          required
         />
 
-        <AuthInput 
-          label="Email" 
-          type="email" 
-          name="email" 
-          placeholder="your@email.com" 
+        <AuthInput
+          label="Email"
+          type="email"
+          name="email"
+          placeholder="your@email.com"
           autoComplete="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          required 
+          required
         />
-        
-        <AuthInput 
-          label="Password" 
-          type="password" 
-          name="password" 
-          placeholder="Create a strong password" 
+
+        <AuthInput
+          label="Password"
+          type="password"
+          name="password"
+          placeholder="Create a strong password"
           autoComplete="new-password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          required 
+          required
         />
 
-        <AuthInput 
-          label="Confirm Password" 
-          type="password" 
-          name="confirmPassword" 
-          placeholder="Repeat your password" 
+        <AuthInput
+          label="Confirm Password"
+          type="password"
+          name="confirmPassword"
+          placeholder="Repeat your password"
           autoComplete="new-password"
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
-          required 
+          required
         />
 
-        <Button 
-          type="submit" 
+        <Button
+          type="submit"
           isLoading={loading}
           variant="primary"
           size="xl"
           className="w-full mt-4 shadow-xl shadow-primary/20"
         >
-          Begin Heritage Journey
+          Join Us
         </Button>
       </form>
 

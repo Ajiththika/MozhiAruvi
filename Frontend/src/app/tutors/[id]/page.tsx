@@ -179,7 +179,7 @@ export default function PublicTutorProfilePage() {
                                {lvl} Level
                             </span>
                          ))}
-                         <span className="inline-flex items-center gap-2 rounded-xl bg-sky-50 text-sky-700 px-5 py-2 text-xs font-bold border border-sky-100 overflow-hidden">
+                         <span className="inline-flex items-center gap-2 rounded-xl bg-accent/30 text-primary px-5 py-2 text-xs font-bold border border-accent/20 overflow-hidden">
                             {tutor.teachingMode === "online" ? <Wifi className="h-3.5 w-3.5" /> : <Layers className="h-3.5 w-3.5" />}
                             {modeLabel[tutor.teachingMode || "online"]}
                          </span>

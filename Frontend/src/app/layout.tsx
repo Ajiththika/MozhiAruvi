@@ -3,7 +3,7 @@
  * Owner: Ajiththika (ajiththika17@gmail.com)
  */
 import type { Metadata } from "next";
-import { Outfit, Inter } from "next/font/google";
+import { Outfit, Inter, Arima } from "next/font/google";
 import "./globals.css";
 import Providers from "@/components/Providers";
 
@@ -17,12 +17,18 @@ const inter = Inter({
   subsets: ["latin"],
 });
 
+const tamilFont = Arima({
+  variable: "--font-tamil",
+  subsets: ["latin", "tamil"],
+  weight: ["400", "500", "700"],
+});
+
 export const metadata: Metadata = {
   title: "MozhiAruvi - Learn Tamil Language & Culture",
   description: "A modern platform for learning Tamil language and culture with interactive lessons and expert teachers.",
   icons: {
-    icon: '/logo.png',
-    apple: '/logo.png',
+    icon: '/logo1.png',
+    apple: '/logo1.png',
   }
 };
 
@@ -34,7 +40,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${outfit.variable} ${inter.variable} font-sans antialiased`}
+        className={`${outfit.variable} ${inter.variable} ${tamilFont.variable} font-sans antialiased`}
       >
         <Providers>
         {children}

@@ -16,9 +16,9 @@ export default function SignInForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, isLoading, setUser } = useAuth();
-  
+
   const redirectParam = searchParams.get('redirect');
-  
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -45,28 +45,28 @@ export default function SignInForm() {
 
       if (redirectParam === '/tutor/apply') {
         if (res.user.tutorStatus === 'none' || !res.user.tutorStatus) {
-            // Quick Apply: Auto-submit with basic info
-            try {
-                await submitTutorApplication({
-                    fullName: res.user.name,
-                    experience: "Automated Login Applicant",
-                    bio: "Interested in joining as a tutor from the platform join button.",
-                    languages: [],
-                    specialization: "General Tamil",
-                    hourlyRate: 0,
-                    teachingMode: "online",
-                    motivation: "Interested in joining from quick apply"
-                });
-                setUser({ ...res.user, tutorStatus: 'pending' });
-                router.push('/tutor/apply/status');
-            } catch (err) {
-                // If auto-submit fails, just go to the form normally
-                setUser(res.user);
-                router.push(redirectParam);
-            }
-        } else {
-            setUser(res.user);
+          // Quick Apply: Auto-submit with basic info
+          try {
+            await submitTutorApplication({
+              fullName: res.user.name,
+              experience: "Automated Login Applicant",
+              bio: "Interested in joining as a tutor from the platform join button.",
+              languages: [],
+              specialization: "General Tamil",
+              hourlyRate: 0,
+              teachingMode: "online",
+              motivation: "Interested in joining from quick apply"
+            });
+            setUser({ ...res.user, tutorStatus: 'pending' });
             router.push('/tutor/apply/status');
+          } catch (err) {
+            // If auto-submit fails, just go to the form normally
+            setUser(res.user);
+            router.push(redirectParam);
+          }
+        } else {
+          setUser(res.user);
+          router.push('/tutor/apply/status');
         }
       } else if (!res.user.hasCompletedOnboarding && res.user.role === 'student' && !redirectParam) {
         setUser(res.user);
@@ -102,7 +102,7 @@ export default function SignInForm() {
   return (
     <div className="w-full max-w-sm mx-auto xl:max-w-md">
       <div className="mb-6 text-center md:text-left">
-        <h2 className="text-2xl md:text-3xl font-black text-text-primary tracking-tight leading-tight">
+        <h2 className="text-2xl md:text-3xl font-black text-primary tracking-tight leading-tight">
           Welcome back
         </h2>
       </div>
@@ -114,27 +114,27 @@ export default function SignInForm() {
           </div>
         )}
 
-        <AuthInput 
-          label="Email" 
-          type="email" 
-          name="email" 
-          placeholder="your@email.com" 
+        <AuthInput
+          label="Email"
+          type="email"
+          name="email"
+          placeholder="your@email.com"
           autoComplete="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          required 
+          required
         />
-        
+
         <div className="space-y-1.5">
-          <AuthInput 
-            label="Password" 
-            type="password" 
-            name="password" 
-            placeholder="••••••••" 
+          <AuthInput
+            label="Password"
+            type="password"
+            name="password"
+            placeholder="••••••••"
             autoComplete="current-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            required 
+            required
           />
           <div className="flex justify-end pt-2">
             <Link href="/auth/forgot-password" className="text-sm font-bold text-primary hover:text-primary-dark transition-colors drop-shadow-sm">
@@ -143,8 +143,8 @@ export default function SignInForm() {
           </div>
         </div>
 
-        <Button 
-          type="submit" 
+        <Button
+          type="submit"
           isLoading={loading}
           variant="primary"
           size="xl"
@@ -163,9 +163,9 @@ export default function SignInForm() {
       <SocialLogin provider="Google" onClick={() => window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/google`} />
 
       <p className="text-center mt-6 text-primary/60 font-medium text-base">
-        New to the heritage?{' '}
+        {' '}
         <Link href="/auth/signup" className="text-primary hover:text-primary-dark font-extrabold transition-colors">
-          Join With Us
+          Create new account
         </Link>
       </p>
     </div>
