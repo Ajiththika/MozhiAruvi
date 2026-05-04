@@ -101,95 +101,41 @@ export default function TutorProfileSettings() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* ── TEACHING STATS ───────────────────────────────────────────────────── */}
-        <div className="lg:col-span-1 space-y-8">
-           <div className="rounded-2xl bg-gradient-to-br from-primary to-primary-dark p-8 text-white shadow-2xl relative overflow-hidden">
-              <div className="absolute top-0 left-0 h-32 w-32 bg-white/10 rounded-full blur-2xl -mr-16 -mt-16" />
-              <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-white/50 mb-8">Professional Metrics</h4>
-              
-              <div className="space-y-6">
-                 <div className="flex items-center gap-5 p-5 rounded-3xl bg-white/10 border border-white/20 hover:bg-white/20 transition-colors">
-                    <div className="h-12 w-12 rounded-2xl bg-white/10 flex items-center justify-center text-white">
-                       <Zap className="h-6 w-6" />
-                    </div>
-                    <div>
-                       <p className="text-[10px] font-black uppercase tracking-widest text-white/40">1:1 Session ($)</p>
-                       <p className="text-2xl font-black">$5</p>
-                    </div>
-                 </div>
-
-                 <div className="flex items-center gap-5 p-5 rounded-3xl bg-white/10 border border-white/20 hover:bg-white/20 transition-colors">
-                    <div className="h-12 w-12 rounded-2xl bg-white/10 flex items-center justify-center text-white">
-                       <Layers className="h-6 w-6" />
-                    </div>
-                    <div>
-                       <p className="text-[10px] font-black uppercase tracking-widest text-white/40">8-Class Bundle ($)</p>
-                       <p className="text-2xl font-black">$36</p>
-                    </div>
-                 </div>
-
-                 <div className="flex items-center gap-5 p-5 rounded-3xl bg-white/10 border border-white/20 hover:bg-white/20 transition-colors">
-                    <div className="h-12 w-12 rounded-2xl bg-white/10 flex items-center justify-center text-white">
-                       <Banknote className="h-6 w-6" />
-                    </div>
-                    <div>
-                       <p className="text-[10px] font-black uppercase tracking-widest text-white/40">Total Earnings</p>
-                       <p className="text-2xl font-black">${user.credits || 0}</p>
-                    </div>
-                 </div>
-
-                <div className="pt-4 space-y-4">
-                   <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-white/40">
-                      <p>Trust Level</p>
-                      <p className="text-secondary-light">Verified</p>
-                   </div>
-                   <div className="flex items-center gap-1.5">
-                      {[1,2,3,4,5].map(i => <Award key={i} className="h-5 w-5 text-amber-400 fill-current" />)}
-                   </div>
-                </div>
+      <div className="space-y-8">
+         <div className="rounded-2xl bg-white p-10 border border-border shadow-sm min-h-[400px]">
+            <div className="flex items-center gap-4 mb-8">
+              <div className="h-12 w-12 rounded-2xl bg-primary/5 flex items-center justify-center text-primary">
+                 <Briefcase className="h-5 w-5" />
               </div>
-            </div>
-          </div>
-
-
-         {/* ── PROFESSIONAL BACKGROUND ─────────────────────────────────────────── */}
-         <div className="lg:col-span-2 space-y-8">
-            <div className="rounded-2xl bg-white p-10 border border-border shadow-sm min-h-[400px]">
-               <div className="flex items-center gap-4 mb-8">
-                 <div className="h-12 w-12 rounded-2xl bg-primary/5 flex items-center justify-center text-primary">
-                    <Briefcase className="h-5 w-5" />
+              <h3 className="text-2xl font-black tracking-tight text-primary">Academic & Teaching Bio</h3>
+           </div>
+           
+           <div className="space-y-8">
+              <div className="p-8 rounded-[2rem] bg-surface-soft/40 border border-border/40 relative">
+                 <div className="absolute top-4 left-4 h-8 w-8 text-secondary opacity-10">
+                    <Zap className="h-full w-full" />
                  </div>
-                 <h3 className="text-2xl font-black tracking-tight text-primary">Academic & Teaching Bio</h3>
+                 <p className="text-slate-600 font-medium leading-relaxed italic">
+                    {user.bio || "Craft a professional bio to attract students seeking your expertise."}
+                 </p>
               </div>
-              
-              <div className="space-y-8">
-                 <div className="p-8 rounded-[2rem] bg-surface-soft/40 border border-border/40 relative">
-                    <div className="absolute top-4 left-4 h-8 w-8 text-secondary opacity-10">
-                       <Zap className="h-full w-full" />
-                    </div>
-                    <p className="text-slate-600 font-medium leading-relaxed italic">
-                       {user.bio || "Craft a professional bio to attract students seeking your expertise."}
-                    </p>
-                 </div>
 
-                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div className="p-4 rounded-3xl border border-border/60 bg-white text-center">
-                        <p className="text-[8px] font-black text-primary/60 uppercase tracking-widest mb-1">Country</p>
-                        <p className="text-xs font-black text-slate-800 truncate">{user.country || "Earth"}</p>
-                    </div>
-                    <div className="p-4 rounded-3xl border border-border/60 bg-white text-center">
-                        <p className="text-[8px] font-black text-primary/60 uppercase tracking-widest mb-1">Age</p>
-                        <p className="text-xs font-black text-slate-800">{user.age || "N/A"}</p>
-                    </div>
-                    <div className="p-4 rounded-3xl border border-border/60 bg-white text-center">
-                        <p className="text-[8px] font-black text-primary/60 uppercase tracking-widest mb-1">Gender</p>
-                        <p className="text-xs font-black text-slate-800 capitalize">{user.gender || "Any"}</p>
-                    </div>
-                    <div className="p-4 rounded-3xl border border-border/60 bg-white text-center">
-                        <p className="text-[8px] font-black text-primary/60 uppercase tracking-widest mb-1">Joined</p>
-                        <p className="text-xs font-black text-slate-800">{new Date(user.createdAt || "").toLocaleDateString("en-GB", { month: 'short', year: 'numeric' })}</p>
-                    </div>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                 <div className="p-4 rounded-3xl border border-border/60 bg-white text-center">
+                     <p className="text-[8px] font-black text-primary/60 uppercase tracking-widest mb-1">Country</p>
+                     <p className="text-xs font-black text-slate-800 truncate">{user.country || "Earth"}</p>
+                 </div>
+                 <div className="p-4 rounded-3xl border border-border/60 bg-white text-center">
+                     <p className="text-[8px] font-black text-primary/60 uppercase tracking-widest mb-1">Age</p>
+                     <p className="text-xs font-black text-slate-800">{user.age || "N/A"}</p>
+                 </div>
+                 <div className="p-4 rounded-3xl border border-border/60 bg-white text-center">
+                     <p className="text-[8px] font-black text-primary/60 uppercase tracking-widest mb-1">Gender</p>
+                     <p className="text-xs font-black text-slate-800 capitalize">{user.gender || "Any"}</p>
+                 </div>
+                 <div className="p-4 rounded-3xl border border-border/60 bg-white text-center">
+                     <p className="text-[8px] font-black text-primary/60 uppercase tracking-widest mb-1">Joined</p>
+                     <p className="text-xs font-black text-slate-800">{new Date(user.createdAt || "").toLocaleDateString("en-GB", { month: 'short', year: 'numeric' })}</p>
                  </div>
               </div>
            </div>

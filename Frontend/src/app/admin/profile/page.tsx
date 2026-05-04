@@ -26,6 +26,11 @@ export default function AdminProfile() {
   );
 
 
+  const handleUpdateUser = (updatedUser: any) => {
+    setUser(updatedUser);
+    setMessage({ type: "success", text: "Administrative profile refined." });
+  };
+
   return (
     <div className="mx-auto max-w-5xl space-y-8 py-8 px-4 animate-in fade-in slide-in-from-bottom-4 duration-700">
       {/* ── TOP HEADER SECTION ────────────────────────────────────────────────── */}
