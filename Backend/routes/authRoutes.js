@@ -8,6 +8,12 @@ import { validate, registerSchema, loginSchema, forgotSchema, resetSchema } from
 import { getFrontendUrl } from '../utils/urlHelper.js';
 
 const router = Router();
+console.log('🚀 [AUTH] Auth router initialized');
+
+router.get('/test', (req, res) => {
+    console.log(`[AUTH DEBUG] Test route hit! BaseUrl: ${req.baseUrl}`);
+    res.json({ success: true, message: 'Auth router is working!', baseUrl: req.baseUrl });
+});
 
 const loginLimiter = rateLimit({ windowMs: 15 * 60_000, max: 10, message: { error: { code: 'RATE_LIMITED', message: 'Too many login attempts.' } } });
 const refreshLimiter = rateLimit({ windowMs: 15 * 60_000, max: 50, message: { error: { code: 'RATE_LIMITED', message: 'Too many refresh attempts.' } } });
