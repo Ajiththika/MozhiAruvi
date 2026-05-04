@@ -5,11 +5,12 @@ const nextConfig: NextConfig = {
     // reactCompiler: true,
   },
   async rewrites() {
-    let rawUrl = process.env.BACKEND_URL || process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:5000";
-    if (rawUrl.startsWith("/")) {
-       rawUrl = "http://127.0.0.1:5000";
-    }
+    let rawUrl = process.env.BACKEND_URL || "http://127.0.0.1:5000";
+    
+    // If we are in production and BACKEND_URL is missing, we assume a local proxy setup
+    // or try to prevent a loop by not rewriting to self.
     const backendBase = rawUrl.replace(/\/api\/?$/, "");
+
     return [
       {
         source: "/api/:path*",

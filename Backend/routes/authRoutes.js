@@ -31,7 +31,11 @@ router.get('/verify-email', auth.verifyEmail);
 
 // Google OAuth
 router.get('/google', (req, res, next) => {
-    const callbackURL = `${getOAuthCallbackUrl(req)}${req.baseUrl}/google/callback`;
+    const host = req.get('host');
+    const protocol = req.protocol;
+    // Standardize to the /api path for callback to match Google Console
+    const callbackURL = `${getOAuthCallbackUrl(req)}/api/auth/google/callback`;
+    console.log(`[AUTH DEBUG] Host: ${host}, Protocol: ${protocol}, Resulting callbackURL: ${callbackURL}`);
     passport.authenticate('google', { 
         session: false, 
         scope: ['profile', 'email'],
@@ -41,7 +45,7 @@ router.get('/google', (req, res, next) => {
 
 router.get('/google/callback', (req, res, next) => {
     const redirectBase = getOAuthCallbackUrl(req);
-    const callbackURL = `${redirectBase}${req.baseUrl}/google/callback`;
+    const callbackURL = `${redirectBase}/api/auth/google/callback`;
     passport.authenticate('google', { 
         session: false, 
         failureRedirect: `${redirectBase}/auth/signin?error=OAuth-failed`,

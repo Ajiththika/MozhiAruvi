@@ -55,11 +55,16 @@ export function getFrontendUrl(req) {
  * This function ensures we use the domain name if available.
  */
 export function getOAuthCallbackUrl(req) {
-    const host = req?.get('host');
+    let host = req?.get('host');
     const primary = process.env.PRIMARY_SITE_URL;
     
+    // Google does NOT allow 127.0.0.1. We normalize to localhost for development stability.
+    if (host?.includes('127.0.0.1')) {
+        host = host.replace('127.0.0.1', 'localhost');
+    }
+
     // If we are on localhost, keep using localhost (Google allows this)
-    if (host?.includes('localhost') || host?.includes('127.0.0.1')) {
+    if (host?.includes('localhost')) {
         const protocol = req.protocol || 'http';
         return `${protocol}://${host}`;
     }
