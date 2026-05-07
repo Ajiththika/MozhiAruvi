@@ -56,20 +56,20 @@ export function getFrontendUrl(req) {
  */
 export function getOAuthCallbackUrl(req) {
     let host = req?.get('host');
-    const primary = process.env.PRIMARY_SITE_URL;
     
     // Google does NOT allow 127.0.0.1. We normalize to localhost for development stability.
     if (host?.includes('127.0.0.1')) {
         host = host.replace('127.0.0.1', 'localhost');
     }
 
-    // If we are on localhost, keep using localhost (Google allows this)
-    if (host?.includes('localhost')) {
+    // If we have a host from the request, use it (works for localhost and production domains)
+    if (host) {
         const protocol = req.protocol || 'http';
         return `${protocol}://${host}`;
     }
 
-    // Otherwise, FORCE the use of the primary domain if it exists
+    // Otherwise, fallback to the primary domain if it exists
+    const primary = process.env.PRIMARY_SITE_URL;
     if (primary) {
         return primary.endsWith('/') ? primary.slice(0, -1) : primary;
     }

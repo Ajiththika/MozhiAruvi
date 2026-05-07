@@ -114,7 +114,7 @@ app.use((req, res, next) => {
   req.cookieOptions = {
     httpOnly: true,
     secure: isProd,
-    sameSite: isProd ? "strict" : "lax",
+    sameSite: "lax",
     maxAge: 7 * 24 * 60 * 60 * 1000,
   };
   next();
