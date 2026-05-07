@@ -21,7 +21,10 @@ export default function SignInForm() {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState<string | null>(null);
+  const urlError = searchParams.get('error');
+  const [error, setError] = useState<string | null>(
+    urlError === 'email_not_verified' ? 'Please verify your email address to continue.' : null
+  );
   const [loading, setLoading] = useState(false);
 
   // Wait until auth state is resolved, then redirect already-logged-in users

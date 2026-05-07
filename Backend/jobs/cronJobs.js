@@ -100,5 +100,7 @@ export const initCronJobs = () => {
 
     // Trigger an immediate check for development/first-run only
     console.log('[JOBS] Running Startup Synchronization check...');
-    triggerDailyReminders();
+    if (process.env.NODE_ENV === 'production') {
+        triggerDailyReminders();
+    }
 };

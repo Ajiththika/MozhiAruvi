@@ -1,6 +1,8 @@
 import * as mailService from './mailService.js';
 import Notification from '../models/Notification.js';
 
+const FRONTEND_URL = process.env.PRIMARY_SITE_URL || (process.env.FRONTEND_ORIGIN ? process.env.FRONTEND_ORIGIN.split(',')[0] : 'http://localhost:3000');
+
 /**
  * ── 📧 Central Dispatch for User Communications ──────────────────────────────
  */
@@ -47,7 +49,7 @@ export async function notifyBookingSuccess(student, tutor, bookingDetails) {
         <p><strong>Earnings:</strong> Paid to your Stripe account</p>
       </div>
       <p>Please share the meeting link with the student from your "My Schedule" portal.</p>
-      <a href="${process.env.FRONTEND_ORIGIN}/tutor/schedule" style="display:inline-block; padding: 10px 20px; background:#10B981; color:white; text-decoration:none; border-radius:6px; font-weight:bold;">Tutor Schedule</a>
+      <a href="${FRONTEND_URL}/tutor/schedule" style="display:inline-block; padding: 10px 20px; background:#10B981; color:white; text-decoration:none; border-radius:6px; font-weight:bold;">Tutor Schedule</a>
     </div>
     `
   );

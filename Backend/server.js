@@ -10,6 +10,7 @@ import { connectDB, closeDB } from './config/db.js';
 import { seedPlans } from './utils/seedPlans.js';
 import { initNotificationService } from './services/notificationService.js';
 import { initCronJobs } from './jobs/cronJobs.js';
+import mongoose from 'mongoose';
 
 const PORT = process.env.PORT || 5000;
 
@@ -23,7 +24,11 @@ const server = app.listen(PORT, async () => {
     console.log(`✅ [SERVER] Listening on http://localhost:${PORT}`);
     try {
         await connectDB();
-        await seedPlans();
+        if (mongoose.connection.readyState === 1) {
+            await seedPlans();
+        } else {
+            console.warn('⚠️ [SERVER] Skipping seedPlans due to DB offline status.');
+        }
         
         // ── Mozhi Aruvi Automation Systems ────────────────────────────────────
         initNotificationService();

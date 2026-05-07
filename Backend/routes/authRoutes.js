@@ -50,7 +50,13 @@ router.get('/google/callback', (req, res, next) => {
         session: false, 
         failureRedirect: `${redirectBase}/auth/signin?error=OAuth-failed`,
         callbackURL: callbackURL
-    })(req, res, next);
+    })(req, res, (err) => {
+        if (err) {
+            console.error('[AUTH] Google OAuth error:', err.message);
+            return res.redirect(`${redirectBase}/auth/signin?error=OAuth-failed`);
+        }
+        next();
+    });
 }, auth.googleCallback);
 
 export default router;

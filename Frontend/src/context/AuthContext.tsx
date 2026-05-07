@@ -49,6 +49,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           // Truly unauthorized — clear session so user goes to signin
           authStore.clear();
           setUser(null);
+        } else if (status === 403 && error?.response?.data?.error?.code === 'EMAIL_NOT_VERIFIED') {
+          authStore.clear();
+          setUser(null);
+          // Redirect immediately with URL parameter
+          if (typeof window !== 'undefined') {
+            window.location.href = '/auth/signin?error=email_not_verified';
+          }
         } else if (status === 429) {
           // Rate limited — do NOT clear session. Use cached user if possible.
           const cached = authStore.getCachedUser();

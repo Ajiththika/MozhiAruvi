@@ -7,7 +7,8 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { getLessons, Lesson, Progress } from "@/services/lessonService";
-import { getMe, SafeUser } from "@/services/authService";
+import { SafeUser } from "@/services/authService";
+import { useAuth } from "@/context/AuthContext";
 import { getCategories, Category } from "@/services/categoryService";
 import { cn } from "@/lib/utils";
 import { LessonOnboarding } from "@/components/LessonOnboarding";
@@ -255,7 +256,7 @@ export default function StudentLessonsPage() {
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [progresses, setProgresses] = useState<Progress[]>([]);
   const [dbCategories, setDbCategories] = useState<Category[]>([]);
-  const [user, setUser] = useState<SafeUser | null>(null);
+  const { user, setUser } = useAuth();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [previewLesson, setPreviewLesson] = useState<{
@@ -263,16 +264,15 @@ export default function StudentLessonsPage() {
     status: "unlocked" | "completed";
   } | null>(null);
 
-  const [activeLevel, setActiveLevel] = useState<string>("Beginner");
+  const [activeLevel, setActiveLevel] = useState<string>("Basic");
 
   useEffect(() => {
-    Promise.all([getMe(), getLessons(), getCategories()])
-      .then(([userData, data, categories]) => {
-        setUser(userData);
+    Promise.all([getLessons(), getCategories()])
+      .then(([data, categories]) => {
         setLessons(data.lessons || []);
         setProgresses(data.progress || []);
         setDbCategories(categories || []);
-        const level = (userData?.level === "Not Set" || !userData?.level) ? "Beginner" : userData.level;
+        const level = (user?.level === "Not Set" || !user?.level) ? "Basic" : user.level;
         setActiveLevel(level);
         setLoading(false);
       })
@@ -305,12 +305,13 @@ export default function StudentLessonsPage() {
 
   if (user && !user.hasCompletedOnboarding) {
     return <LessonOnboarding onSuccess={async () => {
-      // Re-fetch user so the newly assigned level is in local state
+      // Re-fetch user or update context so the newly assigned level is in local state
       try {
+        const { getMe } = await import("@/services/authService");
         const fresh = await getMe();
-        setUser(fresh);
+        if (fresh) setUser(fresh);
       } catch {
-        setUser({ ...user, hasCompletedOnboarding: true });
+        if (user) setUser({ ...user, hasCompletedOnboarding: true });
       }
       // Route to the lessons list — NOT /student (no page there = 404)
       router.push("/student/lessons");
@@ -323,9 +324,7 @@ export default function StudentLessonsPage() {
   const filteredLessons = lessons.filter(l => {
     const lessonLevel = (l.level || "Basic").toLowerCase();
     const target = activeLevel.toLowerCase();
-    return lessonLevel === target || 
-           (target === "beginner" && lessonLevel === "basic") ||
-           (target === "basic" && lessonLevel === "beginner");
+    return lessonLevel === target;
   });
   const sortedLessons = [...filteredLessons].sort((a, b) => {
     if (a.moduleNumber !== b.moduleNumber) return (a.moduleNumber || 1) - (b.moduleNumber || 1);
@@ -363,7 +362,7 @@ export default function StudentLessonsPage() {
   });
 
   function navigateToLesson(lesson: Lesson) {
-    if (!user) { router.push("/login"); return; }
+    if (!user) { router.push("/auth/signin"); return; }
     if (powers <= 0) {
       alert("No energy left. Please wait for power to regenerate.");
       return;
@@ -416,9 +415,9 @@ export default function StudentLessonsPage() {
 
       {/* Level Selection Tabs */}
       <div className="flex flex-wrap items-center gap-3 bg-white p-3 rounded-[2rem] border border-slate-100 shadow-sm mx-2 sm:mx-0">
-        {["Beginner", "Elementary", "Intermediate", "Advanced"].map((lv, index) => {
-          const normalizedLevel = (user?.level === "Not Set" || !user?.level) ? "beginner" : user.level.toLowerCase();
-          const targetLevelIndex = ["beginner", "elementary", "intermediate", "advanced"].indexOf(normalizedLevel);
+        {["Basic", "Beginner", "Elementary", "Intermediate", "Advanced"].map((lv, index) => {
+          const normalizedLevel = (user?.level === "Not Set" || !user?.level) ? "basic" : user.level.toLowerCase();
+          const targetLevelIndex = ["basic", "beginner", "elementary", "intermediate", "advanced"].indexOf(normalizedLevel);
           const safeIndex = targetLevelIndex === -1 ? 0 : targetLevelIndex;
           const isTabLocked = index !== safeIndex;
 

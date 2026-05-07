@@ -134,7 +134,7 @@ export default function LessonInteractiveSession() {
     getMe()
       .then((userData) => {
         if (!userData) {
-           router.push("/auth/login");
+           router.push("/auth/signin");
            return;
         }
         setUser(userData);
@@ -150,16 +150,29 @@ export default function LessonInteractiveSession() {
         setPhase("ready");
       })
       .catch((err) => {
-          if (err.response?.status === 401 || err.response?.status === 403) {
-            // Already handled by redirection above or safe retrieval
-            return;
-          }
+          // Check NO_ENERGY first (403 with specific error code)
           if (err.response?.status === 403 && err.response?.data?.error === 'NO_ENERGY') {
             setPhase("out_of_power");
             return;
           }
+          // Redirect if backend provides a redirect path (e.g. subscription required)
           if (err.response?.data?.redirect) {
             router.push(err.response.data.redirect);
+            return;
+          }
+          // 401 Unauthorized → send to login
+          if (err.response?.status === 401) {
+            router.push("/auth/signin");
+            return;
+          }
+          // 403 Forbidden (level mismatch, plan restriction, etc.) → back to lessons
+          if (err.response?.status === 403) {
+            router.push("/student/lessons");
+            return;
+          }
+          // 404 → lesson does not exist, go back to lessons list
+          if (err.response?.status === 404) {
+            router.push("/student/lessons");
             return;
           }
           console.error("Lesson initialization failure:", err.message);
@@ -231,12 +244,14 @@ export default function LessonInteractiveSession() {
     }
   };
 
-  const handleWritingResult = (qId: string, passed: boolean) => {
+  const handleWritingResult = (qId: string, passed: boolean, message: string) => {
       if (passed) {
           setFeedback(prev => ({ ...prev, [qId]: "correct" }));
           setSelected((prev) => ({ ...prev, [qId]: 0 })); 
+          setBackendMessage(prev => ({ ...prev, [qId]: message }));
       } else {
           setFeedback(prev => ({ ...prev, [qId]: "incorrect" }));
+          setBackendMessage(prev => ({ ...prev, [qId]: message }));
       }
   };
 
@@ -404,10 +419,11 @@ export default function LessonInteractiveSession() {
 
                <div className="flex flex-col items-center gap-8 w-full">
                    <div className="flex items-center justify-center gap-8 w-full">
-                    {(q?.type === 'speaking' || q?.type === 'listening') && (
+                    {/* Speaker button conditionally shows based on Admin Text to Speech input or if it's a Speaking/Listening question */}
+                    {(q?.expectedAudioText || q?.audioUrl || q?.type === 'speaking' || q?.type === 'listening') && (
                       <button
                           onClick={() => {
-                            const textToSpeak = q?.type === 'speaking' ? (q?.correctAnswer || q?.expectedAudioText) : q?.text;
+                            const textToSpeak = q?.expectedAudioText || (q?.type === 'speaking' ? q?.correctAnswer : q?.text);
                             handlePlayAudio(textToSpeak || "", q?._id, q?.audioUrl);
                           }}
                           disabled={playingAudioId === q?._id}
@@ -484,7 +500,13 @@ export default function LessonInteractiveSession() {
                 )}
 
                 {q?.type === "writing" && (
-                    <WritingCanvas onResult={(passed) => handleWritingResult(q._id, passed)} expectedText={q.text.split(' ').pop()} isCorrect={feedback[q._id] === "correct"} />
+                    <WritingCanvas 
+                      lessonId={id as string} 
+                      questionId={q._id}
+                      onResult={(passed, message) => handleWritingResult(q._id, passed, message)} 
+                      expectedText={q.correctAnswer} 
+                      isCorrect={feedback[q._id] === "correct"} 
+                    />
                 )}
             </div>
           </div>

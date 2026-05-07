@@ -41,7 +41,7 @@ export async function getUserProgressList(userId) {
 // ── Questions (Public/User) ───────────────────────────────────────────────────
 export async function getQuestionsForLesson(lessonId, isAdmin = false) {
     try {
-        const allQuestions = await Question.find({ lessonId }).select('_id type text options scoreValue correctOptionIndex correctAnswer expectedAudioText orderIndex').sort({ orderIndex: 1, createdAt: 1 });
+        const allQuestions = await Question.find({ lessonId }).select('_id type text paragraph options scoreValue correctOptionIndex correctAnswer expectedAudioText audioUrl phoneticHint orderIndex').sort({ orderIndex: 1, createdAt: 1 });
         
         // Admins should see everything in order
         if (isAdmin) return allQuestions;

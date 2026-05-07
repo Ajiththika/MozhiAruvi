@@ -121,6 +121,18 @@ export async function evaluateSpeaking(
   return res.data;
 }
 
+export async function evaluateWriting(
+  lessonId: string,
+  questionId: string,
+  imageBase64: string
+): Promise<{ isCorrect: boolean; score: number; feedback: string }> {
+  const res = await api.post<{ isCorrect: boolean; score: number; feedback: string }>(
+    `/lessons/${lessonId}/evaluate-writing`,
+    { questionId, imageBase64 }
+  );
+  return res.data;
+}
+
 export async function generateSpeech(lessonId: string, text: string): Promise<{ audioUrl: string }> {
   const res = await api.post<{ audioUrl: string }>(`/lessons/${lessonId}/generate-speech`, { text });
   return res.data;

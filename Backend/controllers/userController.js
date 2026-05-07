@@ -117,7 +117,7 @@ export async function getPublicStats(req, res, next) {
             console.log(`[STATS] Live user count fetched: ${totalUsers}`);
         } catch (e) {
             console.warn(`⚠️ [STATS] DB Fetch failed (${e.message}), using fallback.`);
-            totalUsers = 1242; // Premium fallback
+            totalUsers = 0; 
         }
         res.json({ totalUsers });
     } catch (e) { next(e); }

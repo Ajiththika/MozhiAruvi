@@ -10,10 +10,12 @@ export async function connectDB() {
         serverSelectionTimeoutMS: 15000, 
         connectTimeoutMS: 20000,
         maxPoolSize: 10,
-        socketTimeoutMS: 45000,
+        socketTimeoutMS: 30000,
         family: 4, 
         retryWrites: true,
         w: 'majority',
+        heartbeatFrequencyMS: 10000,
+        minPoolSize: 2,
     };
 
     mongoose.set('strictQuery', false);

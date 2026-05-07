@@ -54,6 +54,11 @@ const evaluateSpeakingSchema = z.object({
     audioBase64: z.string().optional(), // Base64 chunk for future integration
 });
 
+const evaluateWritingSchema = z.object({
+    questionId: z.string().min(1),
+    imageBase64: z.string().min(1),
+});
+
 // ── User Endpoints ────────────────────────────────────────────────────────────
 // Phase 3: List and View Lessons
 router.get('/', authenticateOptional, lessonController.listLessons);
@@ -63,6 +68,7 @@ router.get('/:id', authenticate, checkLessonAccess, lessonController.getLessonDe
 router.get('/:id/questions', authenticate, checkLessonAccess, lessonController.getLessonQuestions);
 router.post('/:id/submit', authenticate, validate(submitAnswersSchema), lessonController.submitAnswers);
 router.post('/:id/evaluate-speaking', authenticate, validate(evaluateSpeakingSchema), lessonController.evaluateSpeaking);
+router.post('/:id/evaluate-writing', authenticate, validate(evaluateWritingSchema), lessonController.evaluateWriting);
 router.post('/:id/generate-speech', authenticate, lessonController.generateSpeech);
 
 // ── Admin Endpoints ───────────────────────────────────────────────────────────

@@ -1,9 +1,5 @@
-import Stripe from 'stripe';
+import { stripe } from './stripeService.js';
 import { getFrontendUrl } from '../utils/urlHelper.js';
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: '2023-10-16',
-});
 
 /**
  * ── Create Express Account (Onboarding Start) ────────────────────────────────
@@ -41,7 +37,7 @@ export async function generateAccountLink(accountId) {
 /**
  * ── Split Payment Session (Destination Charges) ──────────────────────────────
  */
-export async function createSplitPaymentSession(student, tutor, amount, bookingMetadata) {
+export async function createSplitPaymentSession(student, tutor, amount, bookingMetadata, req) {
   if (!tutor.stripeAccountId) {
     throw new Error('This mentor does not have a connected Stripe account yet.');
   }
@@ -75,8 +71,8 @@ export async function createSplitPaymentSession(student, tutor, amount, bookingM
       type: 'tutor_booking',
       ...bookingMetadata
     },
-    success_url: `${getFrontendUrl()}/student/tutors/my-requests?success=true&session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${getFrontendUrl()}/tutors/${tutor._id}`,
+    success_url: `${getFrontendUrl(req)}/student/tutors/my-requests?success=true&session_id={CHECKOUT_SESSION_ID}`,
+    cancel_url: `${getFrontendUrl(req)}/tutors/${tutor._id}`,
   });
 
   return session;

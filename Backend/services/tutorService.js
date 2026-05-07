@@ -102,7 +102,7 @@ export async function createRequest(studentId, data) {
         };
         
         if (lesson && lesson.level) {
-            criteria.levelSupport = lesson.level.toLowerCase();
+            criteria.levelSupport = { $in: [lesson.level.toLowerCase()] };
         }
 
         const tutors = await User.find(criteria)

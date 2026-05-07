@@ -65,12 +65,12 @@ export default function Navbar() {
     return "/student/profile";
   };
 
-
   const navLinks = [
     { label: "Lessons", href: "/lessons" },
     { label: "Teachers", href: "/tutors" },
     { label: "Events", href: "/events" },
     { label: "Blogs", href: "/blogs" },
+    { label: "Resources", href: "/resources" },
   ];
 
   return (
@@ -332,18 +332,3 @@ export default function Navbar() {
     </nav>
   );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

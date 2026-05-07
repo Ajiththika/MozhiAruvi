@@ -1,14 +1,17 @@
 import React, { useRef, useState, useEffect } from "react";
-import { Eraser, Check, Paintbrush } from "lucide-react";
+import { Eraser, Check, Paintbrush, Loader2 } from "lucide-react";
 import Button from "@/components/ui/Button";
+import { evaluateWriting } from "@/services/lessonService";
 
 interface WritingCanvasProps {
-  onResult: (passed: boolean) => void;
+  lessonId: string;
+  questionId: string;
+  onResult: (passed: boolean, message: string) => void;
   expectedText?: string;
   isCorrect?: boolean;
 }
 
-export function WritingCanvas({ onResult, expectedText, isCorrect }: WritingCanvasProps) {
+export function WritingCanvas({ lessonId, questionId, onResult, expectedText, isCorrect }: WritingCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isDrawing, setIsDrawing] = useState(false);
   const [hasDrawn, setHasDrawn] = useState(false);
@@ -76,11 +79,21 @@ export function WritingCanvas({ onResult, expectedText, isCorrect }: WritingCanv
     }
   };
 
-  const submitDrawing = () => {
-    // Basic implementation: if they drew something, we accept it.
-    // Real implementation would pass canvas dataUrl to backend vision API.
-    if (hasDrawn) {
-        onResult(true);
+  const [isEvaluating, setIsEvaluating] = useState(false);
+
+  const submitDrawing = async () => {
+    if (!hasDrawn || !canvasRef.current) return;
+    
+    setIsEvaluating(true);
+    try {
+        const imageBase64 = canvasRef.current.toDataURL("image/png");
+        const res = await evaluateWriting(lessonId, questionId, imageBase64);
+        onResult(res.isCorrect, res.feedback);
+    } catch (e) {
+        console.error("Evaluation failed", e);
+        onResult(false, "Evaluation failed. Please try again.");
+    } finally {
+        setIsEvaluating(false);
     }
   };
 
@@ -125,8 +138,12 @@ export function WritingCanvas({ onResult, expectedText, isCorrect }: WritingCanv
             <Button onClick={clearCanvas} variant="outline" size="xl" className="rounded-2xl shadow-sm border-2 border-slate-100 font-black uppercase tracking-widest text-[10px] h-16 w-32" aria-label="Clear Canvas">
                 <Eraser className="w-5 h-5 mr-3" /> Clear
             </Button>
-            <Button onClick={submitDrawing} disabled={!hasDrawn} size="xl" className="rounded-2xl shadow-xl bg-primary hover:bg-primary/90 font-black uppercase tracking-widest text-[10px] h-16 w-60">
-                <Paintbrush className="w-5 h-5 mr-3" /> Analyze Drawing
+            <Button onClick={submitDrawing} disabled={!hasDrawn || isEvaluating} size="xl" className="rounded-2xl shadow-xl bg-primary hover:bg-primary/90 font-black uppercase tracking-widest text-[10px] h-16 w-60">
+                {isEvaluating ? (
+                    <><Loader2 className="w-5 h-5 mr-3 animate-spin" /> Evaluating...</>
+                ) : (
+                    <><Paintbrush className="w-5 h-5 mr-3" /> Analyze Drawing</>
+                )}
             </Button>
           </div>
       )}

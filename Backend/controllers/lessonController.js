@@ -335,22 +335,39 @@ export async function evaluateSpeaking(req, res, next) {
 
 
         // ── 3. Evaluation Logic ──────────────────────────────────────────────
-        const normalizedExpected = expectedText.toLowerCase().trim();
-        const normalizedUser = transcription.toLowerCase().trim();
+        // Remove punctuation to fix issues with single letters like "அ."
+        const cleanString = (str) => str.toLowerCase().replace(/[^\p{L}\p{N}\s]/gu, '').replace(/\s+/g, ' ').trim();
+        
+        const normalizedExpected = cleanString(expectedText);
+        const normalizedPhonetic = cleanString(question.phoneticHint || "");
+        const normalizedUser = cleanString(transcription);
 
         let similarity = 0;
-        if (normalizedUser === normalizedExpected && normalizedUser !== "") {
+        
+        const isExactMatch = (normalizedUser === normalizedExpected) || 
+                             (normalizedPhonetic !== "" && normalizedUser === normalizedPhonetic);
+                             
+        if (isExactMatch && normalizedUser !== "") {
             similarity = 1.0;
+        } else if (normalizedExpected.length <= 2 && normalizedExpected !== "") {
+            // For single characters, string-similarity-js returns 0. 
+            // We require an exact match after cleaning punctuation for single characters.
+            similarity = isExactMatch ? 1.0 : 0.0;
         } else {
             try {
                 similarity = stringSimilarity(normalizedExpected, normalizedUser);
+                if (normalizedPhonetic !== "") {
+                    const phoneticSim = stringSimilarity(normalizedPhonetic, normalizedUser);
+                    similarity = Math.max(similarity, phoneticSim);
+                }
             } catch (_simErr) {
-                similarity = (normalizedUser === normalizedExpected) ? 1.0 : 0.0;
+                similarity = isExactMatch ? 1.0 : 0.0;
             }
         }
 
         const score = Math.min(100, Math.max(0, Math.round((similarity || 0) * 100)));
-        const passed = score >= 50;
+        // Increased threshold to 80 to prevent completely wrong words from passing (e.g., தம்மா vs அம்மா)
+        const passed = score >= 80;
 
         return res.json({
             isCorrect: passed,
@@ -372,6 +389,56 @@ export async function evaluateSpeaking(req, res, next) {
         });
     }
 
+}
+
+// ── Writing Evaluation ────────────────────────────────────────────────────────
+export async function evaluateWriting(req, res, next) {
+    try {
+        const { questionId, imageBase64 } = req.body;
+        if (!imageBase64) return res.status(400).json({ message: "Image data is required" });
+
+        const question = await Question.findById(questionId);
+        if (!question) return res.status(404).json({ message: "Question not found" });
+
+        const expectedText = (question.correctAnswer || question.text || "").trim();
+        const cleanBase64 = imageBase64.replace(/^data:image\/\w+;base64,/, '');
+
+        // Use dynamic import for Gemini API so we don't block startup if missing
+        const { GoogleGenerativeAI } = await import('@google/generative-ai');
+        const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+        const prompt = `This is a drawing made by a student learning Tamil on a digital whiteboard. 
+They were asked to write the Tamil letter or word: "${expectedText}".
+Does the drawing look like a legible (even if messy or written by a beginner) attempt at writing "${expectedText}"?
+Respond ONLY with YES or NO.`;
+
+        const imagePart = {
+            inlineData: {
+                data: cleanBase64,
+                mimeType: "image/png",
+            },
+        };
+
+        const result = await model.generateContent([prompt, imagePart]);
+        const responseText = result.response.text().trim().toUpperCase();
+
+        const isCorrect = responseText.includes("YES");
+
+        return res.json({
+            isCorrect,
+            score: isCorrect ? 100 : 0,
+            feedback: isCorrect ? "Correct!" : "Incorrect attempt. Try again."
+        });
+
+    } catch (e) {
+        console.error('❌ [EVALUATE WRITING CRIT]:', e.message);
+        return res.json({
+            isCorrect: false,
+            score: 0,
+            feedback: "Evaluation temporary unavailable. Please try again."
+        });
+    }
 }
 
 // ── Speech Synthesis ─────────────────────────────────────────────────────────

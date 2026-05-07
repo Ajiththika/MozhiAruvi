@@ -75,7 +75,8 @@ export async function initiateBookingPayment(req, res, next) {
                 date: booking.date.toISOString(),
                 startTime: booking.startTime,
                 type: 'tutor_booking'
-            }
+            },
+            req
         );
 
         res.json({ url: session.url });
@@ -104,7 +105,8 @@ export async function confirmBooking(req, res, next) {
 
         // Email Automation
         const student = await User.findById(booking.studentId);
-        await communication.sendEmail(student.email, 'Session Accepted - Mozhi Aruvi', `Vanakkam! ${req.user.name} has accepted your Tamil session request. Log in to your dashboard to complete the payment and secure your slot.`);
+        const tutor = await User.findById(req.user.sub);
+        await communication.sendEmail(student.email, 'Session Accepted - Mozhi Aruvi', `Vanakkam! ${tutor.name} has accepted your Tamil session request. Log in to your dashboard to complete the payment and secure your slot.`);
 
         res.json({ message: "Booking confirmed.", booking });
     } catch (e) { next(e); }
@@ -132,7 +134,8 @@ export async function declineBooking(req, res, next) {
 
         // Email Automation
         const student = await User.findById(booking.studentId);
-        await communication.sendEmail(student.email, 'Session Request Declined - Mozhi Aruvi', `Hello ${student.name}, unfortunately, ${req.user.name} is unable to accept your Tamil session request at this time. You can explore other tutors on the platform.`);
+        const tutor = await User.findById(req.user.sub);
+        await communication.sendEmail(student.email, 'Session Request Declined - Mozhi Aruvi', `Hello ${student.name}, unfortunately, ${tutor.name} is unable to accept your Tamil session request at this time. You can explore other tutors on the platform.`);
 
         res.json({ message: "Booking declined.", booking });
     } catch (e) { next(e); }
@@ -210,10 +213,11 @@ export async function updateMeetingLink(req, res, next) {
 
         // Notify student
         const student = await User.findById(booking.studentId);
+        const tutor = await User.findById(req.user.sub);
         await communication.sendEmail(
             student.email, 
             'Class Link Ready - Mozhi Aruvi', 
-            `Vanakkam ${student.name}! Your mentor ${req.user.name} has provided the meeting link for your upcoming Tamil session: ${meetingLink}. You can also find this link in your student dashboard.`
+            `Vanakkam ${student.name}! Your mentor ${tutor.name} has provided the meeting link for your upcoming Tamil session: ${meetingLink}. You can also find this link in your student dashboard.`
         );
 
         res.json({ message: "Link updated and student notified.", booking });
@@ -237,10 +241,11 @@ export async function updateBookingTime(req, res, next) {
 
         // Notify student about rescheduling
         const student = await User.findById(booking.studentId);
+        const tutor = await User.findById(req.user.sub);
         await communication.sendEmail(
             student.email, 
             'Session Rescheduled - Mozhi Aruvi', 
-            `Hello ${student.name}, your tutor ${req.user.name} has adjusted the time for your Tamil session. The new time is: ${new Date(booking.date).toDateString()} at ${booking.startTime}.`
+            `Hello ${student.name}, your tutor ${tutor.name} has adjusted the time for your Tamil session. The new time is: ${new Date(booking.date).toDateString()} at ${booking.startTime}.`
         );
 
         res.json({ message: "Booking rescheduled successfully.", booking });

@@ -5,9 +5,10 @@ import { completeOnboarding } from "@/services/authService";
 import { Loader2, ArrowRight, AlertCircle } from "lucide-react";
 
 // Maps the human-readable choice to the backend enum value
-const LEVEL_MAP: Record<string, "Basic" | "Intermediate" | "Advanced"> = {
-  "Beginner — I know nothing": "Basic",
-  "Elementary — I know a few words": "Basic",
+const LEVEL_MAP: Record<string, string> = {
+  "Basic — I am just starting": "Basic",
+  "Beginner — I know nothing": "Beginner",
+  "Elementary — I know a few words": "Elementary",
   "Intermediate — I can read a bit": "Intermediate",
   "Advanced — I can hold a conversation": "Advanced",
 };
@@ -19,6 +20,7 @@ const steps = [
     title: "How much Tamil do you know?",
     subtitle: "We'll build your personal path from here.",
     options: [
+      "Basic — I am just starting",
       "Beginner — I know nothing",
       "Elementary — I know a few words",
       "Intermediate — I can read a bit",

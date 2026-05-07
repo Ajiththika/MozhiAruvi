@@ -22,14 +22,14 @@ const envPaths = [
 let loaded = false;
 for (const p of envPaths) {
   if (fs.existsSync(p)) {
-    dotenv.config({ path: p });
+    dotenv.config({ path: p, override: true });
     loaded = true;
     break;
   }
 }
 
 if (!loaded) {
-  dotenv.config(); // Final attempt with default CWD discovery
+  dotenv.config({ override: true }); // Final attempt with default CWD discovery
 }
 
 import { z } from 'zod';
@@ -38,10 +38,10 @@ const envSchema = z.object({
   // Server
   PORT: z.string().default('5000'),
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
-  FRONTEND_ORIGIN: z.string().url().default('http://localhost:3000'),
+  FRONTEND_ORIGIN: z.string().default('http://localhost:3000'),
 
   // Database
-  MONGODB_URI: z.string().url('MONGODB_URI must be a valid connection string'),
+  MONGODB_URI: z.string().min(10, 'MONGODB_URI must be a valid connection string'),
 
   // Secrets
   JWT_ACCESS_SECRET: z.string().min(8, 'JWT_ACCESS_SECRET must be at least 8 characters'),

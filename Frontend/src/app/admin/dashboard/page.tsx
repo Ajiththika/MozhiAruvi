@@ -59,16 +59,14 @@ export default function AdminDashboard() {
                getPlanSettings(),
             ]);
 
-            const [me, s, ts, bl, mentors, evs, prem, plans] = results.map(r => r.status === 'fulfilled' ? r.value : null);
-
-            if (me) setAdmin(me);
-            if (s) setStats(s);
-            if (ts) setTutors(ts.tutors);
-            if (bl) setBlogs(bl.blogs.filter(b => b.status === 'pending'));
-            if (mentors) setApplications(mentors);
-            if (evs) setEvents(evs.events);
-            if (prem) setPremiumUsers(prem.users);
-            if (plans) setPlanSettings(plans);
+            if (results[0].status === 'fulfilled' && results[0].value) setAdmin(results[0].value);
+            if (results[1].status === 'fulfilled' && results[1].value) setStats(results[1].value);
+            if (results[2].status === 'fulfilled' && results[2].value) setTutors(results[2].value.tutors);
+            if (results[3].status === 'fulfilled' && results[3].value) setBlogs(results[3].value.blogs.filter(b => b.status === 'pending'));
+            if (results[4].status === 'fulfilled' && results[4].value) setApplications(results[4].value);
+            if (results[5].status === 'fulfilled' && results[5].value) setEvents(results[5].value.events);
+            if (results[6].status === 'fulfilled' && results[6].value) setPremiumUsers(results[6].value.users);
+            if (results[7].status === 'fulfilled' && results[7].value) setPlanSettings(results[7].value);
 
             if (results.some(r => r.status === 'rejected')) {
                console.warn("Some admin data failed to load. The system is likely in degraded mode.");

@@ -254,9 +254,6 @@ export async function createEventPaymentSession(req, res, _next) {
 }
 
 /**
- * Handle One-time payment for Tutor session.
- */
-/**
  * Proactive check for subscription status (fallback for delayed webhooks).
  */
 export async function verifySubscriptionSession(req, res, _next) {

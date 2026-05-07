@@ -140,7 +140,9 @@ export async function resolveRequest(req, res, next) {
 
 export async function addMessage(req, res, next) {
     try {
-        const { role, content } = req.body; // role: 'student' | 'teacher'
+        const { content } = req.body; 
+        const isTeacher = req.user.role === 'teacher' || req.user.role === 'tutor';
+        const role = isTeacher ? 'teacher' : 'student';
         const request = await tutorService.addRequestMessage(req.user.sub, req.params.id, content, role);
         res.json({ message: 'Message added.', request });
     } catch (e) { next(e); }

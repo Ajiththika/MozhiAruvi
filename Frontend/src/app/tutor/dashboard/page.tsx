@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import StatCard from "@/components/features/dashboard/StatCard";
 import { Users, MessageSquare, Star, ToggleRight, ToggleLeft, Loader2, AlertCircle, ArrowRight, Video, Layers, Sparkles, CheckCircle2, PenTool, Calendar, ShieldCheck } from "lucide-react";
 import Link from "next/link";
-import { getMe, SafeUser } from "@/services/authService";
+import { useAuth } from "@/context/AuthContext";
 import { getPendingRequests, TutorRequest, updateTutorAvailability } from "@/services/tutorService";
 import { getMyEvents, MozhiEvent } from "@/services/eventService";
 import { cn } from "@/lib/utils";
@@ -14,7 +14,7 @@ import StripeOnboardingNotice from "@/components/features/tutors/StripeOnboardin
 import { getMyBookings, Booking } from "@/services/bookingService";
 
 export default function TutorDashboard() {
-  const [user, setUser] = useState<SafeUser | null>(null);
+  const { user } = useAuth();
   const [pendingQs, setPendingQs] = useState<TutorRequest[]>([]);
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [events, setEvents] = useState<MozhiEvent[]>([]);
@@ -24,13 +24,15 @@ export default function TutorDashboard() {
   const [isAvailable, setIsAvailable] = useState(false);
 
   useEffect(() => {
+    if (user) {
+      setIsAvailable(user.isTutorAvailable ?? false);
+    }
+  }, [user]);
+
+  useEffect(() => {
     const today = new Date().toISOString().split('T')[0];
-    Promise.all([getMe(), getPendingRequests(), getMyEvents(), getMyBookings()])
-      .then(([u, qs, evs, bks]) => {
-        if (u) {
-          setUser(u);
-          setIsAvailable(u.isTutorAvailable ?? false);
-        }
+    Promise.all([getPendingRequests(), getMyEvents(), getMyBookings()])
+      .then(([qs, evs, bks]) => {
         setPendingQs(qs.filter((q) => q.status === "pending" || q.status === "accepted"));
         setEvents(evs.filter(e => e.date >= today));
         // Only show pending or confirmed bookings on the main dashboard

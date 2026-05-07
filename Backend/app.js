@@ -2,6 +2,8 @@ import express from "express";
 import helmet from "helmet";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import mongoose from 'mongoose';
+import rateLimit from "express-rate-limit";
 
 import { initGoogle } from "./services/googleService.js";
 import authRoutes from "./routes/authRoutes.js";
@@ -17,62 +19,62 @@ import paymentRoutes from "./routes/paymentRoutes.js";
 import organizationRoutes from "./routes/organizationRoutes.js";
 import aiRoutes from "./routes/aiRoutes.js";
 import bookingRoutes from "./routes/bookingRoutes.js";
+import resourceRoutes from "./routes/resourceRoutes.js";
+import resourceSectionRoutes from "./routes/resourceSectionRoutes.js";
 import { stripeWebhook } from "./controllers/paymentController.js";
 import { testSmtpConnection } from "./services/mailService.js";
 import { errorHandler } from "./middleware/error.js";
+import { responseWrapper } from "./middleware/responseWrapper.js";
+import { csrfProtection } from "./middleware/csrf.js";
 import Lesson from './models/Lesson.js';
 import User from './models/User.js';
 import Question from './models/Question.js';
 
-import rateLimit from "express-rate-limit";
-
 const app = express();
 
 // ── Trust Proxy ───────────────────────────────────────────────────────────────
-// Required so express-rate-limit can correctly read the real client IP from
-// the X-Forwarded-For header added by the Next.js rewrite proxy (and Vercel).
-// '1' means we trust exactly one upstream proxy hop.
 app.set("trust proxy", 1);
 
-// ── Rate Limiting (SaaS Standard - Resilient) ─────────────────────────────────
+// ── Rate Limiting ─────────────────────────────────────────────────────────────
 const globalLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 1000, // Increased from 100 to 1000 to prevent 429 on busy portals or developer HMR
+  windowMs: 15 * 60 * 1000,
+  max: 1000,
   message: {
     success: false,
     error: {
       code: "TOO_MANY_REQUESTS",
-      message:
-        "Too many requests. Please slow down and try again in 15 minutes.",
+      message: "Too many requests. Please slow down and try again in 15 minutes.",
     },
   },
   standardHeaders: true,
   legacyHeaders: false,
   handler: (req, res, _next, options) => {
-    console.warn(`[RATE LIMIT] IP ${req.ip} hit global limit. Window: ${options.windowMs}ms`);
+    console.warn(`[RATE LIMIT] IP ${req.ip} hit global limit.`);
     res.status(429).json(options.message);
   }
 });
 
-// Apply to all routes
 app.use("/api/", globalLimiter);
 
 // ── Diagnostics ───────────────────────────────────────────────────────────────
 app.use((req, res, next) => {
   const timestamp = new Date().toISOString();
-  console.log(
-    `[${timestamp}] [REQ] ${req.method} ${req.url} (Origin: ${req.get("origin") || "No Origin"})`,
-  );
+  console.log(`[${timestamp}] [REQ] ${req.method} ${req.url} (Origin: ${req.get("origin") || "No Origin"})`);
+  next();
+});
+
+// ── DB Guard ──────────────────────────────────────────────────────────────────
+app.use('/api/', (req, res, next) => {
+  if (mongoose.connection.readyState !== 1 && mongoose.connection.readyState !== 2) {
+    return res.status(503).json({ message: 'Database temporarily unavailable.' });
+  }
   next();
 });
 
 // ── Security ──────────────────────────────────────────────────────────────────
 app.use(helmet());
 app.use((req, res, next) => {
-  res.setHeader(
-    "Cache-Control",
-    "no-store, no-cache, must-revalidate, proxy-revalidate",
-  );
+  res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
   res.setHeader("Pragma", "no-cache");
   res.setHeader("Surrogate-Control", "no-store");
   res.setHeader("Expires", "0");
@@ -87,59 +89,47 @@ const allowedOrigins = [
   ...(process.env.FRONTEND_ORIGIN ? process.env.FRONTEND_ORIGIN.split(",") : []),
 ];
 
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        console.warn(`[CORS] Rejected Origin: ${origin}`);
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
-    credentials: true,
-  }),
-);
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      console.warn(`[CORS] Rejected Origin: ${origin}`);
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true,
+}));
 
-// Handle preflight requests for all routes
 app.options('*', cors());
 
 // ── Body / Cookie ─────────────────────────────────────────────────────────────
-// Stripe webhook needs raw body for signature verification
-app.post(
-  "/api/payments/webhook",
-  express.raw({ type: "application/json" }),
-  stripeWebhook,
-);
+app.post("/api/payments/webhook", express.raw({ type: "application/json" }), stripeWebhook);
 
 app.use(express.json());
-app.use(cookieParser(process.env.JWT_ACCESS_SECRET)); // Added secret for signed cookies if needed
+app.use(cookieParser(process.env.JWT_ACCESS_SECRET));
 
-// Standardize cookie settings for security
 app.use((req, res, next) => {
   const isProd = process.env.NODE_ENV === "production";
   req.cookieOptions = {
     httpOnly: true,
     secure: isProd,
     sameSite: isProd ? "strict" : "lax",
-    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days default
+    maxAge: 7 * 24 * 60 * 60 * 1000,
   };
   next();
 });
 
-// ── Google OAuth (passport) ───────────────────────────────────────────────────
+// ── Google OAuth ──────────────────────────────────────────────────────────────
 initGoogle(app);
 
-// ── Response Wrapper & CSRF ───────────────────────────────────────────────────
-import { responseWrapper } from "./middleware/responseWrapper.js";
-import { csrfProtection } from "./middleware/csrf.js";
-
+// ── Middleware ────────────────────────────────────────────────────────────────
 app.use(responseWrapper);
 
 // ── Routes ────────────────────────────────────────────────────────────────────
-// Auth routes are excluded from CSRF protection for OAuth/Login stability
+// Auth routes excluded from CSRF for OAuth/Login stability
 app.use("/api/auth", authRoutes);
-app.use("/auth", authRoutes); 
+app.use("/auth", authRoutes);
 
 // Apply CSRF protection to all subsequent routes
 app.use(csrfProtection);
@@ -158,19 +148,21 @@ app.use("/api/payments", paymentRoutes);
 app.use("/api/organizations", organizationRoutes);
 app.use("/api/ai", aiRoutes);
 app.use("/api/bookings", bookingRoutes);
+app.use("/api/resources", resourceRoutes);
+app.use("/api/resource-sections", resourceSectionRoutes);
 
-// ── Database Diagnostic Route ────────────────────────────────────────────────
+// ── Database Diagnostic Route ─────────────────────────────────────────────────
 app.get('/api/db-status', async (req, res) => {
-    try {
-        const counts = {
-            lessons: await Lesson.countDocuments(),
-            users: await User.countDocuments(),
-            questions: await Question.countDocuments(),
-        };
-        res.json({ success: true, data: counts });
-    } catch (err) {
-        res.status(500).json({ success: false, error: err.message });
-    }
+  try {
+    const counts = {
+      lessons: await Lesson.countDocuments(),
+      users: await User.countDocuments(),
+      questions: await Question.countDocuments(),
+    };
+    res.json({ success: true, data: counts });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
 });
 
 app.get("/health", (_req, res) =>
@@ -180,29 +172,19 @@ app.get("/health", (_req, res) =>
     timestamp: new Date().toISOString(),
     env: process.env.NODE_ENV,
     version: "1.0.0-resilient",
-  }),
+  })
 );
 
 // ── Test Email (development only) ─────────────────────────────────────────────
-// Usage: GET /api/test-email?to=you@example.com
-// Remove or disable this route before deploying to production.
 if (process.env.NODE_ENV !== "production") {
   app.get("/api/test-email", async (req, res) => {
     const to = req.query.to || process.env.SMTP_USER;
     try {
       const messageId = await testSmtpConnection(to);
-      res.json({
-        success: true,
-        message: `Test email sent to ${to}`,
-        messageId,
-      });
+      res.json({ success: true, message: `Test email sent to ${to}`, messageId });
     } catch (error) {
       console.error("[TEST-EMAIL] SMTP error:", error);
-      res.status(500).json({
-        success: false,
-        message: "SMTP test failed. Check server logs for details.",
-        error: error.message,
-      });
+      res.status(500).json({ success: false, message: "SMTP test failed.", error: error.message });
     }
   });
 }

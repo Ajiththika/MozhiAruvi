@@ -41,15 +41,14 @@ function getHeuristicOrder(name: string): number {
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
-type QuestionType = "mcq" | "fill_blank" | "matching" | "listening" | "speaking";
+type QuestionType = "mcq" | "matching" | "speaking" | "writing";
 
-interface MCQData { question: string; options: string[]; correctAnswer: string; }
-interface FillBlankData { sentence: string; correctAnswer: string; }
-interface MatchingData { pairs: { left: string; right: string }[]; }
-interface ListeningData { audioUrl: string; correctAnswer: string; }
-interface SpeakingData { promptText: string; correctSentence: string; phoneticHint: string; referenceAudio: string; }
+interface MCQData { question: string; options: string[]; correctAnswer: string; expectedAudioText?: string; }
+interface MatchingData { pairs: { left: string; right: string }[]; expectedAudioText?: string; }
+interface SpeakingData { promptText: string; correctSentence: string; referenceAudio: string; expectedAudioText?: string; }
+interface WritingData { question: string; expectedText: string; expectedAudioText?: string; }
 
-type QuestionData = MCQData | FillBlankData | MatchingData | ListeningData | SpeakingData;
+type QuestionData = MCQData | MatchingData | SpeakingData | WritingData;
 
 interface DraftQuestion {
   id: string; // temp local id
@@ -62,19 +61,17 @@ interface DraftQuestion {
 
 const TYPE_META: Record<QuestionType, { label: string; icon: React.ReactNode; color: string }> = {
   mcq:        { label: "MCQ",         icon: null, color: "text-indigo-600 bg-indigo-50 border-indigo-100" },
-  fill_blank: { label: "Fill Blank",  icon: null, color: "text-indigo-600 bg-indigo-50 border-indigo-100" },
   matching:   { label: "Matching",    icon: null, color: "text-indigo-600 bg-indigo-50 border-indigo-100" },
-  listening:  { label: "Listening",   icon: null, color: "text-indigo-600 bg-indigo-50 border-indigo-100" },
   speaking:   { label: "Speaking",    icon: <Mic className="w-4 h-4" />, color: "text-indigo-600 bg-indigo-50 border-indigo-100" },
+  writing:    { label: "Writing",     icon: null, color: "text-indigo-600 bg-indigo-50 border-indigo-100" },
 };
 
 const defaultData = (type: QuestionType): QuestionData => {
   switch (type) {
     case "mcq":        return { question: "", options: ["", ""], correctAnswer: "" };
-    case "fill_blank": return { sentence: "", correctAnswer: "" };
     case "matching":   return { pairs: [{ left: "", right: "" }] };
-    case "listening":  return { audioUrl: "", correctAnswer: "" };
-    case "speaking":   return { promptText: "", correctSentence: "", phoneticHint: "", referenceAudio: "" };
+    case "speaking":   return { promptText: "", correctSentence: "", referenceAudio: "" };
+    case "writing":    return { question: "", expectedText: "" };
   }
 };
 
@@ -89,29 +86,21 @@ function validateQuestion(q: DraftQuestion): string | undefined {
       if (!d.correctAnswer.trim()) return "Select a correct answer.";
       return;
     }
-    case "fill_blank": {
-      const d = q.data as FillBlankData;
-      if (!d.sentence.trim()) return "Sentence is required.";
-      if (!/_{2,}/.test(d.sentence)) return 'Sentence must contain at least "__" to mark the blank.';
-      if (!d.correctAnswer.trim()) return "Correct answer is required.";
-      return;
-    }
     case "matching": {
       const d = q.data as MatchingData;
       if (d.pairs.some(p => !p.left.trim() || !p.right.trim())) return "All pairs must have both sides filled.";
       if (d.pairs.length < 1) return "At least one pair is required.";
       return;
     }
-    case "listening": {
-      const d = q.data as ListeningData;
-      if (!d.audioUrl.trim()) return "Audio URL is required.";
-      if (!d.correctAnswer.trim()) return "Correct answer is required.";
-      return;
-    }
     case "speaking": {
       const d = q.data as SpeakingData;
       if (!d.promptText.trim()) return "Prompt text is required.";
       if (!d.correctSentence.trim()) return "Correct sentence is required.";
+      return;
+    }
+    case "writing": {
+      const d = q.data as WritingData;
+      if (!d.expectedText.trim()) return "Expected text is required.";
       return;
     }
   }
@@ -141,6 +130,10 @@ function MCQForm({ data, onChange }: { data: MCQData; onChange: (d: MCQData) => 
       <div>
         <label className={labelCls}>Question</label>
         <input className={inputCls} placeholder="e.g. What is the Tamil word for 'water'?" value={data.question} onChange={e => onChange({ ...data, question: e.target.value })} />
+      </div>
+      <div>
+        <label className={labelCls}>Text to Speech (optional - adds a speaker button)</label>
+        <input className={inputCls} placeholder="e.g. Type the word to be spoken" value={data.expectedAudioText || ""} onChange={e => onChange({ ...data, expectedAudioText: e.target.value })} />
       </div>
       <div>
         <label className={labelCls}>Options</label>
@@ -174,17 +167,21 @@ function MCQForm({ data, onChange }: { data: MCQData; onChange: (d: MCQData) => 
   );
 }
 
-function FillBlankForm({ data, onChange }: { data: FillBlankData; onChange: (d: FillBlankData) => void }) {
+function WritingForm({ data, onChange }: { data: WritingData; onChange: (d: WritingData) => void }) {
   return (
     <div className="space-y-6">
       <div>
-        <label className={labelCls}>Sentence (use __ for the blank)</label>
-        <input className={inputCls} placeholder='e.g. Next letter of ஆ __' value={data.sentence} onChange={e => onChange({ ...data, sentence: e.target.value })} />
-        <p className="text-[10px] text-primary/60 font-medium mt-1.5 ml-1">Use at least two underscores <code className="bg-slate-100 px-1 rounded">__</code> to mark where the blank is.</p>
+        <label className={labelCls}>Question (Instruction for the student)</label>
+        <input className={inputCls} placeholder="e.g. Draw the Tamil letter 'A'" value={data.question || ""} onChange={e => onChange({ ...data, question: e.target.value })} />
       </div>
       <div>
-        <label className={labelCls}>Correct Answer</label>
-        <input className={inputCls} placeholder="e.g. eat" value={data.correctAnswer} onChange={e => onChange({ ...data, correctAnswer: e.target.value })} />
+        <label className={labelCls}>Expected Tamil Letter / Word</label>
+        <input className={inputCls} placeholder="e.g. அ" value={data.expectedText} onChange={e => onChange({ ...data, expectedText: e.target.value })} />
+        <p className="text-[10px] text-primary/60 font-medium mt-1.5 ml-1">The student will be asked to draw this.</p>
+      </div>
+      <div>
+        <label className={labelCls}>Text to Speech (optional - adds a speaker button)</label>
+        <input className={inputCls} placeholder="e.g. Type the word to be spoken" value={data.expectedAudioText || ""} onChange={e => onChange({ ...data, expectedAudioText: e.target.value })} />
       </div>
     </div>
   );
@@ -200,6 +197,10 @@ function MatchingForm({ data, onChange }: { data: MatchingData; onChange: (d: Ma
 
   return (
     <div className="space-y-4">
+      <div>
+        <label className={labelCls}>Text to Speech (optional - adds a speaker button)</label>
+        <input className={inputCls} placeholder="e.g. Type the word to be spoken" value={data.expectedAudioText || ""} onChange={e => onChange({ ...data, expectedAudioText: e.target.value })} />
+      </div>
       <label className={labelCls}>Pairs (left ↔ right)</label>
       {data.pairs.map((pair, idx) => (
         <div key={idx} className="flex items-center gap-3">
@@ -220,21 +221,6 @@ function MatchingForm({ data, onChange }: { data: MatchingData; onChange: (d: Ma
   );
 }
 
-function ListeningForm({ data, onChange }: { data: ListeningData; onChange: (d: ListeningData) => void }) {
-  return (
-    <div className="space-y-6">
-      <div>
-        <label className={labelCls}>Audio URL</label>
-        <input className={inputCls} placeholder="https://... or paste Cloudinary / S3 URL" value={data.audioUrl} onChange={e => onChange({ ...data, audioUrl: e.target.value })} />
-      </div>
-      <div>
-        <label className={labelCls}>Correct Answer (what the audio says)</label>
-        <input className={inputCls} placeholder="e.g. Vanakkam" value={data.correctAnswer} onChange={e => onChange({ ...data, correctAnswer: e.target.value })} />
-      </div>
-    </div>
-  );
-}
-
 function SpeakingForm({ data, onChange }: { data: SpeakingData; onChange: (d: SpeakingData) => void }) {
   return (
     <div className="space-y-6">
@@ -243,16 +229,16 @@ function SpeakingForm({ data, onChange }: { data: SpeakingData; onChange: (d: Sp
         <input className={inputCls} placeholder="e.g. Say the Tamil greeting for hello" value={data.promptText} onChange={e => onChange({ ...data, promptText: e.target.value })} />
       </div>
       <div>
+        <label className={labelCls}>Text to Speech (optional - adds a speaker button for the prompt)</label>
+        <input className={inputCls} placeholder="e.g. Type the word to be spoken" value={data.expectedAudioText || ""} onChange={e => onChange({ ...data, expectedAudioText: e.target.value })} />
+      </div>
+      <div>
         <label className={labelCls}>Correct Sentence</label>
         <input className={inputCls} placeholder="e.g. Vanakkam" value={data.correctSentence} onChange={e => onChange({ ...data, correctSentence: e.target.value })} />
       </div>
       <div>
-        <label className={labelCls}>Phonetic Hint (optional)</label>
-        <input className={inputCls} placeholder="e.g. Vaa-nah-kam" value={data.phoneticHint} onChange={e => onChange({ ...data, phoneticHint: e.target.value })} />
-      </div>
-      <div>
-        <label className={labelCls}>Reference Audio URL (optional)</label>
-        <input className={inputCls} placeholder="https://... audio clip the user can listen to" value={data.referenceAudio} onChange={e => onChange({ ...data, referenceAudio: e.target.value })} />
+        <label className={labelCls}>Reference Audio URL (optional - audio clip the user can listen to)</label>
+        <input className={inputCls} placeholder="https://..." value={data.referenceAudio} onChange={e => onChange({ ...data, referenceAudio: e.target.value })} />
       </div>
     </div>
   );
@@ -323,10 +309,9 @@ function QuestionCard({
 
           {/* Dynamic form */}
           {question.type === "mcq"        && <MCQForm       data={question.data as MCQData}       onChange={updateData} />}
-          {question.type === "fill_blank" && <FillBlankForm data={question.data as FillBlankData} onChange={updateData} />}
           {question.type === "matching"   && <MatchingForm  data={question.data as MatchingData}  onChange={updateData} />}
-          {question.type === "listening"  && <ListeningForm data={question.data as ListeningData} onChange={updateData} />}
           {question.type === "speaking"   && <SpeakingForm  data={question.data as SpeakingData}  onChange={updateData} />}
+          {question.type === "writing"    && <WritingForm   data={question.data as WritingData}   onChange={updateData} />}
         </div>
       )}
     </div>
@@ -522,7 +507,7 @@ export default function AdminLessonsPage() {
     category: "", 
     title: "", 
     isPremiumOnly: false, 
-    level: "Beginner", // The 'Stage'
+    level: "Basic", // The 'Stage'
     moduleNumber: 1, 
     orderIndex: 0 
   });
@@ -537,7 +522,7 @@ export default function AdminLessonsPage() {
   const [qLoading, setQLoading] = useState(false);
   const [savingQ, setSavingQ] = useState(false);
 
-  const [activeLevel, setActiveLevel] = useState("Beginner");
+  const [activeLevel, setActiveLevel] = useState("Basic");
   const [currentPage, setCurrentPage] = useState(1);
 
   // Reset page when level changes
@@ -753,23 +738,19 @@ export default function AdminLessonsPage() {
     switch (q.type) {
       case "mcq": {
         const d = q.data as MCQData;
-        return { type: "quiz", text: d.question, options: d.options, correctAnswer: d.correctAnswer, correctOptionIndex: d.options.indexOf(d.correctAnswer), scoreValue: 10 };
-      }
-      case "fill_blank": {
-        const d = q.data as FillBlankData;
-        return { type: "fill", text: d.sentence, correctAnswer: d.correctAnswer, scoreValue: 10 };
+        return { type: "quiz", text: d.question, options: d.options, correctAnswer: d.correctAnswer, correctOptionIndex: d.options.indexOf(d.correctAnswer), scoreValue: 10, expectedAudioText: d.expectedAudioText };
       }
       case "matching": {
         const d = q.data as MatchingData;
-        return { type: "match", text: "Match the pairs", options: d.pairs.map(p => p.left), correctAnswer: JSON.stringify(d.pairs), scoreValue: 10 };
-      }
-      case "listening": {
-        const d = q.data as ListeningData;
-        return { type: "listening", text: "Listen and answer", expectedAudioText: d.correctAnswer, correctAnswer: d.correctAnswer, scoreValue: 10 };
+        return { type: "match", text: "Match the pairs", options: d.pairs.map(p => p.left), correctAnswer: JSON.stringify(d.pairs), scoreValue: 10, expectedAudioText: d.expectedAudioText };
       }
       case "speaking": {
         const d = q.data as SpeakingData;
-        return { type: "speaking", text: d.promptText, correctAnswer: d.correctSentence, expectedAudioText: d.correctSentence, scoreValue: 10 };
+        return { type: "speaking", text: d.promptText, correctAnswer: d.correctSentence, expectedAudioText: d.expectedAudioText || d.correctSentence, scoreValue: 10, referenceAudio: d.referenceAudio };
+      }
+      case "writing": {
+        const d = q.data as WritingData;
+        return { type: "writing", text: d.question || `Draw: ${d.expectedText}`, correctAnswer: d.expectedText, scoreValue: 10, expectedAudioText: d.expectedAudioText };
       }
     }
   }
@@ -782,8 +763,7 @@ export default function AdminLessonsPage() {
     setLoading(true);
     try {
       const visibleLessons = lessons.filter(l => {
-        const lvl = l.level || "Beginner";
-        if (lvl === "Basic") return activeLevel === "Beginner";
+        const lvl = l.level || "Basic";
         return lvl === activeLevel;
       });
 
@@ -996,26 +976,43 @@ export default function AdminLessonsPage() {
             </div>
 
             {!isAddingToExisting && (
-              <div className="grid grid-cols-1 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className={labelCls}>Curriculum Level</label>
+                  <div className="relative">
+                    <select 
+                      value={formData.level} 
+                      onChange={e => setFormData({ ...formData, level: e.target.value })} 
+                      className={inputCls + " cursor-pointer appearance-none w-full"}
+                    >
+                      {["Basic", "Beginner", "Elementary", "Intermediate", "Advanced"].map(lv => (
+                        <option key={lv} value={lv}>{lv}</option>
+                      ))}
+                    </select>
+                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-primary/40">
+                      <ChevronDown className="w-4 h-4" />
+                    </div>
+                  </div>
+                </div>
                 <div>
                   <label className={labelCls}>Access Level</label>
-                <div className="flex gap-3">
-                  <button 
-                    type="button" 
-                    onClick={() => setFormData({...formData, isPremiumOnly: false})}
-                    className={`flex-1 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest border-2 transition-all ${!formData.isPremiumOnly ? "bg-emerald-500 text-white border-emerald-500" : "bg-slate-50 text-primary/60 border-slate-100"}`}
-                  >
-                    ✓ Free
-                  </button>
-                  <button 
-                    type="button" 
-                    onClick={() => setFormData({...formData, isPremiumOnly: true})}
-                    className={`flex-1 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest border-2 transition-all ${formData.isPremiumOnly ? "bg-amber-500 text-white border-amber-500" : "bg-slate-50 text-primary/60 border-slate-100"}`}
-                  >
-                    ★ Premium
-                  </button>
+                  <div className="flex gap-3">
+                    <button 
+                      type="button" 
+                      onClick={() => setFormData({...formData, isPremiumOnly: false})}
+                      className={`flex-1 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest border-2 transition-all ${!formData.isPremiumOnly ? "bg-emerald-500 text-white border-emerald-500" : "bg-slate-50 text-primary/60 border-slate-100"}`}
+                    >
+                      ✓ Free
+                    </button>
+                    <button 
+                      type="button" 
+                      onClick={() => setFormData({...formData, isPremiumOnly: true})}
+                      className={`flex-1 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest border-2 transition-all ${formData.isPremiumOnly ? "bg-amber-500 text-white border-amber-500" : "bg-slate-50 text-primary/60 border-slate-100"}`}
+                    >
+                      ★ Premium
+                    </button>
+                  </div>
                 </div>
-              </div>
               </div>
             )}
 
@@ -1032,7 +1029,7 @@ export default function AdminLessonsPage() {
       {/* Level Filter Tabs */}
       {!loading && (
         <div className="flex flex-wrap items-center gap-3 bg-white p-3 rounded-[2.5rem] border border-slate-100 shadow-sm mb-12">
-          {["Beginner", "Elementary", "Intermediate", "Advanced"].map((lv) => {
+          {["Basic", "Beginner", "Elementary", "Intermediate", "Advanced"].map((lv) => {
             const isActive = activeLevel === lv;
             return (
               <button
@@ -1068,8 +1065,7 @@ export default function AdminLessonsPage() {
 
           {(() => {
             const levelFiltered = lessons.filter(l => {
-              const lvl = l.level || "Beginner";
-              if (lvl === "Basic") return activeLevel === "Beginner";
+              const lvl = l.level || "Basic";
               return lvl === activeLevel;
             });
             const totalPages = Math.ceil(levelFiltered.length / 6);
@@ -1274,10 +1270,11 @@ export default function AdminLessonsPage() {
                                       question: q.text, 
                                       options: q.options || [], 
                                       correctAnswer: q.options?.[q.correctOptionIndex || 0] || q.correctAnswer || "",
-                                      sentence: q.text,
                                       promptText: q.text,
-                                      correctSentence: q.correctAnswer || q.expectedAudioText || ""
-                                   } 
+                                      correctSentence: q.correctAnswer || q.expectedAudioText || "",
+                                      expectedText: q.correctAnswer || "",
+                                      expectedAudioText: q.expectedAudioText || ""
+                                   } as any
                                  }} 
                                  index={idx}
                                  onUpdate={(updated) => handleUpdateSaved(q._id, updated)} 

@@ -25,7 +25,7 @@ export async function registerUser(req) {
         password,
         verificationToken,
         verificationTokenExpires,
-        isEmailVerified: true
+        isEmailVerified: false
     });
 
     const verifyUrl = `${getFrontendUrl(req)}/auth/verify-email?token=${verificationToken}`;

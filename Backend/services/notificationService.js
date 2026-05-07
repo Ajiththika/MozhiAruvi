@@ -3,6 +3,10 @@ import { sendEmail } from './mailService.js';
 import { templates } from '../templates/emailTemplates.js';
 import Notification from '../models/Notification.js';
 
+mozhiEvents.removeAllListeners();
+
+const FRONTEND_URL = process.env.PRIMARY_SITE_URL || (process.env.FRONTEND_ORIGIN ? process.env.FRONTEND_ORIGIN.split(',')[0] : 'http://localhost:3000');
+
 // ── Smart Logic Orchestration ───────────────────────────────────────────────
 // Smart Notification Controller: Prevents Spam, Ensures High-Touch Engagement
 // ─────────────────────────────────────────────────────────────────────────────
@@ -26,7 +30,7 @@ mozhiEvents.on('USER_WARNED', async (user) => {
          <p>This is an official communication regarding your account status on Mozhi Aruvi.</p>
          <p>You have received a new warning node. <b>Total Warnings: ${user.warnings}</b></p>
          <p>Repeated violations of our expert community standards may lead to permanent deactivation of your mentor privileges.</p>
-         <p><a href="${process.env.FRONTEND_ORIGIN}/dashboard">View Dashboard Settings</a></p>`
+         <p><a href="${FRONTEND_URL}/dashboard">View Dashboard Settings</a></p>`
     );
 });
 
@@ -82,7 +86,7 @@ mozhiEvents.on('HELP_REQUEST_CREATED', async ({ student, teacher, request }) => 
         <h3>Hi ${teacher.name},</h3>
         <p>A student (${student.name}) needs your expert guidance on a lesson.</p>
         <p><b>Question:</b> ${request.content}</p>
-        <p><a href="${process.env.FRONTEND_ORIGIN}/tutor/questions">Attend to Student</a></p>
+        <p><a href="${FRONTEND_URL}/tutor/questions">Attend to Student</a></p>
     `);
 });
 
@@ -91,7 +95,7 @@ mozhiEvents.on('HELP_REQUEST_REPLIED', async ({ student, teacher, request, messa
         <h3>Hi ${student.name},</h3>
         <p>Expert ${teacher.name} has responded to your inquiry.</p>
         <p><b>Response:</b> ${message}</p>
-        <p><a href="${process.env.FRONTEND_ORIGIN}/student/lessons">View Response</a></p>
+        <p><a href="${FRONTEND_URL}/student/lessons">View Response</a></p>
     `);
 });
 
