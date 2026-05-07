@@ -131,13 +131,9 @@ export async function googleCallback(req, res, next) {
         const accessToken = tokenService.signAccessToken(user, sessionId);
         tokenService.setRefreshCookie(res, { raw, sessionId });
 
-        // Logic: If the browser says 'mozhiaruvi.com', go there. Otherwise, go to localhost.
-        const host = req.get('host') || '';
-        const redirectBase = host.includes('mozhiaruvi.com') 
-            ? "https://mozhiaruvi.com" 
-            : "http://localhost:3000";
-
-        console.log(`[AUTH] Host: ${host}. Redirecting to: ${redirectBase}`);
+        // FORCE the redirect to the live domain
+        // This stops the 'localhost' error shown in your screenshots
+        const redirectBase = "https://mozhiaruvi.com";
         
         res.redirect(`${redirectBase}/oauth-callback?accessToken=${accessToken}`);
     } catch (e) { 
