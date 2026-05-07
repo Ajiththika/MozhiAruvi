@@ -5,13 +5,13 @@ import { completeOnboarding } from "@/services/authService";
 import { Loader2, ArrowRight, AlertCircle } from "lucide-react";
 
 // Maps the human-readable choice to the backend enum value
-const LEVEL_MAP: Record<string, string> = {
+const LEVEL_MAP = {
   "Basic — I am just starting": "Basic",
   "Beginner — I know nothing": "Beginner",
   "Elementary — I know a few words": "Elementary",
   "Intermediate — I can read a bit": "Intermediate",
   "Advanced — I can hold a conversation": "Advanced",
-};
+} as const;
 
 // Level is FIRST — it must be captured before any other step
 const steps = [
@@ -59,8 +59,14 @@ export function LessonOnboarding({ onSuccess }: { onSuccess: () => void }) {
       setSubmitting(true);
       setSubmitError(null);
       try {
-        const rawLevel = newAnswers["level"] || "";
-        const mappedLevel = LEVEL_MAP[rawLevel] ?? "Basic";
+        const rawLevel = newAnswers["level"];
+        const mappedLevel = (LEVEL_MAP[rawLevel as keyof typeof LEVEL_MAP] ?? "Basic") as 
+          | "Basic" 
+          | "Beginner" 
+          | "Intermediate" 
+          | "Advanced" 
+          | "Not Set";
+
         await completeOnboarding({
           level: mappedLevel,
           goal: newAnswers["goal"],
