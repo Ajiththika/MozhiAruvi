@@ -122,14 +122,26 @@ export async function verifyEmail(req, res, next) {
 
 export async function googleCallback(req, res, next) {
     try {
-        const user = req.user; // set by passport
-        const { raw, sessionId } = await tokenService.createRefreshToken(user._id, {
-            userAgent: req.headers['user-agent'], ip: req.ip,
+        const user = req.user; 
+        const { raw, sessionId } = await tokenService.createRefreshToken(user, {
+            userAgent: req.headers['user-agent'], 
+            ip: req.ip,
         });
+        
         const accessToken = tokenService.signAccessToken(user, sessionId);
         tokenService.setRefreshCookie(res, { raw, sessionId });
+
+        // Logic: If the browser says 'mozhiaruvi.com', go there. Otherwise, go to localhost.
+        const host = req.get('host') || '';
+        const redirectBase = host.includes('mozhiaruvi.com') 
+            ? "https://mozhiaruvi.com" 
+            : "http://localhost:3000";
+
+        console.log(`[AUTH] Host: ${host}. Redirecting to: ${redirectBase}`);
         
-        const redirectBase = getFrontendUrl(req);
         res.redirect(`${redirectBase}/oauth-callback?accessToken=${accessToken}`);
-    } catch (e) { next(e); }
+    } catch (e) { 
+        console.error('[AUTH ERROR]:', e.message);
+        next(e); 
+    }
 }
