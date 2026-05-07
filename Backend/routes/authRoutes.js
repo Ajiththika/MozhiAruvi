@@ -34,16 +34,14 @@ router.get('/verify-email', auth.verifyEmail);
 // ── GOOGLE OAUTH ROUTES ─────────────────────────────────────────────────────
 
 router.get('/google', (req, res, next) => {
-    const host = req.get('host');
-    const protocol = req.protocol;
-
     /**
-     * FIX: Use the production callback URL from environment variables if available.
-     * This prevents Nginx from confusing the app into thinking it's on localhost:5000.
+     * STRICT PRODUCTION CHECK
+     * If GOOGLE_CALLBACK_URL is set in .env, we use it directly.
+     * This stops the 'localhost:5000' redirect issue on AWS.
      */
     const callbackURL = process.env.GOOGLE_CALLBACK_URL || `${getOAuthCallbackUrl(req)}/api/auth/google/callback`;
 
-    console.log(`[AUTH DEBUG] Host: ${host}, Protocol: ${protocol}, Final callbackURL: ${callbackURL}`);
+    console.log(`[AUTH DEBUG] Triggering Google Login. Callback: ${callbackURL}`);
 
     passport.authenticate('google', {
         session: false,
@@ -53,12 +51,10 @@ router.get('/google', (req, res, next) => {
 });
 
 router.get('/google/callback', (req, res, next) => {
-    // Determine redirect base and frontend URL
-    const redirectBase = getOAuthCallbackUrl(req);
-    const frontendUrl = getFrontendUrl(); // Ensure this is correctly defined in your helper
-
-    // FIX: Maintain consistency with the GOOGLE_CALLBACK_URL variable
-    const callbackURL = process.env.GOOGLE_CALLBACK_URL || `${redirectBase}/api/auth/google/callback`;
+    // Determine production URLs
+    const isProd = process.env.NODE_ENV === 'production';
+    const frontendUrl = isProd ? "https://mozhiaruvi.com" : getFrontendUrl();
+    const callbackURL = process.env.GOOGLE_CALLBACK_URL || `${getOAuthCallbackUrl(req)}/api/auth/google/callback`;
 
     passport.authenticate('google', {
         session: false,
