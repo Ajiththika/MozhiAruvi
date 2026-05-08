@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { AuthProvider } from "@/context/AuthContext";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import dynamic from "next/dynamic";
+import FeedbackPopup from "@/components/common/FeedbackPopup";
 
 const PlatformChat = dynamic(() => import("@/components/ui/PlatformChat"), {
   ssr: false,
@@ -29,6 +30,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
       <AuthProvider>
         {children}
         <PlatformChat />
+        <FeedbackPopup />
       </AuthProvider>
     </QueryClientProvider>
   );
