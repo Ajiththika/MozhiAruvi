@@ -21,6 +21,7 @@ import aiRoutes from "./routes/aiRoutes.js";
 import bookingRoutes from "./routes/bookingRoutes.js";
 import resourceRoutes from "./routes/resourceRoutes.js";
 import resourceSectionRoutes from "./routes/resourceSectionRoutes.js";
+import feedbackRoutes from "./routes/feedbackRoutes.js";
 import { stripeWebhook } from "./controllers/paymentController.js";
 import { testSmtpConnection } from "./services/mailService.js";
 import { errorHandler } from "./middleware/error.js";
@@ -150,6 +151,7 @@ app.use("/api/ai", aiRoutes);
 app.use("/api/bookings", bookingRoutes);
 app.use("/api/resources", resourceRoutes);
 app.use("/api/resource-sections", resourceSectionRoutes);
+app.use("/api/feedback", feedbackRoutes);
 
 // ── Database Diagnostic Route ─────────────────────────────────────────────────
 app.get('/api/db-status', async (req, res) => {
