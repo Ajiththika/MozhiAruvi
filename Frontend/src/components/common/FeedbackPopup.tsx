@@ -16,6 +16,17 @@ export default function FeedbackPopup() {
   useEffect(() => {
     // 1. Check if user has already submitted feedback
     const hasSubmitted = localStorage.getItem("mozhi_feedback_submitted");
+    
+    // Manual trigger listener
+    const handleManualOpen = () => {
+      setSubmitted(false);
+      setRating(0);
+      setComment("");
+      setShow(true);
+    };
+
+    window.addEventListener("OPEN_FEEDBACK_MODAL", handleManualOpen);
+
     if (hasSubmitted) return;
 
     // 2. Wait for 2 minutes (120,000 ms)
@@ -23,7 +34,10 @@ export default function FeedbackPopup() {
       setShow(true);
     }, 120000);
 
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener("OPEN_FEEDBACK_MODAL", handleManualOpen);
+    };
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {

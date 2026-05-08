@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import Link from "next/link";
 import Image from "next/image";
@@ -93,6 +95,14 @@ export default function Footer() {
                 <Link href="/blogs" className="text-slate-600 hover:text-primary transition-colors text-sm font-bold">
                   Culture Blog
                 </Link>
+              </li>
+              <li>
+                <button 
+                  onClick={() => window.dispatchEvent(new Event("OPEN_FEEDBACK_MODAL"))}
+                  className="text-slate-600 hover:text-primary transition-colors text-sm font-bold text-left"
+                >
+                  Write your feedback
+                </button>
               </li>
             </ul>
           </div>
