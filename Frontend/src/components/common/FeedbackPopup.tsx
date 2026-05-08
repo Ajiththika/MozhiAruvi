@@ -3,8 +3,11 @@
 import React, { useState, useEffect } from "react";
 import { Star, Send, X, CheckCircle2, MessageSquare } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/context/AuthContext";
+import { api } from "@/lib/api";
 
 export default function FeedbackPopup() {
+  const { user } = useAuth();
   const [show, setShow] = useState(false);
   const [rating, setRating] = useState(0);
   const [hover, setHover] = useState(0);
@@ -56,18 +59,27 @@ export default function FeedbackPopup() {
     setLoading(true);
     setError("");
 
-    // Simulate API call
-    console.log("Feedback Submitted:", { rating, comment });
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    try {
+      // API call to save feedback
+      await api.post("/feedback", {
+        rating,
+        comment,
+        userEmail: user?.email || "anonymous@mozhiaruvi.com",
+        userId: user?._id
+      });
 
-    // Permanently mark as submitted
-    localStorage.setItem("mozhi_feedback_submitted", "true");
-    
-    setSubmitted(true);
-    setLoading(false);
+      // Permanently mark as submitted
+      localStorage.setItem("mozhi_feedback_submitted", "true");
+      
+      setSubmitted(true);
+    } catch (err: any) {
+      setError(err.response?.data?.message || "Failed to submit feedback. Please try again.");
+    } finally {
+      setLoading(false);
+    }
 
     // Auto-close after success
-    setTimeout(() => setShow(false), 2500);
+    if (!error) setTimeout(() => setShow(false), 2500);
   };
 
   const closePopup = () => {
