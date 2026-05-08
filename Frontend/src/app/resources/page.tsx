@@ -152,30 +152,7 @@ export default function ResourcesPage() {
       <Navbar />
 
       <main className="flex-1">
-        {/* Hero Header */}
-        <div className="bg-white border-b border-slate-100 shadow-sm relative overflow-hidden">
-          <div className="max-w-7xl mx-auto px-6 py-12 md:py-16 flex flex-col md:flex-row items-center gap-6 md:gap-8 relative z-10">
-            <div className="h-16 w-16 md:h-20 md:w-20 rounded-[2rem] bg-primary/10 flex items-center justify-center text-primary shrink-0 shadow-inner">
-              <Library className="w-8 h-8 md:w-10 h-10" />
-            </div>
-            <div className="text-center md:text-left">
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/5 border border-primary/10 text-primary text-[10px] font-black uppercase tracking-widest mb-4">
-                <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-                Resource Library
-              </div>
-              <h1 className="text-4xl md:text-5xl font-black text-slate-800 tracking-tight leading-none mb-4">
-                Level up your Tamil.
-              </h1>
-              <p className="text-base md:text-lg text-slate-500 font-medium max-w-2xl leading-relaxed">
-                Access curated videos, PDF guides, and study notes designed to take you from absolute beginner to conversational fluency.
-              </p>
-            </div>
-          </div>
-          {/* Abstract Glyph */}
-          <div className="absolute top-1/2 right-0 -translate-y-1/2 opacity-[0.03] font-black text-[20rem] text-primary leading-none select-none pointer-events-none translate-x-1/4">
-             க
-          </div>
-        </div>
+
 
         {/* Content Section */}
         <div className="max-w-7xl mx-auto px-6 py-12">
