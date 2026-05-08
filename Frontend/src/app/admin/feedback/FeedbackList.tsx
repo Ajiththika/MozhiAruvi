@@ -7,7 +7,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getFeedbacks, deleteFeedback, Feedback } from "@/services/feedbackService";
 import { cn } from "@/lib/utils";
 
-export default function FeedbackClient() {
+export default function FeedbackList() {
   const queryClient = useQueryClient();
   const [actioning, setActioning] = useState<string | null>(null);
 

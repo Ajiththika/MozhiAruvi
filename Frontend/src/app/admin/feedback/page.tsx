@@ -2,8 +2,8 @@
 
 import React from "react";
 // Import the client component for feedback management
-import FeedbackClient from "./FeedbackClient";
+import FeedbackList from "./FeedbackList";
 
 export default function AdminFeedbackPage() {
-  return <FeedbackClient />;
+  return <FeedbackList />;
 }
