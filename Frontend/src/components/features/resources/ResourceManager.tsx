@@ -25,8 +25,8 @@ const TYPES = [
   { value: "link",  label: "External Link", icon: LinkIcon, color: "text-emerald-500 bg-emerald-50 border-emerald-100" },
 ];
 
-const inp = "w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-700 placeholder:text-slate-300 focus:outline-none focus:border-primary/40 focus:ring-4 focus:ring-primary/5 transition-all shadow-sm";
-const lbl = "text-[9px] font-black uppercase tracking-[0.2em] text-primary/50 mb-2 block px-1";
+const inp = "w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold text-slate-700 placeholder:text-slate-300 focus:outline-none focus:border-primary/40 focus:ring-8 focus:ring-primary/5 transition-all shadow-sm";
+const lbl = "text-[10px] font-black uppercase tracking-[0.2em] text-primary/60 mb-2.5 block px-1";
 
 const emptySection = { title: "", description: "", level: "Basic" };
 const emptyResource = { title: "", description: "", type: "video" as Resource["type"], url: "", content: "", level: "Basic", sectionId: "" };
@@ -102,7 +102,6 @@ export default function ResourceManager() {
   const handleSaveResource = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!activeSectionId) {
-       // Auto-save section first if it's new
        await handleSaveSection();
     }
     setSaving(true);
@@ -118,19 +117,19 @@ export default function ResourceManager() {
   const levelSections = sections.filter(s => s.level === activeLevel);
 
   return (
-    <div className="max-w-4xl mx-auto py-8 px-4 min-h-screen">
+    <div className="max-w-5xl mx-auto py-12 px-6 min-h-screen">
       
-      {/* Compact Header */}
-      <div className="flex items-center justify-between mb-8">
-        <div className="flex items-center gap-4">
-          <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
-            <Library className="w-5 h-5" />
+      {/* Refined Header */}
+      <div className="flex items-center justify-between mb-10">
+        <div className="flex items-center gap-5">
+          <div className="h-12 w-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary shadow-inner">
+            <Library className="w-6 h-6" />
           </div>
           <div>
-            <h1 className="text-xl font-black text-slate-800 tracking-tight leading-none mb-1">
+            <h1 className="text-2xl font-black text-slate-800 tracking-tight leading-none mb-1.5">
               {viewMode === 'list' ? 'Curriculum' : 'Manage Content'}
             </h1>
-            <p className="text-[9px] font-black text-primary/30 uppercase tracking-widest">
+            <p className="text-[11px] font-black text-primary/40 uppercase tracking-[0.2em]">
               {viewMode === 'list' ? 'Resource Library' : 'One-Page Manager'}
             </p>
           </div>
@@ -139,55 +138,55 @@ export default function ResourceManager() {
         {viewMode === 'list' ? (
           <button
             onClick={openAddMode}
-            className="flex items-center gap-2 px-6 py-3 bg-primary text-white font-black text-[10px] uppercase tracking-widest rounded-xl shadow-xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all"
+            className="flex items-center gap-3 px-8 py-4 bg-primary text-white font-black text-[11px] uppercase tracking-widest rounded-2xl shadow-2xl shadow-primary/30 hover:scale-105 active:scale-95 transition-all"
           >
             <Plus className="w-4 h-4" /> Add
           </button>
         ) : (
           <button 
             onClick={goToList}
-            className="flex items-center gap-2 px-4 py-2 bg-slate-100 text-slate-500 font-black text-[9px] uppercase tracking-widest rounded-lg hover:bg-slate-200 transition-all"
+            className="flex items-center gap-2 px-5 py-3 bg-slate-100 text-slate-500 font-black text-[10px] uppercase tracking-widest rounded-xl hover:bg-slate-200 transition-all shadow-sm"
           >
-            <ArrowLeft className="w-3 h-3" /> Back
+            <ArrowLeft className="w-4 h-4" /> Back to List
           </button>
         )}
       </div>
 
       {loading && viewMode === 'list' ? (
-        <div className="flex flex-col items-center justify-center py-24 gap-3 opacity-40">
-           <Loader2 className="w-8 h-8 animate-spin text-primary" />
-           <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Syncing...</p>
+        <div className="flex flex-col items-center justify-center py-32 gap-4 opacity-50">
+           <Loader2 className="w-10 h-10 animate-spin text-primary" />
+           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Loading Library...</p>
         </div>
       ) : viewMode === 'list' ? (
-        <div className="space-y-6 animate-in fade-in duration-500">
-          {/* Tighter Level Selector */}
-          <div className="flex gap-1.5 bg-white p-1.5 rounded-2xl border border-slate-100 shadow-lg shadow-slate-100">
+        <div className="space-y-8 animate-in fade-in duration-700">
+          {/* Refined Level Selector */}
+          <div className="flex gap-2 bg-white p-2.5 rounded-[2rem] border border-slate-100 shadow-xl shadow-slate-200/40">
             {LEVELS.map(lv => (
               <button key={lv} onClick={() => setActiveLevel(lv)}
-                className={`flex-1 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${activeLevel === lv ? "bg-primary text-white shadow-lg shadow-primary/20" : "bg-slate-50 text-slate-400 hover:bg-slate-100"}`}
+                className={`flex-1 py-4 rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest transition-all ${activeLevel === lv ? "bg-primary text-white shadow-xl shadow-primary/20" : "bg-slate-50 text-slate-400 hover:bg-slate-100"}`}
               >{lv}</button>
             ))}
           </div>
 
-          {/* List View */}
-          <div className="grid grid-cols-1 gap-4">
+          {/* List View with Increased Card Sizes */}
+          <div className="grid grid-cols-1 gap-5">
             {levelSections.map(sec => (
-              <div key={sec._id} className="bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-all group flex items-center justify-between px-6 py-5">
-                 <div className="flex items-center gap-4">
-                    <div className="h-10 w-10 rounded-xl bg-slate-50 flex items-center justify-center text-primary/40">
-                       <BookOpen className="w-5 h-5" />
+              <div key={sec._id} className="bg-white rounded-[2rem] border border-slate-100 shadow-md hover:shadow-xl hover:scale-[1.01] transition-all group flex items-center justify-between px-8 py-6">
+                 <div className="flex items-center gap-5">
+                    <div className="h-12 w-12 rounded-2xl bg-primary/5 flex items-center justify-center text-primary shadow-inner">
+                       <BookOpen className="w-6 h-6" />
                     </div>
                     <div>
-                       <h3 className="font-black text-slate-800 text-sm tracking-tight">{sec.title}</h3>
-                       <p className="text-[9px] font-bold text-slate-300 uppercase tracking-widest">{sec.description || "General Materials"}</p>
+                       <h3 className="font-black text-slate-800 text-base tracking-tight">{sec.title}</h3>
+                       <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">{sec.description || "Educational Module"}</p>
                     </div>
                  </div>
-                 <div className="flex items-center gap-2">
-                    <button onClick={() => openEditMode(sec)} className="p-2.5 rounded-lg hover:bg-primary/5 text-slate-300 hover:text-primary transition-all">
-                       <Edit3 className="w-4 h-4" />
+                 <div className="flex items-center gap-3">
+                    <button onClick={() => openEditMode(sec)} className="p-3 rounded-xl hover:bg-primary/5 text-slate-300 hover:text-primary transition-all">
+                       <Edit3 className="w-5 h-5" />
                     </button>
-                    <button onClick={() => { if(confirm("Delete?")) deleteSection(sec._id).then(fetchAll); }} className="p-2.5 rounded-lg hover:bg-red-50 text-slate-300 hover:text-red-500 transition-all">
-                       <Trash2 className="w-4 h-4" />
+                    <button onClick={() => { if(confirm("Delete this section?")) deleteSection(sec._id).then(fetchAll); }} className="p-3 rounded-xl hover:bg-red-50 text-slate-300 hover:text-red-500 transition-all">
+                       <Trash2 className="w-5 h-5" />
                     </button>
                  </div>
               </div>
@@ -196,71 +195,83 @@ export default function ResourceManager() {
         </div>
       ) : (
         /* One-Page Unified Manager (Section + Resource) */
-        <div className="space-y-6 animate-in slide-in-from-bottom-4 duration-500 pb-20">
+        <div className="space-y-8 animate-in slide-in-from-bottom-6 duration-700 pb-24">
            
            {/* Section Heading Area (Image 3 Style) */}
-           <div className="bg-white rounded-[1.8rem] border border-slate-100 shadow-xl p-8">
-              <div className="flex items-center gap-3 mb-6">
-                 <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary"><Settings2 className="w-4 h-4" /></div>
-                 <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-800">Heading & Details</h3>
+           <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-2xl p-10">
+              <div className="flex items-center gap-4 mb-8 pb-4 border-b border-slate-50">
+                 <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary"><Settings2 className="w-5 h-5" /></div>
+                 <h3 className="text-[11px] font-black uppercase tracking-widest text-slate-800">Heading & Curriculum Details</h3>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                  <div>
                     <label className={lbl}>Section Title</label>
-                    <input required value={sectionForm.title} onChange={e => setSectionForm({ ...sectionForm, title: e.target.value })} className={inp} />
+                    <input required value={sectionForm.title} onChange={e => setSectionForm({ ...sectionForm, title: e.target.value })} className={inp} placeholder="e.g. Tamil Alphabets" />
                  </div>
                  <div>
                     <label className={lbl}>Level</label>
-                    <select value={sectionForm.level} onChange={e => setSectionForm({ ...sectionForm, level: e.target.value })} className={inp}>
-                       {LEVELS.map(lv => <option key={lv} value={lv}>{lv}</option>)}
-                    </select>
+                    <div className="relative">
+                      <select value={sectionForm.level} onChange={e => setSectionForm({ ...sectionForm, level: e.target.value })} className={inp + " appearance-none"}>
+                         {LEVELS.map(lv => <option key={lv} value={lv}>{lv}</option>)}
+                      </select>
+                      <ChevronDown className="pointer-events-none absolute right-6 top-1/2 -translate-y-1/2 w-5 h-5 text-primary/30" />
+                    </div>
                  </div>
               </div>
-              <div className="mt-6">
-                 <label className={lbl}>Description</label>
-                 <input value={sectionForm.description} onChange={e => setSectionForm({ ...sectionForm, description: e.target.value })} className={inp} />
+              <div className="mt-8">
+                 <label className={lbl}>Description / Brief</label>
+                 <textarea value={sectionForm.description} onChange={e => setSectionForm({ ...sectionForm, description: e.target.value })} rows={2} className={inp + " resize-none"} placeholder="Explain what this section covers..." />
               </div>
-              <div className="flex justify-end mt-6">
-                 <button onClick={() => handleSaveSection()} disabled={saving} className="flex items-center gap-2 px-8 py-3 bg-slate-800 text-white text-[9px] font-black uppercase tracking-widest rounded-xl hover:bg-black transition-all">
-                    {saving ? <Loader2 className="w-3 h-3 animate-spin" /> : <Save className="w-3 h-3" />}
+              <div className="flex justify-end mt-8">
+                 <button onClick={() => handleSaveSection()} disabled={saving} className="flex items-center gap-3 px-10 py-4 bg-slate-900 text-white text-[10px] font-black uppercase tracking-widest rounded-2xl hover:bg-black transition-all shadow-xl shadow-black/10">
+                    {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                     Update Heading
                  </button>
               </div>
            </div>
 
            {/* Upload Page Area (Image 2 Style) */}
-           <div className="bg-white rounded-[1.8rem] border border-slate-100 shadow-xl p-8">
-              <div className="flex items-center gap-3 mb-8">
-                 <div className="h-8 w-8 rounded-lg bg-indigo-50 flex items-center justify-center text-indigo-500"><UploadCloud className="w-4 h-4" /></div>
-                 <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-800">Upload Material</h3>
+           <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-2xl p-10">
+              <div className="flex items-center gap-4 mb-10 pb-4 border-b border-slate-50">
+                 <div className="h-10 w-10 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-500"><UploadCloud className="w-5 h-5" /></div>
+                 <h3 className="text-[11px] font-black uppercase tracking-widest text-slate-800">New Material Upload</h3>
               </div>
               
-              <div className="space-y-6">
+              <div className="space-y-8">
                  <div>
                     <label className={lbl}>Material Title</label>
-                    <input value={resourceForm.title} onChange={e => setResourceForm({ ...resourceForm, title: e.target.value })} className={inp} placeholder="e.g. Lesson 01 PDF" />
+                    <input value={resourceForm.title} onChange={e => setResourceForm({ ...resourceForm, title: e.target.value })} className={inp + " text-lg font-black"} placeholder="e.g. Module 01: Vowels PDF" />
                  </div>
 
-                 {/* Online Text Toolbar (Compact Image 2 Style) */}
+                 {/* Online Text Toolbar (Image 2 Style) */}
                  <div>
-                    <label className={lbl}>Online Text</label>
-                    <div className="border border-slate-100 rounded-2xl overflow-hidden shadow-inner bg-slate-50/20">
-                       <div className="flex items-center gap-1.5 p-3 border-b border-slate-50 bg-white">
-                          <button type="button" className="p-1.5 hover:bg-slate-50 rounded text-slate-400"><Bold className="w-3.5 h-3.5" /></button>
-                          <button type="button" className="p-1.5 hover:bg-slate-50 rounded text-slate-400"><Italic className="w-3.5 h-3.5" /></button>
-                          <div className="w-px h-4 bg-slate-100 mx-1" />
-                          <button type="button" className="p-1.5 hover:bg-slate-50 rounded text-slate-400"><ImageIcon className="w-3.5 h-3.5" /></button>
-                          <button type="button" className="p-1.5 hover:bg-slate-50 rounded text-slate-400"><Video className="w-3.5 h-3.5" /></button>
-                          <button type="button" className="p-1.5 hover:bg-slate-50 rounded text-slate-400"><Mic className="w-3.5 h-3.5" /></button>
+                    <label className={lbl}>Online Text Content</label>
+                    <div className="border-2 border-slate-100 rounded-[2rem] overflow-hidden shadow-sm bg-white focus-within:border-primary/20 transition-all">
+                       <div className="flex items-center flex-wrap gap-2 p-4 border-b border-slate-50 bg-slate-50/30">
+                          <div className="flex items-center gap-1.5 bg-white border border-slate-100 rounded-xl p-1.5 shadow-sm">
+                             <button type="button" className="p-2 hover:bg-slate-50 rounded-lg text-slate-400"><Bold className="w-4 h-4" /></button>
+                             <button type="button" className="p-2 hover:bg-slate-50 rounded-lg text-slate-400"><Italic className="w-4 h-4" /></button>
+                          </div>
+                          <div className="flex items-center gap-1.5 bg-white border border-slate-100 rounded-xl p-1.5 shadow-sm">
+                             <button type="button" className="p-2 hover:bg-slate-50 rounded-lg text-slate-400"><ImageIcon className="w-4 h-4" /></button>
+                             <button type="button" className="p-2 hover:bg-slate-50 rounded-lg text-slate-400"><Video className="w-4 h-4" /></button>
+                             <button type="button" className="p-2 hover:bg-slate-50 rounded-lg text-slate-400"><Mic className="w-4 h-4" /></button>
+                          </div>
+                          <div className="flex items-center gap-1.5 bg-white border border-slate-100 rounded-xl p-1.5 shadow-sm">
+                             <button type="button" className={cn("p-2 hover:bg-slate-50 rounded-lg", resourceForm.type === 'link' ? "bg-primary/10 text-primary" : "text-slate-400")}>
+                                <LinkIcon className="w-4 h-4" />
+                             </button>
+                             <button type="button" className="p-2 hover:bg-slate-50 rounded-lg text-slate-400 opacity-20"><Maximize2 className="w-4 h-4" /></button>
+                          </div>
                        </div>
-                       <textarea value={resourceForm.content} onChange={e => setResourceForm({...resourceForm, content: e.target.value, type: e.target.value ? 'text' : resourceForm.type})} rows={6} className="w-full p-6 text-sm font-medium text-slate-600 focus:outline-none bg-transparent" placeholder="Paste text content..." />
+                       <textarea value={resourceForm.content} onChange={e => setResourceForm({...resourceForm, content: e.target.value, type: e.target.value ? 'text' : resourceForm.type})} rows={8} className="w-full p-8 text-base font-bold text-slate-600 focus:outline-none bg-transparent leading-relaxed" placeholder="Type or paste your content here..." />
                     </div>
                  </div>
 
-                 {/* Dropzone (Compact Image 2 Style) */}
+                 {/* Dropzone (Image 2 Style) */}
                  <div>
-                    <label className={lbl}>File Submission</label>
-                    <div onClick={() => document.getElementById('file-up')?.click()} className="h-40 rounded-[1.5rem] border-2 border-dashed border-slate-100 bg-slate-50/50 flex flex-col items-center justify-center cursor-pointer hover:border-primary/20 hover:bg-white transition-all group">
+                    <label className={lbl}>File Submission / Dropzone</label>
+                    <div onClick={() => document.getElementById('file-up')?.click()} className="min-h-[220px] rounded-[2.5rem] border-2 border-dashed border-slate-100 bg-slate-50/50 flex flex-col items-center justify-center cursor-pointer hover:border-primary/40 hover:bg-white transition-all group shadow-inner">
                        <input id="file-up" type="file" className="hidden" onChange={async (e) => {
                           const f = e.target.files?.[0]; if(!f) return;
                           setSaving(true);
@@ -271,31 +282,40 @@ export default function ResourceManager() {
                           } finally { setSaving(false); }
                        }} />
                        {resourceForm.url && resourceForm.type === 'pdf' ? (
-                          <div className="flex items-center gap-3 bg-emerald-50 text-emerald-600 px-4 py-2 rounded-xl border border-emerald-100">
-                             <CheckCircle2 className="w-4 h-4" /> <span className="text-[10px] font-black uppercase tracking-widest">File Loaded</span>
+                          <div className="flex flex-col items-center gap-4 animate-in zoom-in-95 duration-500">
+                             <div className="h-20 w-20 rounded-3xl bg-emerald-50 text-emerald-500 flex items-center justify-center shadow-lg shadow-emerald-500/10 border border-emerald-100">
+                                <File className="w-10 h-10" />
+                             </div>
+                             <div className="text-center">
+                                <p className="text-sm font-black text-slate-700">{resourceForm.url.split('/').pop()}</p>
+                                <p className="text-[10px] font-black text-emerald-500 uppercase tracking-widest mt-1">Ready for Curriculum</p>
+                             </div>
                           </div>
                        ) : (
                           <>
-                             <UploadCloud className="w-8 h-8 text-slate-200 mb-2 group-hover:text-primary transition-colors" />
-                             <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest">Drop file or click to upload</p>
+                             <div className="h-16 w-16 rounded-2xl bg-white border border-slate-100 flex items-center justify-center text-slate-200 mb-4 group-hover:scale-110 group-hover:text-primary transition-all duration-500 shadow-sm">
+                                <UploadCloud className="w-8 h-8" />
+                             </div>
+                             <p className="text-base font-black text-slate-600 group-hover:text-primary transition-colors tracking-tight">You can drag and drop files here to add them.</p>
+                             <p className="text-[10px] font-black text-slate-300 mt-2 uppercase tracking-widest">Supports PDF, DOCX, ZIP • Max 20MB</p>
                           </>
                        )}
                     </div>
                  </div>
 
                  {/* External Link */}
-                 <div>
-                    <label className={lbl}>External Link</label>
+                 <div className="p-8 bg-emerald-50/30 rounded-[2rem] border border-emerald-100/50 shadow-inner">
+                    <label className={lbl + " text-emerald-600/70"}>External Link / YouTube URL</label>
                     <div className="relative">
-                       <input value={resourceForm.url} onChange={e => setResourceForm({...resourceForm, url: e.target.value, type: e.target.value.includes('youtube') ? 'video' : 'link'})} className={inp} placeholder="https://..." />
-                       {resourceForm.url && <div className="absolute right-4 top-1/2 -translate-y-1/2"><LinkIcon className="w-4 h-4 text-primary/40" /></div>}
+                       <input value={resourceForm.url} onChange={e => setResourceForm({...resourceForm, url: e.target.value, type: e.target.value.includes('youtube') ? 'video' : 'link'})} className={inp + " border-emerald-100 focus:border-emerald-400 focus:ring-emerald-500/5"} placeholder="https://..." />
+                       {resourceForm.url && <div className="absolute right-6 top-1/2 -translate-y-1/2"><LinkIcon className="w-5 h-5 text-emerald-400" /></div>}
                     </div>
                  </div>
 
-                 <div className="pt-6 border-t border-slate-50 flex justify-end">
-                    <button onClick={handleSaveResource} disabled={saving} className="flex items-center gap-3 px-12 py-4 bg-primary text-white text-[11px] font-black uppercase tracking-widest rounded-2xl shadow-xl shadow-primary/30 hover:scale-105 active:scale-95 transition-all">
-                       {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-                       Save Changes
+                 <div className="pt-10 border-t border-slate-50 flex justify-end">
+                    <button onClick={handleSaveResource} disabled={saving} className="flex items-center gap-4 px-16 py-5 bg-primary text-white text-[12px] font-black uppercase tracking-widest rounded-[2rem] shadow-2xl shadow-primary/40 hover:scale-105 active:scale-95 transition-all">
+                       {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
+                       Save Material
                     </button>
                  </div>
               </div>
@@ -303,17 +323,17 @@ export default function ResourceManager() {
 
            {/* Existing Materials List */}
            {activeSectionId && resources.filter(r => r.sectionId === activeSectionId).length > 0 && (
-              <div className="bg-white rounded-3xl border border-slate-100 p-8">
-                 <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-6">Existing Materials in this Section</h3>
-                 <div className="space-y-2">
+              <div className="bg-white rounded-[2.5rem] border border-slate-100 p-10 shadow-xl">
+                 <h3 className="text-[11px] font-black uppercase tracking-widest text-slate-400 mb-8 pb-4 border-b border-slate-50">Current Materials in this Section</h3>
+                 <div className="grid grid-cols-1 gap-3">
                     {resources.filter(r => r.sectionId === activeSectionId).map(r => (
-                       <div key={r._id} className="flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-100 group">
-                          <div className="flex items-center gap-3">
-                             <div className="h-8 w-8 rounded-lg bg-white flex items-center justify-center text-primary/40"><FileText className="w-4 h-4" /></div>
-                             <span className="text-sm font-bold text-slate-600">{r.title}</span>
+                       <div key={r._id} className="flex items-center justify-between p-5 bg-slate-50 rounded-2xl border border-slate-100 group hover:bg-white hover:shadow-lg transition-all">
+                          <div className="flex items-center gap-4">
+                             <div className="h-10 w-10 rounded-xl bg-white flex items-center justify-center text-primary/50 shadow-sm"><FileText className="w-5 h-5" /></div>
+                             <span className="text-sm font-black text-slate-700">{r.title}</span>
                           </div>
-                          <button onClick={() => { if(confirm("Delete?")) deleteResource(r._id).then(fetchAll); }} className="p-2 opacity-0 group-hover:opacity-100 text-slate-300 hover:text-red-500 transition-all">
-                             <Trash2 className="w-4 h-4" />
+                          <button onClick={() => { if(confirm("Permanently delete this material?")) deleteResource(r._id).then(fetchAll); }} className="p-3 opacity-0 group-hover:opacity-100 text-slate-300 hover:text-red-500 transition-all">
+                             <Trash2 className="w-5 h-5" />
                           </button>
                        </div>
                     ))}
