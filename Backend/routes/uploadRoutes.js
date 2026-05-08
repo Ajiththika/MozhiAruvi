@@ -59,4 +59,26 @@ router.post('/audio', authenticate, uploadAudio.single('audio'), (req, res) => {
   });
 });
 
+// ── Upload File Route (Documents/PDFs) ─────────────────────────────────────────────
+const fileStorage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'mozhiaruvi_resources',
+    resource_type: 'auto',
+    allowed_formats: ['pdf', 'doc', 'docx', 'ppt', 'pptx', 'txt', 'zip'],
+  },
+});
+
+const uploadFile = multer({ storage: fileStorage });
+
+router.post('/file', authenticate, uploadFile.single('file'), (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ message: 'No file provided' });
+  }
+  res.json({ 
+    url: req.file.path,
+    public_id: req.file.filename 
+  });
+});
+
 export default router;
