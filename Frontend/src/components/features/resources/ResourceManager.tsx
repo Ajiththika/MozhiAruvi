@@ -127,7 +127,7 @@ export default function ResourceManager() {
           </div>
           <div>
             <h1 className="text-2xl font-black text-slate-800 tracking-tight leading-none mb-1.5">
-              {viewMode === 'list' ? 'Curriculum' : 'Manage Content'}
+              {viewMode === 'list' ? 'Resources' : 'Manage Content'}
             </h1>
             <p className="text-[11px] font-black text-primary/40 uppercase tracking-[0.2em]">
               {viewMode === 'list' ? 'Resource Library' : 'One-Page Manager'}
@@ -201,7 +201,7 @@ export default function ResourceManager() {
            <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-2xl p-10">
               <div className="flex items-center gap-4 mb-8 pb-4 border-b border-slate-50">
                  <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary"><Settings2 className="w-5 h-5" /></div>
-                 <h3 className="text-[11px] font-black uppercase tracking-widest text-slate-800">Heading & Curriculum Details</h3>
+                 <h3 className="text-[11px] font-black uppercase tracking-widest text-slate-800">Heading & Resource Details</h3>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                  <div>
@@ -223,7 +223,7 @@ export default function ResourceManager() {
                  <textarea value={sectionForm.description} onChange={e => setSectionForm({ ...sectionForm, description: e.target.value })} rows={2} className={inp + " resize-none"} placeholder="Explain what this section covers..." />
               </div>
               <div className="flex justify-end mt-8">
-                 <button onClick={() => handleSaveSection()} disabled={saving} className="flex items-center gap-3 px-10 py-4 bg-slate-900 text-white text-[10px] font-black uppercase tracking-widest rounded-2xl hover:bg-black transition-all shadow-xl shadow-black/10">
+                 <button onClick={() => handleSaveSection()} disabled={saving} className="flex items-center gap-3 px-10 py-4 bg-primary text-white text-[10px] font-black uppercase tracking-widest rounded-2xl hover:scale-105 transition-all shadow-xl shadow-primary/20">
                     {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                     Update Heading
                  </button>
