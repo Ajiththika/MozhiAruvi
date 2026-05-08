@@ -6,16 +6,6 @@ import Image from "next/image";
 import { Mail, Phone, Sparkles } from "lucide-react";
 
 export default function Footer() {
-  const [hasSubmitted, setHasSubmitted] = React.useState(false);
-
-  React.useEffect(() => {
-    const check = () => setHasSubmitted(localStorage.getItem("mozhi_feedback_submitted") === "true");
-    check();
-    // Also listen for submissions to hide it instantly
-    window.addEventListener("mozhi_feedback_submitted", check);
-    return () => window.removeEventListener("mozhi_feedback_submitted", check);
-  }, []);
-
   return (
     <footer className="bg-slate-50/50 py-4 md:py-6 border-t border-slate-200 px-6 md:px-12 lg:px-20">
       <div className="max-w-7xl mx-auto">
@@ -106,16 +96,14 @@ export default function Footer() {
                   Culture Blog
                 </Link>
               </li>
-              {!hasSubmitted && (
-                <li>
-                  <button 
-                    onClick={() => window.dispatchEvent(new Event("OPEN_FEEDBACK_MODAL"))}
-                    className="text-slate-600 hover:text-primary transition-colors text-sm font-bold text-left animate-in fade-in duration-500"
-                  >
-                    Write your feedback
-                  </button>
-                </li>
-              )}
+              <li>
+                <button 
+                  onClick={() => window.dispatchEvent(new Event("OPEN_FEEDBACK_MODAL"))}
+                  className="text-slate-600 hover:text-primary transition-colors text-sm font-bold text-left"
+                >
+                  Write your feedback
+                </button>
+              </li>
             </ul>
           </div>
 
