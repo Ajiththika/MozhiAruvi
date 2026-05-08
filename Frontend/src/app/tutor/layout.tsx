@@ -9,6 +9,7 @@ const tutorLinks: SidebarItem[] = [
   { name: "Dashboard",        href: "/tutor/dashboard",  icon: "home" },
   { name: "My Schedule",      href: "/tutor/schedule",   icon: "calendar-days" },
   { name: "My Blogs",         href: "/tutor/blogs",     icon: "message-square" },
+  { name: "Manage Resources", href: "/tutor/resources",  icon: "library" },
   { name: "Student Requests", href: "/tutor/questions",  icon: "message-square" },
 ];
 
