@@ -16,7 +16,20 @@ export default function FeedbackPopup() {
   useEffect(() => {
     // 1. Check if user has already submitted feedback
     const hasSubmitted = localStorage.getItem("mozhi_feedback_submitted");
-    
+    if (hasSubmitted) return;
+
+    // Trigger logic
+    let timer: NodeJS.Timeout;
+
+    const startTimer = (ms: number) => {
+      timer = setTimeout(() => {
+        setShow(true);
+      }, ms);
+    };
+
+    // Initial 2-minute delay
+    startTimer(120000);
+
     // Manual trigger listener
     const handleManualOpen = () => {
       setSubmitted(false);
@@ -26,13 +39,6 @@ export default function FeedbackPopup() {
     };
 
     window.addEventListener("OPEN_FEEDBACK_MODAL", handleManualOpen);
-
-    if (hasSubmitted) return;
-
-    // 2. Wait for 2 minutes (120,000 ms)
-    const timer = setTimeout(() => {
-      setShow(true);
-    }, 120000);
 
     return () => {
       clearTimeout(timer);
@@ -52,59 +58,69 @@ export default function FeedbackPopup() {
 
     // Simulate API call
     console.log("Feedback Submitted:", { rating, comment });
-    
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
-    // Save to localStorage so it doesn't show again
+    // Permanently mark as submitted
     localStorage.setItem("mozhi_feedback_submitted", "true");
     
     setSubmitted(true);
     setLoading(false);
 
-    // Hide after 3 seconds of success
-    setTimeout(() => {
-      setShow(false);
-    }, 3000);
+    // Auto-close after success
+    setTimeout(() => setShow(false), 2500);
   };
 
   const closePopup = () => {
     setShow(false);
-    // Also mark as "seen" even if closed without submit, 
-    // or you could choose to show it again next time.
-    // Here we mark it so it doesn't annoy the user.
-    localStorage.setItem("mozhi_feedback_submitted", "true");
+    
+    // Check if it was a manual open (doesn't have submitted flag in localstorage yet)
+    const hasSubmitted = localStorage.getItem("mozhi_feedback_submitted");
+    if (!hasSubmitted) {
+      // Re-trigger after 3 minutes (180,000 ms) if they just closed it
+      setTimeout(() => {
+        const stillNotSubmitted = !localStorage.getItem("mozhi_feedback_submitted");
+        if (stillNotSubmitted) setShow(true);
+      }, 180000);
+    }
   };
 
   if (!show) return null;
 
   return (
-    <div className="fixed bottom-6 right-6 z-[9999] w-[calc(100vw-3rem)] sm:w-[400px] animate-in slide-in-from-bottom-10 duration-700">
-      <div className="bg-white rounded-[2.5rem] shadow-2xl shadow-primary/20 border border-primary/5 p-8 relative overflow-hidden">
-        {/* Background Decorative Element */}
-        <div className="absolute -top-10 -right-10 w-32 h-32 bg-primary/5 rounded-full blur-3xl" />
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-6 sm:p-4">
+      {/* Backdrop */}
+      <div 
+        className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-500" 
+        onClick={closePopup}
+      />
+
+      {/* Modal Content */}
+      <div className="relative w-full max-w-[480px] bg-white rounded-[3rem] shadow-[0_32px_64px_-15px_rgba(0,0,0,0.2)] border border-slate-100 p-8 sm:p-10 animate-in zoom-in-95 slide-in-from-bottom-10 duration-500 overflow-hidden">
+        
+        {/* Decorative Background */}
+        <div className="absolute -top-24 -right-24 w-64 h-64 bg-primary/5 rounded-full blur-[80px]" />
         
         <button 
           onClick={closePopup}
-          className="absolute top-6 right-6 p-2 rounded-xl hover:bg-slate-50 text-slate-300 hover:text-slate-500 transition-all"
+          className="absolute top-8 right-8 p-3 rounded-2xl hover:bg-slate-50 text-slate-300 hover:text-slate-500 transition-all z-10"
         >
-          <X className="w-5 h-5" />
+          <X className="w-6 h-6" />
         </button>
 
         {!submitted ? (
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="flex items-center gap-4 mb-2">
-              <div className="h-12 w-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
-                <MessageSquare className="w-6 h-6" />
+          <form onSubmit={handleSubmit} className="relative space-y-8">
+            <div className="flex flex-col items-center text-center space-y-4">
+              <div className="h-16 w-16 rounded-[2rem] bg-primary/10 flex items-center justify-center text-primary shadow-xl shadow-primary/5 mb-2">
+                <MessageSquare className="w-8 h-8" />
               </div>
               <div>
-                <h3 className="text-lg font-black text-slate-800 tracking-tight leading-none mb-1">Your Feedback</h3>
-                <p className="text-[10px] font-black text-primary/40 uppercase tracking-widest">Help us improve your experience</p>
+                <h3 className="text-2xl font-black text-slate-800 tracking-tight mb-2">How's your experience?</h3>
+                <p className="text-xs font-black text-primary/40 uppercase tracking-[0.3em]">Help us grow MozhiAruvi</p>
               </div>
             </div>
 
-            <div className="py-2">
-              <p className="text-sm font-bold text-slate-600 mb-4">How was your time on MozhiAruvi?</p>
-              <div className="flex items-center gap-2">
+            <div className="flex flex-col items-center space-y-6 py-2">
+              <div className="flex items-center gap-3">
                 {[1, 2, 3, 4, 5].map((star) => (
                   <button
                     key={star}
@@ -112,11 +128,11 @@ export default function FeedbackPopup() {
                     onMouseEnter={() => setHover(star)}
                     onMouseLeave={() => setHover(0)}
                     onClick={() => setRating(star)}
-                    className="transition-all transform hover:scale-125 focus:outline-none"
+                    className="transition-all transform hover:scale-125 focus:outline-none p-1"
                   >
                     <Star
                       className={cn(
-                        "w-9 h-9 transition-colors",
+                        "w-10 h-10 transition-colors",
                         (hover || rating) >= star
                           ? "fill-primary text-primary"
                           : "text-slate-200"
@@ -125,48 +141,56 @@ export default function FeedbackPopup() {
                   </button>
                 ))}
               </div>
-              {error && <p className="text-xs font-bold text-red-500 mt-3 flex items-center gap-1">
-                <CheckCircle2 className="w-3 h-3 rotate-180" /> {error}
-              </p>}
+              {error && (
+                <p className="text-[10px] font-black text-red-500 uppercase tracking-widest bg-red-50 px-4 py-2 rounded-full border border-red-100 animate-bounce">
+                   {error}
+                </p>
+              )}
             </div>
 
-            <div className="space-y-3">
-              <label className="text-[10px] font-black uppercase tracking-widest text-primary/40 px-1">Any specific comments?</label>
+            <div className="space-y-4">
+              <label className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/40 px-2">Write a short note (Optional)</label>
               <textarea
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}
-                placeholder="Tell us what you loved or what we can improve..."
-                className="w-full px-6 py-4 bg-slate-50 border border-slate-100 rounded-3xl text-sm font-medium text-slate-600 placeholder:text-slate-300 focus:outline-none focus:border-primary/20 focus:ring-8 focus:ring-primary/5 transition-all resize-none h-32 leading-relaxed"
+                placeholder="What can we do better?..."
+                className="w-full px-8 py-6 bg-slate-50 border border-slate-100 rounded-[2rem] text-base font-bold text-slate-600 placeholder:text-slate-300 focus:outline-none focus:border-primary/20 focus:ring-[15px] focus:ring-primary/5 transition-all resize-none h-40 leading-relaxed shadow-inner"
               />
             </div>
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full flex items-center justify-center gap-3 py-5 bg-primary text-white text-[12px] font-black uppercase tracking-[0.2em] rounded-3xl shadow-2xl shadow-primary/30 hover:scale-105 active:scale-95 transition-all disabled:opacity-60"
+              className="w-full flex items-center justify-center gap-4 py-6 bg-primary text-white text-[13px] font-black uppercase tracking-[0.25em] rounded-[2rem] shadow-2xl shadow-primary/30 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-60"
             >
               {loading ? (
-                <div className="h-5 w-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                <Loader2 className="w-6 h-6 animate-spin" />
               ) : (
                 <>
-                  <Send className="w-4 h-4" />
-                  Submit Feedback
+                  <Send className="w-5 h-5" />
+                  Send Feedback
                 </>
               )}
             </button>
           </form>
         ) : (
-          <div className="flex flex-col items-center justify-center py-10 text-center animate-in zoom-in-95 duration-500">
-            <div className="h-20 w-20 rounded-[2.5rem] bg-emerald-50 text-emerald-500 flex items-center justify-center mb-6 shadow-lg shadow-emerald-500/10">
-              <CheckCircle2 className="w-10 h-10" />
+          <div className="flex flex-col items-center justify-center py-12 text-center animate-in zoom-in-95 duration-500">
+            <div className="h-24 w-24 rounded-[3rem] bg-emerald-50 text-emerald-500 flex items-center justify-center mb-8 shadow-xl shadow-emerald-500/10 border border-emerald-100">
+              <CheckCircle2 className="w-12 h-12" />
             </div>
-            <h3 className="text-xl font-black text-slate-800 tracking-tight mb-2">Thank You!</h3>
-            <p className="text-sm font-bold text-slate-400 max-w-[240px]">
-              We really appreciate you taking the time to help us grow.
+            <h3 className="text-2xl font-black text-slate-800 tracking-tight mb-3">Feedback Received!</h3>
+            <p className="text-base font-bold text-slate-400 max-w-[280px] leading-relaxed">
+              We appreciate your support in making MozhiAruvi better.
             </p>
           </div>
         )}
       </div>
     </div>
+  );
+}
+
+function Loader2({ className }: { className?: string }) {
+  return (
+    <div className={cn("h-6 w-6 border-4 border-white/30 border-t-white rounded-full animate-spin", className)} />
   );
 }
