@@ -17,7 +17,7 @@ export async function getAllLessons() {
 /** 
  * Targeted fetch for dashboard: minimizes data transfer by level 
  */
-export async function getLessonsForDashboard(level = 'Basic') {
+export async function getLessonsForDashboard(level = 'Beginner') {
     return Lesson.find({ 
         level: { $regex: new RegExp(`^${level}$`, 'i') } 
     })
@@ -169,7 +169,7 @@ export async function evaluateAnswersAndSaveProgress(userId, lessonId, answers) 
         await progress.save();
     }
 
-    // Find next lesson to suggest (must match the SAME level as the current lesson or user level)
+    // 4. Find next lesson to suggest
     const nextLesson = await Lesson.findOne({
         level: lesson.level, // strictly maintain level parity
         $or: [
@@ -177,6 +177,34 @@ export async function evaluateAnswersAndSaveProgress(userId, lessonId, answers) 
             { moduleNumber: { $gt: lesson.moduleNumber } }
         ]
     }).sort({ moduleNumber: 1, orderIndex: 1 });
+
+    // 5. Automatic Level Promotion Logic
+    if (passed && user && user.level) {
+        const currentLevel = user.level;
+        const levelSequence = ['Beginner', 'Elementary', 'Intermediate', 'Advanced'];
+        const currentIdx = levelSequence.indexOf(currentLevel);
+
+        if (currentIdx !== -1 && currentIdx < levelSequence.length - 1) {
+            // Count total lessons at current level
+            const totalAtLevel = await Lesson.countDocuments({ level: currentLevel });
+            
+            // Count completed lessons at current level for this user
+            const completedAtLevel = await Progress.countDocuments({ 
+                userId, 
+                isCompleted: true,
+                lessonId: { $in: await Lesson.find({ level: currentLevel }).distinct('_id') }
+            });
+
+            // If all lessons are finished, promote
+            // Note: User mentioned '20 or more', but we'll use 'all finished' as the trigger.
+            if (completedAtLevel >= totalAtLevel && totalAtLevel > 0) {
+                const nextLevel = levelSequence[currentIdx + 1];
+                user.level = nextLevel;
+                await user.save();
+                console.log(`[LEVEL UP] User ${userId} promoted from ${currentLevel} to ${nextLevel}`);
+            }
+        }
+    }
 
     return { 
         score, 

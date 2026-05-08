@@ -264,7 +264,7 @@ export default function StudentLessonsPage() {
     status: "unlocked" | "completed";
   } | null>(null);
 
-  const [activeLevel, setActiveLevel] = useState<string>("Basic");
+  const [activeLevel, setActiveLevel] = useState<string>("Beginner");
 
   useEffect(() => {
     Promise.all([getLessons(), getCategories()])
@@ -272,7 +272,7 @@ export default function StudentLessonsPage() {
         setLessons(data.lessons || []);
         setProgresses(data.progress || []);
         setDbCategories(categories || []);
-        const level = (user?.level === "Not Set" || !user?.level) ? "Basic" : user.level;
+        const level = (user?.level === "Not Set" || !user?.level) ? "Beginner" : user.level;
         setActiveLevel(level);
         setLoading(false);
       })
@@ -309,7 +309,11 @@ export default function StudentLessonsPage() {
       try {
         const { getMe } = await import("@/services/authService");
         const fresh = await getMe();
-        if (fresh) setUser(fresh);
+        if (fresh) {
+          setUser(fresh);
+          const level = (fresh.level === "Not Set" || !fresh.level) ? "Beginner" : fresh.level;
+          setActiveLevel(level);
+        }
       } catch {
         if (user) setUser({ ...user, hasCompletedOnboarding: true });
       }
@@ -322,7 +326,7 @@ export default function StudentLessonsPage() {
   const isOutOfEnergy = powers <= 0;
 
   const filteredLessons = lessons.filter(l => {
-    const lessonLevel = (l.level || "Basic").toLowerCase();
+    const lessonLevel = (l.level || "Beginner").toLowerCase();
     const target = activeLevel.toLowerCase();
     return lessonLevel === target;
   });
@@ -415,9 +419,9 @@ export default function StudentLessonsPage() {
 
       {/* Level Selection Tabs */}
       <div className="flex flex-wrap items-center gap-3 bg-white p-3 rounded-[2rem] border border-slate-100 shadow-sm mx-2 sm:mx-0">
-        {["Basic", "Beginner", "Elementary", "Intermediate", "Advanced"].map((lv, index) => {
-          const normalizedLevel = (user?.level === "Not Set" || !user?.level) ? "basic" : user.level.toLowerCase();
-          const targetLevelIndex = ["basic", "beginner", "elementary", "intermediate", "advanced"].indexOf(normalizedLevel);
+        {["Beginner", "Elementary", "Intermediate", "Advanced"].map((lv, index) => {
+          const normalizedLevel = (user?.level === "Not Set" || !user?.level) ? "beginner" : user.level.toLowerCase();
+          const targetLevelIndex = ["beginner", "elementary", "intermediate", "advanced"].indexOf(normalizedLevel);
           const safeIndex = targetLevelIndex === -1 ? 0 : targetLevelIndex;
           const isTabLocked = index !== safeIndex;
 

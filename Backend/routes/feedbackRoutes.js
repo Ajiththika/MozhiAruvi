@@ -1,6 +1,8 @@
 import express from 'express';
 import Feedback from '../models/Feedback.js';
-import { protect, admin } from '../middleware/authMiddleware.js';
+import { authenticate } from '../middleware/auth.js';
+import { authorizeRoles } from '../middleware/authorizeRoles.js';
+import { ROLES } from '../utils/roles.js';
 
 const router = express.Router();
 
@@ -31,7 +33,7 @@ router.post('/', async (req, res) => {
 // @desc    Get all feedback
 // @route   GET /api/feedback
 // @access  Private/Admin
-router.get('/', protect, admin, async (req, res) => {
+router.get('/', authenticate, authorizeRoles(ROLES.ADMIN), async (req, res) => {
     try {
         const feedbacks = await Feedback.find().sort({ createdAt: -1 });
         res.json(feedbacks);
@@ -43,7 +45,7 @@ router.get('/', protect, admin, async (req, res) => {
 // @desc    Delete feedback
 // @route   DELETE /api/feedback/:id
 // @access  Private/Admin
-router.delete('/:id', protect, admin, async (req, res) => {
+router.delete('/:id', authenticate, authorizeRoles(ROLES.ADMIN), async (req, res) => {
     try {
         const feedback = await Feedback.findById(req.params.id);
         if (feedback) {

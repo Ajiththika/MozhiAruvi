@@ -26,12 +26,12 @@ const updatePasswordSchema = z.object({
 }).strict();
 
 const setLevelSchema = z.object({
-    level: z.enum(['Basic', 'Beginner', 'Intermediate', 'Advanced', 'Not Set']),
+    level: z.enum(['Beginner', 'Elementary', 'Intermediate', 'Advanced', 'Not Set']),
 }).strict();
 
 const onboardingSchema = z.object({
     age: z.number().or(z.string()).optional(),
-    level: z.enum(['Basic', 'Beginner', 'Intermediate', 'Advanced', 'Not Set']).optional(),
+    level: z.enum(['Beginner', 'Elementary', 'Intermediate', 'Advanced', 'Not Set']).optional(),
     goal: z.string().optional(),
     timeAvailability: z.string().optional(),
     priorKnowledge: z.string().optional(),

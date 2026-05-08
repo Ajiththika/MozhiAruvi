@@ -6,7 +6,6 @@ import { Loader2, ArrowRight, AlertCircle } from "lucide-react";
 
 // Maps the human-readable choice to the backend enum value
 const LEVEL_MAP = {
-  "Basic — I am just starting": "Basic",
   "Beginner — I know nothing": "Beginner",
   "Elementary — I know a few words": "Elementary",
   "Intermediate — I can read a bit": "Intermediate",
@@ -20,7 +19,6 @@ const steps = [
     title: "How much Tamil do you know?",
     subtitle: "We'll build your personal path from here.",
     options: [
-      "Basic — I am just starting",
       "Beginner — I know nothing",
       "Elementary — I know a few words",
       "Intermediate — I can read a bit",
@@ -60,9 +58,9 @@ export function LessonOnboarding({ onSuccess }: { onSuccess: () => void }) {
       setSubmitError(null);
       try {
         const rawLevel = newAnswers["level"];
-        const mappedLevel = (LEVEL_MAP[rawLevel as keyof typeof LEVEL_MAP] ?? "Basic") as 
-          | "Basic" 
+        const mappedLevel = (LEVEL_MAP[rawLevel as keyof typeof LEVEL_MAP] ?? "Beginner") as 
           | "Beginner" 
+          | "Elementary"
           | "Intermediate" 
           | "Advanced" 
           | "Not Set";
@@ -87,7 +85,7 @@ export function LessonOnboarding({ onSuccess }: { onSuccess: () => void }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-50/90 backdrop-blur-sm p-4 animate-in fade-in duration-300">
-      <div className="w-full max-w-lg bg-white rounded-3xl shadow-xl border border-slate-100 p-8">
+      <div className="w-full max-w-2xl bg-white rounded-[2.5rem] shadow-2xl border border-slate-100 p-10 md:p-12">
 
         {submitting ? (
           <div className="flex flex-col items-center justify-center py-12 gap-4">

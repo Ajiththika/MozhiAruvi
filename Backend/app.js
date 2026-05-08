@@ -92,11 +92,11 @@ const allowedOrigins = [
 
 app.use(cors({
   origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin)) {
+    if (!origin || allowedOrigins.includes(origin) || origin.endsWith('.vercel.app')) {
       callback(null, true);
     } else {
       console.warn(`[CORS] Rejected Origin: ${origin}`);
-      callback(new Error("Not allowed by CORS"));
+      callback(null, false); // Don't throw an error, just return false
     }
   },
   credentials: true,
@@ -115,7 +115,7 @@ app.use((req, res, next) => {
   req.cookieOptions = {
     httpOnly: true,
     secure: isProd,
-    sameSite: "lax",
+    sameSite: isProd ? "none" : "lax",
     maxAge: 7 * 24 * 60 * 60 * 1000,
   };
   next();

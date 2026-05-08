@@ -78,8 +78,8 @@ export function setRefreshCookie(res, { raw, sessionId }) {
     const combined = `${sessionId}.${raw}`;
     res.cookie('rt', combined, {
         httpOnly: true,
-        secure: process.env.COOKIE_SECURE === 'true',
-        sameSite: process.env.COOKIE_SAMESITE || 'lax',
+        secure: process.env.NODE_ENV === 'production' || process.env.COOKIE_SECURE === 'true',
+        sameSite: process.env.COOKIE_SAMESITE || (process.env.NODE_ENV === 'production' ? 'none' : 'lax'),
         path: '/',
         maxAge: DAYS * 86_400_000,
     });
@@ -88,8 +88,8 @@ export function setRefreshCookie(res, { raw, sessionId }) {
 export function clearRefreshCookie(res) {
     res.clearCookie('rt', {
         httpOnly: true,
-        secure: process.env.COOKIE_SECURE === 'true',
-        sameSite: process.env.COOKIE_SAMESITE || 'lax',
+        secure: process.env.NODE_ENV === 'production' || process.env.COOKIE_SECURE === 'true',
+        sameSite: process.env.COOKIE_SAMESITE || (process.env.NODE_ENV === 'production' ? 'none' : 'lax'),
         path: '/',                  // ← Must match the path used in setRefreshCookie
     });
 }

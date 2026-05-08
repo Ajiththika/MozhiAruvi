@@ -507,7 +507,7 @@ export default function AdminLessonsPage() {
     category: "", 
     title: "", 
     isPremiumOnly: false, 
-    level: "Basic", // The 'Stage'
+    level: "Beginner", // The 'Stage'
     moduleNumber: 1, 
     orderIndex: 0 
   });
@@ -522,7 +522,7 @@ export default function AdminLessonsPage() {
   const [qLoading, setQLoading] = useState(false);
   const [savingQ, setSavingQ] = useState(false);
 
-  const [activeLevel, setActiveLevel] = useState("Basic");
+  const [activeLevel, setActiveLevel] = useState("Beginner");
   const [currentPage, setCurrentPage] = useState(1);
 
   // Reset page when level changes
@@ -763,7 +763,7 @@ export default function AdminLessonsPage() {
     setLoading(true);
     try {
       const visibleLessons = lessons.filter(l => {
-        const lvl = l.level || "Basic";
+        const lvl = l.level || "Beginner";
         return lvl === activeLevel;
       });
 
@@ -937,99 +937,114 @@ export default function AdminLessonsPage() {
         </button>
       </div>
 
-      {/* Unified Creation Form */}
+      {/* Unified Creation Form Modal */}
       {showCreate && (
-        <div className="bg-white p-10 rounded-[3rem] border-2 border-primary/10 shadow-2xl shadow-primary/5 animate-in slide-in-from-top-4 duration-500">
-          <div className="flex items-center gap-4 mb-8">
-            <div className="h-12 w-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
-               {isAddingToExisting ? <Plus className="w-6 h-6" /> : <BookOpen className="w-6 h-6" />}
-            </div>
-            <div>
-              <h2 className="text-xl font-black text-slate-800 uppercase tracking-tight">{isAddingToExisting ? `Add Level to ${formData.category}` : "Create New Category"}</h2>
-              <p className="text-xs font-bold text-primary/40 uppercase tracking-widest mt-0.5">Define your curriculum structure</p>
-            </div>
-          </div>
-
-          <form onSubmit={handleCreate} className="space-y-8">
-            <div className={`grid grid-cols-1 ${isAddingToExisting ? "" : "md:grid-cols-2"} gap-8`}>
-              {!isAddingToExisting && (
-                <div>
-                  <label className={labelCls}>Category Name</label>
-                  <input
-                    required
-                    value={formData.category}
-                    onChange={e => setFormData({ ...formData, category: e.target.value })}
-                    className={inputCls}
-                    placeholder="e.g. Uyir Eluththu (Vowels)"
-                  />
-                  <p className="text-[10px] font-bold text-slate-400 mt-2 uppercase tracking-widest pl-4">A category is initialized along with its first lesson.</p>
+        <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-white/40 backdrop-blur-md animate-in fade-in duration-300">
+          <div className="bg-white p-10 rounded-[3rem] border-2 border-primary/10 shadow-2xl shadow-primary/5 max-w-2xl w-full mx-auto animate-in zoom-in-95 duration-300 max-h-[95vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-8">
+              <div className="flex items-center gap-4">
+                <div className="h-12 w-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
+                   {isAddingToExisting ? <Plus className="w-6 h-6" /> : <BookOpen className="w-6 h-6" />}
                 </div>
-              )}
-              
-              <div className={isAddingToExisting ? "col-span-1 md:col-span-2" : ""}>
-                <label className={labelCls}>Auto-assigned Level Number</label>
-                <div className="px-5 py-4 bg-slate-50 border border-slate-100/50 rounded-2xl flex items-center justify-between">
-                  <span className="text-sm font-black text-slate-700">Level {formData.title}</span>
-                  <span className="text-[9px] font-black uppercase tracking-widest text-primary/40 bg-primary/5 px-2 py-1 rounded">Auto-generated</span>
+                <div>
+                  <h2 className="text-xl font-black text-slate-800 uppercase tracking-tight">{isAddingToExisting ? `Add Level to ${formData.category}` : "Create New Category"}</h2>
+                  <p className="text-xs font-bold text-primary/40 uppercase tracking-widest mt-0.5">Define your curriculum structure</p>
                 </div>
               </div>
+              <button onClick={() => setShowCreate(false)} className="p-2 hover:bg-slate-100 rounded-full transition-colors">
+                <X className="w-6 h-6 text-primary/60" />
+              </button>
             </div>
 
-            {!isAddingToExisting && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className={labelCls}>Curriculum Level</label>
+            <form onSubmit={handleCreate} className="space-y-8">
+              <div className={`grid grid-cols-1 ${isAddingToExisting ? "" : "md:grid-cols-2"} gap-8`}>
+                {!isAddingToExisting && (
+                  <div>
+                    <label className={labelCls}>Category Name</label>
+                    <input
+                      required
+                      value={formData.category}
+                      onChange={e => setFormData({ ...formData, category: e.target.value })}
+                      className={inputCls}
+                      placeholder="e.g. Uyir Eluththu (Vowels)"
+                    />
+                    <p className="text-[10px] font-bold text-slate-400 mt-2 uppercase tracking-widest pl-4">A category is initialized along with its first lesson.</p>
+                  </div>
+                )}
+                
+                <div className={isAddingToExisting ? "col-span-1 md:col-span-2" : ""}>
+                  <label className={labelCls}>Level Number / Title</label>
                   <div className="relative">
-                    <select 
-                      value={formData.level} 
-                      onChange={e => setFormData({ ...formData, level: e.target.value })} 
-                      className={inputCls + " cursor-pointer appearance-none w-full"}
-                    >
-                      {["Basic", "Beginner", "Elementary", "Intermediate", "Advanced"].map(lv => (
-                        <option key={lv} value={lv}>{lv}</option>
-                      ))}
-                    </select>
+                    <input
+                      required
+                      value={formData.title}
+                      onChange={e => setFormData({ ...formData, title: e.target.value })}
+                      className={inputCls}
+                      placeholder="e.g. 2"
+                    />
                     <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-primary/40">
-                      <ChevronDown className="w-4 h-4" />
+                      <span className="text-[9px] font-black uppercase tracking-widest bg-primary/5 px-2 py-1 rounded">Level</span>
                     </div>
                   </div>
                 </div>
-                <div>
-                  <label className={labelCls}>Access Level</label>
-                  <div className="flex gap-3">
-                    <button 
-                      type="button" 
-                      onClick={() => setFormData({...formData, isPremiumOnly: false})}
-                      className={`flex-1 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest border-2 transition-all ${!formData.isPremiumOnly ? "bg-emerald-500 text-white border-emerald-500" : "bg-slate-50 text-primary/60 border-slate-100"}`}
-                    >
-                      ✓ Free
-                    </button>
-                    <button 
-                      type="button" 
-                      onClick={() => setFormData({...formData, isPremiumOnly: true})}
-                      className={`flex-1 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest border-2 transition-all ${formData.isPremiumOnly ? "bg-amber-500 text-white border-amber-500" : "bg-slate-50 text-primary/60 border-slate-100"}`}
-                    >
-                      ★ Premium
-                    </button>
+              </div>
+
+              {!isAddingToExisting && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className={labelCls}>Curriculum Level</label>
+                    <div className="relative">
+                      <select 
+                        value={formData.level} 
+                        onChange={e => setFormData({ ...formData, level: e.target.value })} 
+                        className={inputCls + " cursor-pointer appearance-none w-full"}
+                      >
+                        {["Beginner", "Elementary", "Intermediate", "Advanced"].map(lv => (
+                          <option key={lv} value={lv}>{lv}</option>
+                        ))}
+                      </select>
+                      <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-primary/40">
+                        <ChevronDown className="w-4 h-4" />
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <label className={labelCls}>Access Level</label>
+                    <div className="flex gap-3">
+                      <button 
+                        type="button" 
+                        onClick={() => setFormData({...formData, isPremiumOnly: false})}
+                        className={`flex-1 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest border-2 transition-all ${!formData.isPremiumOnly ? "bg-emerald-500 text-white border-emerald-500" : "bg-slate-50 text-primary/60 border-slate-100"}`}
+                      >
+                        ✓ Free
+                      </button>
+                      <button 
+                        type="button" 
+                        onClick={() => setFormData({...formData, isPremiumOnly: true})}
+                        className={`flex-1 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest border-2 transition-all ${formData.isPremiumOnly ? "bg-amber-500 text-white border-amber-500" : "bg-slate-50 text-primary/60 border-slate-100"}`}
+                      >
+                        ★ Premium
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
+              )}
 
-            <div className="flex justify-end gap-4 pt-2">
-              <button type="button" onClick={() => setShowCreate(false)} className="px-8 py-4 font-black uppercase tracking-widest text-[10px] text-primary/60">Cancel</button>
-              <button type="submit" disabled={creating} className="px-10 py-4 bg-primary text-white font-black uppercase tracking-widest text-[10px] rounded-2xl shadow-xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all">
-                {creating ? <Loader2 className="w-4 h-4 animate-spin" /> : (isAddingToExisting ? "Add Level" : "Create Category")}
-              </button>
-            </div>
-          </form>
+              <div className="flex justify-end gap-4 pt-2">
+                <button type="button" onClick={() => setShowCreate(false)} className="px-8 py-4 font-black uppercase tracking-widest text-[10px] text-primary/60">Cancel</button>
+                <button type="submit" disabled={creating} className="px-10 py-4 bg-primary text-white font-black uppercase tracking-widest text-[10px] rounded-2xl shadow-xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all">
+                  {creating ? <Loader2 className="w-4 h-4 animate-spin" /> : (isAddingToExisting ? "Add Level" : "Create Category")}
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       )}
 
       {/* Level Filter Tabs */}
       {!loading && (
         <div className="flex flex-wrap items-center gap-3 bg-white p-3 rounded-[2.5rem] border border-slate-100 shadow-sm mb-12">
-          {["Basic", "Beginner", "Elementary", "Intermediate", "Advanced"].map((lv) => {
+          {["Beginner", "Elementary", "Intermediate", "Advanced"].map((lv) => {
             const isActive = activeLevel === lv;
             return (
               <button
@@ -1065,7 +1080,7 @@ export default function AdminLessonsPage() {
 
           {(() => {
             const levelFiltered = lessons.filter(l => {
-              const lvl = l.level || "Basic";
+              const lvl = l.level || "Beginner";
               return lvl === activeLevel;
             });
             const totalPages = Math.ceil(levelFiltered.length / 6);

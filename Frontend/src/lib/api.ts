@@ -14,12 +14,12 @@ import { authStore } from "./authStore";
 
 // ── 1. Create instance ────────────────────────────────────────────────────────
 
-// In the browser, always use the Next.js rewrite proxy (/api → backend).
-// This avoids CORS-blocked cross-origin requests.
-// On the server (SSR/RSC), use the absolute backend URL from the env var.
+// Use NEXT_PUBLIC_API_URL in the browser to connect directly to the backend.
+// This ensures cross-domain cookies (like those set by Google OAuth) are properly attached
+// because the browser sends them directly to the backend domain.
 const isBrowser = typeof window !== "undefined";
 const apiBaseUrl = isBrowser
-  ? "/api"
+  ? (process.env.NEXT_PUBLIC_API_URL || "/api")
   : (() => {
       // Server-side (SSR) base URL
       const isProd = process.env.NODE_ENV === "production";
