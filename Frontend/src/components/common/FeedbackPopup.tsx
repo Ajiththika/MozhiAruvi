@@ -19,33 +19,27 @@ export default function FeedbackPopup() {
   useEffect(() => {
     // 1. Check if user has already submitted feedback
     const hasSubmitted = localStorage.getItem("mozhi_feedback_submitted");
-    if (hasSubmitted) return;
-
-    // Trigger logic
-    let timer: NodeJS.Timeout;
-
-    const startTimer = (ms: number) => {
-      timer = setTimeout(() => {
-        setShow(true);
-      }, ms);
-    };
-
-    // Initial 2-minute delay
-    startTimer(120000);
-
-    // Manual trigger listener
-    const handleManualOpen = () => {
+    
+    // Manual trigger function attached to window for maximum reliability
+    (window as any).openFeedback = () => {
+      console.log("[Feedback] Manual trigger activated");
       setSubmitted(false);
       setRating(0);
       setComment("");
       setShow(true);
     };
 
-    window.addEventListener("OPEN_FEEDBACK_MODAL", handleManualOpen);
+    if (hasSubmitted) return;
+
+    // 2. Wait for 2 minutes (120,000 ms)
+    const timer = setTimeout(() => {
+      console.log("[Feedback] Automatic trigger activated");
+      setShow(true);
+    }, 120000);
 
     return () => {
       clearTimeout(timer);
-      window.removeEventListener("OPEN_FEEDBACK_MODAL", handleManualOpen);
+      delete (window as any).openFeedback;
     };
   }, []);
 
