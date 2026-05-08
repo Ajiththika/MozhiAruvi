@@ -70,6 +70,7 @@ export default function FeedbackPopup() {
 
       // Permanently mark as submitted
       localStorage.setItem("mozhi_feedback_submitted", "true");
+      window.dispatchEvent(new Event("mozhi_feedback_submitted"));
       
       setSubmitted(true);
     } catch (err: any) {
