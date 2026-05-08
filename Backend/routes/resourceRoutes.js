@@ -6,8 +6,8 @@ import { authorizeRoles } from '../middleware/authorizeRoles.js';
 const router = express.Router();
 
 router.get('/', resourceController.getResources);
-router.post('/', authenticate, authorizeRoles('admin'), resourceController.createResource);
-router.patch('/:id', authenticate, authorizeRoles('admin'), resourceController.updateResource);
-router.delete('/:id', authenticate, authorizeRoles('admin'), resourceController.deleteResource);
+router.post('/', authenticate, authorizeRoles('admin', 'teacher'), resourceController.createResource);
+router.patch('/:id', authenticate, authorizeRoles('admin', 'teacher'), resourceController.updateResource);
+router.delete('/:id', authenticate, authorizeRoles('admin', 'teacher'), resourceController.deleteResource);
 
 export default router;
