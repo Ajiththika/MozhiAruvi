@@ -34,7 +34,7 @@ const userSchema = new mongoose.Schema({
   languages: [{ type: String, trim: true }],
   teachingMode: { type: String, enum: ['online', 'offline', 'both'] },
   profilePhoto: { type: String, trim: true },
-  levelSupport: [{ type: String, enum: ['beginner', 'intermediate', 'advanced'] }],
+  levelSupport: { type: [String], enum: ['Beginner', 'Elementary', 'Intermediate', 'Advanced'], default: ['Beginner'] },
   responseTime: { type: String, trim: true }, // e.g. "Within 1 hour"
   stripeAccountId: { type: String },
   isStripeVerified: { type: Boolean, default: false },
@@ -49,7 +49,7 @@ const userSchema = new mongoose.Schema({
   premiumExpiresAt: { type: Date },
 
   // Learning Progression & Duolingo features
-  level: { type: String, default: 'Not Set' },
+  level: { type: String, default: 'Beginner' },
   learningCredits: { type: Number, default: 25 },
   lastCreditUpdate: { type: Date, default: Date.now },
   xp: { type: Number, default: 0 },
@@ -61,7 +61,7 @@ const userSchema = new mongoose.Schema({
     energy: { type: Number, default: 25 },
     lastEnergyUpdate: { type: Date, default: Date.now },
     completedLessons: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Lesson' }],
-    level: { type: String, default: 'Basic' },
+    level: { type: String, enum: ['Beginner', 'Elementary', 'Intermediate', 'Advanced'], default: 'Beginner' },
     currentStreak: { type: Number, default: 0 },
     highStreak: { type: Number, default: 0 },
     lastLessonDate: { type: Date }

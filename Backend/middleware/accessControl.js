@@ -34,7 +34,7 @@ export const checkLessonAccess = async (req, res, next) => {
 
         // 1. Check Level Limit
         if (settings.levelLimit && settings.levelLimit.length > 0) {
-            if (!settings.levelLimit.includes(lesson.level || 'Basic')) {
+            if (!settings.levelLimit.includes(lesson.level || 'Beginner')) {
                 return res.status(403).json({ 
                     message: `Level '${lesson.level}' is restricted on the ${planName} plan.`, 
                     redirect: "/student/subscription" 

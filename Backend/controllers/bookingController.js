@@ -251,3 +251,54 @@ export async function updateBookingTime(req, res, next) {
         res.json({ message: "Booking rescheduled successfully.", booking });
     } catch (e) { next(e); }
 }
+
+/**
+ * ── 👥 Step 7: Get Unique Students for Tutor ────────────────────────────────
+ */
+export async function getTutorStudents(req, res, next) {
+    try {
+        const tutorId = req.user.sub;
+        // Find bookings for this tutor that are confirmed or completed
+        const bookings = await Booking.find({ 
+            tutorId, 
+            status: { $in: ['confirmed', 'completed'] } 
+        })
+            .populate('studentId', 'name email profilePhoto level country age gender phoneNumber')
+            .sort({ createdAt: -1 });
+
+        // Extract unique students
+        const studentsMap = new Map();
+        bookings.forEach(b => {
+            if (b.studentId && !studentsMap.has(b.studentId._id.toString())) {
+                studentsMap.set(b.studentId._id.toString(), {
+                    ...b.studentId.toObject(),
+                    lastSession: b.date,
+                    status: b.status
+                });
+            }
+        });
+
+        const students = Array.from(studentsMap.values());
+        res.json({ students });
+    } catch (e) { next(e); }
+}
+
+/**
+ * ── 👑 Admin: View All Tutor-Student Mappings ────────────────────────────────
+ */
+export async function getAllTutorStudentMappings(req, res, next) {
+    try {
+        // Only allow admins
+        const user = await User.findById(req.user.sub);
+        if (user.role !== 'admin') {
+            return res.status(403).json({ message: "Access denied. Admin only." });
+        }
+
+        const bookings = await Booking.find()
+            .populate('studentId', 'name email')
+            .populate('tutorId', 'name email')
+            .sort({ createdAt: -1 });
+        
+        res.json({ mappings: bookings });
+    } catch (e) { next(e); }
+}

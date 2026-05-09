@@ -186,7 +186,7 @@ export default function StudentDashboard() {
           description={
             user?.subscription?.plan !== 'FREE' 
               ? `Period ends on ${new Date(user?.subscription?.currentPeriodEnd || 0).toLocaleDateString("en-GB", { day: 'numeric', month: 'short' })}`
-              : "Basic access"
+              : "Free access"
           }
           icon={Crown}
           trend={user?.subscription?.plan !== 'FREE' ? "up" : "neutral"}

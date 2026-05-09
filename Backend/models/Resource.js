@@ -8,9 +8,9 @@ const resourceSchema = new mongoose.Schema({
   content: { type: String },
   level: {
     type: String,
-    enum: ['Basic', 'Beginner', 'Elementary', 'Intermediate', 'Advanced'],
+    enum: ['Beginner', 'Elementary', 'Intermediate', 'Advanced'],
     required: true,
-    default: 'Basic'
+    default: 'Beginner'
   },
   sectionId: { type: mongoose.Schema.Types.ObjectId, ref: 'ResourceSection', default: null },
   orderIndex: { type: Number, default: 0 },

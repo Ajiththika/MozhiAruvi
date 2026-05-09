@@ -17,7 +17,7 @@ import {
 import { api } from "@/lib/api";
 import { cn } from "@/lib/utils";
 
-const LEVELS = ["Basic", "Beginner", "Elementary", "Intermediate", "Advanced"];
+const LEVELS = ["Beginner", "Elementary", "Intermediate", "Advanced"];
 const TYPES = [
   { value: "video", label: "YouTube Video", icon: Youtube, color: "text-red-500 bg-red-50 border-red-100" },
   { value: "pdf",   label: "PDF / File",    icon: FileText, color: "text-orange-500 bg-orange-50 border-orange-100" },
@@ -28,8 +28,8 @@ const TYPES = [
 const inp = "w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold text-slate-700 placeholder:text-slate-300 focus:outline-none focus:border-primary/40 focus:ring-8 focus:ring-primary/5 transition-all shadow-sm";
 const lbl = "text-[10px] font-black uppercase tracking-[0.2em] text-primary/60 mb-2.5 block px-1";
 
-const emptySection = { title: "", description: "", level: "Basic" };
-const emptyResource = { title: "", description: "", type: "video" as Resource["type"], url: "", content: "", level: "Basic", sectionId: "" };
+const emptySection = { title: "", description: "", level: "Beginner" };
+const emptyResource = { title: "", description: "", type: "video" as Resource["type"], url: "", content: "", level: "Beginner", sectionId: "" };
 
 type ViewMode = "list" | "manage";
 
@@ -37,7 +37,7 @@ export default function ResourceManager() {
   const [sections, setSections] = useState<ResourceSection[]>([]);
   const [resources, setResources] = useState<Resource[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeLevel, setActiveLevel] = useState("Basic");
+  const [activeLevel, setActiveLevel] = useState("Beginner");
   
   // Navigation State
   const [viewMode, setViewMode] = useState<ViewMode>("list");

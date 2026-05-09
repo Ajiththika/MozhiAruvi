@@ -69,3 +69,13 @@ export const rescheduleBooking = async (id: string, date: string, startTime: str
   const response = await api.patch(`/bookings/${id}/reschedule`, { date, startTime });
   return response.data;
 };
+
+export const getTutorStudents = async () => {
+  const response = await api.get("/bookings/tutor/students");
+  return response.data; // { students: [] }
+};
+
+export const getAllMappings = async () => {
+  const response = await api.get("/bookings/admin/mappings");
+  return response.data; // { mappings: [] }
+};

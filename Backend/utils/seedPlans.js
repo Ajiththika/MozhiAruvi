@@ -8,7 +8,7 @@ const plans = [
     plan: 'FREE',
     monthlyPrice: 0,
     yearlyPrice: 0,
-    levelLimit: ['Basic', 'Beginner', 'Elementary', 'Intermediate', 'Advanced'], // All levels accessible but only first cat is free
+    levelLimit: ['Beginner', 'Elementary', 'Intermediate', 'Advanced'], // All levels accessible but only first cat is free
     categoryLimit: 1, // ONLY 1 CATEGORY IS FREE
     tutorSupportLimit: 10,
     eventLimit: 1,
@@ -18,7 +18,7 @@ const plans = [
     plan: 'PRO',
     monthlyPrice: 3.81,
     yearlyPrice: 42,
-    levelLimit: ['Basic', 'Beginner', 'Elementary', 'Intermediate', 'Advanced'],
+    levelLimit: ['Beginner', 'Elementary', 'Intermediate', 'Advanced'],
     categoryLimit: 10,
     tutorSupportLimit: 50,
     eventLimit: 1,
@@ -30,7 +30,7 @@ const plans = [
     plan: 'PREMIUM',
     monthlyPrice: 7.94,
     yearlyPrice: 90,
-    levelLimit: ['Basic', 'Beginner', 'Elementary', 'Intermediate', 'Advanced'],
+    levelLimit: ['Beginner', 'Elementary', 'Intermediate', 'Advanced'],
     categoryLimit: null, // unlimited
     tutorSupportLimit: 100,
     eventLimit: 5,

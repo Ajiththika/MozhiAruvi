@@ -23,7 +23,7 @@ export interface SafeUser {
   tutorStatus?: "none" | "pending" | "approved" | "rejected";
   isTutorAvailable?: boolean;
   profilePhoto?: string | null;
-  level?: "Basic" | "Beginner" | "Intermediate" | "Advanced" | "Not Set";
+  level?: "Beginner" | "Elementary" | "Intermediate" | "Advanced" | "Not Set";
   hasCompletedOnboarding?: boolean;
   learningCredits?: number;
   power?: number;
@@ -150,7 +150,7 @@ export async function getMe(): Promise<SafeUser | null> {
 
 export async function completeOnboarding(data: {
   age?: number | string;
-  level?: "Basic" | "Beginner" | "Intermediate" | "Advanced" | "Not Set";
+  level?: "Beginner" | "Elementary" | "Intermediate" | "Advanced" | "Not Set";
   goal?: string;
   timeAvailability?: string;
   priorKnowledge?: string;

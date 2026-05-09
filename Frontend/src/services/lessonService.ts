@@ -23,7 +23,7 @@ export interface Lesson {
   videoUrl?: string;
   content?: string;
   isPremiumOnly: boolean;
-  level?: 'Basic' | 'Beginner' | 'Intermediate' | 'Advanced';
+  level?: 'Beginner' | 'Elementary' | 'Intermediate' | 'Advanced';
 }
 
 export interface Question {

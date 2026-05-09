@@ -70,7 +70,6 @@ export default function Navbar() {
     { label: "Teachers", href: "/tutors" },
     { label: "Events", href: "/events" },
     { label: "Blogs", href: "/blogs" },
-    { label: "Resources", href: "/resources" },
   ];
 
   return (

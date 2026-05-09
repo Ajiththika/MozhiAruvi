@@ -15,8 +15,8 @@ export function csrfProtection(req, res, next) {
     const cleanOrigin = normalize(origin);
     const cleanReferer = normalize(referer);
 
-    const isAllowedOrigin = cleanOrigin && (allowedOrigins.some(ao => normalize(ao) === cleanOrigin) || cleanOrigin.endsWith('.vercel.app'));
-    const isAllowedReferer = cleanReferer && (allowedOrigins.some(ao => cleanReferer.startsWith(normalize(ao))) || cleanReferer.includes('.vercel.app'));
+    const isAllowedOrigin = cleanOrigin && (allowedOrigins.some(ao => normalize(ao) === cleanOrigin) || cleanOrigin.endsWith('.vercel.app') || cleanOrigin.endsWith('.amplifyapp.com') || cleanOrigin.endsWith('.amazonaws.com'));
+    const isAllowedReferer = cleanReferer && (allowedOrigins.some(ao => cleanReferer.startsWith(normalize(ao))) || cleanReferer.includes('.vercel.app') || cleanReferer.includes('.amplifyapp.com') || cleanReferer.includes('.amazonaws.com'));
 
     if (!isAllowedOrigin && !isAllowedReferer) {
         console.warn(`[CSRF REJECTION] Origin: ${origin}, Referer: ${referer}`);

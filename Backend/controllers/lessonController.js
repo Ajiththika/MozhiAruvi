@@ -79,7 +79,7 @@ export async function getLessonQuestions(req, res, next) {
         if (user && lesson.level) {
             const userLevel = user.level || 'Beginner';
             const sameLevel = userLevel.toLowerCase() === lesson.level.toLowerCase();
-            const isBegEq = (userLevel === 'Beginner' && lesson.level === 'Basic') || (userLevel === 'Basic' && lesson.level === 'Beginner');
+            const isBegEq = false; // Legacy check for Basic level removed
             
             if (!sameLevel && !isBegEq && user.role !== 'admin') {
                 return res.status(403).json({ 

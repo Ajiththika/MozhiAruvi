@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { setLevel } from "@/services/userService";
-import { Loader2, CheckCircle2, ChevronRight, BookOpen, GraduationCap, Mountain } from "lucide-react";
+import { Loader2, CheckCircle2, ChevronRight, BookOpen, GraduationCap, Mountain, Star } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 
 export default function PlacementPage() {
@@ -19,6 +19,12 @@ export default function PlacementPage() {
       title: "New to Tamil",
       description: "Learn alphabets and basic words.",
       icon: <BookOpen className="w-8 h-8 text-blue-500" />,
+    },
+    {
+      id: "Elementary",
+      title: "Basic Foundation",
+      description: "Understand simple sentences and grammar.",
+      icon: <Star className="w-8 h-8 text-emerald-500" />,
     },
     {
       id: "Intermediate",

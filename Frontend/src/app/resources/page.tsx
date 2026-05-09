@@ -10,8 +10,11 @@ import {
 import { getResources, Resource } from "@/services/resourceService";
 import { getSections, ResourceSection } from "@/services/resourceSectionService";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/context/AuthContext";
+import Button from "@/components/ui/Button";
+import { Crown, Lock } from "lucide-react";
 
-const LEVELS = ["Basic", "Beginner", "Elementary", "Intermediate", "Advanced"];
+const LEVELS = ["Beginner", "Elementary", "Intermediate", "Advanced"];
 
 const TYPE_META: Record<string, { label: string; color: string; bg: string; border: string }> = {
   video: { label: "Video",   color: "text-red-500",     bg: "bg-red-50",     border: "border-red-100" },
@@ -112,11 +115,15 @@ function SectionCard({ section, resources }: { section: ResourceSection; resourc
 }
 
 export default function ResourcesPage() {
+  const { user } = useAuth();
   const [sections, setSections] = useState<ResourceSection[]>([]);
   const [resources, setResources] = useState<Resource[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeLevel, setActiveLevel] = useState("Basic");
+  const [activeLevel, setActiveLevel] = useState("Beginner");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const isPremium = user?.subscription?.plan && ["PRO", "PREMIUM", "BUSINESS"].includes(user.subscription.plan);
+  const isStaff = user?.role === 'admin' || user?.role === 'teacher' || user?.role === 'tutor';
 
   useEffect(() => {
     Promise.all([getSections(), getResources()])
@@ -141,6 +148,34 @@ export default function ResourcesPage() {
             <Loader2 className="w-10 h-10 animate-spin text-primary" />
             <p className="text-xs font-black uppercase tracking-widest text-primary/40">Loading Library...</p>
           </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (!isPremium && !isStaff) {
+    return (
+      <div className="min-h-screen flex flex-col bg-slate-50/30">
+        <Navbar />
+        <div className="flex-1 flex items-center justify-center p-6">
+           <div className="max-w-md w-full bg-white rounded-[3rem] border border-slate-100 shadow-2xl p-12 text-center animate-in zoom-in-95 duration-700">
+              <div className="h-24 w-24 rounded-[2rem] bg-primary/5 flex items-center justify-center text-primary mx-auto mb-8 border border-primary/10 shadow-inner">
+                 <Lock className="w-10 h-10" />
+              </div>
+              <h2 className="text-3xl font-black text-slate-800 tracking-tight mb-4">Premium Library</h2>
+              <p className="text-slate-500 font-medium leading-relaxed mb-10">
+                Our exhaustive library of Tamil resources, PDFs, and exclusive video content is reserved for our subscribed students.
+              </p>
+              <div className="space-y-4">
+                <Button href="/student/subscription" variant="primary" size="lg" className="w-full rounded-2xl py-5 shadow-xl shadow-primary/20 text-[11px] font-black uppercase tracking-widest">
+                  <Crown className="w-4 h-4 mr-2" /> Unlock with Pro
+                </Button>
+                <Button href="/student/dashboard" variant="ghost" size="lg" className="w-full text-slate-400 font-black uppercase tracking-widest text-[10px]">
+                  Back to Dashboard
+                </Button>
+              </div>
+           </div>
         </div>
         <Footer />
       </div>

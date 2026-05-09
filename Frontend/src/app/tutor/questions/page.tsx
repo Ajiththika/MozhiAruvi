@@ -92,10 +92,10 @@ export default function TeacherRequestsPage() {
         <div className="space-y-4">
            <div className="flex items-center gap-2">
               <span className="h-1.5 w-10 rounded-full bg-primary" />
-              <span className="text-[10px] font-bold text-primary uppercase tracking-[0.2em]">Interaction Hub</span>
+              <span className="text-[10px] font-bold text-primary uppercase tracking-[0.2em]">Doubt Clearance</span>
            </div>
-           <h1 className="text-4xl md:text-4xl font-bold text-slate-800 tracking-tight leading-tight">Incoming Sessions</h1>
-           <p className="text-lg text-slate-600 font-medium leading-relaxed max-w-xl">Efficiently manage your student questions, live bookings, and teaching packages from a single dashboard.</p>
+           <h1 className="text-4xl md:text-4xl font-bold text-slate-800 tracking-tight leading-tight">Student Doubts</h1>
+           <p className="text-lg text-slate-600 font-medium leading-relaxed max-w-xl">Help your students overcome linguistic hurdles by addressing their doubts and clearing their path to fluency.</p>
         </div>
         <div className="flex items-center gap-2">
            <div className="bg-slate-50 rounded-2xl p-1.5 flex gap-1 border border-slate-100 shadow-inner">
@@ -126,7 +126,7 @@ export default function TeacherRequestsPage() {
             <div className="h-20 w-20 rounded-full bg-slate-50 flex items-center justify-center mb-6">
                <CheckCircle2 className="h-10 w-10 text-slate-200" />
             </div>
-            <h3 className="text-xl font-bold text-primary/60 uppercase tracking-widest">No matching requests</h3>
+            <h3 className="text-xl font-bold text-primary/60 uppercase tracking-widest">No matching doubts</h3>
             <p className="text-sm text-primary/60 mt-2">Try adjusting your filters or search terms.</p>
         </div>
       ) : (
@@ -260,7 +260,7 @@ export default function TeacherRequestsPage() {
                            className="flex w-full items-center justify-center gap-3 rounded-[1.5rem] bg-emerald-600 py-5 text-xs font-bold text-white shadow-xl shadow-emerald-200/50 transition-all hover:bg-emerald-700 active:scale-95 disabled:opacity-50"
                          >
                             <CheckCircle className="h-5 w-5" />
-                            Accept Request
+                            Accept Doubt
                          </button>
                          <button
                            onClick={() => handleStatusUpdate(r._id, "decline")}

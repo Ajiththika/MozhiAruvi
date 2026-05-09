@@ -13,10 +13,14 @@ router.get('/my-bookings', bookingController.getMyBookings);
 router.post('/:id/review', bookingController.addReview);
 
 // Tutor Logic
+router.get('/tutor/students', bookingController.getTutorStudents);
 router.patch('/:id/confirm', bookingController.confirmBooking);
 router.patch('/:id/decline', bookingController.declineBooking);
 router.patch('/:id/complete', bookingController.completeBooking);
 router.patch('/:id/link', bookingController.updateMeetingLink);
 router.patch('/:id/reschedule', bookingController.updateBookingTime);
+
+// Admin Logic
+router.get('/admin/mappings', bookingController.getAllTutorStudentMappings);
 
 export default router;

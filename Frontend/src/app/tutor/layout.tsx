@@ -7,10 +7,11 @@ import { usePathname } from "next/navigation";
 
 const tutorLinks: SidebarItem[] = [
   { name: "Dashboard",        href: "/tutor/dashboard",  icon: "home" },
+  { name: "My Students",      href: "/tutor/students",   icon: "users" },
   { name: "My Schedule",      href: "/tutor/schedule",   icon: "calendar-days" },
   { name: "My Blogs",         href: "/tutor/blogs",     icon: "message-square" },
   { name: "Manage Resources", href: "/tutor/resources",  icon: "library" },
-  { name: "Student Requests", href: "/tutor/questions",  icon: "message-square" },
+  { name: "Student Doubts",    href: "/tutor/questions",  icon: "message-square" },
 ];
 
 export default function TutorLayout({ children }: { children: React.ReactNode }) {

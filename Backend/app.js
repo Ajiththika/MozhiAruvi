@@ -92,7 +92,7 @@ const allowedOrigins = [
 
 app.use(cors({
   origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin) || origin.endsWith('.vercel.app')) {
+    if (!origin || allowedOrigins.includes(origin) || origin.endsWith('.vercel.app') || origin.endsWith('.amplifyapp.com') || origin.endsWith('.amazonaws.com')) {
       callback(null, true);
     } else {
       console.warn(`[CORS] Rejected Origin: ${origin}`);
@@ -111,11 +111,16 @@ app.use(express.json());
 app.use(cookieParser(process.env.JWT_ACCESS_SECRET));
 
 app.use((req, res, next) => {
+  const isHttps = req.secure || req.headers['x-forwarded-proto'] === 'https';
   const isProd = process.env.NODE_ENV === "production";
+  
+  // Only use secure cookies if we are actually on HTTPS, otherwise browsers reject them
+  const useSecure = isProd && isHttps;
+
   req.cookieOptions = {
     httpOnly: true,
-    secure: isProd,
-    sameSite: isProd ? "none" : "lax",
+    secure: useSecure,
+    sameSite: useSecure ? "none" : "lax",
     maxAge: 7 * 24 * 60 * 60 * 1000,
   };
   next();

@@ -5,9 +5,9 @@ const resourceSectionSchema = new mongoose.Schema({
   description: { type: String },
   level: {
     type: String,
-    enum: ['Basic', 'Beginner', 'Elementary', 'Intermediate', 'Advanced'],
+    enum: ['Beginner', 'Elementary', 'Intermediate', 'Advanced'],
     required: true,
-    default: 'Basic'
+    default: 'Beginner'
   },
   orderIndex: { type: Number, default: 0 },
 }, { timestamps: true });
