@@ -74,7 +74,7 @@ export function LessonOnboarding({ onSuccess }: { onSuccess: () => void }) {
       } catch (err: any) {
         console.error("Onboarding error:", err);
         setSubmitError(
-          err?.response?.data?.message ?? "Something went wrong. Please try again."
+          err?.response?.data?.error?.message ?? err?.response?.data?.message ?? "Something went wrong. Please try again."
         );
         setSubmitting(false);
       }

@@ -99,6 +99,16 @@ const userSchema = new mongoose.Schema({
   lastReminderSent: { type: Date },
 }, { timestamps: true });
 
+userSchema.pre('validate', function (next) {
+  // Legacy data migration: auto-convert "Basic" to "Beginner" to prevent validation errors
+  if (this.level === 'Basic') this.level = 'Beginner';
+  if (this.progress && this.progress.level === 'Basic') this.progress.level = 'Beginner';
+  if (this.levelSupport && Array.isArray(this.levelSupport)) {
+    this.levelSupport = this.levelSupport.map(l => l === 'Basic' ? 'Beginner' : l);
+  }
+  next();
+});
+
 userSchema.pre('save', async function (next) {
   if (this.isModified('password') && this.password) {
     this.password = await bcrypt.hash(this.password, Number(process.env.BCRYPT_ROUNDS) || 12);
