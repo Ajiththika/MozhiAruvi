@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import { SidebarItem } from "@/components/layout/Sidebar";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";

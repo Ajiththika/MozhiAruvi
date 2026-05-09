@@ -13,7 +13,9 @@ import { useAuth } from "@/context/AuthContext";
 
 import { authStore } from "@/lib/authStore";
 
-export default function SubscriptionSuccess() {
+import { Suspense } from 'react';
+
+function SuccessContent() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const searchParams = useSearchParams();
@@ -25,9 +27,7 @@ export default function SubscriptionSuccess() {
     if (sessionId) {
       verifySubscriptionSession(sessionId)
         .then((res) => {
-          // Proactively refresh the local session token to prevent logout if old one expired while on Stripe
           if (res.accessToken) authStore.set(res.accessToken);
-          // Update global user state with new plan data
           if (res.user) setUser(res.user);
 
           queryClient.invalidateQueries({ queryKey: ["student", "dashboard"] });
@@ -101,5 +101,17 @@ export default function SubscriptionSuccess() {
         </Button>
       </div>
     </div>
+  );
+}
+
+export default function SubscriptionSuccess() {
+  return (
+    <Suspense fallback={
+       <div className="flex h-screen w-full flex-col items-center justify-center bg-white">
+          <Loader2 className="h-10 w-10 animate-spin text-primary" />
+       </div>
+    }>
+      <SuccessContent />
+    </Suspense>
   );
 }
