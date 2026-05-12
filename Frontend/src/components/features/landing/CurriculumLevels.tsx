@@ -56,20 +56,7 @@ export default function CurriculumLevels() {
     <section id="curriculum" className="py-14 md:py-24 bg-[#FDFDFF] px-4 md:px-8 lg:px-12 overflow-hidden">
       <div className="max-w-7xl mx-auto">
         
-        {/* Banner Section matching the requested style */}
-        <div className="relative mb-20">
-            <div className="bg-gradient-to-br from-primary to-indigo-600 rounded-[2.5rem] p-12 md:p-20 text-center shadow-2xl shadow-primary/20 overflow-hidden relative border border-white/10">
-                <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff0a_1px,transparent_1px),linear-gradient(to_bottom,#ffffff0a_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none" />
-                <h2 className="relative z-10 text-4xl md:text-7xl font-black text-white tracking-tighter mb-6 uppercase drop-shadow-md">
-                    Start Learning
-                </h2>
-                <p className="relative z-10 text-lg md:text-xl text-white/80 font-medium max-w-2xl mx-auto leading-relaxed">
-                    Effectively build your conversational skills to confidently connect with your relatives. Choose a path below to begin.
-                </p>
-            </div>
-        </div>
-
-        {/* Level List Section - Long Pill Style from 2nd Image */}
+        {/* Level List Section - Long Pill Style */}
         <div className="space-y-6">
           {LEVELS.map((level) => {
             const isActive = activeLevel === level;

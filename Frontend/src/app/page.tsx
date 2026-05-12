@@ -1,7 +1,6 @@
 import Navbar from "@/components/layout/Navbar";
 import Hero from "@/components/features/landing/Hero";
 import HowItWorks from "@/components/features/landing/HowItWorks";
-import CurriculumLevels from "@/components/features/landing/CurriculumLevels";
 import InteractiveLessons from "@/components/features/landing/InteractiveLessons";
 import WhyChooseUs from "@/components/features/landing/WhyChooseUs";
 import TutorSupport from "@/components/features/landing/TutorSupport";
@@ -15,7 +14,6 @@ export default function Home() {
       <main className="flex-1">
         <Hero />
         <HowItWorks />
-        <CurriculumLevels />
         <InteractiveLessons />
         <WhyChooseUs />
         <TutorSupport />
