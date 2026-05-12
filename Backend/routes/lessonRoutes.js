@@ -29,16 +29,30 @@ const createLessonSchema = z.object({
 const updateLessonSchema = createLessonSchema.partial();
 
 const createQuestionSchema = z.object({
-    type: z.enum(['learn', 'match', 'identify', 'listening', 'fill', 'spelling', 'quiz', 'speaking', 'choice', 'writing']).optional().default('quiz'),
+    type: z.enum(['learn', 'match', 'identify', 'listening', 'fill', 'spelling', 'quiz', 'speaking', 'choice', 'writing', 'reading']).optional().default('quiz'),
     text: z.string().min(1, 'Question text required'),
+    paragraph: z.string().optional(),
     options: z.array(z.string()).optional(),
-    correctOptionIndex: z.number().int().nonnegative('Correct option index required').optional(),
+    pairs: z.array(z.object({ left: z.string(), right: z.string() })).optional(),
+    correctOptionIndex: z.number().int().nonnegative().optional(),
     correctAnswer: z.string().optional(),
     expectedAudioText: z.string().optional(),
     audioUrl: z.string().url('Invalid audio URL').optional().or(z.literal('')),
     phoneticHint: z.string().optional(),
-    scoreValue: z.number().int().positive().optional()
-}).strict();
+    scoreValue: z.number().int().positive().optional(),
+    // ── Phase 1 extended fields ──────────────────────────────────────────────
+    difficulty:      z.enum(['easy', 'medium', 'hard']).optional(),
+    skill:           z.enum(['reading', 'writing', 'listening', 'speaking']).optional(),
+    xp:              z.number().int().positive().optional(),
+    hint:            z.string().optional(),
+    explanation:     z.string().optional(),
+    imageUrl:        z.string().url().optional().or(z.literal('')),
+    useTTS:          z.boolean().optional(),
+    acceptedAnswers: z.array(z.string()).optional(),
+    words:           z.array(z.string()).optional(),
+    // legacy passthrough fields from admin panel
+    referenceAudio:  z.string().optional(),
+});   // no .strict() — allows safe passthrough of extra admin fields
 
 // Payload format: { answers: [ { questionId: '...', selectedOptionIndex: 0 }, ... ] }
 const submitAnswersSchema = z.object({
@@ -62,11 +76,14 @@ const evaluateWritingSchema = z.object({
 // ── User Endpoints ────────────────────────────────────────────────────────────
 // Phase 3: List and View Lessons
 router.get('/', authenticateOptional, lessonController.listLessons);
+router.get('/mistakes', authenticate, lessonController.getMistakes);   // Phase 4 — must be before /:id
 router.get('/:id', authenticate, checkLessonAccess, lessonController.getLessonDetails);
+
 
 // Phase 4: View Questions & Submit Answers
 router.get('/:id/questions', authenticate, checkLessonAccess, lessonController.getLessonQuestions);
 router.post('/:id/submit', authenticate, validate(submitAnswersSchema), lessonController.submitAnswers);
+router.post('/:id/questions/:qId/attempt', authenticate, lessonController.recordAttempt);  // Phase 7: per-Q energy
 router.post('/:id/evaluate-speaking', authenticate, validate(evaluateSpeakingSchema), lessonController.evaluateSpeaking);
 router.post('/:id/evaluate-writing', authenticate, validate(evaluateWritingSchema), lessonController.evaluateWriting);
 router.post('/:id/generate-speech', authenticate, lessonController.generateSpeech);

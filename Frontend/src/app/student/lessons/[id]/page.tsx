@@ -6,6 +6,7 @@ import Link from "next/link";
 import { ArrowLeft, ArrowRight, Play, HelpCircle, Loader2, AlertCircle, Zap, BookOpen, User, CheckCircle2, XCircle, Volume2, Trophy } from "lucide-react";
 import { getLessonById, getLessonQuestions, submitAnswers, generateSpeech, Lesson, Question, SubmitAnswerItem } from "@/services/lessonService";
 import { getMe, SafeUser } from "@/services/authService";
+import { api } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
 import { MatchingPairs } from "@/components/features/lessons/MatchingPairs";
@@ -34,7 +35,7 @@ export default function LessonInteractiveSession() {
   const [phase, setPhase] = useState<Phase>("loading");
   const [currentQ, setCurrentQ] = useState(0);
 
-  const [score, setScore] = useState<{ score: number; total: number; passed: boolean; nextLessonId?: string } | null>(null);
+  const [score, setScore] = useState<{ score: number; total: number; passed: boolean; nextLessonId?: string; xpEarned?: number } | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [typingValue, setTypingValue] = useState("");
 
@@ -192,9 +193,22 @@ export default function LessonInteractiveSession() {
   };
 
   const handleSelect = async (qId: string, idx: number, correctIdx?: number) => {
-    if (feedback[qId] === "correct") return;
-    const hasPower = await takePower();
-    if (!hasPower) return;
+    if (feedback[qId]) return;
+    
+    try {
+      // ── Phase 7: Per-question energy deduction ──
+      const res = await api.post(`/lessons/${id}/questions/${qId}/attempt`);
+      if (res.data.energy) setEnergy(res.data.energy);
+    } catch (err: any) {
+      if (err.response?.status === 403 && err.response?.data?.error === 'NO_ENERGY') {
+        setPhase("out_of_power");
+        return;
+      }
+      // If it's another error, we might still allow the attempt if they have energy locally
+      // but the server call is the source of truth.
+      console.error("Energy deduction failed:", err);
+    }
+
     setSelected((prev) => ({ ...prev, [qId]: idx }));
     if (idx === correctIdx) {
       setFeedback((prev) => ({ ...prev, [qId]: "correct" }));
@@ -336,11 +350,16 @@ export default function LessonInteractiveSession() {
            </div>
 
            <div className="flex justify-center gap-8">
-              <div className="p-8 bg-slate-50 rounded-[2rem] border border-slate-100 shadow-inner">
+              <div className="p-8 bg-slate-50 rounded-[2rem] border border-slate-100 shadow-inner flex flex-col items-center">
                  <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">Total Score</p>
                  <p className="text-5xl font-black text-primary">{score?.score}/{score?.total}</p>
-                 <div className="h-1.5 w-full bg-slate-200 rounded-full mt-4 overflow-hidden">
-                    <div className="h-full bg-emerald-500 rounded-full" style={{ width: `${(score?.score || 0) / (score?.total || 1) * 100}%` }} />
+                 {score?.xpEarned && (
+                   <div className="mt-4 px-4 py-2 bg-amber-500 text-white text-xs font-black rounded-full shadow-lg shadow-amber-500/20 animate-bounce">
+                     +{score.xpEarned} XP EARNED
+                   </div>
+                 )}
+                 <div className="h-1.5 w-40 bg-slate-200 rounded-full mt-6 overflow-hidden">
+                    <div className="h-full bg-emerald-500 rounded-full transition-all duration-1000" style={{ width: `${(score?.score || 0) / (score?.total || 1) * 100}%` }} />
                  </div>
               </div>
            </div>
@@ -471,25 +490,67 @@ export default function LessonInteractiveSession() {
 
                 {q?.type === "fill" && (
                     <div className="w-full max-w-xl space-y-6">
-                        <input
-                            type="text"
-                            placeholder="Write here"
-                            value={typingValue}
-                            onChange={(e) => setTypingValue(e.target.value)}
-                            disabled={!!feedback[q._id]}
-                            className="w-full p-6 text-2xl font-black text-center rounded-[2rem] border-4 border-gray-100 focus:border-primary/30 outline-none shadow-inner"
-                        />
+                        {q.words && q.words.length > 0 ? (
+                          // ── Tap-to-Arrange ──
+                          <div className="space-y-8">
+                            <div className="min-h-[100px] p-6 bg-slate-50 rounded-[2rem] border-2 border-dashed border-slate-200 flex flex-wrap gap-3 items-center justify-center">
+                              {typingValue.split(" ").filter(Boolean).map((word, i) => (
+                                <button
+                                  key={i}
+                                  onClick={() => {
+                                    if (feedback[q._id]) return;
+                                    const newWords = typingValue.split(" ").filter(Boolean);
+                                    newWords.splice(i, 1);
+                                    setTypingValue(newWords.join(" "));
+                                  }}
+                                  className="px-5 py-3 bg-white border-2 border-primary rounded-2xl font-bold text-primary shadow-sm hover:scale-105 active:scale-95 transition-all"
+                                >
+                                  {word}
+                                </button>
+                              ))}
+                            </div>
+                            <div className="flex flex-wrap gap-3 justify-center">
+                              {q.words
+                                .filter(w => !typingValue.split(" ").includes(w) || (q.words?.filter(x => x === w).length || 0) > typingValue.split(" ").filter(x => x === w).length)
+                                .map((word, i) => (
+                                  <button
+                                    key={i}
+                                    onClick={() => {
+                                      if (feedback[q._id]) return;
+                                      setTypingValue(prev => (prev ? prev + " " + word : word));
+                                    }}
+                                    className="px-5 py-3 bg-white border-2 border-slate-100 rounded-2xl font-bold text-slate-700 shadow-sm hover:border-primary hover:text-primary transition-all active:scale-95"
+                                  >
+                                    {word}
+                                  </button>
+                                ))
+                              }
+                            </div>
+                          </div>
+                        ) : (
+                          // ── Standard Fill/Spelling Input ──
+                          <input
+                              type="text"
+                              placeholder="Write here"
+                              value={typingValue}
+                              onChange={(e) => setTypingValue(e.target.value)}
+                              disabled={!!feedback[q._id]}
+                              className="w-full p-6 text-2xl font-black text-center rounded-[2rem] border-4 border-gray-100 focus:border-primary/30 outline-none shadow-inner"
+                          />
+                        )}
+                        
                         {!feedback[q._id] && (
                             <Button 
                                 onClick={() => {
                                     const rawCorrect = q.correctAnswer || (q.options ? q.options[q.correctOptionIndex ?? 0] : "");
                                     const correct = (rawCorrect || "").toLowerCase().trim();
-                                    const isCorrect = typingValue.toLowerCase().trim() === correct;
+                                    const current = typingValue.toLowerCase().trim();
+                                    const isCorrect = current === correct;
                                     handleSelect(q._id, isCorrect ? (q.correctOptionIndex ?? 0) : -1, q.correctOptionIndex ?? 0);
                                 }}
-                                disabled={!typingValue}
+                                disabled={!typingValue.trim()}
                                 size="xl"
-                                className="w-full rounded-2xl bg-secondary hover:bg-secondary/90"
+                                className="w-full rounded-2xl bg-secondary hover:bg-secondary/90 shadow-xl shadow-secondary/20"
                             >Check Answer</Button>
                         )}
                     </div>
@@ -513,36 +574,60 @@ export default function LessonInteractiveSession() {
         </div>
 
         {feedback[q?._id] && (
-          <div className="fixed bottom-10 left-1/2 -translate-x-1/2 w-[90%] max-w-2xl z-50 animate-in slide-in-from-bottom-12 duration-500">
+          <div className="fixed bottom-0 left-0 right-0 p-6 md:p-10 z-50 animate-in slide-in-from-bottom-full duration-500">
             <div className={cn(
-              "p-6 md:p-8 rounded-[2.5rem] shadow-2xl flex flex-col md:flex-row items-center justify-between gap-6 border-2",
-              feedback[q?._id] === "correct" ? "bg-emerald-50 border-emerald-500/30 text-emerald-900" : "bg-red-50 border-red-500/30 text-red-900"
+              "max-w-4xl mx-auto p-8 rounded-[3rem] shadow-[0_20px_50px_rgba(0,0,0,0.1)] flex flex-col md:flex-row items-center justify-between gap-8 border-t-4",
+              feedback[q?._id] === "correct" ? "bg-white border-emerald-500" : "bg-white border-red-500"
             )}>
-              <div className="flex items-center gap-6">
+              <div className="flex items-center gap-8 flex-1">
                 <div className={cn(
-                  "h-14 w-14 rounded-2xl flex items-center justify-center shadow-lg shrink-0", 
+                  "h-20 w-20 rounded-3xl flex items-center justify-center shadow-2xl shrink-0 animate-in zoom-in duration-300", 
                   feedback[q?._id] === "correct" ? "bg-emerald-500 text-white" : "bg-red-500 text-white"
                 )}>
-                  {feedback[q?._id] === "correct" ? <CheckCircle2 size={32} /> : <XCircle size={32} />}
+                  {feedback[q?._id] === "correct" ? <CheckCircle2 size={40} /> : <XCircle size={40} />}
                 </div>
-                <div className="space-y-0.5">
-                  <h3 className={cn("text-xl font-black", feedback[q?._id] === "correct" ? "text-emerald-800" : "text-red-800")}>
-                    {feedback[q?._id] === "correct" ? "Great!" : "Keep going!"}
-                  </h3>
-                  <p className="text-sm font-medium opacity-70">
-                    {feedback[q?._id] === "correct" ? backendMessage[q?._id] : (q.correctAnswer || q.options?.[q.correctOptionIndex ?? 0])}
-                  </p>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-3">
+                    <h3 className={cn("text-3xl font-black tracking-tight", feedback[q?._id] === "correct" ? "text-emerald-600" : "text-red-600")}>
+                      {feedback[q?._id] === "correct" ? "Amazing!" : "Not quite yet"}
+                    </h3>
+                    {feedback[q?._id] === "correct" && q.xp && (
+                      <span className="px-3 py-1 bg-amber-500 text-white text-[10px] font-black rounded-full animate-bounce">
+                        +{q.xp} XP
+                      </span>
+                    )}
+                  </div>
+                  
+                  {feedback[q._id] === 'incorrect' && (
+                    <p className="text-sm font-bold text-slate-800">
+                      Correct answer: <span className="text-primary">{q.correctAnswer || q.options?.[q.correctOptionIndex ?? 0]}</span>
+                    </p>
+                  )}
+
+                  {feedback[q._id] === 'incorrect' && q.hint && (
+                    <p className="text-sm font-bold text-amber-600">💡 Hint: {q.hint}</p>
+                  )}
+
+                  {q.explanation && (
+                    <p className="text-sm text-slate-500 font-medium border-t border-slate-100 pt-2 leading-relaxed">
+                      {q.explanation}
+                    </p>
+                  )}
+
+                  {feedback[q._id] === 'correct' && backendMessage[q._id] && (
+                    <p className="text-sm font-medium text-slate-500">{backendMessage[q._id]}</p>
+                  )}
                 </div>
               </div>
               <Button 
                 onClick={currentQ === questions.length - 1 ? handleSubmit : handleManualNext} 
-                size="lg" 
+                size="xl" 
                 className={cn(
-                  "w-full md:w-auto px-10 rounded-2xl shadow-xl", 
-                  feedback[q?._id] === "correct" ? "bg-emerald-500" : "bg-red-500"
+                  "w-full md:w-auto px-16 rounded-[1.5rem] shadow-2xl h-16 font-black uppercase tracking-widest text-xs", 
+                  feedback[q?._id] === "correct" ? "bg-emerald-500 hover:bg-emerald-600 shadow-emerald-500/20" : "bg-red-500 hover:bg-red-600 shadow-red-500/20"
                 )}
               >
-                {currentQ === questions.length - 1 ? "Finish" : "Continue"}
+                {currentQ === questions.length - 1 ? "Finish Session" : "Keep Learning"}
               </Button>
             </div>
           </div>

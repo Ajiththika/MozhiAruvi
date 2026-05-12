@@ -119,8 +119,7 @@ export async function submitAnswers(req, res, next) {
         const result = await lessonService.evaluateAnswersAndSaveProgress(req.user.sub, req.params.id, answers);
         
         if (user) {
-            const isFullyCorrect = result.passed && (result.score >= result.totalPossibleScore);
-            consumeEnergy(user, isFullyCorrect);
+            consumeEnergy(user);   // deduct 1 per lesson submission (per-attempt deduction)
             await user.save();
         }
 
@@ -129,6 +128,7 @@ export async function submitAnswers(req, res, next) {
             score: result.score,
             total: result.totalPossibleScore,
             passed: result.passed,
+            xpEarned: result.xpEarned || 0,
             progress: result.progress,
             nextLessonId: result.nextLessonId,
             user: result.user || user?.toSafeObject(),
@@ -522,5 +522,49 @@ export async function deleteQuestion(req, res, next) {
     try {
         await lessonService.deleteQuestion(req.params.qId);
         res.json({ message: 'Question deleted successfully.' });
+    } catch (e) { next(e); }
+}
+
+// ── Per-question attempt energy deduction ─────────────────────────────────────
+/**
+ * POST /api/lessons/:id/questions/:qId/attempt
+ * Deducts 1 energy per question attempt. Called by frontend before showing each question.
+ */
+export async function recordAttempt(req, res, next) {
+    try {
+        const user = await User.findById(req.user?.sub);
+        if (!user) return res.status(404).json({ message: 'User not found' });
+
+        const { canAttempt: possible, nextRecoveryIn } = canAttempt(user);
+        if (!possible) {
+            return res.status(403).json({ 
+                error: 'NO_ENERGY', 
+                message: 'No energy left. Wait for recovery or upgrade.',
+                nextRecoveryIn 
+            });
+        }
+
+        consumeEnergy(user);
+        await user.save();
+
+        res.json({ energy: getEnergyResponse(user) });
+    } catch (e) { next(e); }
+}
+
+// ── Mistake review endpoint ───────────────────────────────────────────────────
+/**
+ * GET /api/lessons/mistakes
+ * Returns the authenticated user's unresolved mistake questions.
+ */
+export async function getMistakes(req, res, next) {
+    try {
+        const Mistake = (await import('../models/Mistake.js')).default;
+        const mistakes = await Mistake.find({ userId: req.user.sub, resolved: false })
+            .sort({ lastSeen: -1 })
+            .limit(50)
+            .populate('questionId', 'type text options correctOptionIndex correctAnswer expectedAudioText hint explanation xp difficulty skill')
+            .populate('lessonId', 'title category level');
+
+        res.json({ mistakes });
     } catch (e) { next(e); }
 }

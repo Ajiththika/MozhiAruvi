@@ -50,6 +50,7 @@ export interface SafeUser {
     currentStreak: number;
     highStreak: number;
     lastLessonDate?: string;
+    totalXP?: number;
   };
   subscription?: {
     plan: "FREE" | "PRO" | "PREMIUM" | "BUSINESS";

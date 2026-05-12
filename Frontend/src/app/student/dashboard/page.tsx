@@ -120,17 +120,27 @@ export default function StudentDashboard() {
             </p>
           </div>
 
-          {plan === 'FREE' && (
+          <div className="flex flex-col sm:flex-row gap-3">
+            {plan === 'FREE' && (
+              <Button 
+                href="/student/subscription"
+                variant="primary"
+                className="h-12 px-8 rounded-2xl shadow-xl shadow-primary/20 text-[10px] font-black uppercase tracking-widest shrink-0 animate-in zoom-in duration-500"
+              >
+                <Crown className="w-4 h-4 mr-2" /> Upgrade to Premium
+              </Button>
+            )}
             <Button 
-              href="/student/subscription"
-              variant="primary"
-              className="h-12 px-8 rounded-2xl shadow-xl shadow-primary/20 text-[10px] font-black uppercase tracking-widest shrink-0 animate-in zoom-in duration-500"
+              href="/student/mistakes"
+              variant="secondary"
+              className="h-12 px-8 rounded-2xl border-2 border-primary/10 bg-white text-primary hover:bg-primary/5 text-[10px] font-black uppercase tracking-widest shrink-0 animate-in zoom-in duration-700"
             >
-              <Crown className="w-4 h-4 mr-2" /> Upgrade to Premium
+              <AlertCircle className="w-4 h-4 mr-2" /> Review Mistakes
             </Button>
-          )}
+          </div>
         </div>
       </div>
+
 
       {/* Tutor Application Notice */}
       {user?.tutorStatus === 'pending' && (
@@ -160,6 +170,14 @@ export default function StudentDashboard() {
       {/* Stats Grid */}
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
         <StatCard
+          title="Total XP"
+          value={`${user?.progress?.totalXP || 0}`}
+          description={`Level: ${user?.level || "Beginner"}`}
+          icon={Star}
+          trend="up"
+          trendValue="XP"
+        />
+        <StatCard
           title="Daily Streak"
           value={`${user?.progress?.currentStreak || 0} Days`}
           description={`Personal Best: ${user?.progress?.highStreak || 0} days`}
@@ -167,6 +185,7 @@ export default function StudentDashboard() {
           trend={(user?.progress?.currentStreak || 0) > 0 ? "up" : "neutral"}
           trendValue={(user?.progress?.currentStreak || 0) > 0 ? "Active" : "New"}
         />
+
         <StatCard
           title="Daily Energy"
           value={isPremium ? "∞" : `${user?.progress?.energy ?? 25}/25`}

@@ -65,26 +65,22 @@ export const canAttempt = (user) => {
 };
 
 /**
- * Consumes 1 energy if the answer was incorrect.
+ * Consumes 1 energy per question attempt (regardless of correct/wrong).
  * @param {Object} user - The mongoose user document
- * @param {Boolean} isCorrect - Whether the answer was correct
  * @returns {Object} Updated energy state
  */
-export const consumeEnergy = (user, isCorrect) => {
+export const consumeEnergy = (user) => {
   if (!user) return;
   if (user.isPremium || (user.subscription && user.subscription.plan !== 'FREE')) {
     return { energy: MAX_ENERGY, isPremium: true };
   }
 
-  // Deduct only on incorrect answer
-  if (!isCorrect) {
-    // If energy was already at MAX, start the clock for recovery
-    if (user.progress.energy === MAX_ENERGY) {
-        user.progress.lastEnergyUpdate = new Date();
-    }
-    
-    user.progress.energy = Math.max(0, (user.progress.energy || 0) - 1);
+  // Start the recovery clock if energy was at max
+  if (user.progress.energy === MAX_ENERGY) {
+    user.progress.lastEnergyUpdate = new Date();
   }
+
+  user.progress.energy = Math.max(0, (user.progress.energy || 0) - 1);
 
   return { 
     energy: user.progress.energy, 

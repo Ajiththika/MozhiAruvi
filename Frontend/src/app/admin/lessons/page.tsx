@@ -41,19 +41,29 @@ function getHeuristicOrder(name: string): number {
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
-type QuestionType = "mcq" | "matching" | "speaking" | "writing";
+type QuestionType = "mcq" | "matching" | "speaking" | "writing" | "taparrange";
 
 interface MCQData { question: string; options: string[]; correctAnswer: string; expectedAudioText?: string; }
 interface MatchingData { pairs: { left: string; right: string }[]; expectedAudioText?: string; }
 interface SpeakingData { promptText: string; correctSentence: string; referenceAudio: string; expectedAudioText?: string; }
 interface WritingData { question: string; expectedText: string; expectedAudioText?: string; }
+interface TapArrangeData { sentence: string; expectedAudioText?: string; }
 
-type QuestionData = MCQData | MatchingData | SpeakingData | WritingData;
+interface CommonFields {
+  difficulty: 'easy' | 'medium' | 'hard';
+  skill: 'reading' | 'writing' | 'listening' | 'speaking';
+  xp: number;
+  hint: string;
+  explanation: string;
+}
+
+type QuestionData = MCQData | MatchingData | SpeakingData | WritingData | TapArrangeData;
 
 interface DraftQuestion {
   id: string; // temp local id
   type: QuestionType;
   data: QuestionData;
+  common?: CommonFields;
   error?: string;
 }
 
@@ -64,7 +74,9 @@ const TYPE_META: Record<QuestionType, { label: string; icon: React.ReactNode; co
   matching:   { label: "Matching",    icon: null, color: "text-indigo-600 bg-indigo-50 border-indigo-100" },
   speaking:   { label: "Speaking",    icon: <Mic className="w-4 h-4" />, color: "text-indigo-600 bg-indigo-50 border-indigo-100" },
   writing:    { label: "Writing",     icon: null, color: "text-indigo-600 bg-indigo-50 border-indigo-100" },
+  taparrange: { label: "Tap-to-Arrange", icon: <ArrowUpDown className="w-4 h-4" />, color: "text-indigo-600 bg-indigo-50 border-indigo-100" },
 };
+
 
 const defaultData = (type: QuestionType): QuestionData => {
   switch (type) {
@@ -72,8 +84,18 @@ const defaultData = (type: QuestionType): QuestionData => {
     case "matching":   return { pairs: [{ left: "", right: "" }] };
     case "speaking":   return { promptText: "", correctSentence: "", referenceAudio: "" };
     case "writing":    return { question: "", expectedText: "" };
+    case "taparrange": return { sentence: "" };
   }
 };
+
+const defaultCommonFields = (): CommonFields => ({
+  difficulty: 'medium',
+  skill: 'reading',
+  xp: 10,
+  hint: "",
+  explanation: ""
+});
+
 
 function uid() { return Math.random().toString(36).slice(2); }
 
@@ -101,6 +123,11 @@ function validateQuestion(q: DraftQuestion): string | undefined {
     case "writing": {
       const d = q.data as WritingData;
       if (!d.expectedText.trim()) return "Expected text is required.";
+      return;
+    }
+    case "taparrange": {
+      const d = q.data as TapArrangeData;
+      if (!d.sentence.trim()) return "Sentence is required.";
       return;
     }
   }
@@ -221,6 +248,68 @@ function MatchingForm({ data, onChange }: { data: MatchingData; onChange: (d: Ma
   );
 }
 
+function CommonFieldsForm({ fields, onChange }: { fields: CommonFields; onChange: (f: CommonFields) => void }) {
+  return (
+    <div className="border-t border-slate-50 pt-6 space-y-4">
+      <p className="text-[10px] font-black uppercase tracking-widest text-primary/40">Common Settings</p>
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+        <div>
+          <label className={labelCls}>Difficulty</label>
+          <select className={inputCls} value={fields.difficulty} onChange={e => onChange({ ...fields, difficulty: e.target.value as any })}>
+            <option value="easy">Easy</option>
+            <option value="medium">Medium</option>
+            <option value="hard">Hard</option>
+          </select>
+        </div>
+        <div>
+          <label className={labelCls}>Skill</label>
+          <select className={inputCls} value={fields.skill} onChange={e => onChange({ ...fields, skill: e.target.value as any })}>
+            <option value="reading">Reading</option>
+            <option value="writing">Writing</option>
+            <option value="listening">Listening</option>
+            <option value="speaking">Speaking</option>
+          </select>
+        </div>
+        <div>
+          <label className={labelCls}>XP Value</label>
+          <input type="number" className={inputCls} value={fields.xp} min={1} max={100} onChange={e => onChange({ ...fields, xp: Number(e.target.value) })} />
+        </div>
+      </div>
+      <div>
+        <label className={labelCls}>Hint (shown on wrong answer)</label>
+        <input className={inputCls} placeholder="Optional hint..." value={fields.hint} onChange={e => onChange({ ...fields, hint: e.target.value })} />
+      </div>
+      <div>
+        <label className={labelCls}>Explanation (shown after answer)</label>
+        <textarea className={inputCls + " resize-none h-20"} placeholder="Why is this the correct answer?" value={fields.explanation} onChange={e => onChange({ ...fields, explanation: e.target.value })} />
+      </div>
+    </div>
+  );
+}
+
+function TapArrangeForm({ data, onChange }: { data: TapArrangeData; onChange: (d: TapArrangeData) => void }) {
+  const preview = data.sentence.trim().split(/\s+/).filter(Boolean);
+  return (
+    <div className="space-y-6">
+      <div>
+        <label className={labelCls}>Full Sentence (words will be shuffled for student)</label>
+        <input className={inputCls} placeholder="e.g. அம்மா வீட்டில் இருக்கிறாள்" value={data.sentence} onChange={e => onChange({ ...data, sentence: e.target.value })} />
+        {preview.length > 1 && (
+          <div className="mt-3 flex flex-wrap gap-2">
+            {preview.map((w, i) => (
+              <span key={i} className="px-3 py-1.5 rounded-xl bg-primary/10 text-primary text-sm font-bold">{w}</span>
+            ))}
+          </div>
+        )}
+      </div>
+      <div>
+        <label className={labelCls}>Text to Speech (optional)</label>
+        <input className={inputCls} placeholder="Word to speak aloud" value={data.expectedAudioText || ""} onChange={e => onChange({ ...data, expectedAudioText: e.target.value })} />
+      </div>
+    </div>
+  );
+}
+
 function SpeakingForm({ data, onChange }: { data: SpeakingData; onChange: (d: SpeakingData) => void }) {
   return (
     <div className="space-y-6">
@@ -243,6 +332,7 @@ function SpeakingForm({ data, onChange }: { data: SpeakingData; onChange: (d: Sp
     </div>
   );
 }
+
 
 // ── Question Card ─────────────────────────────────────────────────────────────
 
@@ -312,11 +402,19 @@ function QuestionCard({
           {question.type === "matching"   && <MatchingForm  data={question.data as MatchingData}  onChange={updateData} />}
           {question.type === "speaking"   && <SpeakingForm  data={question.data as SpeakingData}  onChange={updateData} />}
           {question.type === "writing"    && <WritingForm   data={question.data as WritingData}   onChange={updateData} />}
+          {question.type === "taparrange" && <TapArrangeForm data={question.data as TapArrangeData} onChange={updateData} />}
+
+          {/* Common Fields */}
+          <CommonFieldsForm
+            fields={question.common || defaultCommonFields()}
+            onChange={f => onUpdate({ ...question, common: f })}
+          />
         </div>
       )}
     </div>
   );
 }
+
 
 // ── Admin Lesson Row (Compact Level item) ───────────────────────────────────
 
@@ -687,8 +785,14 @@ export default function AdminLessonsPage() {
   }
 
   function addDraftQuestion() {
-    setDraftQuestions(prev => [...prev, { id: uid(), type: "mcq", data: defaultData("mcq") }]);
+    setDraftQuestions(prev => [...prev, { 
+      id: uid(), 
+      type: "mcq", 
+      data: defaultData("mcq"),
+      common: defaultCommonFields()
+    }]);
   }
+
 
   function updateDraft(id: string, updated: DraftQuestion) {
     setDraftQuestions(prev => prev.map(q => q.id === id ? updated : q));
@@ -735,25 +839,76 @@ export default function AdminLessonsPage() {
   }
 
   function buildPayload(q: DraftQuestion) {
+    const common = q.common || defaultCommonFields();
+    const commonPayload = {
+      difficulty: common.difficulty,
+      skill: common.skill,
+      xp: common.xp,
+      hint: common.hint,
+      explanation: common.explanation,
+      scoreValue: common.xp // Keep scoreValue in sync with XP
+    };
+
     switch (q.type) {
       case "mcq": {
         const d = q.data as MCQData;
-        return { type: "quiz", text: d.question, options: d.options, correctAnswer: d.correctAnswer, correctOptionIndex: d.options.indexOf(d.correctAnswer), scoreValue: 10, expectedAudioText: d.expectedAudioText };
+        return { 
+          type: "quiz", 
+          text: d.question, 
+          options: d.options, 
+          correctAnswer: d.correctAnswer, 
+          correctOptionIndex: d.options.indexOf(d.correctAnswer), 
+          expectedAudioText: d.expectedAudioText,
+          ...commonPayload
+        };
       }
       case "matching": {
         const d = q.data as MatchingData;
-        return { type: "match", text: "Match the pairs", options: d.pairs.map(p => p.left), correctAnswer: JSON.stringify(d.pairs), scoreValue: 10, expectedAudioText: d.expectedAudioText };
+        return { 
+          type: "match", 
+          text: "Match the pairs", 
+          options: d.pairs.map(p => p.left), 
+          correctAnswer: JSON.stringify(d.pairs), 
+          expectedAudioText: d.expectedAudioText,
+          ...commonPayload
+        };
       }
       case "speaking": {
         const d = q.data as SpeakingData;
-        return { type: "speaking", text: d.promptText, correctAnswer: d.correctSentence, expectedAudioText: d.expectedAudioText || d.correctSentence, scoreValue: 10, referenceAudio: d.referenceAudio };
+        return { 
+          type: "speaking", 
+          text: d.promptText, 
+          correctAnswer: d.correctSentence, 
+          expectedAudioText: d.expectedAudioText || d.correctSentence, 
+          referenceAudio: d.referenceAudio,
+          ...commonPayload
+        };
       }
       case "writing": {
         const d = q.data as WritingData;
-        return { type: "writing", text: d.question || `Draw: ${d.expectedText}`, correctAnswer: d.expectedText, scoreValue: 10, expectedAudioText: d.expectedAudioText };
+        return { 
+          type: "writing", 
+          text: d.question || `Draw: ${d.expectedText}`, 
+          correctAnswer: d.expectedText, 
+          expectedAudioText: d.expectedAudioText,
+          ...commonPayload
+        };
+      }
+      case "taparrange": {
+        const d = q.data as TapArrangeData;
+        const words = d.sentence.trim().split(/\s+/).filter(Boolean);
+        return {
+          type: "fill",
+          text: "Arrange the words in the correct order",
+          words: words,
+          correctAnswer: d.sentence.trim(),
+          expectedAudioText: d.expectedAudioText,
+          ...commonPayload
+        };
       }
     }
   }
+
 
   // Category Mgmt Actions
   const [editingCategory, setEditingCategory] = useState<DBCategory | null>(null);
@@ -1280,7 +1435,10 @@ export default function AdminLessonsPage() {
                                <QuestionCard 
                                  question={{ 
                                    id: q._id, 
-                                   type: (q.type as any === "quiz" ? "mcq" : q.type as any === "match" ? "matching" : q.type as any) || "mcq", 
+                                   type: (q.type as any === "quiz" ? "mcq" : 
+                                          q.type as any === "match" ? "matching" : 
+                                          (q.type as any === "fill" && q.words && q.words.length > 0) ? "taparrange" :
+                                          q.type as any) || "mcq", 
                                    data: { 
                                       question: q.text, 
                                       options: q.options || [], 
@@ -1288,8 +1446,16 @@ export default function AdminLessonsPage() {
                                       promptText: q.text,
                                       correctSentence: q.correctAnswer || q.expectedAudioText || "",
                                       expectedText: q.correctAnswer || "",
-                                      expectedAudioText: q.expectedAudioText || ""
-                                   } as any
+                                      expectedAudioText: q.expectedAudioText || "",
+                                      sentence: q.correctAnswer || ""
+                                   } as any,
+                                   common: {
+                                      difficulty: q.difficulty || 'medium',
+                                      skill: q.skill || 'reading',
+                                      xp: q.xp || q.scoreValue || 10,
+                                      hint: q.hint || "",
+                                      explanation: q.explanation || ""
+                                   }
                                  }} 
                                  index={idx}
                                  onUpdate={(updated) => handleUpdateSaved(q._id, updated)} 

@@ -38,10 +38,23 @@ export interface Question {
   expectedAudioText?: string;
   audioUrl?: string;
   phoneticHint?: string;
+
+  // ── Phase 1 Additions ──
+  difficulty?: 'easy' | 'medium' | 'hard';
+  skill?: 'reading' | 'writing' | 'listening' | 'speaking';
+  xp?: number;
+  hint?: string;
+  explanation?: string;
+  imageUrl?: string;
+  useTTS?: boolean;
+  acceptedAnswers?: string[];
+  words?: string[];
 }
 
 export interface QuestionInput extends Partial<Omit<Question, '_id'>> {
   lessonId?: string;
+  // Admin panel specific
+  referenceAudio?: string;
 }
 
 export interface SubmitAnswerItem {

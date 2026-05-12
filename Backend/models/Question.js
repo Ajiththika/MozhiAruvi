@@ -19,6 +19,18 @@ const questionSchema = new mongoose.Schema({
     phoneticHint: { type: String }, // Hint text for UI display
     scoreValue: { type: Number, default: 10 },
     orderIndex: { type: Number, default: 0 },
+
+    // ── Phase 1 Extended Fields (additive — backward compatible) ──────────────
+    difficulty:      { type: String, enum: ['easy', 'medium', 'hard'], default: 'medium' },
+    skill:           { type: String, enum: ['reading', 'writing', 'listening', 'speaking'], default: 'reading' },
+    xp:              { type: Number, default: 10 },            // XP awarded on correct answer
+    hint:            { type: String },                         // Shown on wrong answer
+    explanation:     { type: String },                         // Shown after answer is evaluated
+    imageUrl:        { type: String },                         // Optional image for the question
+    useTTS:          { type: Boolean, default: false },        // Auto-play TTS when question loads
+    acceptedAnswers: [{ type: String }],                       // Alternate correct answers (speaking/writing)
+    words:           [{ type: String }],                       // Word tokens for tap-to-arrange type
 }, { timestamps: true });
 
 export default mongoose.model('Question', questionSchema);
+

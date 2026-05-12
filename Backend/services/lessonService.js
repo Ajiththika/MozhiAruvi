@@ -2,6 +2,7 @@ import Lesson from '../models/Lesson.js';
 import Question from '../models/Question.js';
 import Progress from '../models/Progress.js';
 import User from '../models/User.js';
+import Mistake from '../models/Mistake.js';
 
 // ── Lesons (Public/User) ──────────────────────────────────────────────────────
 export async function getAllLessons() {
@@ -41,7 +42,10 @@ export async function getUserProgressList(userId) {
 // ── Questions (Public/User) ───────────────────────────────────────────────────
 export async function getQuestionsForLesson(lessonId, isAdmin = false) {
     try {
-        const allQuestions = await Question.find({ lessonId }).select('_id type text paragraph options scoreValue correctOptionIndex correctAnswer expectedAudioText audioUrl phoneticHint orderIndex').sort({ orderIndex: 1, createdAt: 1 });
+        // Include new Phase 1 fields so frontend can show hint/explanation/xp
+        const allQuestions = await Question.find({ lessonId })
+            .select('_id type text paragraph options scoreValue correctOptionIndex correctAnswer expectedAudioText audioUrl phoneticHint orderIndex difficulty skill xp hint explanation imageUrl useTTS acceptedAnswers words')
+            .sort({ orderIndex: 1, createdAt: 1 });
         
         // Admins should see everything in order
         if (isAdmin) return allQuestions;
@@ -75,10 +79,13 @@ export async function evaluateAnswersAndSaveProgress(userId, lessonId, answers) 
         const err = new Error('Questions not found.'); err.status = 400; throw err;
     }
 
-    // 3. Evaluate score
+    // 3. Evaluate score + XP + mistakes
     let score = 0;
     let totalPossibleScore = 0;
+    let xpEarned = 0;
     const weakAreas = new Set();
+    const mistakeOps = [];   // bulk mistake upserts
+    const resolveOps = [];   // bulk mistake resolves
 
     const questionMap = new Map();
     questions.forEach(q => {
@@ -94,21 +101,47 @@ export async function evaluateAnswersAndSaveProgress(userId, lessonId, answers) 
             const isCorrectSpeaking = q.type === 'speaking' && ans.isSpeakingCompleted;
             const isCorrectWriting = q.type === 'writing' && ans.selectedOptionIndex === 0;
 
-            if (isCorrectChoice || isCorrectSpeaking || isCorrectWriting) {
+            const isCorrect = isCorrectChoice || isCorrectSpeaking || isCorrectWriting;
+
+            if (isCorrect) {
                 score += q.scoreValue || 10;
+                xpEarned += (q.xp || q.scoreValue || 10);  // use xp field, fallback to scoreValue
+                // Mark mistake resolved if it existed
+                resolveOps.push(
+                    Mistake.updateOne(
+                        { userId, questionId: q._id },
+                        { $set: { resolved: true } }
+                    ).catch(() => {})
+                );
             } else {
-                // TRACK WEAK AREAS
                 weakAreas.add(q.type);
+                // Upsert mistake record
+                mistakeOps.push(
+                    Mistake.findOneAndUpdate(
+                        { userId, questionId: q._id },
+                        {
+                            $inc: { attempts: 1 },
+                            $set: { lessonId: q.lessonId, lastSeen: new Date(), resolved: false }
+                        },
+                        { upsert: true }
+                    ).catch(() => {})
+                );
             }
         }
     }
+
+    // Fire mistake DB ops in parallel (non-blocking)
+    await Promise.all([...mistakeOps, ...resolveOps]);
 
     const passPercentage = (score / totalPossibleScore) * 100;
     const passed = passPercentage >= 70; // 70% to pass
     
     const user = await User.findById(userId);
     if (passed && user) {
-        // Streak Maintenance
+        // ── XP Award ────────────────────────────────────────────────────────
+        user.xp = (user.xp || 0) + xpEarned;
+
+        // ── Streak Maintenance ───────────────────────────────────────────────
         const now = new Date();
         const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
         const lastDate = user.progress.lastLessonDate ? new Date(user.progress.lastLessonDate) : null;
@@ -132,6 +165,14 @@ export async function evaluateAnswersAndSaveProgress(userId, lessonId, answers) 
 
         if (user.progress.currentStreak > (user.progress.highStreak || 0)) {
             user.progress.highStreak = user.progress.currentStreak;
+        }
+
+        // ── Streak milestone XP bonus (+50 at 7, 30, 100 days) ──────────────
+        const streak = user.progress.currentStreak;
+        if ([7, 30, 100].includes(streak)) {
+            user.xp += 50;
+            xpEarned += 50;
+            console.log(`[STREAK BONUS] User ${userId} earned +50 XP for ${streak}-day streak!`);
         }
 
         user.progress.completedLessons.addToSet(lessonId);
@@ -211,6 +252,7 @@ export async function evaluateAnswersAndSaveProgress(userId, lessonId, answers) 
         totalPossibleScore, 
         passed, 
         progress, 
+        xpEarned,                                   // Phase 3: XP earned this session
         user: user?.toSafeObject(),
         nextLessonId: nextLesson ? nextLesson._id : null 
     };
