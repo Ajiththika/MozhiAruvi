@@ -619,6 +619,7 @@ export default function AdminLessonsPage() {
   const [draftQuestions, setDraftQuestions] = useState<DraftQuestion[]>([]);
   const [qLoading, setQLoading] = useState(false);
   const [savingQ, setSavingQ] = useState(false);
+  const scrollRef = React.useRef<HTMLDivElement>(null);
 
   const [activeLevel, setActiveLevel] = useState("Beginner");
   const [currentPage, setCurrentPage] = useState(1);
