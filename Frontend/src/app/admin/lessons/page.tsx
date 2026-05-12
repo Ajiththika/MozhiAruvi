@@ -791,6 +791,16 @@ export default function AdminLessonsPage() {
       data: defaultData("mcq"),
       common: defaultCommonFields()
     }]);
+    
+    // Auto-scroll to bottom
+    setTimeout(() => {
+      if (scrollRef.current) {
+        scrollRef.current.scrollTo({
+          top: scrollRef.current.scrollHeight,
+          behavior: 'smooth'
+        });
+      }
+    }, 100);
   }
 
 
@@ -1393,26 +1403,43 @@ export default function AdminLessonsPage() {
         </div>
       )}
 
-      {/* Question Builder Modal */}
+      {/* Question Builder Page Overlay */}
       {activeLessonId && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-white/40 backdrop-blur-md animate-in fade-in duration-300">
-          <div className="bg-white rounded-[3rem] w-full max-w-5xl max-h-[92vh] overflow-hidden shadow-[0_32px_64px_-12px_rgba(0,0,0,0.14)] border border-slate-100 flex flex-col animate-in zoom-in-95 duration-300">
-
-            {/* Modal Header */}
-            <div className="p-8 border-b border-slate-50 flex items-center justify-between bg-slate-50/30 shrink-0">
+        <div className="fixed inset-0 z-[70] bg-white flex flex-col animate-in slide-in-from-right duration-500">
+          
+          {/* Top Bar */}
+          <div className="h-24 px-10 border-b border-slate-100 flex items-center justify-between bg-white shrink-0">
+            <div className="flex items-center gap-6">
+              <button 
+                onClick={() => { setActiveLessonId(null); setDraftQuestions([]); setEditingSavedId(null); }}
+                className="h-12 w-12 flex items-center justify-center rounded-2xl border border-slate-100 hover:bg-slate-50 transition-all active:scale-90"
+              >
+                <ArrowLeft className="w-5 h-5 text-primary/60" />
+              </button>
               <div>
-                <p className="text-[10px] font-black text-primary/60 uppercase tracking-widest mb-1">Question Builder</p>
-                <h2 className="text-xl font-black text-slate-800 tracking-tight">{activeLessonTitle}</h2>
+                <p className="text-[10px] font-black text-primary/40 uppercase tracking-widest mb-0.5">Lesson Management</p>
+                <h2 className="text-2xl font-black text-slate-800 tracking-tight">{activeLessonTitle}</h2>
               </div>
+            </div>
+            
+            <div className="flex items-center gap-4">
+              <span className="text-[10px] font-black text-primary/40 uppercase tracking-widest bg-slate-50 px-4 py-2 rounded-full border border-slate-100">
+                {savedQuestions.length} Saved Questions
+              </span>
               <button
                 onClick={() => { setActiveLessonId(null); setDraftQuestions([]); setEditingSavedId(null); }}
-                className="h-12 w-12 flex items-center justify-center bg-white rounded-2xl hover:bg-red-50 hover:text-red-500 shadow-sm border border-slate-100 transition-all active:scale-90"
+                className="h-12 w-12 flex items-center justify-center bg-slate-50 rounded-2xl hover:bg-red-50 hover:text-red-500 transition-all active:scale-90"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
+          </div>
 
-            <div className="flex-1 overflow-y-auto p-8 space-y-10">
+          {/* Main Content Area */}
+          <div className="flex-1 overflow-y-auto bg-slate-50/30" ref={scrollRef}>
+            <div className="max-w-5xl mx-auto py-16 px-10 space-y-12 pb-32">
+
+
               {qLoading ? (
                 <div className="flex flex-col items-center justify-center py-20 gap-4">
                   <Loader2 className="w-12 h-12 animate-spin text-primary/30" strokeWidth={1} />
@@ -1488,14 +1515,22 @@ export default function AdminLessonsPage() {
                     </div>
                   )}
 
-                  {/* Draft Questions */}
-                  <div>
-                    <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-xs font-black uppercase tracking-[0.2em] text-secondary">New Questions</h3>
+                  {/* Draft Questions Section */}
+                  <div className="bg-white/50 p-8 rounded-[2.5rem] border border-slate-100 shadow-sm space-y-8">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="h-8 w-8 rounded-xl bg-secondary/10 flex items-center justify-center">
+                          <Plus className="w-4 h-4 text-secondary" />
+                        </div>
+                        <h3 className="text-sm font-black uppercase tracking-[0.2em] text-secondary">New Questions</h3>
+                      </div>
                       {draftQuestions.length > 0 && (
-                        <span className="text-[10px] font-bold bg-secondary/5 text-secondary px-3 py-1 rounded-full">{draftQuestions.length} unsaved</span>
+                        <span className="text-[10px] font-black bg-secondary text-white px-4 py-1.5 rounded-full shadow-lg shadow-secondary/20 animate-bounce">
+                          {draftQuestions.length} To Save
+                        </span>
                       )}
                     </div>
+
 
                     {draftQuestions.length === 0 && savedQuestions.length === 0 && (
                       <div className="p-12 text-center border-2 border-dashed border-slate-100 rounded-[2rem] mb-4">
@@ -1522,40 +1557,58 @@ export default function AdminLessonsPage() {
                     <button
                       type="button"
                       onClick={addDraftQuestion}
-                      className="w-full py-4 rounded-2xl border-2 border-dashed border-slate-200 flex items-center justify-center gap-3 text-[10px] font-black uppercase tracking-widest text-primary/60 hover:border-primary hover:text-primary hover:bg-primary/2 transition-all"
+                      className="w-full py-6 rounded-3xl border-2 border-dashed border-secondary/20 flex flex-col items-center justify-center gap-2 text-[10px] font-black uppercase tracking-widest text-secondary hover:border-secondary hover:bg-secondary/5 hover:scale-[1.01] active:scale-[0.99] transition-all group"
                     >
-                      <Plus className="w-4 h-4" /> Add Question
+                      <div className="h-10 w-10 rounded-full bg-secondary/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <Plus className="w-5 h-5 text-secondary" />
+                      </div>
+                      Add Another Question
                     </button>
                   </div>
+
                 </>
               )}
             </div>
+          </div>
 
-            {/* Footer */}
-            {!qLoading && (
-              <div className="p-6 border-t border-slate-50 flex items-center justify-end gap-4 shrink-0 bg-slate-50/30">
+          {/* Footer Actions */}
+          {!qLoading && (
+            <div className="p-8 border-t border-slate-100 flex items-center justify-between bg-white shrink-0">
+              <div className="flex items-center gap-3">
+                 {draftQuestions.length > 0 && (
+                   <span className="flex items-center gap-2 px-4 py-2 bg-secondary/10 text-secondary text-[10px] font-black uppercase rounded-full animate-pulse">
+                     <AlertCircle className="w-3.5 h-3.5" /> {draftQuestions.length} unsaved changes
+                   </span>
+                 )}
+              </div>
+              <div className="flex items-center gap-4">
                 <button
                   type="button"
                   onClick={() => { setActiveLessonId(null); setDraftQuestions([]); setEditingSavedId(null); }}
-                  className="px-8 py-3.5 font-black uppercase tracking-widest text-[10px] text-primary/60 hover:text-slate-600 transition-colors"
+                  className="px-8 py-4 font-black uppercase tracking-widest text-[10px] text-primary/60 hover:text-slate-600 transition-colors"
                 >
-                  Close
+                  Discard Changes
                 </button>
                 {draftQuestions.length > 0 && (
                   <button
                     type="button"
                     onClick={handleSaveQuestions}
                     disabled={savingQ}
-                    className="px-10 py-3.5 bg-secondary text-white font-black uppercase tracking-widest text-[10px] rounded-2xl shadow-xl shadow-secondary/20 hover:scale-105 active:scale-95 transition-all flex items-center gap-2 disabled:opacity-60 disabled:scale-100"
+                    className="px-12 py-4 bg-secondary text-white font-black uppercase tracking-widest text-[10px] rounded-2xl shadow-2xl shadow-secondary/20 hover:scale-105 active:scale-95 transition-all flex items-center gap-3 disabled:opacity-60 disabled:scale-100"
                   >
-                    {savingQ ? <Loader2 className="w-4 h-4 animate-spin" /> : `Save Questions (${draftQuestions.length})`}
+                    {savingQ ? <Loader2 className="w-4 h-4 animate-spin" /> : (
+                      <>
+                        <Save className="w-4 h-4" /> Save All Questions
+                      </>
+                    )}
                   </button>
                 )}
               </div>
-            )}
-          </div>
+            </div>
+          )}
         </div>
       )}
+
       {/* Category Edit Modal */}
       {editingCategory && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-white/40 backdrop-blur-md animate-in fade-in duration-300">
