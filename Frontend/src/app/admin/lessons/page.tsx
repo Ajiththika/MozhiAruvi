@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import {
   BookOpen, Plus, Loader2, Trash2, X, ChevronDown, ChevronUp,
-  Mic, AlertCircle, Settings, Tag, ArrowUpDown
+  Mic, AlertCircle, Settings, Tag, ArrowUpDown, ArrowLeft, Save
 } from "lucide-react";
 import Link from "next/link";
 import { getLessons, Lesson, getLessonQuestions, Question } from "@/services/lessonService";
