@@ -1,9 +1,10 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import {
   BookOpen, Plus, Loader2, Trash2, X, ChevronDown, ChevronUp,
-  Mic, AlertCircle, Settings, Tag, ArrowUpDown, ArrowLeft, Save
+  Mic, AlertCircle, Settings, Tag, ArrowUpDown, ArrowLeft, Save, Menu
 } from "lucide-react";
 import Link from "next/link";
 import { getLessons, Lesson, getLessonQuestions, Question } from "@/services/lessonService";
@@ -1405,8 +1406,8 @@ export default function AdminLessonsPage() {
       )}
 
       {/* Question Builder Page Overlay */}
-      {activeLessonId && (
-        <div className="fixed inset-0 z-[70] bg-white flex flex-col animate-in slide-in-from-right duration-500">
+      {activeLessonId && typeof document !== 'undefined' && createPortal(
+        <div className="fixed inset-0 z-[10000] bg-white flex flex-col animate-in slide-in-from-right duration-500 overflow-hidden">
           
           {/* Top Bar */}
           <div className="h-24 px-10 border-b border-slate-100 flex items-center justify-between bg-white shrink-0">
@@ -1417,11 +1418,17 @@ export default function AdminLessonsPage() {
               >
                 <ArrowLeft className="w-5 h-5 text-primary/60" />
               </button>
-              <div>
-                <p className="text-[10px] font-black text-primary/40 uppercase tracking-widest mb-0.5">Lesson Management</p>
-                <h2 className="text-2xl font-black text-slate-800 tracking-tight">{activeLessonTitle}</h2>
+              <div className="flex items-center gap-4">
+                <div className="h-10 w-10 bg-slate-50 rounded-xl flex items-center justify-center border border-slate-100">
+                  <Menu className="w-5 h-5 text-primary/40" />
+                </div>
+                <div>
+                  <p className="text-[10px] font-black text-primary/40 uppercase tracking-widest mb-0.5">Level Management Portal</p>
+                  <h2 className="text-2xl font-black text-slate-800 tracking-tight">{activeLessonTitle}</h2>
+                </div>
               </div>
             </div>
+
             
             <div className="flex items-center gap-4">
               <span className="text-[10px] font-black text-primary/40 uppercase tracking-widest bg-slate-50 px-4 py-2 rounded-full border border-slate-100">
@@ -1607,7 +1614,8 @@ export default function AdminLessonsPage() {
               </div>
             </div>
           )}
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* Category Edit Modal */}
