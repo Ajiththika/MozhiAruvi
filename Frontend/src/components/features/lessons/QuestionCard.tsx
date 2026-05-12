@@ -15,6 +15,30 @@ interface QuestionCardProps {
 export function QuestionCard({ question: q, feedback, credits, selectedIndex, onSelect }: QuestionCardProps) {
   return (
     <div className="flex flex-col items-center gap-6 w-full max-w-2xl animate-in slide-in-from-bottom-8 duration-700">
+      {/* Badges Row */}
+      <div className="flex items-center gap-2 w-full mb-2">
+        {q.difficulty && (
+          <span className={cn(
+            "px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border shadow-sm",
+            q.difficulty === 'easy' ? "bg-emerald-50 border-emerald-100 text-emerald-600" :
+            q.difficulty === 'medium' ? "bg-amber-50 border-amber-100 text-amber-600" :
+            "bg-red-50 border-red-100 text-red-600"
+          )}>
+            {q.difficulty}
+          </span>
+        )}
+        {q.skill && (
+          <span className="px-3 py-1 bg-primary/5 border border-primary/10 text-primary rounded-full text-[9px] font-black uppercase tracking-widest shadow-sm">
+            {q.skill}
+          </span>
+        )}
+        {q.xp && (
+          <span className="ml-auto px-3 py-1 bg-amber-400 border border-amber-500 text-slate-900 rounded-full text-[9px] font-black uppercase tracking-widest shadow-sm">
+            {q.xp} XP
+          </span>
+        )}
+      </div>
+
       <div className="grid grid-cols-1 gap-4 w-full">
         {q.options?.map((opt: string, idx: number) => {
           const isCorrect = feedback === "correct" && selectedIndex === idx;
