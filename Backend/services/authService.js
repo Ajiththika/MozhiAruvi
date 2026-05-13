@@ -180,3 +180,35 @@ export async function verifyUserEmail(token) {
 }
 
 
+export async function resendVerificationEmail(email, req) {
+    if (!email) {
+        const err = new Error('Email is required.');
+        err.status = 400;
+        throw err;
+    }
+
+    const user = await User.findOne({ email });
+    if (!user) {
+        const err = new Error('No account found with this email.');
+        err.status = 404;
+        throw err;
+    }
+
+    if (user.isEmailVerified) {
+        const err = new Error('Email is already verified. Please sign in.');
+        err.status = 400;
+        throw err;
+    }
+
+    // Rate limiting: check if last verification token was sent recently (optional, but good for production)
+    // For now, we just generate a new one
+    const verificationToken = crypto.randomBytes(32).toString('hex');
+    const verificationTokenExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+
+    user.verificationToken = verificationToken;
+    user.verificationTokenExpires = verificationTokenExpires;
+    await user.save();
+
+    const verifyUrl = `${getFrontendUrl(req)}/auth/verify-email?token=${verificationToken}`;
+    await sendVerificationEmail(email, verifyUrl);
+}

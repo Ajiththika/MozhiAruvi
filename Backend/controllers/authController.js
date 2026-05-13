@@ -120,6 +120,13 @@ export async function verifyEmail(req, res, next) {
     } catch (e) { next(e); }
 }
 
+export async function resendVerification(req, res, next) {
+    try {
+        await authService.resendVerificationEmail(req.body.email, req);
+        res.json({ message: 'Verification email resent successfully. Please check your inbox.' });
+    } catch (e) { next(e); }
+}
+
 export async function googleCallback(req, res, next) {
     try {
         const user = req.user; 

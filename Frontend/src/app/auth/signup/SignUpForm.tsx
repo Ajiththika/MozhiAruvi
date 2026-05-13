@@ -4,12 +4,13 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { AuthInput, SocialLogin } from '../shared';
-import { register } from '@/services/authService';
+import { register, resendVerification } from '@/services/authService';
 import { submitTutorApplication } from "@/services/tutorService";
 import { isAxiosError } from 'axios';
 import { useAuth } from '@/context/AuthContext';
 import { useEffect } from 'react';
 import Button from '@/components/ui/Button';
+import { Loader2 } from 'lucide-react';
 
 export default function SignUpForm() {
   const router = useRouter();
@@ -60,6 +61,23 @@ export default function SignUpForm() {
     }
   };
 
+  const [resending, setResending] = useState(false);
+  const [resendMsg, setResendMsg] = useState<{ type: 'success' | 'error', text: string } | null>(null);
+
+  const handleResend = async () => {
+    setResending(true);
+    setResendMsg(null);
+    try {
+      const res = await resendVerification(email);
+      setResendMsg({ type: 'success', text: res.message });
+    } catch (err: any) {
+      const msg = err.response?.data?.error?.message || "Failed to resend email.";
+      setResendMsg({ type: 'error', text: msg });
+    } finally {
+      setResending(false);
+    }
+  };
+
   if (success) {
     return (
       <div className="w-full max-w-sm mx-auto xl:max-w-md text-center">
@@ -80,8 +98,26 @@ export default function SignUpForm() {
           <Button variant="primary" size="lg" className="w-full" onClick={() => router.push('/auth/signin')}>
             Go to Sign In
           </Button>
-          <p className="text-sm text-primary/40 uppercase tracking-tighter font-black">
-            Didn't receive it? Check your spam folder or try again later.
+          
+          <div className="pt-2">
+            <button 
+              onClick={handleResend}
+              disabled={resending}
+              className="text-sm text-primary font-black uppercase tracking-widest hover:underline disabled:opacity-50 flex items-center justify-center gap-2 mx-auto"
+            >
+              {resending && <Loader2 className="w-4 h-4 animate-spin" />}
+              Resend Verification Email
+            </button>
+            
+            {resendMsg && (
+              <p className={`mt-3 text-xs font-bold uppercase tracking-tight ${resendMsg.type === 'success' ? 'text-emerald-600' : 'text-red-500'}`}>
+                {resendMsg.text}
+              </p>
+            )}
+          </div>
+
+          <p className="text-sm text-primary/40 uppercase tracking-tighter font-black pt-4">
+            Didn't receive it? Check your spam folder.
           </p>
         </div>
       </div>

@@ -8,23 +8,41 @@ function createTransporter() {
     const { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS } = process.env;
 
     if (!SMTP_USER || !SMTP_PASS) {
-        throw new Error('SMTP_USER or SMTP_PASS is not set in environment variables.');
+        console.error('❌ [MAIL CONFIG ERROR]: SMTP_USER or SMTP_PASS is missing in .env');
+        throw new Error('SMTP configuration missing.');
     }
 
+    const host = SMTP_HOST || 'smtp.gmail.com';
     const port = Number(SMTP_PORT) || 587;
 
-    return nodemailer.createTransport({
-        host: SMTP_HOST || 'smtp.gmail.com',
+    // Standard SMTP Config
+    const config = {
+        host,
         port,
-        secure: port === 465, // true only for port 465, false for 587 (STARTTLS)
+        secure: port === 465,
         auth: {
             user: SMTP_USER,
             pass: SMTP_PASS,
         },
         tls: {
-            rejectUnauthorized: false
+            // Do not fail on invalid certs (common for shared hosting/dev)
+            rejectUnauthorized: false,
+            minVersion: 'TLSv1.2'
         }
-    });
+    };
+
+    // Optimization: Gmail-specific shortcut
+    if (host.toLowerCase().includes('gmail.com')) {
+        return nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                user: SMTP_USER,
+                pass: SMTP_PASS,
+            }
+        });
+    }
+
+    return nodemailer.createTransport(config);
 }
 
 // ── Send Password Reset Email ─────────────────────────────────────────────────
@@ -68,8 +86,10 @@ export async function sendPasswordResetEmail(to, resetUrl) {
 
     try {
         const info = await transporter.sendMail(mailOptions);
+        console.log(`✅ [MAIL SUCCESS]: Reset email sent to ${to} (${info.messageId})`);
     } catch (error) {
-        throw new Error('Failed to send reset email. Please check your email configuration.');
+        console.error(`❌ [MAIL ERROR]: Reset email failed for ${to}:`, error.message);
+        throw new Error('Failed to send reset email. Please try again later.');
     }
 }
 
@@ -112,10 +132,11 @@ export async function sendVerificationEmail(to, verifyUrl) {
     };
 
     try {
-        await transporter.sendMail(mailOptions);
+        const info = await transporter.sendMail(mailOptions);
+        console.log(`✅ [MAIL SUCCESS]: Verification email sent to ${to} (${info.messageId})`);
     } catch (error) {
         console.error('❌ [MAIL ERROR]: Verification email failed to send to', to, error.message);
-        // Non-blocking: we don't throw here to avoid failing registration if mail fails
+        // We log it but don't block registration to prevent user friction if the email provider is down
     }
 }
 

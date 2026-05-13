@@ -30,6 +30,7 @@ router.get('/me', authenticate, auth.me);
 router.post('/forgot-password', forgotLimiter, validate(forgotSchema), auth.forgotPassword);
 router.post('/reset-password', validate(resetSchema), auth.resetPassword);
 router.get('/verify-email', auth.verifyEmail);
+router.post('/resend-verification', auth.resendVerification);
 
 // ── GOOGLE OAUTH ROUTES ─────────────────────────────────────────────────────
 
