@@ -11,6 +11,7 @@ import { getLessons, Lesson, getLessonQuestions, Question } from "@/services/les
 import { getCategories, updateCategory, deleteCategory, createCategory, Category as DBCategory } from "@/services/categoryService";
 import { api } from "@/lib/api";
 import axios from "axios";
+import { ImageUpload } from "@/components/ImageUpload";
 
 // ── Heuristics ────────────────────────────────────────────────────────────────
 
@@ -56,6 +57,7 @@ interface CommonFields {
   xp: number;
   hint: string;
   explanation: string;
+  imageUrl?: string;
 }
 
 type QuestionData = MCQData | MatchingData | SpeakingData | WritingData | TapArrangeData;
@@ -94,7 +96,8 @@ const defaultCommonFields = (): CommonFields => ({
   skill: 'reading',
   xp: 10,
   hint: "",
-  explanation: ""
+  explanation: "",
+  imageUrl: ""
 });
 
 
@@ -104,31 +107,32 @@ function validateQuestion(q: DraftQuestion): string | undefined {
   switch (q.type) {
     case "mcq": {
       const d = q.data as MCQData;
-      if (!d.question.trim()) return "Question text is required.";
-      if (d.options.filter(o => o.trim()).length < 2) return "At least 2 non-empty options required.";
-      if (!d.correctAnswer.trim()) return "Select a correct answer.";
+      if (!d.question?.trim()) return "Question text is required.";
+      if (!d.options || d.options.filter(o => o.trim()).length < 2) return "At least 2 non-empty options required.";
+      if (!d.correctAnswer?.trim()) return "Select a correct answer.";
+      if (!d.options.includes(d.correctAnswer)) return "Correct answer must be one of the options.";
       return;
     }
     case "matching": {
       const d = q.data as MatchingData;
-      if (d.pairs.some(p => !p.left.trim() || !p.right.trim())) return "All pairs must have both sides filled.";
-      if (d.pairs.length < 1) return "At least one pair is required.";
+      if (!d.pairs || d.pairs.length < 1) return "At least one pair is required.";
+      if (d.pairs.some(p => !p.left?.trim() || !p.right?.trim())) return "All pairs must have both sides filled.";
       return;
     }
     case "speaking": {
       const d = q.data as SpeakingData;
-      if (!d.promptText.trim()) return "Prompt text is required.";
-      if (!d.correctSentence.trim()) return "Correct sentence is required.";
+      if (!d.promptText?.trim()) return "Prompt text is required.";
+      if (!d.correctSentence?.trim()) return "Correct sentence is required.";
       return;
     }
     case "writing": {
       const d = q.data as WritingData;
-      if (!d.expectedText.trim()) return "Expected text is required.";
+      if (!d.expectedText?.trim()) return "Expected text is required.";
       return;
     }
     case "taparrange": {
       const d = q.data as TapArrangeData;
-      if (!d.sentence.trim()) return "Sentence is required.";
+      if (!d.sentence?.trim()) return "Sentence is required.";
       return;
     }
   }
@@ -136,8 +140,8 @@ function validateQuestion(q: DraftQuestion): string | undefined {
 
 // ── Input primitives (consistent with existing design system) ─────────────────
 
-const inputCls = "w-full p-4 bg-white border-2 border-slate-100 rounded-2xl focus:border-primary focus:bg-white outline-none transition-all font-bold text-slate-700 placeholder:font-medium placeholder:text-primary/40";
-const labelCls = "block text-[10px] font-black uppercase tracking-widest text-primary/60 mb-1.5 ml-1";
+const inputCls = "w-full p-5 bg-white border-2 border-slate-100 rounded-2xl focus:border-primary focus:bg-white outline-none transition-all font-bold text-slate-700 placeholder:font-medium placeholder:text-primary/40";
+const labelCls = "block text-[11px] font-black uppercase tracking-widest text-primary/60 mb-2 ml-1";
 
 // ── Question-type-specific sub-forms ──────────────────────────────────────────
 
@@ -251,38 +255,51 @@ function MatchingForm({ data, onChange }: { data: MatchingData; onChange: (d: Ma
 
 function CommonFieldsForm({ fields, onChange }: { fields: CommonFields; onChange: (f: CommonFields) => void }) {
   return (
-    <div className="border-t border-slate-50 pt-6 space-y-4">
-      <p className="text-[10px] font-black uppercase tracking-widest text-primary/40">Common Settings</p>
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-        <div>
-          <label className={labelCls}>Difficulty</label>
-          <select className={inputCls} value={fields.difficulty} onChange={e => onChange({ ...fields, difficulty: e.target.value as any })}>
-            <option value="easy">Easy</option>
-            <option value="medium">Medium</option>
-            <option value="hard">Hard</option>
-          </select>
+    <div className="border-t border-slate-50 pt-6 space-y-6">
+      <div className="flex flex-col md:flex-row gap-8">
+        <div className="flex-1">
+          <p className="text-[11px] font-black uppercase tracking-widest text-primary/40 mb-4">Common Settings</p>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            <div>
+              <label className={labelCls}>Difficulty</label>
+              <select className={inputCls} value={fields.difficulty} onChange={e => onChange({ ...fields, difficulty: e.target.value as any })}>
+                <option value="easy">Easy</option>
+                <option value="medium">Medium</option>
+                <option value="hard">Hard</option>
+              </select>
+            </div>
+            <div>
+              <label className={labelCls}>Skill</label>
+              <select className={inputCls} value={fields.skill} onChange={e => onChange({ ...fields, skill: e.target.value as any })}>
+                <option value="reading">Reading</option>
+                <option value="writing">Writing</option>
+                <option value="listening">Listening</option>
+                <option value="speaking">Speaking</option>
+              </select>
+            </div>
+            <div>
+              <label className={labelCls}>XP Value</label>
+              <input type="number" className={inputCls} value={fields.xp} min={1} max={100} onChange={e => onChange({ ...fields, xp: Number(e.target.value) })} />
+            </div>
+          </div>
         </div>
-        <div>
-          <label className={labelCls}>Skill</label>
-          <select className={inputCls} value={fields.skill} onChange={e => onChange({ ...fields, skill: e.target.value as any })}>
-            <option value="reading">Reading</option>
-            <option value="writing">Writing</option>
-            <option value="listening">Listening</option>
-            <option value="speaking">Speaking</option>
-          </select>
-        </div>
-        <div>
-          <label className={labelCls}>XP Value</label>
-          <input type="number" className={inputCls} value={fields.xp} min={1} max={100} onChange={e => onChange({ ...fields, xp: Number(e.target.value) })} />
+        <div className="md:w-72 shrink-0">
+           <ImageUpload 
+             value={fields.imageUrl} 
+             onChange={url => onChange({ ...fields, imageUrl: url })} 
+             label="Question Image"
+           />
         </div>
       </div>
-      <div>
-        <label className={labelCls}>Hint (shown on wrong answer)</label>
-        <input className={inputCls} placeholder="Optional hint..." value={fields.hint} onChange={e => onChange({ ...fields, hint: e.target.value })} />
-      </div>
-      <div>
-        <label className={labelCls}>Explanation (shown after answer)</label>
-        <textarea className={inputCls + " resize-none h-20"} placeholder="Why is this the correct answer?" value={fields.explanation} onChange={e => onChange({ ...fields, explanation: e.target.value })} />
+      <div className="space-y-4">
+        <div>
+          <label className={labelCls}>Hint (shown on wrong answer)</label>
+          <input className={inputCls} placeholder="Optional hint..." value={fields.hint} onChange={e => onChange({ ...fields, hint: e.target.value })} />
+        </div>
+        <div>
+          <label className={labelCls}>Explanation (shown after answer)</label>
+          <textarea className={inputCls + " resize-none h-20"} placeholder="Why is this the correct answer?" value={fields.explanation} onChange={e => onChange({ ...fields, explanation: e.target.value })} />
+        </div>
       </div>
     </div>
   );
@@ -298,7 +315,7 @@ function TapArrangeForm({ data, onChange }: { data: TapArrangeData; onChange: (d
         {preview.length > 1 && (
           <div className="mt-3 flex flex-wrap gap-2">
             {preview.map((w, i) => (
-              <span key={i} className="px-3 py-1.5 rounded-xl bg-primary/10 text-primary text-sm font-bold">{w}</span>
+              <span key={i} className="px-4 py-2 rounded-xl bg-primary/10 text-primary text-base font-bold">{w}</span>
             ))}
           </div>
         )}
@@ -345,26 +362,36 @@ function QuestionCard({
   onUpdate: (q: DraftQuestion) => void;
   onRemove: () => void;
 }) {
+  const [isSaving, setIsSaving] = useState(false);
   const [expanded, setExpanded] = useState(true);
   const meta = TYPE_META[question.type];
 
   const updateData = (data: QuestionData) => onUpdate({ ...question, data, error: undefined });
   const changeType = (type: QuestionType) => onUpdate({ ...question, type, data: defaultData(type), error: undefined });
 
+  const handleUpdate = async () => {
+    setIsSaving(true);
+    try {
+      await onUpdate(question);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   return (
     <div className={`bg-white border-2 rounded-[2rem] overflow-hidden transition-all duration-300 ${question.error ? "border-red-200" : "border-slate-100 hover:border-slate-200"}`}>
       {/* Card Header */}
-      <div className="flex items-center gap-4 p-6 cursor-pointer" onClick={() => setExpanded(e => !e)}>
-        <span className={`inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full border ${meta.color}`}>
+      <div className="flex items-center gap-6 p-8 cursor-pointer" onClick={() => setExpanded(e => !e)}>
+        <span className={`inline-flex items-center gap-3 text-[11px] font-black uppercase tracking-widest px-4 py-2 rounded-full border ${meta.color}`}>
           {meta.icon} {meta.label}
         </span>
-        <span className="text-[10px] font-black text-primary/40 uppercase tracking-widest">Question {index + 1}</span>
-        <div className="ml-auto flex items-center gap-2">
-          <button type="button" onClick={e => { e.stopPropagation(); onRemove(); }} className="p-2 text-primary/40 hover:text-red-400 hover:bg-red-50 rounded-xl transition-all">
-            <Trash2 className="w-4 h-4" />
+        <span className="text-[11px] font-black text-primary/40 uppercase tracking-widest">Question {index + 1}</span>
+        <div className="ml-auto flex items-center gap-3">
+          <button type="button" onClick={e => { e.stopPropagation(); onRemove(); }} className="p-3 text-primary/40 hover:text-red-400 hover:bg-red-50 rounded-2xl transition-all">
+            <Trash2 className="w-5 h-5" />
           </button>
-          <div className="p-2 text-primary/40">
-            {expanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+          <div className="p-3 text-primary/40">
+            {expanded ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
           </div>
         </div>
       </div>
@@ -387,8 +414,9 @@ function QuestionCard({
                 <button
                   key={t}
                   type="button"
+                  disabled={isSaving}
                   onClick={() => changeType(t)}
-                  className={`inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-widest px-4 py-2 rounded-xl border transition-all ${
+                  className={`inline-flex items-center gap-3 text-[11px] font-black uppercase tracking-widest px-6 py-3 rounded-2xl border transition-all ${
                     question.type === t ? TYPE_META[t].color + " scale-105 shadow-sm" : "border-slate-100 text-primary/60 hover:border-slate-200"
                   }`}
                 >
@@ -399,17 +427,33 @@ function QuestionCard({
           </div>
 
           {/* Dynamic form */}
-          {question.type === "mcq"        && <MCQForm       data={question.data as MCQData}       onChange={updateData} />}
-          {question.type === "matching"   && <MatchingForm  data={question.data as MatchingData}  onChange={updateData} />}
-          {question.type === "speaking"   && <SpeakingForm  data={question.data as SpeakingData}  onChange={updateData} />}
-          {question.type === "writing"    && <WritingForm   data={question.data as WritingData}   onChange={updateData} />}
-          {question.type === "taparrange" && <TapArrangeForm data={question.data as TapArrangeData} onChange={updateData} />}
+          <div className={isSaving ? "opacity-50 pointer-events-none" : ""}>
+            {question.type === "mcq"        && <MCQForm       data={question.data as MCQData}       onChange={updateData} />}
+            {question.type === "matching"   && <MatchingForm  data={question.data as MatchingData}  onChange={updateData} />}
+            {question.type === "speaking"   && <SpeakingForm  data={question.data as SpeakingData}  onChange={updateData} />}
+            {question.type === "writing"    && <WritingForm   data={question.data as WritingData}   onChange={updateData} />}
+            {question.type === "taparrange" && <TapArrangeForm data={question.data as TapArrangeData} onChange={updateData} />}
+          </div>
 
           {/* Common Fields */}
           <CommonFieldsForm
             fields={question.common || defaultCommonFields()}
             onChange={f => onUpdate({ ...question, common: f })}
           />
+
+          {/* Inline Save button for existing questions being edited */}
+          {question.id.length > 20 && (
+             <div className="flex justify-end pt-4">
+                <button
+                  onClick={handleUpdate}
+                  disabled={isSaving}
+                  className="px-8 py-4 bg-primary text-white text-[10px] font-black uppercase tracking-widest rounded-2xl shadow-xl shadow-primary/20 hover:scale-105 transition-all flex items-center gap-2"
+                >
+                  {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                  Save Changes
+                </button>
+             </div>
+          )}
         </div>
       )}
     </div>
@@ -687,13 +731,20 @@ export default function AdminLessonsPage() {
     if (!activeLessonId) return;
     try {
       const payload = buildPayload(updated);
+      
+      // Validation: Ensure correctOptionIndex is valid for MCQ
+      if (payload.type === 'quiz' && (payload as any).correctOptionIndex === -1) {
+        throw new Error("Please select a correct answer from the options.");
+      }
+
       await api.patch(`/lessons/${activeLessonId}/questions/${id}`, payload);
       setEditingSavedId(null);
       const data = await getLessonQuestions(activeLessonId);
       setSavedQuestions(data.questions || []);
-    } catch {
-      setEditingSavedId(null);
-      alert("Failed to update question.");
+    } catch (err: any) {
+      const msg = err.response?.data?.error?.message || err.response?.data?.message || err.message || "Failed to update question.";
+      alert(`Update Error: ${msg}`);
+      // Don't close the editor so user can fix the error
     }
   }
 
@@ -836,15 +887,27 @@ export default function AdminLessonsPage() {
 
     setSavingQ(true);
     try {
+      let savedCount = 0;
       for (const q of draftQuestions) {
         const payload = buildPayload(q);
+        
+        // Final MCQ check
+        if (payload.type === 'quiz' && (payload as any).correctOptionIndex === -1) {
+           q.error = "Please select a correct answer.";
+           setSavingQ(false);
+           return;
+        }
+
         await api.post(`/lessons/${activeLessonId}/questions`, payload);
+        savedCount++;
       }
       const data = await getLessonQuestions(activeLessonId);
       setSavedQuestions(data.questions || []);
       setDraftQuestions([]);
-    } catch {
-      alert("Failed to save questions.");
+      alert(`Successfully saved ${savedCount} questions.`);
+    } catch (err: any) {
+      const msg = err.response?.data?.error?.message || err.response?.data?.message || err.message || "Failed to save questions.";
+      alert(`Save Error: ${msg}`);
     } finally {
       setSavingQ(false);
     }
@@ -858,6 +921,7 @@ export default function AdminLessonsPage() {
       xp: common.xp,
       hint: common.hint,
       explanation: common.explanation,
+      imageUrl: common.imageUrl,
       scoreValue: common.xp // Keep scoreValue in sync with XP
     };
 
@@ -1410,7 +1474,7 @@ export default function AdminLessonsPage() {
         <div className="fixed inset-0 z-[10000] bg-white flex flex-col animate-in slide-in-from-right duration-500 overflow-hidden">
           
           {/* Top Bar */}
-          <div className="h-24 px-10 border-b border-slate-100 flex items-center justify-between bg-white shrink-0">
+          <div className="h-28 px-10 border-b border-slate-100 flex items-center justify-between bg-white shrink-0">
             <div className="flex items-center gap-6">
               <button 
                 onClick={() => { setActiveLessonId(null); setDraftQuestions([]); setEditingSavedId(null); }}
@@ -1423,8 +1487,8 @@ export default function AdminLessonsPage() {
                   <Menu className="w-5 h-5 text-primary/40" />
                 </div>
                 <div>
-                  <p className="text-[10px] font-black text-primary/40 uppercase tracking-widest mb-0.5">Level Management Portal</p>
-                  <h2 className="text-2xl font-black text-slate-800 tracking-tight">{activeLessonTitle}</h2>
+                  <p className="text-[11px] font-black text-primary/40 uppercase tracking-widest mb-1">Level Management Portal</p>
+                  <h2 className="text-3xl font-black text-slate-800 tracking-tight">{activeLessonTitle}</h2>
                 </div>
               </div>
             </div>
@@ -1445,7 +1509,7 @@ export default function AdminLessonsPage() {
 
           {/* Main Content Area */}
           <div className="flex-1 overflow-y-auto bg-slate-50/30" ref={scrollRef}>
-            <div className="max-w-5xl mx-auto py-16 px-10 space-y-12 pb-32">
+            <div className="max-w-6xl mx-auto py-16 px-10 space-y-12 pb-32">
 
 
               {qLoading ? (
@@ -1458,13 +1522,13 @@ export default function AdminLessonsPage() {
                   {/* Saved Questions */}
                   {savedQuestions.length > 0 && (
                     <div>
-                      <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-xs font-black uppercase tracking-[0.2em] text-primary/70">Saved Questions</h3>
-                        <span className="text-[10px] font-bold bg-slate-50 text-primary/60 px-3 py-1 rounded-full border border-slate-100">{savedQuestions.length} saved</span>
+                      <div className="flex items-center justify-between mb-6">
+                        <h3 className="text-sm font-black uppercase tracking-[0.3em] text-primary/70">Saved Questions</h3>
+                        <span className="text-[11px] font-bold bg-slate-50 text-primary/60 px-4 py-2 rounded-full border border-slate-100">{savedQuestions.length} saved</span>
                       </div>
-                      <div className="space-y-3">
+                      <div className="space-y-4">
                         {savedQuestions.map((q, idx) => (
-                          <div key={q._id} className="bg-white rounded-2xl border border-slate-100 overflow-hidden group">
+                          <div key={q._id} className="bg-white rounded-[2rem] border border-slate-100 overflow-hidden group">
                            {editingSavedId === q._id ? (
                              <div className="p-4 bg-primary/2">
                                <QuestionCard 
@@ -1498,21 +1562,21 @@ export default function AdminLessonsPage() {
                                />
                              </div>
                            ) : (
-                            <div className="flex items-center justify-between p-5 bg-slate-50/50 hover:bg-white transition-all">
-                              <div className="flex items-center gap-4 min-w-0">
-                                <div className="flex flex-col items-center border-r border-slate-200/50 pr-4 mr-0">
-                                  <button onClick={() => handleMoveQuestion(idx, 'up')} className="p-1 text-primary/20 hover:text-primary transition-all hover:scale-125 disabled:opacity-10" disabled={idx===0}><ChevronUp className="w-3.5 h-3.5" /></button>
-                                  <button onClick={() => handleMoveQuestion(idx, 'down')} className="p-1 text-primary/20 hover:text-primary transition-all hover:scale-125 disabled:opacity-10" disabled={idx===savedQuestions.length-1}><ChevronDown className="w-3.5 h-3.5" /></button>
+                            <div className="flex items-center justify-between p-8 bg-slate-50/50 hover:bg-white transition-all">
+                              <div className="flex items-center gap-8 min-w-0">
+                                <div className="flex flex-col items-center border-r border-slate-200/50 pr-8 mr-0">
+                                  <button onClick={() => handleMoveQuestion(idx, 'up')} className="p-1.5 text-primary/20 hover:text-primary transition-all hover:scale-125 disabled:opacity-10" disabled={idx===0}><ChevronUp className="w-5 h-5" /></button>
+                                  <button onClick={() => handleMoveQuestion(idx, 'down')} className="p-1.5 text-primary/20 hover:text-primary transition-all hover:scale-125 disabled:opacity-10" disabled={idx===savedQuestions.length-1}><ChevronDown className="w-5 h-5" /></button>
                                 </div>
-                                <span className="text-[9px] font-black uppercase tracking-widest px-3 py-1 bg-white text-primary/60 rounded-full border border-slate-100 shrink-0">{idx + 1} • {q.type}</span>
-                                <p className="text-sm font-bold text-slate-700 truncate">{q.text}</p>
+                                <span className="text-[11px] font-black uppercase tracking-widest px-4 py-2 bg-white text-primary/60 rounded-full border border-slate-100 shrink-0">{idx + 1} • {q.type}</span>
+                                <p className="text-xl font-bold text-slate-700 truncate">{q.text}</p>
                               </div>
-                              <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all ml-3">
-                                <button onClick={() => setEditingSavedId(q._id)} className="p-2.5 text-primary/30 hover:text-primary hover:bg-white rounded-xl transition-all shadow-sm shadow-transparent hover:shadow-slate-200/50">
-                                  <Settings className="w-4 h-4" />
+                              <div className="flex items-center gap-3 opacity-0 group-hover:opacity-100 transition-all ml-4">
+                                <button onClick={() => setEditingSavedId(q._id)} className="p-3 text-primary/30 hover:text-primary hover:bg-white rounded-2xl transition-all shadow-sm shadow-transparent hover:shadow-slate-200/50">
+                                  <Settings className="w-5 h-5" />
                                 </button>
-                                <button onClick={() => handleDeleteSaved(q._id)} className="p-2.5 text-primary/30 hover:text-red-400 hover:bg-white rounded-xl transition-all shadow-sm shadow-transparent hover:shadow-slate-200/50">
-                                  <Trash2 className="w-4 h-4" />
+                                <button onClick={() => handleDeleteSaved(q._id)} className="p-3 text-primary/30 hover:text-red-400 hover:bg-white rounded-2xl transition-all shadow-sm shadow-transparent hover:shadow-slate-200/50">
+                                  <Trash2 className="w-5 h-5" />
                                 </button>
                               </div>
                             </div>
@@ -1524,7 +1588,7 @@ export default function AdminLessonsPage() {
                   )}
 
                   {/* Draft Questions Section */}
-                  <div className="bg-white/50 p-8 rounded-[2.5rem] border border-slate-100 shadow-sm space-y-8">
+                  <div className="bg-white/50 p-12 rounded-[3rem] border border-slate-100 shadow-sm space-y-8">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
                         <div className="h-8 w-8 rounded-xl bg-secondary/10 flex items-center justify-center">
@@ -1565,10 +1629,10 @@ export default function AdminLessonsPage() {
                     <button
                       type="button"
                       onClick={addDraftQuestion}
-                      className="w-full py-6 rounded-3xl border-2 border-dashed border-secondary/20 flex flex-col items-center justify-center gap-2 text-[10px] font-black uppercase tracking-widest text-secondary hover:border-secondary hover:bg-secondary/5 hover:scale-[1.01] active:scale-[0.99] transition-all group"
+                      className="w-full py-10 rounded-[2.5rem] border-2 border-dashed border-secondary/20 flex flex-col items-center justify-center gap-3 text-xs font-black uppercase tracking-widest text-secondary hover:border-secondary hover:bg-secondary/5 hover:scale-[1.01] active:scale-[0.99] transition-all group"
                     >
-                      <div className="h-10 w-10 rounded-full bg-secondary/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-                        <Plus className="w-5 h-5 text-secondary" />
+                      <div className="h-14 w-14 rounded-full bg-secondary/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <Plus className="w-6 h-6 text-secondary" />
                       </div>
                       Add Another Question
                     </button>
@@ -1593,7 +1657,7 @@ export default function AdminLessonsPage() {
                 <button
                   type="button"
                   onClick={() => { setActiveLessonId(null); setDraftQuestions([]); setEditingSavedId(null); }}
-                  className="px-8 py-4 font-black uppercase tracking-widest text-[10px] text-primary/60 hover:text-slate-600 transition-colors"
+                  className="px-10 py-5 font-black uppercase tracking-widest text-xs text-primary/60 hover:text-slate-600 transition-colors"
                 >
                   Discard Changes
                 </button>
@@ -1602,11 +1666,11 @@ export default function AdminLessonsPage() {
                     type="button"
                     onClick={handleSaveQuestions}
                     disabled={savingQ}
-                    className="px-12 py-4 bg-secondary text-white font-black uppercase tracking-widest text-[10px] rounded-2xl shadow-2xl shadow-secondary/20 hover:scale-105 active:scale-95 transition-all flex items-center gap-3 disabled:opacity-60 disabled:scale-100"
+                    className="px-16 py-5 bg-secondary text-white font-black uppercase tracking-widest text-xs rounded-[1.5rem] shadow-2xl shadow-secondary/20 hover:scale-105 active:scale-95 transition-all flex items-center gap-4 disabled:opacity-60 disabled:scale-100"
                   >
-                    {savingQ ? <Loader2 className="w-4 h-4 animate-spin" /> : (
+                    {savingQ ? <Loader2 className="w-5 h-5 animate-spin" /> : (
                       <>
-                        <Save className="w-4 h-4" /> Save All Questions
+                        <Save className="w-5 h-5" /> Save All Questions
                       </>
                     )}
                   </button>
