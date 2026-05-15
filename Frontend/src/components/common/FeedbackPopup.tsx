@@ -17,9 +17,8 @@ export default function FeedbackPopup() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    const hasSubmitted = localStorage.getItem("mozhi_feedback_submitted");
-    
     // Manual trigger function attached to window for maximum reliability
+    // We set this even for admins so the Footer button still works if clicked manually
     (window as any).openFeedback = () => {
       setSubmitted(false);
       setRating(0);
@@ -27,19 +26,43 @@ export default function FeedbackPopup() {
       setShow(true);
     };
 
-    // 2. Wait for 2 minutes (120,000 ms) - only if not submitted yet
-    let timer: NodeJS.Timeout | null = null;
-    if (!hasSubmitted) {
-      timer = setTimeout(() => {
-        setShow(true);
-      }, 120000);
+    // 1. Never show AUTOMATICALLY to admins
+    if (user?.role === "admin") {
+      return () => {
+        delete (window as any).openFeedback;
+      };
     }
+
+    const hasSubmitted = localStorage.getItem("mozhi_feedback_submitted");
+    if (hasSubmitted) {
+      return () => {
+        delete (window as any).openFeedback;
+      };
+    }
+
+    // 2. Check if dismissed recently (within 56 hours)
+    const dismissedAt = localStorage.getItem("mozhi_feedback_dismissed_at");
+    const FIFTY_SIX_HOURS = 56 * 60 * 60 * 1000;
+    
+    if (dismissedAt) {
+      const timeSinceDismissal = Date.now() - parseInt(dismissedAt);
+      if (timeSinceDismissal < FIFTY_SIX_HOURS) {
+        return () => {
+          delete (window as any).openFeedback;
+        };
+      }
+    }
+
+    // 3. Wait for 7 minutes (420,000 ms)
+    const timer = setTimeout(() => {
+      setShow(true);
+    }, 420000);
 
     return () => {
       if (timer) clearTimeout(timer);
       delete (window as any).openFeedback;
     };
-  }, []);
+  }, [user]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -62,6 +85,8 @@ export default function FeedbackPopup() {
 
       // Permanently mark as submitted
       localStorage.setItem("mozhi_feedback_submitted", "true");
+      // Clear dismissal time if they finally submitted
+      localStorage.removeItem("mozhi_feedback_dismissed_at");
       window.dispatchEvent(new Event("mozhi_feedback_submitted"));
       
       setSubmitted(true);
@@ -78,14 +103,10 @@ export default function FeedbackPopup() {
   const closePopup = () => {
     setShow(false);
     
-    // Check if it was a manual open (doesn't have submitted flag in localstorage yet)
+    // If they haven't submitted, mark as dismissed at this time
     const hasSubmitted = localStorage.getItem("mozhi_feedback_submitted");
     if (!hasSubmitted) {
-      // Re-trigger after 3 minutes (180,000 ms) if they just closed it
-      setTimeout(() => {
-        const stillNotSubmitted = !localStorage.getItem("mozhi_feedback_submitted");
-        if (stillNotSubmitted) setShow(true);
-      }, 180000);
+      localStorage.setItem("mozhi_feedback_dismissed_at", Date.now().toString());
     }
   };
 
