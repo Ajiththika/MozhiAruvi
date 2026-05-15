@@ -23,7 +23,7 @@ export const checkLessonAccess = async (req, res, next) => {
             return res.status(404).json({ message: "Lesson not found" });
         }
 
-        const planName = user.subscription?.plan || 'FREE';
+        const planName = user.subscription?.plan || 'BASIC';
         const settings = await PlanSettings.findOne({ plan: planName });
         
         // If no settings, allow for safety or restricted logic (let's allow if settings are missing to avoid breaking app)
@@ -53,17 +53,21 @@ export const checkLessonAccess = async (req, res, next) => {
 
             if (!allowedCategories.includes(lesson.category)) {
                 return res.status(403).json({ 
-                    message: `Access Restricted: This category requires a PRO or PREMIUM membership. Only your first category is free!`, 
+                    message: `Access Restricted: This category requires a PLUS or MASTER membership. Only your first category is free!`, 
                     redirect: "/student/subscription",
                     showUpgrade: true
                 });
             }
         }
 
-        // 3. Premium Only Flag (Specific Paywall)
-        if (lesson.isPremiumOnly && planName === 'FREE') {
+        // 3. Access Level Check (Tiered Access)
+        const levels = ['BASIC', 'PLUS', 'MASTER'];
+        const userPlanIndex = levels.indexOf(planName);
+        const lessonLevelIndex = levels.indexOf(lesson.accessLevel || 'BASIC');
+
+        if (lessonLevelIndex > userPlanIndex && userPlanIndex !== -1) {
             return res.status(403).json({ 
-                message: "This specific lesson is reserved for Premium Elite members.", 
+                message: `This lesson is for ${lesson.accessLevel} members. Please upgrade your plan!`, 
                 redirect: "/student/subscription" 
             });
         }
@@ -93,7 +97,7 @@ export const checkEventAccess = async (req, res, next) => {
         const user = await User.findById(req.user.sub);
         const eventId = req.params.id || req.body.eventId;
         
-        const planName = user.subscription?.plan || 'FREE';
+        const planName = user.subscription?.plan || 'BASIC';
         const settings = await PlanSettings.findOne({ plan: planName });
 
         // Check if user has explicitly paid for this specific event
@@ -105,8 +109,8 @@ export const checkEventAccess = async (req, res, next) => {
         // Check plan limits
         const limit = settings.eventLimit ?? 0;
 
-        // Special case for FREE plan if limit is 0
-        if (planName === 'FREE' && limit === 0) {
+        // Special case for BASIC plan if limit is 0
+        if (planName === 'BASIC' && limit === 0) {
             return res.status(403).json({ 
                 message: "Premium events require a subscription or one-time payment.", 
                 redirect: "/student/subscription",
@@ -138,7 +142,7 @@ export const checkTutorAccess = async (req, res, next) => {
 
         const user = await User.findById(req.user.sub);
         const tutorId = req.params.id || req.body.tutorId || req.body.teacherId;
-        const planName = user.subscription?.plan || 'FREE';
+        const planName = user.subscription?.plan || 'BASIC';
         const settings = await PlanSettings.findOne({ plan: planName });
 
         // Check if user has explicitly paid for this tutor/session
@@ -149,9 +153,9 @@ export const checkTutorAccess = async (req, res, next) => {
         
         const limit = settings.tutorSupportLimit ?? 0;
 
-        if (planName === 'FREE' && limit === 0) {
+        if (planName === 'BASIC' && limit === 0) {
             return res.status(403).json({ 
-                message: "Tutor support is available for PRO and PREMIUM users.", 
+                message: "Tutor support is available for PLUS and MASTER users.", 
                 redirect: "/student/subscription" 
             });
         }

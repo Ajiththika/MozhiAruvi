@@ -183,10 +183,16 @@ function StudentCategoryGroup({
           <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-10 py-4">
             {lessons.map((lesson, index) => {
               const status = lessonStatus.get(lesson._id) || "locked";
-              const isPaidPlan = user?.subscription?.plan && ['PRO', 'PREMIUM', 'BUSINESS'].includes(user.subscription.plan);
-              const isPremiumUser = user?.isPremium || isPaidPlan;
+              const isPaidPlan = user?.subscription?.plan && ['PLUS', 'MASTER', 'BUSINESS'].includes(user.subscription.plan);
+              const planName = user?.subscription?.plan || 'BASIC';
               
-              const isLocked = status === "locked" || (lesson.isPremiumOnly && !isPremiumUser);
+              const levels = ['BASIC', 'PLUS', 'MASTER'];
+              const userPlanIndex = levels.indexOf(planName);
+              const lessonLevelIndex = levels.indexOf(lesson.accessLevel || 'BASIC');
+
+              const isGated = lessonLevelIndex > userPlanIndex && userPlanIndex !== -1;
+              
+              const isLocked = status === "locked" || isGated;
               const isCurrent = status === "unlocked" && !isLocked;
               const isDone = status === "completed";
 
@@ -235,10 +241,13 @@ function StudentCategoryGroup({
                     Lv.{lesson.orderIndex}
                   </span>
 
-                  {/* Premium Badge */}
-                  {lesson.isPremiumOnly && !isLocked && (
-                    <div className="absolute -top-1 -right-1 bg-amber-400 text-[8px] font-bold px-1.5 py-0.5 rounded-md shadow-sm text-slate-900 border border-white">
-                      ★
+                  {/* Access Level Badge */}
+                  {lesson.accessLevel !== 'BASIC' && !isLocked && (
+                    <div className={cn(
+                      "absolute -top-1 -right-1 text-[8px] font-bold px-1.5 py-0.5 rounded-md shadow-sm border border-white",
+                      lesson.accessLevel === 'MASTER' ? "bg-amber-400 text-slate-900" : "bg-primary text-white"
+                    )}>
+                      {lesson.accessLevel === 'MASTER' ? '★' : '+'}
                     </div>
                   )}
                 </div>

@@ -53,7 +53,7 @@ export interface SafeUser {
     totalXP?: number;
   };
   subscription?: {
-    plan: "FREE" | "PRO" | "PREMIUM" | "BUSINESS";
+    plan: "BASIC" | "PLUS" | "MASTER" | "BUSINESS";
     billingCycle: "monthly" | "yearly" | "none";
     stripeCustomerId?: string;
     stripeSubscriptionId?: string;

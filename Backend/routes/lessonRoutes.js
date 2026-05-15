@@ -21,7 +21,7 @@ const createLessonSchema = z.object({
     moduleNumber: z.number().int().nonnegative('Module number must be positive').optional(),
     videoUrl: z.string().url('Invalid URL').optional().or(z.literal('')),
     content: z.string().optional(),
-    isPremiumOnly: z.boolean().optional(),
+    accessLevel: z.enum(['BASIC', 'PLUS', 'MASTER']).optional().default('BASIC'),
     orderIndex: z.number().int().optional().default(0),
     level: z.enum(['Beginner', 'Elementary', 'Intermediate', 'Advanced']).optional().default('Beginner'),
 }).strict();

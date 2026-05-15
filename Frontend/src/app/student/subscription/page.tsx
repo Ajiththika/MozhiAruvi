@@ -17,8 +17,8 @@ import { cn } from "@/lib/utils";
 
 const PLANS = [
   {
-    id: "FREE",
-    name: "Free",
+    id: "BASIC",
+    name: "Basic",
     priceMonthly: 0,
     priceYearly: 0,
     features: [
@@ -34,8 +34,8 @@ const PLANS = [
     disabled: true,
   },
   {
-    id: "PRO",
-    name: "Pro",
+    id: "PLUS",
+    name: "Plus",
     priceMonthly: 3.81,
     priceYearly: 42,
     trialPeriod: 7,
@@ -47,12 +47,12 @@ const PLANS = [
     ],
     color: "border-primary/40 text-primary",
     icon: <ShieldCheck className="w-5 h-5 text-primary" />,
-    buttonText: "Upgrade to Pro",
+    buttonText: "Upgrade to Plus",
     disabled: false,
   },
   {
-    id: "PREMIUM",
-    name: "Premium",
+    id: "MASTER",
+    name: "Master",
     priceMonthly: 7.94,
     priceYearly: 90,
     trialPeriod: 7,
@@ -64,7 +64,7 @@ const PLANS = [
     ],
     color: "border-amber-400/50 text-amber-600",
     icon: <Star className="w-5 h-5 text-amber-500 fill-current" />,
-    buttonText: "Go Premium",
+    buttonText: "Go Master",
     highlight: true,
     disabled: false,
   },
@@ -87,7 +87,7 @@ export default function SubscriptionPage() {
     queryFn: getDashboardData,
   });
 
-  const currentPlan = userStats?.user?.subscription?.plan || "FREE";
+  const currentPlan = userStats?.user?.subscription?.plan || "BASIC";
   const currentCycle = userStats?.user?.subscription?.billingCycle || "monthly";
 
   // Merge DB plans with local UI metadata
@@ -103,9 +103,9 @@ export default function SubscriptionPage() {
     return staticPlan;
   });
 
-  const hasEverPaid = currentPlan !== "FREE";
+  const hasEverPaid = currentPlan !== "BASIC";
 
-  const handlePlanSelection = async (planId: "PRO" | "PREMIUM") => {
+  const handlePlanSelection = async (planId: "PLUS" | "MASTER") => {
     try {
       setLoadingPlan(planId);
 
@@ -277,7 +277,7 @@ export default function SubscriptionPage() {
                   </p>
                 )}
 
-                 {isPlanMatch && plan.id !== "FREE" ? (
+                 {isPlanMatch && plan.id !== "BASIC" ? (
                   <div className="flex flex-col items-center gap-4 mt-2 w-full">
                     <p className="text-[14px] font-bold text-primary/60 uppercase tracking-[0.2em]">
                       {isActive ? "Current plan" : `Current Plan (${currentCycle})`}
@@ -296,21 +296,21 @@ export default function SubscriptionPage() {
                           )}
                         </button>
                       )}
-                      {(!isActive || plan.id === "PRO") && (
+                      {(!isActive || plan.id === "PLUS") && (
                         <button
                           className="flex-1 h-12 rounded-2xl bg-primary text-white text-[12px] font-black uppercase tracking-widest shadow-lg shadow-primary/25 hover:bg-primary/90 hover:scale-[1.02] transition-all flex items-center justify-center gap-2 disabled:opacity-50"
                           onClick={() =>
                             handlePlanSelection(
-                              plan.id === "PRO" && isActive && billingCycle === "monthly"
-                                ? "PREMIUM"
+                              plan.id === "PLUS" && isActive && billingCycle === "monthly"
+                                ? "MASTER"
                                 : (plan.id as any),
                             )
                           }
                           disabled={!!loadingPlan}
                         >
-                          {loadingPlan === plan.id || loadingPlan === "PREMIUM" ? (
+                          {loadingPlan === plan.id || loadingPlan === "MASTER" ? (
                             <Loader2 className="w-4 h-4 animate-spin" />
-                          ) : isActive && plan.id === "PRO" ? (
+                          ) : isActive && plan.id === "PLUS" ? (
                             "Upgrade"
                           ) : (
                             `Switch to ${billingCycle}`
@@ -342,13 +342,13 @@ export default function SubscriptionPage() {
                     {loadingPlan === plan.id ? (
                       <Loader2 className="w-4 h-4 animate-spin text-white" />
                     ) : isActive ? (
-                      plan.id === "FREE" ? (
+                      plan.id === "BASIC" ? (
                         "Current Plan"
                       ) : (
                         "Current Version"
                       )
                     ) : hasEverPaid ? (
-                      plan.id === "FREE" ? (
+                      plan.id === "BASIC" ? (
                         "Included in Plan"
                       ) : (
                         "Upgrade Version"

@@ -105,7 +105,7 @@ export default function AdminDashboard() {
       setIsCreatingPlan(true);
       setEditingPlan('NEW');
       setEditFormData({
-         plan: 'NEW_TIER',
+         plan: 'BASIC',
          monthlyPrice: 0,
          yearlyPrice: 0,
          categoryLimit: 1,
@@ -352,7 +352,7 @@ export default function AdminDashboard() {
                                        <div className="flex items-center gap-5">
                                           <div className={cn(
                                              "h-12 w-12 rounded-2xl flex items-center justify-center font-black text-sm border",
-                                             plan.plan === 'FREE' ? "bg-slate-50 text-primary/60 border-slate-100" : (plan.plan === 'PREMIUM' ? "bg-amber-50 text-amber-600 border-amber-100" : "bg-primary/5 text-primary border-primary/10")
+                                             plan.plan === 'BASIC' ? "bg-slate-50 text-primary/60 border-slate-100" : (plan.plan === 'MASTER' ? "bg-amber-50 text-amber-600 border-amber-100" : "bg-primary/5 text-primary border-primary/10")
                                           )}>
                                              {plan.plan.charAt(0)}
                                           </div>
@@ -406,7 +406,7 @@ export default function AdminDashboard() {
                                        )}
                                     </td>
                                     <td className="px-10 py-6">
-                                       {plan.plan === 'FREE' ? (
+                                       {plan.plan === 'BASIC' ? (
                                           <span className="text-[10px] font-bold text-primary/40">No Bridge Required</span>
                                        ) : (
                                           <div className="flex items-center gap-2 group-hover:scale-105 transition-transform origin-left">
@@ -515,9 +515,10 @@ export default function AdminDashboard() {
                                     <td className="px-10 py-6">
                                        <span className={cn(
                                           "inline-flex items-center gap-2 rounded-xl px-4 py-2 text-[9px] font-black uppercase tracking-[0.15em] border transition-all shadow-sm",
-                                          pu.subscription?.plan === 'PREMIUM' ? 'bg-indigo-600 text-white border-indigo-700' : 'bg-primary/5 text-primary border-primary/10'
+                                          pu.subscription?.plan === 'MASTER' ? 'bg-indigo-600 text-white border-indigo-700' : 'bg-primary/5 text-primary border-primary/10'
                                        )}>
-                                          <Star className={cn("h-3 w-3", pu.subscription?.plan === 'PREMIUM' ? 'fill-white' : 'fill-primary')} />
+                                          .
+                                          <Star className={cn("h-3 w-3", pu.subscription?.plan === 'MASTER' ? 'fill-white' : 'fill-primary')} />
                                           {pu.subscription?.plan}
                                        </span>
                                     </td>

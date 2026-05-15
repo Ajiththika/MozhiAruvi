@@ -11,7 +11,7 @@ const lessonSchema = new mongoose.Schema({
     moduleNumber: { type: Number, required: true, default: 1 },
     videoUrl: { type: String }, // optional video content link
     content: { type: String },  // textual lesson material (HTML or Markdown)
-    isPremiumOnly: { type: Boolean, default: false }, // pay-gated lesson
+    accessLevel: { type: String, enum: ['BASIC', 'PLUS', 'MASTER'], default: 'BASIC' }, // gated lesson
     orderIndex: { type: Number, default: 0 },
     level: { type: String, enum: ['Beginner', 'Elementary', 'Intermediate', 'Advanced'], default: 'Beginner' },
 }, { timestamps: true });

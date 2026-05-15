@@ -22,7 +22,7 @@ export async function getLessonsForDashboard(level = 'Beginner') {
     return Lesson.find({ 
         level: { $regex: new RegExp(`^${level}$`, 'i') } 
     })
-    .select('_id title description category moduleNumber orderIndex level isPremiumOnly')
+    .select('_id title description category moduleNumber orderIndex level accessLevel')
     .sort({ moduleNumber: 1, orderIndex: 1 });
 }
 

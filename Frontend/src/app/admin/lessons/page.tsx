@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import {
   BookOpen, Plus, Loader2, Trash2, X, ChevronDown, ChevronUp,
-  Mic, AlertCircle, Settings, Tag, ArrowUpDown, ArrowLeft, Save, Menu
+  Mic, AlertCircle, Settings, Tag, ArrowUpDown, ArrowLeft, Save, Menu, CheckCircle2
 } from "lucide-react";
 import Link from "next/link";
 import { getLessons, Lesson, getLessonQuestions, Question } from "@/services/lessonService";
@@ -136,6 +136,56 @@ function validateQuestion(q: DraftQuestion): string | undefined {
       return;
     }
   }
+}
+
+function questionToDraft(q: Question): DraftQuestion {
+  const type: QuestionType = (
+    q.type === "quiz" ? "mcq" : 
+    q.type === "match" ? "matching" : 
+    (q.type === "fill" && q.words && q.words.length > 0) ? "taparrange" :
+    q.type === "speaking" ? "speaking" :
+    q.type === "writing" ? "writing" :
+    "mcq" // fallback
+  );
+                             
+  let data: any = {
+    question: q.text,
+    options: q.options || [],
+    correctAnswer: q.options?.[q.correctOptionIndex || 0] || q.correctAnswer || "",
+    promptText: q.text,
+    correctSentence: q.correctAnswer || q.expectedAudioText || "",
+    expectedText: q.correctAnswer || "",
+    expectedAudioText: q.expectedAudioText || "",
+    sentence: q.correctAnswer || "",
+    imageUrl: q.imageUrl || ""
+  };
+
+  if (type === "matching") {
+    try {
+      data.pairs = typeof q.correctAnswer === 'string' ? JSON.parse(q.correctAnswer) : (q.correctAnswer || []);
+      if (!Array.isArray(data.pairs)) data.pairs = [];
+    } catch {
+      data.pairs = [{ left: "", right: "" }];
+    }
+  }
+  
+  if (type === "speaking") {
+    data.referenceAudio = (q as any).referenceAudio || "";
+  }
+
+  return {
+    id: q._id,
+    type,
+    data,
+    common: {
+      difficulty: q.difficulty as any || 'medium',
+      skill: q.skill as any || 'reading',
+      xp: q.xp || q.scoreValue || 10,
+      hint: q.hint || "",
+      explanation: q.explanation || "",
+      imageUrl: q.imageUrl || ""
+    }
+  };
 }
 
 // ── Input primitives (consistent with existing design system) ─────────────────
@@ -379,18 +429,31 @@ function QuestionCard({
   };
 
   return (
-    <div className={`bg-white border-2 rounded-[2rem] overflow-hidden transition-all duration-300 ${question.error ? "border-red-200" : "border-slate-100 hover:border-slate-200"}`}>
+    <div className={`bg-white border-2 rounded-[2.5rem] overflow-hidden transition-all duration-500 group/qc ${
+      question.error 
+        ? "border-red-200 shadow-xl shadow-red-500/5" 
+        : "border-slate-100 hover:border-primary/30 hover:shadow-2xl hover:shadow-primary/5"
+    }`}>
       {/* Card Header */}
-      <div className="flex items-center gap-6 p-8 cursor-pointer" onClick={() => setExpanded(e => !e)}>
-        <span className={`inline-flex items-center gap-3 text-[11px] font-black uppercase tracking-widest px-4 py-2 rounded-full border ${meta.color}`}>
+      <div className="flex items-center gap-6 p-8 cursor-pointer relative group-hover/qc:bg-primary/[0.01] transition-colors" onClick={() => setExpanded(e => !e)}>
+        <div className={`inline-flex items-center gap-3 text-[10px] font-black uppercase tracking-widest px-5 py-2.5 rounded-2xl border transition-all duration-500 ${meta.color} group-hover/qc:scale-105`}>
           {meta.icon} {meta.label}
-        </span>
-        <span className="text-[11px] font-black text-primary/40 uppercase tracking-widest">Question {index + 1}</span>
-        <div className="ml-auto flex items-center gap-3">
-          <button type="button" onClick={e => { e.stopPropagation(); onRemove(); }} className="p-3 text-primary/40 hover:text-red-400 hover:bg-red-50 rounded-2xl transition-all">
+        </div>
+        <div>
+          <span className="text-[10px] font-black text-primary/30 uppercase tracking-[0.2em]">Configuring</span>
+          <h4 className="text-sm font-black text-slate-800 uppercase tracking-tight">Question {index + 1}</h4>
+        </div>
+        
+        <div className="ml-auto flex items-center gap-4">
+          <button 
+            type="button" 
+            onClick={e => { e.stopPropagation(); onRemove(); }} 
+            className="h-12 w-12 flex items-center justify-center text-primary/20 hover:text-red-500 hover:bg-red-50 rounded-2xl transition-all border border-transparent hover:border-red-100"
+            title="Remove Question"
+          >
             <Trash2 className="w-5 h-5" />
           </button>
-          <div className="p-3 text-primary/40">
+          <div className={`h-12 w-12 flex items-center justify-center rounded-2xl border transition-all ${expanded ? "bg-primary/5 border-primary/10 text-primary" : "border-slate-100 text-slate-300"}`}>
             {expanded ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
           </div>
         </div>
@@ -481,9 +544,9 @@ function AdminLessonRow({ index, lesson, onManageQuestions, onEdit, onDelete }: 
         <p className="text-sm font-bold text-slate-700 truncate">
           {!isNaN(Number(lesson.title)) && lesson.title.trim() !== "" ? `Level ${lesson.title}` : lesson.title}
         </p>
-        {lesson.isPremiumOnly && (
-          <span className="text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded border border-amber-200 bg-amber-50 text-amber-600 shrink-0">
-            Premium
+        {lesson.accessLevel !== 'BASIC' && (
+          <span className={`text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded border shrink-0 ${lesson.accessLevel === 'MASTER' ? 'border-amber-200 bg-amber-50 text-amber-600' : 'border-primary/20 bg-primary/5 text-primary'}`}>
+            {lesson.accessLevel}
           </span>
         )}
       </div>
@@ -649,7 +712,7 @@ export default function AdminLessonsPage() {
   const [formData, setFormData] = useState({ 
     category: "", 
     title: "", 
-    isPremiumOnly: false, 
+    accessLevel: "BASIC" as 'BASIC' | 'PLUS' | 'MASTER', 
     level: "Beginner", // The 'Stage'
     moduleNumber: 1, 
     orderIndex: 0 
@@ -767,7 +830,7 @@ export default function AdminLessonsPage() {
       setFormData({ 
         category: "", 
         title: "", 
-        isPremiumOnly: false, 
+        accessLevel: "BASIC", 
         level: "Beginner", 
         moduleNumber: 1, 
         orderIndex: lessons.length 
@@ -792,7 +855,7 @@ export default function AdminLessonsPage() {
 
   // Edit logic
   const [editingLessonId, setEditingLessonId] = useState<string | null>(null);
-  const [editFormData, setEditFormData] = useState({ title: "", level: "Beginner", category: "", moduleNumber: 1, orderIndex: 0, isPremiumOnly: false });
+  const [editFormData, setEditFormData] = useState({ title: "", level: "Beginner", category: "", moduleNumber: 1, orderIndex: 0, accessLevel: "BASIC" as 'BASIC' | 'PLUS' | 'MASTER' });
 
   function openEdit(lesson: Lesson) {
     setEditingLessonId(lesson._id);
@@ -802,7 +865,7 @@ export default function AdminLessonsPage() {
       category: lesson.category || "",
       moduleNumber: lesson.moduleNumber || 1,
       orderIndex: lesson.orderIndex || 0,
-      isPremiumOnly: lesson.isPremiumOnly || false,
+      accessLevel: lesson.accessLevel || "BASIC",
     });
   }
 
@@ -1242,20 +1305,20 @@ export default function AdminLessonsPage() {
                   <div>
                     <label className={labelCls}>Access Level</label>
                     <div className="flex gap-3">
-                      <button 
-                        type="button" 
-                        onClick={() => setFormData({...formData, isPremiumOnly: false})}
-                        className={`flex-1 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest border-2 transition-all ${!formData.isPremiumOnly ? "bg-emerald-500 text-white border-emerald-500" : "bg-slate-50 text-primary/60 border-slate-100"}`}
-                      >
-                        ✓ Free
-                      </button>
-                      <button 
-                        type="button" 
-                        onClick={() => setFormData({...formData, isPremiumOnly: true})}
-                        className={`flex-1 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest border-2 transition-all ${formData.isPremiumOnly ? "bg-amber-500 text-white border-amber-500" : "bg-slate-50 text-primary/60 border-slate-100"}`}
-                      >
-                        ★ Premium
-                      </button>
+                      {[
+                        { id: 'BASIC', label: 'Basic', icon: '✓', color: 'bg-emerald-500', border: 'border-emerald-500' },
+                        { id: 'PLUS', label: 'Plus', icon: '+', color: 'bg-primary', border: 'border-primary' },
+                        { id: 'MASTER', label: 'Master', icon: '★', color: 'bg-amber-500', border: 'border-amber-500' }
+                      ].map((lvl) => (
+                        <button 
+                          key={lvl.id}
+                          type="button" 
+                          onClick={() => setFormData({...formData, accessLevel: lvl.id as any})}
+                          className={`flex-1 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest border-2 transition-all ${formData.accessLevel === lvl.id ? `${lvl.color} text-white ${lvl.border}` : "bg-slate-50 text-primary/60 border-slate-100"}`}
+                        >
+                          {lvl.icon} {lvl.label}
+                        </button>
+                      ))}
                     </div>
                   </div>
                 </div>
@@ -1458,6 +1521,26 @@ export default function AdminLessonsPage() {
                 </select>
               </div>
 
+              <div>
+                <label className={labelCls}>Access Level</label>
+                <div className="flex gap-2">
+                  {[
+                    { id: 'BASIC', label: 'Basic', color: 'bg-emerald-500' },
+                    { id: 'PLUS', label: 'Plus', color: 'bg-primary' },
+                    { id: 'MASTER', label: 'Master', color: 'bg-amber-500' }
+                  ].map((lvl) => (
+                    <button 
+                      key={lvl.id}
+                      type="button" 
+                      onClick={() => setEditFormData({...editFormData, accessLevel: lvl.id as any})}
+                      className={`flex-1 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest border-2 transition-all ${editFormData.accessLevel === lvl.id ? `${lvl.color} text-white border-transparent` : "bg-slate-50 text-primary/60 border-slate-100"}`}
+                    >
+                      {lvl.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
               <div className="flex gap-4 pt-4">
                 <button type="button" onClick={() => setEditingLessonId(null)} className="flex-1 py-4 font-black uppercase tracking-widest text-[10px] text-primary/60">Cancel</button>
                 <button type="submit" className="flex-1 py-4 bg-primary text-white font-black uppercase tracking-widest text-[10px] rounded-2xl shadow-xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all">
@@ -1522,61 +1605,77 @@ export default function AdminLessonsPage() {
                   {/* Saved Questions */}
                   {savedQuestions.length > 0 && (
                     <div>
-                      <div className="flex items-center justify-between mb-6">
-                        <h3 className="text-sm font-black uppercase tracking-[0.3em] text-primary/70">Saved Questions</h3>
-                        <span className="text-[11px] font-bold bg-slate-50 text-primary/60 px-4 py-2 rounded-full border border-slate-100">{savedQuestions.length} saved</span>
+                      <div className="flex items-center justify-between mb-8">
+                        <div className="flex items-center gap-4">
+                          <div className="h-8 w-8 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+                            <ArrowUpDown className="w-4 h-4" />
+                          </div>
+                          <h3 className="text-sm font-black uppercase tracking-[0.3em] text-primary/70">Saved Inventory</h3>
+                        </div>
+                        <div className="flex items-center gap-2 px-6 py-2 bg-slate-50 text-primary/40 text-[10px] font-black uppercase tracking-widest rounded-full border border-slate-100">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
+                          {savedQuestions.length} Questions Secured
+                        </div>
                       </div>
                       <div className="space-y-4">
                         {savedQuestions.map((q, idx) => (
-                          <div key={q._id} className="bg-white rounded-[2rem] border border-slate-100 overflow-hidden group">
-                           {editingSavedId === q._id ? (
-                             <div className="p-4 bg-primary/2">
-                               <QuestionCard 
-                                 question={{ 
-                                   id: q._id, 
-                                   type: (q.type as any === "quiz" ? "mcq" : 
-                                          q.type as any === "match" ? "matching" : 
-                                          (q.type as any === "fill" && q.words && q.words.length > 0) ? "taparrange" :
-                                          q.type as any) || "mcq", 
-                                   data: { 
-                                      question: q.text, 
-                                      options: q.options || [], 
-                                      correctAnswer: q.options?.[q.correctOptionIndex || 0] || q.correctAnswer || "",
-                                      promptText: q.text,
-                                      correctSentence: q.correctAnswer || q.expectedAudioText || "",
-                                      expectedText: q.correctAnswer || "",
-                                      expectedAudioText: q.expectedAudioText || "",
-                                      sentence: q.correctAnswer || ""
-                                   } as any,
-                                   common: {
-                                      difficulty: q.difficulty || 'medium',
-                                      skill: q.skill || 'reading',
-                                      xp: q.xp || q.scoreValue || 10,
-                                      hint: q.hint || "",
-                                      explanation: q.explanation || ""
-                                   }
-                                 }} 
-                                 index={idx}
-                                 onUpdate={(updated) => handleUpdateSaved(q._id, updated)} 
-                                 onRemove={() => setEditingSavedId(null)}
-                               />
-                             </div>
-                           ) : (
-                            <div className="flex items-center justify-between p-8 bg-slate-50/50 hover:bg-white transition-all">
-                              <div className="flex items-center gap-8 min-w-0">
-                                <div className="flex flex-col items-center border-r border-slate-200/50 pr-8 mr-0">
-                                  <button onClick={() => handleMoveQuestion(idx, 'up')} className="p-1.5 text-primary/20 hover:text-primary transition-all hover:scale-125 disabled:opacity-10" disabled={idx===0}><ChevronUp className="w-5 h-5" /></button>
-                                  <button onClick={() => handleMoveQuestion(idx, 'down')} className="p-1.5 text-primary/20 hover:text-primary transition-all hover:scale-125 disabled:opacity-10" disabled={idx===savedQuestions.length-1}><ChevronDown className="w-5 h-5" /></button>
-                                </div>
-                                <span className="text-[11px] font-black uppercase tracking-widest px-4 py-2 bg-white text-primary/60 rounded-full border border-slate-100 shrink-0">{idx + 1} • {q.type}</span>
-                                <p className="text-xl font-bold text-slate-700 truncate">{q.text}</p>
+                          <div key={q._id} className="bg-white rounded-[2.5rem] border-2 border-slate-100/60 overflow-hidden group transition-all duration-500 hover:border-primary/40 hover:shadow-[0_32px_64px_-15px_rgba(0,0,0,0.1)] hover:-translate-y-2 hover:z-10">
+                            {editingSavedId === q._id ? (
+                              <div className="p-6 bg-primary/[0.02]">
+                                <QuestionCard 
+                                  question={questionToDraft(q)} 
+                                  index={idx}
+                                  onUpdate={(updated) => handleUpdateSaved(q._id, updated)} 
+                                  onRemove={() => setEditingSavedId(null)}
+                                />
                               </div>
-                              <div className="flex items-center gap-3 opacity-0 group-hover:opacity-100 transition-all ml-4">
-                                <button onClick={() => setEditingSavedId(q._id)} className="p-3 text-primary/30 hover:text-primary hover:bg-white rounded-2xl transition-all shadow-sm shadow-transparent hover:shadow-slate-200/50">
-                                  <Settings className="w-5 h-5" />
+                            ) : (
+                            <div className="flex items-center justify-between p-8 bg-white group-hover:bg-primary/[0.01] transition-all duration-500 relative overflow-hidden">
+                              {/* Decorative Hover Background */}
+                              <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
+                              
+                              <div className="flex items-center gap-8 min-w-0 relative z-10">
+                                <div className="flex flex-col items-center border-r-2 border-slate-100 pr-8 mr-2 space-y-1">
+                                  <button onClick={() => handleMoveQuestion(idx, 'up')} className="p-1.5 text-primary/20 hover:text-primary transition-all hover:scale-125 disabled:opacity-5" disabled={idx===0}><ChevronUp className="w-6 h-6" /></button>
+                                  <button onClick={() => handleMoveQuestion(idx, 'down')} className="p-1.5 text-primary/20 hover:text-primary transition-all hover:scale-125 disabled:opacity-5" disabled={idx===savedQuestions.length-1}><ChevronDown className="w-6 h-6" /></button>
+                                </div>
+                                
+                                <div className="space-y-3">
+                                  <div className="flex items-center gap-3">
+                                    <span className="text-[10px] font-black uppercase tracking-widest px-4 py-1.5 bg-primary/5 text-primary rounded-full border border-primary/10 shrink-0">
+                                      {idx + 1} • {q.type === 'quiz' ? 'MCQ' : q.type === 'match' ? 'Matching' : q.type}
+                                    </span>
+                                    {q.difficulty && (
+                                      <span className={`text-[8px] font-black uppercase tracking-[0.2em] px-2 py-0.5 rounded border ${
+                                        q.difficulty === 'hard' ? 'bg-red-50 text-red-500 border-red-100' : 
+                                        q.difficulty === 'medium' ? 'bg-amber-50 text-amber-500 border-amber-100' : 
+                                        'bg-emerald-50 text-emerald-500 border-emerald-100'
+                                      }`}>
+                                        {q.difficulty}
+                                      </span>
+                                    )}
+                                  </div>
+                                  <p className="text-2xl font-black text-slate-800 tracking-tight truncate group-hover:text-primary transition-colors duration-300">
+                                    {q.text}
+                                  </p>
+                                </div>
+                              </div>
+
+                              <div className="flex items-center gap-4 relative z-10">
+                                <div className="h-10 w-[2px] bg-slate-100 mx-2 hidden md:block" />
+                                <button 
+                                  onClick={() => setEditingSavedId(q._id)} 
+                                  className="h-14 w-14 flex items-center justify-center bg-slate-50 text-primary/30 hover:text-primary hover:bg-primary/5 hover:border-primary/20 border border-transparent rounded-2xl transition-all shadow-sm hover:shadow-xl hover:shadow-primary/10 group/btn"
+                                  title="Edit Question"
+                                >
+                                  <Settings className="w-6 h-6 group-hover/btn:rotate-90 transition-transform duration-500" />
                                 </button>
-                                <button onClick={() => handleDeleteSaved(q._id)} className="p-3 text-primary/30 hover:text-red-400 hover:bg-white rounded-2xl transition-all shadow-sm shadow-transparent hover:shadow-slate-200/50">
-                                  <Trash2 className="w-5 h-5" />
+                                <button 
+                                  onClick={() => handleDeleteSaved(q._id)} 
+                                  className="h-14 w-14 flex items-center justify-center bg-slate-50 text-primary/30 hover:text-red-500 hover:bg-red-50 hover:border-red-100 border border-transparent rounded-2xl transition-all shadow-sm hover:shadow-xl hover:shadow-red-500/10"
+                                  title="Delete Question"
+                                >
+                                  <Trash2 className="w-6 h-6" />
                                 </button>
                               </div>
                             </div>

@@ -99,7 +99,8 @@ export async function sendVerificationEmail(to, verifyUrl) {
     try {
         transporter = createTransporter();
     } catch (configError) {
-        return;
+        console.error("Transporter config error:", configError.message);
+        throw new Error("Email service is not configured properly.");
     }
 
     const rawFrom = process.env.SMTP_FROM || '';
@@ -136,7 +137,7 @@ export async function sendVerificationEmail(to, verifyUrl) {
         console.log(`✅ [MAIL SUCCESS]: Verification email sent to ${to} (${info.messageId})`);
     } catch (error) {
         console.error('❌ [MAIL ERROR]: Verification email failed to send to', to, error.message);
-        // We log it but don't block registration to prevent user friction if the email provider is down
+        throw new Error('Failed to dispatch verification email. Please check your email configuration.');
     }
 }
 

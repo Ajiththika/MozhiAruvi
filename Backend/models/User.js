@@ -68,7 +68,7 @@ const userSchema = new mongoose.Schema({
   },
   // Subscription & Access Control (Stripe)
   subscription: {
-    plan: { type: String, enum: ['FREE', 'PRO', 'PREMIUM', 'BUSINESS'], default: 'FREE' },
+    plan: { type: String, enum: ['BASIC', 'PLUS', 'MASTER', 'BUSINESS'], default: 'BASIC' },
     billingCycle: { type: String, enum: ['monthly', 'yearly', 'none'], default: 'none' },
     stripeCustomerId: { type: String },
     stripeSubscriptionId: { type: String },

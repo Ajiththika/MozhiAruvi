@@ -29,7 +29,11 @@ export async function registerUser(req) {
     });
 
     const verifyUrl = `${getFrontendUrl(req)}/auth/verify-email?token=${verificationToken}`;
-    await sendVerificationEmail(email, verifyUrl);
+    try {
+        await sendVerificationEmail(email, verifyUrl);
+    } catch (err) {
+        console.error("Non-fatal: Verification email failed during registration:", err.message);
+    }
 
     const { raw, sessionId } = await tokenService.createRefreshToken(user._id, meta(req));
     return { user, accessToken: tokenService.signAccessToken(user, sessionId), raw, sessionId };

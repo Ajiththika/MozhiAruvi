@@ -22,7 +22,7 @@ export interface Lesson {
   orderIndex?: number;
   videoUrl?: string;
   content?: string;
-  isPremiumOnly: boolean;
+  accessLevel: 'BASIC' | 'PLUS' | 'MASTER';
   level?: 'Beginner' | 'Elementary' | 'Intermediate' | 'Advanced';
 }
 
