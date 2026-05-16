@@ -15,6 +15,7 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
     { name: "Lessons",       href: "/student/lessons",    icon: "book-open" },
     { name: "Teachers",      href: "/tutors",             icon: "graduation-cap" },
     { name: "My Progress",   href: "/student/progress",   icon: "line-chart" },
+    { name: "Subscription",  href: "/student/subscription", icon: "crown" },
   ];
 
   if (isPremium) {

@@ -12,6 +12,7 @@ import { getCategories, updateCategory, deleteCategory, createCategory, Category
 import { api } from "@/lib/api";
 import axios from "axios";
 import { ImageUpload } from "@/components/ImageUpload";
+import { VideoUpload } from "@/components/VideoUpload";
 
 // ── Heuristics ────────────────────────────────────────────────────────────────
 
@@ -715,7 +716,9 @@ export default function AdminLessonsPage() {
     accessLevel: "BASIC" as 'BASIC' | 'PLUS' | 'MASTER', 
     level: "Beginner", // The 'Stage'
     moduleNumber: 1, 
-    orderIndex: 0 
+    orderIndex: 0,
+    imageUrl: "",
+    videoUrl: ""
   });
   const [creating, setCreating] = useState(false);
   const [lessonError, setLessonError] = useState("");
@@ -833,7 +836,9 @@ export default function AdminLessonsPage() {
         accessLevel: "BASIC", 
         level: "Beginner", 
         moduleNumber: 1, 
-        orderIndex: lessons.length 
+        orderIndex: lessons.length,
+        imageUrl: "",
+        videoUrl: ""
       });
       fetchLessons();
     } catch {
@@ -855,7 +860,7 @@ export default function AdminLessonsPage() {
 
   // Edit logic
   const [editingLessonId, setEditingLessonId] = useState<string | null>(null);
-  const [editFormData, setEditFormData] = useState({ title: "", level: "Beginner", category: "", moduleNumber: 1, orderIndex: 0, accessLevel: "BASIC" as 'BASIC' | 'PLUS' | 'MASTER' });
+  const [editFormData, setEditFormData] = useState({ title: "", level: "Beginner", category: "", moduleNumber: 1, orderIndex: 0, accessLevel: "BASIC" as 'BASIC' | 'PLUS' | 'MASTER', imageUrl: "", videoUrl: "" });
 
   function openEdit(lesson: Lesson) {
     setEditingLessonId(lesson._id);
@@ -866,6 +871,8 @@ export default function AdminLessonsPage() {
       moduleNumber: lesson.moduleNumber || 1,
       orderIndex: lesson.orderIndex || 0,
       accessLevel: lesson.accessLevel || "BASIC",
+      imageUrl: lesson.imageUrl || "",
+      videoUrl: lesson.videoUrl || "",
     });
   }
 
@@ -1007,6 +1014,7 @@ export default function AdminLessonsPage() {
           type: "match", 
           text: "Match the pairs", 
           options: d.pairs.map(p => p.left), 
+          pairs: d.pairs,
           correctAnswer: JSON.stringify(d.pairs), 
           expectedAudioText: d.expectedAudioText,
           ...commonPayload
@@ -1324,6 +1332,23 @@ export default function AdminLessonsPage() {
                 </div>
               )}
 
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <ImageUpload 
+                    label="Lesson Image (Optional)" 
+                    value={formData.imageUrl} 
+                    onChange={url => setFormData({ ...formData, imageUrl: url })} 
+                  />
+                </div>
+                <div>
+                  <VideoUpload 
+                    label="Lesson Video (Optional)" 
+                    value={formData.videoUrl} 
+                    onChange={url => setFormData({ ...formData, videoUrl: url })} 
+                  />
+                </div>
+              </div>
+
               <div className="flex justify-end gap-4 pt-2">
                 <button type="button" onClick={() => setShowCreate(false)} className="px-8 py-4 font-black uppercase tracking-widest text-[10px] text-primary/60">Cancel</button>
                 <button type="submit" disabled={creating} className="px-10 py-4 bg-primary text-white font-black uppercase tracking-widest text-[10px] rounded-2xl shadow-xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all">
@@ -1538,6 +1563,23 @@ export default function AdminLessonsPage() {
                       {lvl.label}
                     </button>
                   ))}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <ImageUpload 
+                    label="Lesson Image (Optional)" 
+                    value={editFormData.imageUrl} 
+                    onChange={url => setEditFormData({ ...editFormData, imageUrl: url })} 
+                  />
+                </div>
+                <div>
+                  <VideoUpload 
+                    label="Lesson Video (Optional)" 
+                    value={editFormData.videoUrl} 
+                    onChange={url => setEditFormData({ ...editFormData, videoUrl: url })} 
+                  />
                 </div>
               </div>
 

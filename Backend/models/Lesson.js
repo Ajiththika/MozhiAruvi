@@ -10,7 +10,9 @@ const lessonSchema = new mongoose.Schema({
     sectionName: { type: String, required: true, default: 'உயிர் எழுத்து' },
     moduleNumber: { type: Number, required: true, default: 1 },
     videoUrl: { type: String }, // optional video content link
+    imageUrl: { type: String }, // optional image content link
     content: { type: String },  // textual lesson material (HTML or Markdown)
+    contentType: { type: String, enum: ['image', 'video', 'mixed', 'text'], default: 'text' },
     accessLevel: { type: String, enum: ['BASIC', 'PLUS', 'MASTER'], default: 'BASIC' }, // gated lesson
     orderIndex: { type: Number, default: 0 },
     level: { type: String, enum: ['Beginner', 'Elementary', 'Intermediate', 'Advanced'], default: 'Beginner' },

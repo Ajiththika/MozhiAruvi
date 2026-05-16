@@ -21,7 +21,9 @@ export interface Lesson {
   moduleNumber?: number;
   orderIndex?: number;
   videoUrl?: string;
+  imageUrl?: string;
   content?: string;
+  contentType?: 'image' | 'video' | 'mixed' | 'text';
   accessLevel: 'BASIC' | 'PLUS' | 'MASTER';
   level?: 'Beginner' | 'Elementary' | 'Intermediate' | 'Advanced';
 }

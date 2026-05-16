@@ -164,12 +164,12 @@ export function Sidebar({ items, basePath, isMobileOpen, onClose }: SidebarProps
               <p className="text-[9px] font-black text-purple-400 uppercase tracking-widest leading-none">
                 {pathname.startsWith('/admin') ? 'Admin' : pathname.startsWith('/tutor') ? 'Teacher' : 'Student'}
               </p>
-              {user?.subscription?.plan && user.subscription.plan !== 'FREE' && (
+              {user?.role === 'student' && user?.subscription?.plan && user.subscription.plan !== 'FREE' && user.subscription.plan !== 'BASIC' && (
                 <span className={cn(
                   "px-1.5 py-0.5 rounded-md text-[8px] font-black uppercase tracking-tighter border shadow-sm",
-                  user.subscription.plan === 'PREMIUM' ? "bg-amber-400 border-amber-500 text-slate-900" : "bg-emerald-500 border-emerald-600 text-white"
+                  (user.subscription.plan === 'PREMIUM' || user.subscription.plan === 'MASTER') ? "bg-amber-400 border-amber-500 text-slate-900" : "bg-emerald-500 border-emerald-600 text-white"
                 )}>
-                  {user.subscription.plan}
+                  {user.subscription.plan === 'PLUS' ? 'PRO' : user.subscription.plan === 'MASTER' ? 'PREMIUM' : user.subscription.plan}
                 </span>
               )}
             </div>

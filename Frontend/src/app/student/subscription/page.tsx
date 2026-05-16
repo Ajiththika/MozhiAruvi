@@ -18,7 +18,7 @@ import { cn } from "@/lib/utils";
 const PLANS = [
   {
     id: "BASIC",
-    name: "Basic",
+    name: "Free",
     priceMonthly: 0,
     priceYearly: 0,
     features: [
@@ -35,7 +35,7 @@ const PLANS = [
   },
   {
     id: "PLUS",
-    name: "Plus",
+    name: "Pro",
     priceMonthly: 3.81,
     priceYearly: 42,
     trialPeriod: 7,
@@ -47,12 +47,12 @@ const PLANS = [
     ],
     color: "border-primary/40 text-primary",
     icon: <ShieldCheck className="w-5 h-5 text-primary" />,
-    buttonText: "Upgrade to Plus",
+    buttonText: "Upgrade to Pro",
     disabled: false,
   },
   {
     id: "MASTER",
-    name: "Master",
+    name: "Premium",
     priceMonthly: 7.94,
     priceYearly: 90,
     trialPeriod: 7,
@@ -64,7 +64,7 @@ const PLANS = [
     ],
     color: "border-amber-400/50 text-amber-600",
     icon: <Star className="w-5 h-5 text-amber-500 fill-current" />,
-    buttonText: "Go Master",
+    buttonText: "Go Premium",
     highlight: true,
     disabled: false,
   },

@@ -155,13 +155,15 @@ export default function UsersClient() {
     {
       header: "Active Plan",
       accessorKey: "subscription",
-      cell: (row) => (
+      cell: (row) => row.role === 'student' ? (
         <span className={cn(
           "inline-flex text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full border",
-          row.subscription?.plan === 'FREE' ? "bg-slate-50 text-primary/60 border-slate-100" : "bg-indigo-50 text-indigo-600 border-indigo-100"
+          (row.subscription?.plan === 'FREE' || row.subscription?.plan === 'BASIC') ? "bg-slate-50 text-primary/60 border-slate-100" : "bg-indigo-50 text-indigo-600 border-indigo-100"
         )}>
-          {row.subscription?.plan || 'FREE'}
+          {row.subscription?.plan === 'BASIC' ? 'FREE' : row.subscription?.plan === 'PLUS' ? 'PRO' : row.subscription?.plan === 'MASTER' ? 'PREMIUM' : (row.subscription?.plan || 'FREE')}
         </span>
+      ) : (
+        <span className="text-[10px] font-bold text-primary/30 uppercase tracking-widest">N/A</span>
       ),
     },
     {

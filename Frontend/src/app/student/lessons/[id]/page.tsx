@@ -30,6 +30,7 @@ export default function LessonInteractiveSession() {
 
   const [selected, setSelected] = useState<Record<string, number>>({});
   const [feedback, setFeedback] = useState<Record<string, "correct" | "incorrect">>({});
+  const [playedFeedback, setPlayedFeedback] = useState<Record<string, boolean>>({});
   const [backendMessage, setBackendMessage] = useState<Record<string, string>>({});
 
   const [phase, setPhase] = useState<Phase>("loading");
@@ -148,7 +149,7 @@ export default function LessonInteractiveSession() {
         setQuestions(qsData.questions);
         if (qsData.user) setUser(qsData.user);
         if (qsData.energy) setEnergy(qsData.energy);
-        setPhase("ready");
+        setPhase("preview");
       })
       .catch((err) => {
           // Check NO_ENERGY first (403 with specific error code)
@@ -272,6 +273,18 @@ export default function LessonInteractiveSession() {
   const [countdown, setCountdown] = useState<number | null>(null);
 
   useEffect(() => {
+    const qId = questions[currentQ]?._id;
+    if (qId && feedback[qId] && !playedFeedback[qId]) {
+      setPlayedFeedback(prev => ({ ...prev, [qId]: true }));
+      if (feedback[qId] === 'correct') {
+        handlePlayAudio("Correct!", qId + "_feedback");
+      } else {
+        handlePlayAudio("Incorrect attempt. Try again.", qId + "_feedback");
+      }
+    }
+  }, [feedback, currentQ, questions, playedFeedback]);
+
+  useEffect(() => {
     if (phase === "completed" && score?.nextLessonId && score.passed) {
       setCountdown(3);
       const timer = setInterval(() => {
@@ -324,12 +337,44 @@ export default function LessonInteractiveSession() {
 
   if (phase === "preview") {
     return (
-       <div className="flex flex-col h-screen bg-background items-center justify-center p-6 sm:p-12">
-           <Card className="max-w-2xl w-full text-center p-12 space-y-8">
-              <BookOpen className="w-16 h-16 text-primary mx-auto" />
-              <h1 className="text-4xl font-black">{lesson?.title}</h1>
-              <p className="text-lg text-gray-500">{lesson?.description}</p>
-              <Button onClick={() => setPhase("ready")} size="xl" className="w-full rounded-2xl">Start Lesson</Button>
+       <div className="flex flex-col h-screen bg-background items-center p-6 sm:p-12 overflow-y-auto">
+           <Card className="max-w-3xl w-full p-8 md:p-12 space-y-8 my-auto shrink-0">
+              <div className="text-center space-y-4">
+                 <h1 className="text-4xl md:text-5xl font-black text-slate-800 tracking-tight">{lesson?.title}</h1>
+                 {lesson?.description && <p className="text-lg text-slate-500 font-medium">{lesson.description}</p>}
+              </div>
+              
+              {lesson?.videoUrl && (
+                <div className="w-full aspect-video rounded-[2rem] overflow-hidden bg-black shadow-2xl">
+                  <video src={lesson.videoUrl} controls className="w-full h-full object-contain" />
+                </div>
+              )}
+
+              {lesson?.imageUrl && !lesson?.videoUrl && (
+                <div className="w-full rounded-[2rem] overflow-hidden shadow-2xl">
+                  <img src={lesson.imageUrl} alt={lesson.title} className="w-full object-cover" />
+                </div>
+              )}
+
+              {lesson?.content && (
+                <div className="prose prose-slate max-w-none text-slate-600 bg-slate-50 p-6 md:p-8 rounded-[2rem] border border-slate-100">
+                  <div dangerouslySetInnerHTML={{ __html: lesson.content }} />
+                </div>
+              )}
+
+              <Button 
+                onClick={() => {
+                  if (questions.length === 0) {
+                     handleSubmit();
+                  } else {
+                     setPhase("ready");
+                  }
+                }} 
+                size="xl" 
+                className="w-full rounded-2xl h-16 text-[11px] font-black uppercase tracking-widest bg-primary hover:bg-primary/90 shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
+              >
+                 {questions.length > 0 ? "Start Quiz" : "Complete Lesson"}
+              </Button>
            </Card>
        </div>
     );

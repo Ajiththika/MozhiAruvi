@@ -25,7 +25,7 @@ export interface BaseUser {
   specialization?: string;
   experience?: string;
   subscription?: {
-    plan: "BASIC" | "PLUS" | "MASTER" | "BUSINESS";
+    plan: "FREE" | "BASIC" | "PLUS" | "MASTER" | "PRO" | "PREMIUM" | "BUSINESS";
     billingCycle: "monthly" | "yearly" | "none";
     currentPeriodEnd?: string;
     tutorSupportUsed?: number;
@@ -119,7 +119,7 @@ export interface PremiumUser {
   isActive: boolean;
   country?: string;
   subscription: {
-    plan: 'BASIC' | 'PLUS' | 'MASTER' | 'BUSINESS';
+    plan: "FREE" | "BASIC" | "PLUS" | "MASTER" | "PRO" | "PREMIUM" | "BUSINESS";
     billingCycle: 'monthly' | 'yearly' | 'none';
     currentPeriodEnd?: string;
     stripeCustomerId?: string;

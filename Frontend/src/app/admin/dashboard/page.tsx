@@ -352,9 +352,9 @@ export default function AdminDashboard() {
                                        <div className="flex items-center gap-5">
                                           <div className={cn(
                                              "h-12 w-12 rounded-2xl flex items-center justify-center font-black text-sm border",
-                                             plan.plan === 'BASIC' ? "bg-slate-50 text-primary/60 border-slate-100" : (plan.plan === 'MASTER' ? "bg-amber-50 text-amber-600 border-amber-100" : "bg-primary/5 text-primary border-primary/10")
+                                             plan.plan === 'BASIC' ? "bg-slate-50 text-primary/60 border-slate-100" : (plan.plan === 'MASTER' ? "bg-amber-50 text-amber-600 border-amber-100" : "bg-indigo-50 text-indigo-600 border-indigo-100")
                                           )}>
-                                             {plan.plan.charAt(0)}
+                                             {plan.plan === 'BASIC' ? 'F' : plan.plan === 'MASTER' ? 'P' : 'R'}
                                           </div>
                                           {isEditing ? (
                                              <input
@@ -364,7 +364,9 @@ export default function AdminDashboard() {
                                                 className="text-xs font-black p-2 border rounded-lg uppercase tracking-tight w-32 outline-none bg-primary/5 border-primary/20"
                                              />
                                           ) : (
-                                             <span className="text-sm font-black text-slate-800 uppercase tracking-tight">{plan.plan.replace('_', ' ')}</span>
+                                             <span className="text-sm font-black text-slate-800 uppercase tracking-tight">
+                                                {plan.plan === 'BASIC' ? 'FREE' : plan.plan === 'MASTER' ? 'PREMIUM' : plan.plan === 'PLUS' ? 'PRO' : plan.plan.replace('_', ' ')}
+                                             </span>
                                           )}
                                        </div>
                                     </td>

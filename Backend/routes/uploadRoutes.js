@@ -29,9 +29,10 @@ const upload = multer({ storage: storage });
 // ── Upload Image Route ─────────────────────────────────────────────────────────────
 router.post('/image', authenticate, upload.single('image'), (req, res) => {
   if (!req.file) {
-    return res.status(400).json({ message: 'No file provided' });
+    return res.status(400).json({ success: false, message: 'No file provided' });
   }
   res.json({ 
+    success: true,
     url: req.file.path,
     public_id: req.file.filename 
   });
@@ -76,6 +77,31 @@ router.post('/file', authenticate, uploadFile.single('file'), (req, res) => {
     return res.status(400).json({ message: 'No file provided' });
   }
   res.json({ 
+    url: req.file.path,
+    public_id: req.file.filename 
+  });
+});
+// ── Upload Video Route ─────────────────────────────────────────────────────────────
+const videoStorage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'mozhiaruvi_videos',
+    resource_type: 'video',
+    allowed_formats: ['mp4', 'webm', 'mov', 'ogg'],
+  },
+});
+
+const uploadVideo = multer({ 
+  storage: videoStorage,
+  limits: { fileSize: 20 * 1024 * 1024 } // 20MB limit
+});
+
+router.post('/video', authenticate, uploadVideo.single('video'), (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ success: false, message: 'No video file provided' });
+  }
+  res.json({ 
+    success: true,
     url: req.file.path,
     public_id: req.file.filename 
   });

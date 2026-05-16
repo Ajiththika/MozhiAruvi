@@ -2,7 +2,6 @@ import User from '../models/User.js';
 import * as lessonService from '../services/lessonService.js';
 import { canAttempt, consumeEnergy, getEnergyResponse, regenerateEnergy, validateStreak } from '../utils/energyManager.js';
 import speech from '@google-cloud/speech';
-import tts from '@google-cloud/text-to-speech';
 import { stringSimilarity } from 'string-similarity-js';
 import Question from '../models/Question.js';
 import fs from 'fs';
@@ -259,34 +258,6 @@ function getSpeechClient() {
     }
 }
 
-function getTtsClient() {
-    try { 
-        const json = getCredentialsObject();
-        if (!json) return null;
-
-        // Ensure private key handles literal newlines correctly
-        const private_key = (json.private_key || '').replace(/\\n/g, '\n');
-
-        const client = new tts.TextToSpeechClient({ 
-            credentials: {
-                client_email: json.client_email,
-                private_key: private_key
-            },
-            projectId: json.project_id
-        }); 
-
-        // Log initialization once
-        if (!_ttsDisabled) {
-            console.log(`[Google TTS] Initialized with account: ${json.client_email}`);
-        }
-        return client;
-    }
-    catch (e) { 
-        console.warn('[Google TTS] Client unavailable:', e.message); 
-        logGoogleError("Google TTS Client Initialization", e);
-        return null; 
-    }
-}
 
 export async function evaluateSpeaking(req, res, next) {
     try {
@@ -449,25 +420,42 @@ export async function generateSpeech(req, res, _next) {
             return res.status(400).json({ message: "Text is required" });
         }
 
-        const ttsClient = !_ttsDisabled ? getTtsClient() : null;
-        if (ttsClient) {
-            try {
-                const request = {
-                    input: { text },
-                    voice: { languageCode: 'ta-IN', name: 'ta-IN-Standard-A' },
-                    audioConfig: { audioEncoding: 'MP3' },
-                };
+        const apiKey = "sk_964cd5000cfa71bca6b87b18386b2ddeeb65b8f0eaa92232";
+        const voiceId = "21m00Tcm4TlvDq8ikWAM"; // Rachel
+        
+        try {
+            const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
+                method: 'POST',
+                headers: {
+                    'Accept': 'audio/mpeg',
+                    'Content-Type': 'application/json',
+                    'xi-api-key': apiKey
+                },
+                body: JSON.stringify({
+                    text: text,
+                    model_id: "eleven_multilingual_v2",
+                    voice_settings: {
+                        stability: 0.5,
+                        similarity_boost: 0.75
+                    }
+                })
+            });
 
-                const [response] = await ttsClient.synthesizeSpeech(request);
-                const audioBase64 = response.audioContent.toString('base64');
-                return res.json({ audioUrl: `data:audio/mp3;base64,${audioBase64}` });
-            } catch (googleErr) {
-                markGoogleDisabled('TTS', googleErr);
-                // Fall through to browser TTS fallback response below
+            if (!response.ok) {
+                console.error("ElevenLabs error:", response.status, await response.text());
+                return res.json({ audioUrl: null, fallback: true, reason: 'ElevenLabs Service Error' });
             }
+
+            const arrayBuffer = await response.arrayBuffer();
+            const audioBase64 = Buffer.from(arrayBuffer).toString('base64');
+            
+            return res.json({ audioUrl: `data:audio/mpeg;base64,${audioBase64}` });
+        } catch (elevenErr) {
+            console.error("ElevenLabs fetch error:", elevenErr);
+            // Fall through to browser TTS fallback response below
         }
 
-        return res.json({ audioUrl: null, fallback: true, reason: 'Google TTS Service Unavailable' });
+        return res.json({ audioUrl: null, fallback: true, reason: 'ElevenLabs Service Unavailable' });
     } catch (e) { 
         console.error('❌ [GENERATE SPEECH CRIT]:', e.message);
         return res.json({ audioUrl: null, fallback: true, reason: 'Critical internal error' });
