@@ -42,6 +42,41 @@ export async function getUserInfo(userId) {
         await user.save();
     }
 
+    // Sync subscription usage from Subscription collection to the user instance dynamically
+    try {
+        const Subscription = (await import('../models/Subscription.js')).default;
+        let sub = await Subscription.findOne({ userId: user._id });
+        if (!sub) {
+            sub = await Subscription.create({
+                userId: user._id,
+                planType: 'starter',
+                isActive: true,
+                startDate: new Date(),
+                usageTracking: {
+                    questionsUsed: 0,
+                    categoriesAccessed: [],
+                    sessionsUsed: 0
+                }
+            });
+        }
+        
+        if (user.subscription) {
+            const planMap = {
+                starter: 'BASIC',
+                plus: 'PLUS',
+                master: 'MASTER'
+            };
+            user.subscription.plan = planMap[sub.planType] || 'BASIC';
+            user.subscription.status = sub.isActive ? 'active' : 'canceled';
+            user.subscription.tutorSupportUsed = sub.usageTracking.questionsUsed;
+            user.subscription.eventUsageCount = sub.usageTracking.sessionsUsed;
+            user.subscription.currentPeriodEnd = sub.endDate;
+            user.isPremium = sub.isActive && sub.planType !== 'starter';
+        }
+    } catch (err) {
+        console.error("Failed to dynamically sync subscription metrics to user:", err);
+    }
+
     return user;
 }
 

@@ -138,9 +138,8 @@ export async function googleCallback(req, res, next) {
         const accessToken = tokenService.signAccessToken(user, sessionId);
         tokenService.setRefreshCookie(res, { raw, sessionId });
 
-        // FORCE the redirect to the live domain
-        // This stops the 'localhost' error shown in your screenshots
-        const redirectBase = "https://mozhiaruvi.com";
+        // Use dynamic URL helper to handle production vs development redirects
+        const redirectBase = getFrontendUrl(req);
         
         res.redirect(`${redirectBase}/oauth-callback?accessToken=${accessToken}`);
     } catch (e) { 

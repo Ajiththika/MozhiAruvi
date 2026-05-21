@@ -179,8 +179,8 @@ export function AskTutorModal({ isOpen, onClose, lessonId, lessonTitle, lessonMo
                <CheckCircle2 size={10} className="shrink-0" />
                <span className="text-[8px] font-black uppercase tracking-widest leading-none">
                  {(() => {
-                    const plan = user?.subscription?.plan || 'FREE';
-                    const limit = plan === 'PREMIUM' ? 100 : (plan === 'PRO' ? 50 : 10);
+                    const plan = user?.subscription?.plan || 'BASIC';
+                    const limit = plan === 'MASTER' ? 100 : (plan === 'PLUS' ? 50 : 10);
                     return `${limit - (user?.subscription?.tutorSupportUsed || 0)} ${plan} LINKS LEFT`;
                  })()}
                </span>

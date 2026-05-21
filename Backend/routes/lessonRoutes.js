@@ -6,6 +6,7 @@ import { ROLES } from '../utils/roles.js';
 import { validate } from '../middleware/validate.js';
 import { z } from 'zod';
 import { checkLessonAccess } from '../middleware/accessControl.js';
+import { checkPlanAccess, limitCategoryAccess } from '../middleware/subscriptionLimits.js';
 
 const router = Router();
 
@@ -77,11 +78,11 @@ const evaluateWritingSchema = z.object({
 // Phase 3: List and View Lessons
 router.get('/', authenticateOptional, lessonController.listLessons);
 router.get('/mistakes', authenticate, lessonController.getMistakes);   // Phase 4 — must be before /:id
-router.get('/:id', authenticate, checkLessonAccess, lessonController.getLessonDetails);
+router.get('/:id', authenticate, checkLessonAccess, checkPlanAccess, limitCategoryAccess, lessonController.getLessonDetails);
 
 
 // Phase 4: View Questions & Submit Answers
-router.get('/:id/questions', authenticate, checkLessonAccess, lessonController.getLessonQuestions);
+router.get('/:id/questions', authenticate, checkLessonAccess, checkPlanAccess, limitCategoryAccess, lessonController.getLessonQuestions);
 router.post('/:id/submit', authenticate, validate(submitAnswersSchema), lessonController.submitAnswers);
 router.post('/:id/questions/:qId/attempt', authenticate, lessonController.recordAttempt);  // Phase 7: per-Q energy
 router.post('/:id/evaluate-speaking', authenticate, validate(evaluateSpeakingSchema), lessonController.evaluateSpeaking);

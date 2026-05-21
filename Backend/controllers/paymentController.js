@@ -2,388 +2,405 @@ import User from '../models/User.js';
 import jwt from 'jsonwebtoken';
 import Payment from '../models/Payment.js';
 import Event from '../models/Event.js';
-import Organization from '../models/Organization.js';
 import Booking from '../models/Booking.js';
-import * as stripeService from '../services/stripeService.js';
-import * as communication from '../services/communicationService.js';
-// import { stripe } from '../services/stripeConnectService.js';
 import PlanSettings from '../models/PlanSettings.js';
+import Subscription from '../models/Subscription.js';
+import * as paypalService from '../services/paypalService.js';
+import * as communication from '../services/communicationService.js';
 
-async function provisionBusinessAccount(userId, plan, seats, subscriptionId) {
-    const owner = await User.findById(userId);
-    if (!owner) return;
+/**
+ * Synchronize Subscription document with User model.
+ */
+async function syncSubscriptionWithUser(subDoc) {
+  const planMap = {
+    starter: 'BASIC',
+    plus: 'PLUS',
+    master: 'MASTER'
+  };
+  const userPlan = planMap[subDoc.planType] || 'BASIC';
 
-    // Create the organization record
-    const org = await Organization.create({
-        name: `${owner.name}'s Organization`,
-        owner: owner._id,
-        stripeSubscriptionId: subscriptionId,
-        plan: `BUSINESS_${seats === 60 ? '60' : '30'}`,
-        maxSeats: seats || 30,
-        members: [owner._id]
-    });
-
-    // Link owner to organization
-    await User.findByIdAndUpdate(userId, {
-        organizationId: org._id,
-        roleInOrg: 'owner'
-    });
+  await User.findByIdAndUpdate(subDoc.userId, {
+    'subscription.plan': userPlan,
+    'subscription.status': subDoc.isActive ? 'active' : 'canceled',
+    'subscription.currentPeriodEnd': subDoc.endDate,
+    isPremium: subDoc.isActive && subDoc.planType !== 'starter'
+  });
 }
 
 /**
  * Get all active subscription plans.
+ * Automatically upserts the correct plans and prices to ensure database consistency.
  */
-export async function getPlans(_req, res, _next) {
-    try {
-        const plans = await PlanSettings.find({ isEnabled: true });
-        res.json(plans);
-    } catch (e) { _next(e); }
+export async function getPlans(_req, res, next) {
+  try {
+    // Upsert PlanSettings to ensure correct pricing ($0, $12/mo, $20/mo)
+    await PlanSettings.findOneAndUpdate(
+      { plan: 'BASIC' },
+      {
+        monthlyPrice: 0,
+        yearlyPrice: 0,
+        levelLimit: ['Beginner'],
+        categoryLimit: 1,
+        tutorSupportLimit: 10,
+        eventLimit: 2,
+        isEnabled: true
+      },
+      { upsert: true, new: true }
+    );
+
+    await PlanSettings.findOneAndUpdate(
+      { plan: 'PLUS' },
+      {
+        monthlyPrice: 12,
+        yearlyPrice: 120, // Save $24/yr
+        levelLimit: ['Beginner', 'Elementary', 'Intermediate', 'Advanced'],
+        categoryLimit: 50,
+        tutorSupportLimit: 50,
+        eventLimit: 8,
+        isEnabled: true
+      },
+      { upsert: true, new: true }
+    );
+
+    await PlanSettings.findOneAndUpdate(
+      { plan: 'MASTER' },
+      {
+        monthlyPrice: 20,
+        yearlyPrice: 200, // Save $40/yr
+        levelLimit: ['Beginner', 'Elementary', 'Intermediate', 'Advanced'],
+        categoryLimit: 9999, // Unlimited
+        tutorSupportLimit: 100,
+        eventLimit: 9999, // Unlimited
+        isEnabled: true
+      },
+      { upsert: true, new: true }
+    );
+
+    const plans = await PlanSettings.find({ isEnabled: true });
+    res.json(plans);
+  } catch (e) {
+    next(e);
+  }
 }
 
 /**
- * Endpoint for creating a Stripe Checkout Session for Subscription.
+ * Create a PayPal Subscription for the selected plan.
  */
-export async function createSubscriptionSession(req, res, _next) {
-    try {
-        const { plan, cycle, seats } = req.body;
-        const user = await User.findById(req.user.sub);
-        if (!user) return res.status(404).json({ message: "User not found" });
+export async function createSubscriptionSession(req, res, next) {
+  try {
+    const { plan, cycle } = req.body;
+    const user = await User.findById(req.user.sub);
+    if (!user) return res.status(404).json({ message: "User not found" });
 
-        const planSetting = await PlanSettings.findOne({ plan: plan });
-        if (!planSetting) return res.status(400).json({ message: "Invalid plan" });
-
-        const priceId = cycle === 'yearly' ? planSetting.stripeYearlyPriceId : planSetting.stripeMonthlyPriceId;
-        
-        if (!priceId) {
-            return res.status(400).json({ message: `Stripe Price ID not configured for ${plan} ${cycle}` });
-        }
-
-        const session = await stripeService.createSubscriptionSession(user, priceId, plan, cycle, seats, req);
-        res.json({ url: session.url });
-    } catch (e) { _next(e); }
-}
-
-/**
- * Handle Webhook for Stripe Events.
- */
-export async function stripeWebhook(req, res, _next) {
-    const sig = req.headers['stripe-signature'];
-    let event;
-
-    try {
-        event = stripeService.stripe.webhooks.constructEvent(req.body, sig, process.env.STRIPE_WEBHOOK_SECRET);
-    } catch (err) {
-        console.error(`Webhook Error: ${err.message}`);
-        return res.status(400).send(`Webhook Error: ${err.message}`);
+    // Map plans to PayPal Plan IDs from environment variables
+    let planId;
+    if (plan === 'PLUS') {
+      planId = cycle === 'yearly' ? (process.env.PAYPAL_PLAN_PLUS_YEARLY || process.env.PAYPAL_PLAN_PLUS_MONTHLY) : process.env.PAYPAL_PLAN_PLUS_MONTHLY;
+    } else if (plan === 'MASTER' || plan === 'PRO') {
+      planId = cycle === 'yearly' ? (process.env.PAYPAL_PLAN_PRO_YEARLY || process.env.PAYPAL_PLAN_PRO_MONTHLY) : process.env.PAYPAL_PLAN_PRO_MONTHLY;
     }
 
-    // Process the event
-    try {
-        switch (event.type) {
-            case 'checkout.session.completed': {
-                const session = event.data.object;
-                const { userId, type, plan, billingCycle, eventId, tutorId, seats } = session.metadata;
+    if (!planId) {
+      return res.status(400).json({ message: `PayPal Plan ID not configured for ${plan} ${cycle}` });
+    }
 
-                if (session.mode === 'subscription') {
-                    // Fetch full subscription to get trial_end or current_period_end
-                    const subscription = await stripeService.stripe.subscriptions.retrieve(session.subscription);
+    const returnUrl = `${req.get('origin') || process.env.PRIMARY_SITE_URL || 'http://localhost:3000'}/student/subscription/success`;
+    const cancelUrl = `${req.get('origin') || process.env.PRIMARY_SITE_URL || 'http://localhost:3000'}/student/subscription`;
 
-                    // Update User subscription
-                    const updateData = {
-                        'subscription.plan': plan,
-                        'subscription.billingCycle': billingCycle,
-                        'subscription.stripeSubscriptionId': session.subscription,
-                        'subscription.currentPeriodEnd': new Date(subscription.current_period_end * 1000),
-                        'subscription.hasUsedTrial': true,
-                        'subscription.status': subscription.status,
-                    };
+    const paypalSub = await paypalService.createSubscription(planId, user.email, returnUrl, cancelUrl);
+    const approveLink = paypalSub.links.find(link => link.rel === 'approve');
 
-                    await User.findByIdAndUpdate(userId, updateData);
+    if (!approveLink) {
+      return res.status(500).json({ message: "PayPal approval link not found" });
+    }
 
-                    // If Business plan, provision organization
-                    if (plan === 'BUSINESS') {
-                        await provisionBusinessAccount(userId, plan, parseInt(seats || '30'), session.subscription);
-                    }
-                } else if (session.mode === 'payment') {
-                    // One-time payment (Event or Tutor Class)
-                    if (type === 'event' && eventId) {
-                        await User.findByIdAndUpdate(userId, { $addToSet: { 'subscription.paidEvents': eventId } });
-                        // Update Payment record
-                        await Payment.findOneAndUpdate({ stripeSessionId: session.id }, { status: 'completed' });
-                    } else if (type === 'tutor_session' && tutorId) {
-                        await User.findByIdAndUpdate(userId, { $addToSet: { 'subscription.paidTutors': tutorId } });
-                        await Payment.findOneAndUpdate({ stripeSessionId: session.id }, { status: 'completed' });
-                    } else if (type === 'tutor_booking' && tutorId) {
-                        // Official Marketplace Booking Flow (Split Payments)
-                        const bookingId = session.metadata.bookingId;
-                        const totalAmount = (session.amount_total || 0) / 100; // to dollars
-                        const feePercent = parseFloat(process.env.PLATFORM_FEE_PERCENT || '20') / 100;
-                        const platformFee = totalAmount * feePercent;
-                        const tutorEarnings = totalAmount - platformFee;
-
-                        let booking;
-
-                        if (bookingId) {
-                            // Request-First Flow: Update existing booking
-                            booking = await Booking.findById(bookingId);
-                            if (booking) {
-                                booking.paymentStatus = 'paid';
-                                booking.paymentIntentId = session.payment_intent;
-                                booking.amount = totalAmount;
-                                booking.platformFee = platformFee;
-                                booking.tutorEarnings = tutorEarnings;
-                                await booking.save();
-                            }
-                        } else {
-                            // Legacy Immediate-Payment Flow: Create new booking
-                            booking = await Booking.create({
-                                studentId: userId,
-                                tutorId,
-                                date: new Date(session.metadata.date),
-                                startTime: session.metadata.startTime,
-                                endTime: session.metadata.endTime || "TBD",
-                                duration: parseInt(session.metadata.duration || '60'),
-                                amount: totalAmount,
-                                platformFee,
-                                tutorEarnings,
-                                paymentIntentId: session.payment_intent,
-                                paymentStatus: 'paid',
-                                status: 'confirmed'
-                            });
-                        }
-
-                        // Trigger Automated Communications
-                        const student = await User.findById(userId);
-                        const tutor = await User.findById(tutorId);
-                        if (booking) {
-                            await communication.notifyBookingSuccess(student, tutor, booking);
-                        }
-                    }
-                }
-                break;
-            }
-
-            case 'invoice.payment_succeeded': {
-                const invoice = event.data.object;
-                if (invoice.subscription) {
-                    const subscription = await stripeService.stripe.subscriptions.retrieve(invoice.subscription);
-                    const customerId = invoice.customer;
-                    await User.findOneAndUpdate(
-                        { 'subscription.stripeCustomerId': customerId },
-                        {
-                            'subscription.currentPeriodEnd': new Date(subscription.current_period_end * 1000),
-                            'subscription.freeEventsUsedThisCycle': 0, // Reset event usage on renewal
-                            'subscription.tutorSupportUsed': 0, // Reset usage
-                            'subscription.eventUsageCount': 0, // Reset usage
-                            'subscription.status': subscription.status
-                        }
-                    );
-                }
-                break;
-            }
-
-            case 'customer.subscription.deleted': {
-                const subscription = event.data.object;
-                const user = await User.findOneAndUpdate(
-                    { 'subscription.stripeSubscriptionId': subscription.id },
-                    {
-                        'subscription.plan': 'FREE',
-                        'subscription.billingCycle': 'none',
-                        'subscription.stripeSubscriptionId': null,
-                        roleInOrg: null,
-                        organizationId: null
-                    }
-                );
-
-                if (user && user.roleInOrg === 'owner' && user.organizationId) {
-                    // Organization subscription ended
-                    const org = await Organization.findById(user.organizationId);
-                    if (org) {
-                        // Revert all members to FREE
-                        await User.updateMany(
-                            { _id: { $in: org.members } },
-                            { 
-                                'subscription.plan': 'FREE',
-                                organizationId: null,
-                                roleInOrg: null
-                            }
-                        );
-                        await org.deleteOne();
-                    }
-                }
-                break;
-            }
+    // Save/update the subscription record in DB as pending activation
+    await Subscription.findOneAndUpdate(
+      { userId: user._id },
+      {
+        userId: user._id,
+        planType: plan.toLowerCase() === 'master' ? 'master' : 'plus',
+        isActive: false,
+        startDate: new Date(),
+        paypalSubscriptionId: paypalSub.id,
+        usageTracking: {
+          questionsUsed: 0,
+          categoriesAccessed: [],
+          sessionsUsed: 0
         }
-    } catch (e) {
-        console.error("Webhook processing error:", e.message);
+      },
+      { upsert: true, new: true }
+    );
+
+    res.json({ url: approveLink.href });
+  } catch (e) {
+    next(e);
+  }
+}
+
+/**
+ * Verify and activate a subscription after returning from PayPal checkout.
+ * Also handles capturing one-time orders (Events, tutor classes).
+ */
+export async function verifySubscriptionSession(req, res, next) {
+  try {
+    const { sessionId, subscription_id, token } = req.query;
+    const paypalSubId = subscription_id || sessionId;
+
+    // Handle One-time PayPal order capture if "token" (Order ID) is passed
+    if (token && !paypalSubId) {
+      const order = await paypalService.captureOrder(token);
+      if (order.status !== 'COMPLETED') {
+        return res.status(400).json({ message: "Payment was not completed successfully." });
+      }
+
+      // Update the local Payment record
+      const payment = await Payment.findOneAndUpdate(
+        { stripeSessionId: token },
+        { status: 'completed' }
+      );
+
+      if (payment) {
+        if (payment.paymentType === 'event' && payment.metadata?.eventId) {
+          await User.findByIdAndUpdate(payment.user, {
+            $addToSet: { 'subscription.paidEvents': payment.metadata.eventId }
+          });
+        } else if (payment.paymentType === 'tutor_session' && payment.metadata?.tutorId) {
+          await User.findByIdAndUpdate(payment.user, {
+            $addToSet: { 'subscription.paidTutors': payment.metadata.tutorId }
+          });
+
+          // Check if there is an associated Booking to confirm
+          const booking = await Booking.findOne({ studentId: payment.user, tutorId: payment.metadata.tutorId, paymentStatus: 'pending' });
+          if (booking) {
+            booking.paymentStatus = 'paid';
+            booking.status = 'confirmed';
+            await booking.save();
+
+            const student = await User.findById(payment.user);
+            const tutor = await User.findById(payment.metadata.tutorId);
+            await communication.notifyBookingSuccess(student, tutor, booking);
+          }
+        }
+      }
+
+      const user = await User.findById(req.user.sub);
+      return res.json({ message: "One-time payment verified and processed successfully", user: user.toSafeObject() });
+    }
+
+    if (!paypalSubId) {
+      return res.status(400).json({ message: "Subscription ID or Order Token is required" });
+    }
+
+    const paypalSub = await paypalService.getSubscriptionDetails(paypalSubId);
+    
+    if (paypalSub.status !== 'ACTIVE') {
+      return res.status(400).json({ message: `Subscription is not active. Status: ${paypalSub.status}` });
+    }
+
+    const subscription = await Subscription.findOne({ paypalSubscriptionId: paypalSubId });
+    if (!subscription) {
+      return res.status(404).json({ message: "Subscription record not found locally" });
+    }
+
+    subscription.isActive = true;
+    subscription.endDate = paypalSub.billing_info?.next_billing_time ? new Date(paypalSub.billing_info.next_billing_time) : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+    await subscription.save();
+
+    // Sync to User record
+    await syncSubscriptionWithUser(subscription);
+
+    const user = await User.findById(subscription.userId);
+    const accessToken = jwt.sign(
+      { sub: user._id.toString(), role: user.role, sid: 'session_verified_sync' },
+      process.env.JWT_ACCESS_SECRET,
+      { expiresIn: process.env.JWT_ACCESS_EXPIRES || '1h' }
+    );
+
+    res.json({
+      message: "Subscription verified successfully",
+      user: user.toSafeObject(),
+      accessToken
+    });
+  } catch (e) {
+    next(e);
+  }
+}
+
+/**
+ * Cancel an active PayPal subscription.
+ */
+export async function cancelSubscription(req, res, next) {
+  try {
+    const sub = await Subscription.findOne({ userId: req.user.sub, isActive: true });
+    if (!sub || !sub.paypalSubscriptionId) {
+      return res.status(400).json({ message: "No active PayPal subscription found to cancel" });
+    }
+
+    await paypalService.cancelSubscription(sub.paypalSubscriptionId);
+
+    sub.isActive = false;
+    await sub.save();
+    await syncSubscriptionWithUser(sub);
+
+    res.json({ message: "Subscription cancelled successfully at PayPal." });
+  } catch (e) {
+    next(e);
+  }
+}
+
+/**
+ * Handle plan upgrades.
+ */
+export async function upgradeSubscription(req, res, next) {
+  try {
+    res.json({ message: "To upgrade, please choose your new plan and complete the subscription checkout." });
+  } catch (e) {
+    next(e);
+  }
+}
+
+/**
+ * Create a PayPal Order for one-time Event payments.
+ */
+export async function createEventPaymentSession(req, res, next) {
+  try {
+    const { eventId } = req.body;
+    const user = await User.findById(req.user.sub);
+    const event = await Event.findById(eventId);
+    if (!event) return res.status(404).json({ message: "Event not found" });
+
+    const amount = 5; // Flat rate of $5 for events
+
+    const returnUrl = `${req.get('origin') || process.env.PRIMARY_SITE_URL || 'http://localhost:3000'}/student/events/success?eventId=${eventId}`;
+    const cancelUrl = `${req.get('origin') || process.env.PRIMARY_SITE_URL || 'http://localhost:3000'}/student/events/${eventId}`;
+
+    const order = await paypalService.createOrder(amount, `Joining Event: ${event.title}`, returnUrl, cancelUrl);
+    const approveLink = order.links.find(link => link.rel === 'approve');
+
+    await Payment.create({
+      user: user._id,
+      stripeSessionId: order.id, // Re-use this field for the PayPal Order ID
+      amount,
+      paymentType: 'event',
+      metadata: { eventId }
+    });
+
+    res.json({ url: approveLink.href });
+  } catch (e) {
+    next(e);
+  }
+}
+
+/**
+ * Create a PayPal Order for one-time Tutor Session payments.
+ */
+export async function createTutorPaymentSession(req, res, next) {
+  try {
+    const { tutorId, isPackage } = req.body;
+    const user = await User.findById(req.user.sub);
+    const tutor = await User.findById(tutorId);
+    if (!tutor) return res.status(404).json({ message: "Tutor not found" });
+
+    const amount = isPackage ? (tutor.eightClassFee || 200) : (tutor.oneClassFee || tutor.hourlyRate || 30);
+
+    const returnUrl = `${req.get('origin') || process.env.PRIMARY_SITE_URL || 'http://localhost:3000'}/student/tutors/success?tutorId=${tutorId}&package=${!!isPackage}`;
+    const cancelUrl = `${req.get('origin') || process.env.PRIMARY_SITE_URL || 'http://localhost:3000'}/student/tutors/${tutorId}`;
+
+    const order = await paypalService.createOrder(
+      amount,
+      isPackage ? `8-Class Mastery Bundle with ${tutor.name}` : `Private Class with ${tutor.name}`,
+      returnUrl,
+      cancelUrl
+    );
+    const approveLink = order.links.find(link => link.rel === 'approve');
+
+    await Payment.create({
+      user: user._id,
+      stripeSessionId: order.id, // Store PayPal Order ID
+      amount,
+      paymentType: 'tutor_session',
+      metadata: { tutorId, isPackage }
+    });
+
+    // Create a pending Booking record
+    await Booking.create({
+      studentId: user._id,
+      tutorId,
+      date: new Date(),
+      startTime: "TBD",
+      duration: isPackage ? 480 : 60,
+      amount,
+      paymentStatus: 'pending',
+      status: 'pending'
+    });
+
+    res.json({ url: approveLink.href });
+  } catch (e) {
+    next(e);
+  }
+}
+
+/**
+ * Handle incoming PayPal webhook events.
+ */
+export async function paypalWebhook(req, res, next) {
+  try {
+    const signatureValid = await paypalService.verifyWebhookSignature(req.headers, req.body);
+    if (!signatureValid) {
+      console.warn('❌ [PayPal Webhook] Invalid webhook signature detected.');
+      return res.status(400).json({ message: "Invalid signature" });
+    }
+
+    const event = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
+    console.log(`[PayPal Webhook Received] Event Type: ${event.event_type}`);
+
+    switch (event.event_type) {
+      case 'PAYMENT.SALE.COMPLETED': {
+        const sale = event.resource;
+        const subscriptionId = sale.billing_agreement_id;
+
+        if (subscriptionId) {
+          const subscription = await Subscription.findOne({ paypalSubscriptionId: subscriptionId });
+          if (subscription) {
+            subscription.isActive = true;
+            // Extend standard 30-day billing cycle
+            subscription.endDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+            
+            // Reset monthly usage tracking on payment completion/renewal
+            subscription.usageTracking.questionsUsed = 0;
+            subscription.usageTracking.sessionsUsed = 0;
+
+            await subscription.save();
+            await syncSubscriptionWithUser(subscription);
+            console.log(`✅ [PayPal Webhook] Subscription ${subscriptionId} renewed & synced.`);
+          }
+        }
+        break;
+      }
+
+      case 'BILLING.SUBSCRIPTION.CANCELLED':
+      case 'BILLING.SUBSCRIPTION.EXPIRED': {
+        const paypalSub = event.resource;
+        const subscriptionId = paypalSub.id;
+
+        const subscription = await Subscription.findOne({ paypalSubscriptionId: subscriptionId });
+        if (subscription) {
+          subscription.isActive = false;
+          await subscription.save();
+          await syncSubscriptionWithUser(subscription);
+          console.log(`❌ [PayPal Webhook] Subscription ${subscriptionId} cancelled/expired.`);
+        }
+        break;
+      }
+
+      default:
+        console.log(`[PayPal Webhook] Unhandled Event: ${event.event_type}`);
     }
 
     res.json({ received: true });
-}
-
-/**
- * Handle One-time payment for Event.
- */
-export async function createEventPaymentSession(req, res, _next) {
-    try {
-        const { eventId } = req.body;
-        const user = await User.findById(req.user.sub);
-        const event = await Event.findById(eventId);
-        if (!event) return res.status(404).json({ message: "Event not found" });
-
-        const amount = 5; // Flat rate for events, or you can use event.price if you add it.
-
-        const session = await stripeService.createPaymentSession(user, amount, 'event', {
-            eventId,
-            name: `Joining Event: ${event.title}`,
-            successPath: `student/events/success?eventId=${eventId}`,
-            cancelPath: `student/events/${eventId}`
-        }, req);
-
-        // Track payment session record locally for auditing
-        await Payment.create({
-            user: user._id,
-            stripeSessionId: session.id,
-            amount,
-            paymentType: 'event',
-            metadata: { eventId }
-        });
-
-        res.json({ url: session.url });
-    } catch (e) { _next(e); }
-}
-
-/**
- * Proactive check for subscription status (fallback for delayed webhooks).
- */
-export async function verifySubscriptionSession(req, res, _next) {
-    try {
-        const { sessionId } = req.query;
-        if (!sessionId) return res.status(400).json({ message: "Session ID required" });
-
-        const session = await stripeService.stripe.checkout.sessions.retrieve(sessionId);
-        if (!session || session.status !== 'complete') {
-            return res.status(400).json({ message: "Session not completed" });
-        }
-
-        const userId = session.metadata.userId;
-        const plan = session.metadata.plan;
-        const billingCycle = session.metadata.billingCycle;
-
-        const user = await User.findById(userId);
-        if (!user) return res.status(404).json({ message: "User not found" });
-
-        // If skip processing if already handled by webhook
-        if (user.subscription?.stripeSubscriptionId === session.subscription && user.subscription.plan !== 'FREE') {
-            return res.json({ message: "Subscription already active", user: user.toSafeObject() });
-        }
-
-        // Retrieve subscription details
-        const subscription = await stripeService.stripe.subscriptions.retrieve(session.subscription);
-
-        const updateData = {
-            'subscription.plan': plan,
-            'subscription.billingCycle': billingCycle,
-            'subscription.stripeSubscriptionId': session.subscription,
-            'subscription.currentPeriodEnd': new Date(subscription.current_period_end * 1000),
-            'subscription.hasUsedTrial': true,
-            'subscription.status': subscription.status,
-            'subscription.stripeCustomerId': session.customer
-        };
-
-        const updatedUser = await User.findByIdAndUpdate(userId, updateData, { new: true });
-        
-        // If Business plan and org doesn't exist yet, provision it
-        if (plan === 'BUSINESS' && !updatedUser.organizationId) {
-            await provisionBusinessAccount(userId, plan, parseInt(session.metadata.seats || '30'), session.subscription);
-        }
-        
-        // Generate a fresh access token to prevent session expiration issues after returning from Stripe
-        const accessToken = jwt.sign(
-            { sub: updatedUser._id.toString(), role: updatedUser.role, sid: 'session_verified_sync' },
-            process.env.JWT_ACCESS_SECRET,
-            { expiresIn: process.env.JWT_ACCESS_EXPIRES || '1h' }
-        );
-
-        res.json({ 
-            message: "Subscription verified successfully", 
-            user: updatedUser.toSafeObject(),
-            accessToken 
-        });
-    } catch (e) { _next(e); }
-}
-
-export async function createTutorPaymentSession(req, res, _next) {
-    try {
-        const { tutorId, isPackage } = req.body; // isPackage: true for 8-class bundle
-        const user = await User.findById(req.user.sub);
-        const tutor = await User.findById(tutorId);
-        if (!tutor) return res.status(404).json({ message: "Tutor not found" });
-
-        const amount = isPackage ? (tutor.eightClassFee || 200) : (tutor.oneClassFee || tutor.hourlyRate || 30);
-
-        const session = await stripeService.createPaymentSession(user, amount, 'tutor_session', {
-            tutorId,
-            isPackage: String(!!isPackage),
-            name: isPackage ? `8-Class Mastery Bundle with ${tutor.name}` : `Private Class with ${tutor.name}`,
-            successPath: `student/tutors/success?tutorId=${tutorId}&package=${!!isPackage}`,
-            cancelPath: `student/tutors/${tutorId}`
-        }, req);
-
-        await Payment.create({
-            user: user._id,
-            stripeSessionId: session.id,
-            amount,
-            paymentType: 'tutor_session',
-            metadata: { tutorId, isPackage }
-        });
-
-        res.json({ url: session.url });
-    } catch (e) { _next(e); }
-}
-export async function cancelSubscription(req, res, _next) {
-    try {
-        const user = await User.findById(req.user.sub);
-        if (!user || !user.subscription?.stripeSubscriptionId) {
-            return res.status(400).json({ message: "No active subscription found" });
-        }
-
-        await stripeService.cancelSubscription(user.subscription.stripeSubscriptionId);
-        
-        // Update user status locally if needed, or wait for webhook
-        // For now, let's just confirm it's set to cancel at period end
-        res.json({ message: "Subscription will be cancelled at the end of the current billing period" });
-    } catch (e) { _next(e); }
-}
-
-export async function upgradeSubscription(req, res, _next) {
-    try {
-        const { plan, cycle } = req.body;
-        const user = await User.findById(req.user.sub);
-        if (!user || !user.subscription?.stripeSubscriptionId) {
-            return res.status(400).json({ message: "No active subscription found to upgrade" });
-        }
-
-        const planSetting = await PlanSettings.findOne({ plan: plan });
-        if (!planSetting) return res.status(400).json({ message: "Invalid plan" });
-
-        const priceId = cycle === 'yearly' ? planSetting.stripeYearlyPriceId : planSetting.stripeMonthlyPriceId;
-        
-        if (!priceId) {
-            return res.status(400).json({ message: `Stripe Price ID not configured for ${plan} ${cycle}` });
-        }
-
-        const subscription = await stripeService.upgradeSubscription(user.subscription.stripeSubscriptionId, priceId, {
-            plan,
-            billingCycle: cycle
-        });
-
-        // Update local user record
-        user.subscription.plan = plan;
-        user.subscription.billingCycle = cycle;
-        user.subscription.currentPeriodEnd = new Date(subscription.current_period_end * 1000);
-        await user.save();
-
-        res.json({ message: `Successfully upgraded to ${plan}!`, user: user.toSafeObject() });
-    } catch (e) { _next(e); }
+  } catch (e) {
+    console.error('Error handling PayPal webhook:', e);
+    res.status(500).json({ message: "Webhook handling error" });
+  }
 }

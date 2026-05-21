@@ -22,6 +22,7 @@ import {
   GraduationCap,
   Shield,
   Crown,
+  CreditCard,
   X,
 } from "lucide-react";
 
@@ -45,6 +46,7 @@ export const iconMap = {
   "graduation-cap": GraduationCap,
   shield: Shield,
   crown: Crown,
+  "credit-card": CreditCard,
 } as const;
 
 
@@ -164,12 +166,12 @@ export function Sidebar({ items, basePath, isMobileOpen, onClose }: SidebarProps
               <p className="text-[9px] font-black text-purple-400 uppercase tracking-widest leading-none">
                 {pathname.startsWith('/admin') ? 'Admin' : pathname.startsWith('/tutor') ? 'Teacher' : 'Student'}
               </p>
-              {user?.role === 'student' && user?.subscription?.plan && user.subscription.plan !== 'FREE' && user.subscription.plan !== 'BASIC' && (
+              {user?.role === 'student' && user?.subscription?.plan && user.subscription.plan !== 'BASIC' && (
                 <span className={cn(
                   "px-1.5 py-0.5 rounded-md text-[8px] font-black uppercase tracking-tighter border shadow-sm",
-                  (user.subscription.plan === 'PREMIUM' || user.subscription.plan === 'MASTER') ? "bg-amber-400 border-amber-500 text-slate-900" : "bg-emerald-500 border-emerald-600 text-white"
+                  user.subscription.plan === 'MASTER' ? "bg-amber-400 border-amber-500 text-slate-900" : "bg-emerald-500 border-emerald-600 text-white"
                 )}>
-                  {user.subscription.plan === 'PLUS' ? 'PRO' : user.subscription.plan === 'MASTER' ? 'PREMIUM' : user.subscription.plan}
+                  {user.subscription.plan}
                 </span>
               )}
             </div>
@@ -219,8 +221,7 @@ export function Sidebar({ items, basePath, isMobileOpen, onClose }: SidebarProps
 
       {/* Promo Section: 1-time Trial offer (Students Only) */}
       {user?.role === 'student' && 
-       user?.subscription?.plan === 'FREE' && 
-       !user?.subscription?.stripeSubscriptionId &&
+       user?.subscription?.plan === 'BASIC' && 
        !user?.hasUsedTrial && (
         <div className="px-5 py-6 shrink-0">
           <div className="bg-slate-50 rounded-[2rem] p-5 relative overflow-hidden group/promo border border-indigo-100 shadow-xl shadow-indigo-100/20">

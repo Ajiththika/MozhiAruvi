@@ -95,6 +95,7 @@ export interface AdminStats {
   totalTutors: number;
   pendingApps: number;
   totalEvents: number;
+  totalPremiumUsers: number;
 }
 
 export interface PlanSettings {

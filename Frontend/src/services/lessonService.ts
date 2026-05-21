@@ -51,6 +51,7 @@ export interface Question {
   useTTS?: boolean;
   acceptedAnswers?: string[];
   words?: string[];
+  pairs?: { left: string; right: string }[];
 }
 
 export interface QuestionInput extends Partial<Omit<Question, '_id'>> {

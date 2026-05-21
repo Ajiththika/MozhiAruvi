@@ -1,52 +1,50 @@
 import PlanSettings from '../models/PlanSettings.js';
-import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 dotenv.config();
 
 const plans = [
   {
-    plan: 'FREE',
+    plan: 'BASIC',
     monthlyPrice: 0,
     yearlyPrice: 0,
-    levelLimit: ['Beginner', 'Elementary', 'Intermediate', 'Advanced'], // All levels accessible but only first cat is free
-    categoryLimit: 1, // ONLY 1 CATEGORY IS FREE
+    levelLimit: ['Beginner'],
+    categoryLimit: 1,
     tutorSupportLimit: 10,
-    eventLimit: 1,
+    eventLimit: 2,
     isEnabled: true
   },
   {
-    plan: 'PRO',
-    monthlyPrice: 3.81,
-    yearlyPrice: 42,
+    plan: 'PLUS',
+    monthlyPrice: 12,
+    yearlyPrice: 120,
     levelLimit: ['Beginner', 'Elementary', 'Intermediate', 'Advanced'],
-    categoryLimit: 10,
+    categoryLimit: 50,
     tutorSupportLimit: 50,
-    eventLimit: 1,
-    isEnabled: true,
-    stripeMonthlyPriceId: process.env.STRIPE_PRO_MONTHLY_PRICE_ID,
-    stripeYearlyPriceId: process.env.STRIPE_PRO_YEARLY_PRICE_ID
+    eventLimit: 8,
+    isEnabled: true
   },
   {
-    plan: 'PREMIUM',
-    monthlyPrice: 7.94,
-    yearlyPrice: 90,
+    plan: 'MASTER',
+    monthlyPrice: 20,
+    yearlyPrice: 200,
     levelLimit: ['Beginner', 'Elementary', 'Intermediate', 'Advanced'],
-    categoryLimit: null, // unlimited
+    categoryLimit: 9999, // Unlimited
     tutorSupportLimit: 100,
-    eventLimit: 5,
-    isEnabled: true,
-    stripeMonthlyPriceId: process.env.STRIPE_PREMIUM_MONTHLY_PRICE_ID,
-    stripeYearlyPriceId: process.env.STRIPE_PREMIUM_YEARLY_PRICE_ID
+    eventLimit: 9999, // Unlimited
+    isEnabled: true
   }
 ];
 
 export async function seedPlans() {
   try {
+    // Clear out legacy plans if they exist to prevent clutter
+    await PlanSettings.deleteMany({ plan: { $in: ['FREE', 'PRO', 'PREMIUM'] } });
+
     for (const plan of plans) {
-      await PlanSettings.findOneAndUpdate({ plan: plan.plan }, plan, { upsert: true });
+      await PlanSettings.findOneAndUpdate({ plan: plan.plan }, plan, { upsert: true, new: true });
     }
-    console.log('✅ Plan settings seeded.');
+    console.log('✅ New PayPal plan settings seeded.');
   } catch (e) {
-    console.error('❌ Plan seeding failed:', e);
+    console.error('❌ PayPal plan seeding failed:', e);
   }
 }

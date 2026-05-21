@@ -3,15 +3,16 @@ import { SidebarItem } from "@/components/layout/Sidebar";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 
 const adminLinks: SidebarItem[] = [
-  { name: "Dashboard",   href: "/admin/dashboard", icon: "home" },
-  { name: "Users",       href: "/admin/users",     icon: "users" },
-  { name: "Teachers",    href: "/admin/tutors",     icon: "graduation-cap" },
-  { name: "Lessons",     href: "/admin/lessons",    icon: "book-open" },
-  { name: "Resources",   href: "/admin/resources",  icon: "library" },
-  { name: "Blogs",       href: "/admin/blogs",      icon: "message-square" },
-  { name: "Events",      href: "/admin/events",     icon: "calendar" },
-  { name: "Feedback",    href: "/admin/feedback",   icon: "sparkles" },
-  { name: "Mappings",    href: "/admin/mappings",   icon: "shield" },
+  { name: "Dashboard",      href: "/admin/dashboard",      icon: "home" },
+  { name: "Users",           href: "/admin/users",          icon: "users" },
+  { name: "Teachers",        href: "/admin/tutors",         icon: "graduation-cap" },
+  { name: "Lessons",         href: "/admin/lessons",        icon: "book-open" },
+  { name: "Resources",       href: "/admin/resources",      icon: "library" },
+  { name: "Blogs",           href: "/admin/blogs",          icon: "message-square" },
+  { name: "Events",          href: "/admin/events",         icon: "calendar" },
+  { name: "Subscriptions",   href: "/admin/subscriptions",  icon: "credit-card" },
+  { name: "Feedback",        href: "/admin/feedback",       icon: "sparkles" },
+  { name: "Mappings",        href: "/admin/mappings",       icon: "shield" },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {

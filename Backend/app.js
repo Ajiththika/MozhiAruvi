@@ -22,7 +22,7 @@ import bookingRoutes from "./routes/bookingRoutes.js";
 import resourceRoutes from "./routes/resourceRoutes.js";
 import resourceSectionRoutes from "./routes/resourceSectionRoutes.js";
 import feedbackRoutes from "./routes/feedbackRoutes.js";
-import { stripeWebhook } from "./controllers/paymentController.js";
+import subscriptionAdminRoutes from "./routes/subscriptionAdminRoutes.js";
 import { testSmtpConnection } from "./services/mailService.js";
 import { errorHandler } from "./middleware/error.js";
 import { responseWrapper } from "./middleware/responseWrapper.js";
@@ -105,8 +105,6 @@ app.use(cors({
 app.options('*', cors());
 
 // ── Body / Cookie ─────────────────────────────────────────────────────────────
-app.post("/api/payments/webhook", express.raw({ type: "application/json" }), stripeWebhook);
-
 app.use(express.json());
 app.use(cookieParser(process.env.JWT_ACCESS_SECRET));
 
@@ -157,6 +155,7 @@ app.use("/api/bookings", bookingRoutes);
 app.use("/api/resources", resourceRoutes);
 app.use("/api/resource-sections", resourceSectionRoutes);
 app.use("/api/feedback", feedbackRoutes);
+app.use("/api/admin/subscriptions", subscriptionAdminRoutes);
 
 // ── Database Diagnostic Route ─────────────────────────────────────────────────
 app.get('/api/db-status', async (req, res) => {

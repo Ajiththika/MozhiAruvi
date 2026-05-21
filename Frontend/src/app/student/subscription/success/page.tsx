@@ -20,7 +20,7 @@ function SuccessContent() {
   const queryClient = useQueryClient();
   const searchParams = useSearchParams();
   const { setUser } = useAuth();
-  const sessionId = searchParams.get("session_id");
+  const sessionId = searchParams.get("subscription_id") || searchParams.get("session_id") || searchParams.get("token");
   const [verifying, setVerifying] = React.useState(!!sessionId);
 
   useEffect(() => {
@@ -49,7 +49,7 @@ function SuccessContent() {
           Syncing Membership...
         </h1>
         <p className="text-lg text-primary/70 font-medium">
-          Finalizing your access with Stripe.
+          Finalizing your access with PayPal.
         </p>
       </div>
     );

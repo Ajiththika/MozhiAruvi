@@ -46,7 +46,7 @@ export async function notifyBookingSuccess(student, tutor, bookingDetails) {
       <div style="background: #f9f9f9; padding: 15px; border-radius: 8px; margin: 20px 0;">
         <p><strong>Date:</strong> ${new Date(date).toDateString()}</p>
         <p><strong>Time:</strong> ${startTime}</p>
-        <p><strong>Earnings:</strong> Paid to your Stripe account</p>
+        <p><strong>Earnings:</strong> Paid via PayPal</p>
       </div>
       <p>Please share the meeting link with the student from your "My Schedule" portal.</p>
       <a href="${FRONTEND_URL}/tutor/schedule" style="display:inline-block; padding: 10px 20px; background:#10B981; color:white; text-decoration:none; border-radius:6px; font-weight:bold;">Tutor Schedule</a>

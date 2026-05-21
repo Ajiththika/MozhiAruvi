@@ -15,4 +15,7 @@ router.post('/create-tutor-payment', authenticate, paymentController.createTutor
 router.post('/cancel-subscription', authenticate, paymentController.cancelSubscription);
 router.post('/upgrade-subscription', authenticate, paymentController.upgradeSubscription);
 
+// Webhooks
+router.post('/webhook', paymentController.paypalWebhook);
+
 export default router;

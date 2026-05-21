@@ -35,14 +35,22 @@ const triggerMonthlyReport = async () => {
 // 2. Monthly Support Limit Reset (Runs at 00:00 on the 1st of every month)
 const triggerMonthlyReset = async () => {
     try {
-        console.log(`[${new Date().toISOString()}] [JOBS] Resetting Monthly Tutor Support Counts for all scholars...`);
-        // Note: Paid users also reset via Stripe Webhook on their specific billing date, 
-        // but this ensures a clean slate for Free users and redundant safety for all.
-        const result = await User.updateMany(
-            {}, 
-            { $set: { 'subscription.tutorSupportUsed': 0 } }
+        console.log(`[${new Date().toISOString()}] [JOBS] Resetting Monthly Usage Counts...`);
+
+        // Reset legacy User model fields
+        const userResult = await User.updateMany(
+            {},
+            { $set: { 'subscription.tutorSupportUsed': 0, 'subscription.eventUsageCount': 0 } }
         );
-        console.log(`[${new Date().toISOString()}] [JOBS] Monthly Reset Finished. Impacted: ${result.modifiedCount} accounts.`);
+
+        // Reset new Subscription model monthly usage (questions & sessions)
+        const Subscription = (await import('../models/Subscription.js')).default;
+        const subResult = await Subscription.updateMany(
+            {},
+            { $set: { 'usageTracking.questionsUsed': 0, 'usageTracking.sessionsUsed': 0 } }
+        );
+
+        console.log(`[${new Date().toISOString()}] [JOBS] Monthly Reset Finished. Users: ${userResult.modifiedCount}, Subscriptions: ${subResult.modifiedCount}`);
     } catch (e) {
         console.error('Monthly Reset Job Failure:', e);
     }

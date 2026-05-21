@@ -86,7 +86,7 @@ export default function UsersClient() {
       setEditFormData(prev => ({
         ...prev,
         subscription: {
-          ...(prev.subscription || { plan: 'FREE', billingCycle: 'none', tutorSupportUsed: 0, eventUsageCount: 0 }),
+          ...(prev.subscription || { plan: 'BASIC', billingCycle: 'none', tutorSupportUsed: 0, eventUsageCount: 0 }),
           [field]: (field === 'tutorSupportUsed' || field === 'eventUsageCount') ? parseInt(value) || 0 : value
         }
       }));
@@ -369,13 +369,12 @@ export default function UsersClient() {
                       <Input 
                         label="Active Tier" 
                         name="subscription.plan" 
-                        value={editFormData.subscription?.plan || "FREE"} 
+                        value={editFormData.subscription?.plan || "BASIC"} 
                         onChange={handleEditChange}
                         options={[
-                          { label: "Free", value: "FREE" },
-                          { label: "Pro", value: "PRO" },
-                          { label: "Premium", value: "PREMIUM" },
-                          { label: "Business", value: "BUSINESS" },
+                          { label: "Starter (Free)", value: "BASIC" },
+                          { label: "Plus ($12/mo)", value: "PLUS" },
+                          { label: "Pro ($20/mo)", value: "MASTER" },
                         ]}
                       />
                       <Input 

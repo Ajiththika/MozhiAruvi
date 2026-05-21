@@ -141,18 +141,22 @@ function validateQuestion(q: DraftQuestion): string | undefined {
 
 function questionToDraft(q: Question): DraftQuestion {
   const type: QuestionType = (
-    q.type === "quiz" ? "mcq" : 
+    (q.type === "quiz" || q.type === "choice" || q.type === "identify" || q.type === "listening") ? "mcq" : 
     q.type === "match" ? "matching" : 
     (q.type === "fill" && q.words && q.words.length > 0) ? "taparrange" :
     q.type === "speaking" ? "speaking" :
     q.type === "writing" ? "writing" :
     "mcq" // fallback
   );
+
+  const initialOptions = q.options && q.options.length > 0 ? q.options : (type === "mcq" ? ["", ""] : []);
                              
-  let data: any = {
+  const data: any = {
     question: q.text,
-    options: q.options || [],
-    correctAnswer: q.options?.[q.correctOptionIndex || 0] || q.correctAnswer || "",
+    options: initialOptions,
+    correctAnswer: (q.correctOptionIndex !== undefined && q.correctOptionIndex >= 0 && initialOptions[q.correctOptionIndex])
+      ? initialOptions[q.correctOptionIndex]
+      : (q.correctAnswer || ""),
     promptText: q.text,
     correctSentence: q.correctAnswer || q.expectedAudioText || "",
     expectedText: q.correctAnswer || "",
@@ -162,11 +166,28 @@ function questionToDraft(q: Question): DraftQuestion {
   };
 
   if (type === "matching") {
-    try {
-      data.pairs = typeof q.correctAnswer === 'string' ? JSON.parse(q.correctAnswer) : (q.correctAnswer || []);
-      if (!Array.isArray(data.pairs)) data.pairs = [];
-    } catch {
-      data.pairs = [{ left: "", right: "" }];
+    const rawPairs = q.pairs;
+    if (rawPairs && Array.isArray(rawPairs) && rawPairs.length > 0) {
+      data.pairs = rawPairs.map(p => ({
+        left: p.left || "",
+        right: p.right || ""
+      }));
+    } else {
+      try {
+        const parsed = typeof q.correctAnswer === 'string' && q.correctAnswer.trim().startsWith('[') 
+          ? JSON.parse(q.correctAnswer) 
+          : null;
+        if (parsed && Array.isArray(parsed) && parsed.length > 0) {
+          data.pairs = parsed.map((p: any) => ({
+            left: p.left || "",
+            right: p.right || ""
+          }));
+        } else {
+          data.pairs = [{ left: "", right: "" }];
+        }
+      } catch {
+        data.pairs = [{ left: "", right: "" }];
+      }
     }
   }
   
@@ -199,8 +220,10 @@ const labelCls = "block text-[11px] font-black uppercase tracking-widest text-pr
 function MCQForm({ data, onChange }: { data: MCQData; onChange: (d: MCQData) => void }) {
   const setOption = (idx: number, val: string) => {
     const opts = [...data.options];
+    const oldVal = opts[idx];
     opts[idx] = val;
-    onChange({ ...data, options: opts });
+    const newCorrect = data.correctAnswer === oldVal ? val : data.correctAnswer;
+    onChange({ ...data, options: opts, correctAnswer: newCorrect });
   };
   const addOption = () => onChange({ ...data, options: [...data.options, ""] });
   const removeOption = (idx: number) => {
@@ -795,10 +818,18 @@ export default function AdminLessonsPage() {
 
   async function handleUpdateSaved(id: string, updated: DraftQuestion) {
     if (!activeLessonId) return;
+    
+    // Client-side validation before payload building
+    const vErr = validateQuestion(updated);
+    if (vErr) {
+      alert(`Validation Error: ${vErr}`);
+      return;
+    }
+
     try {
       const payload = buildPayload(updated);
       
-      // Validation: Ensure correctOptionIndex is valid for MCQ
+      // Secondary safety check
       if (payload.type === 'quiz' && (payload as any).correctOptionIndex === -1) {
         throw new Error("Please select a correct answer from the options.");
       }

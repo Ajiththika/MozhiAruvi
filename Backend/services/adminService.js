@@ -112,17 +112,41 @@ export async function editUser(userId, updateData) {
         user.isTutorAvailable = true;
     }
 
+    // If plan changed, sync to the Subscription model
+    const planVal = updateData.subscription?.plan || updateData['subscription.plan'];
+    if (planVal) {
+        const newPlan = planVal.toUpperCase();
+        const planMap = {
+            BASIC: 'starter',
+            PLUS: 'plus',
+            MASTER: 'master'
+        };
+        const planType = planMap[newPlan] || 'starter';
+        
+        const Subscription = (await import('../models/Subscription.js')).default;
+        await Subscription.findOneAndUpdate(
+            { userId: user._id },
+            {
+                userId: user._id,
+                planType,
+                isActive: planType !== 'starter',
+                endDate: planType !== 'starter' ? new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) : null
+            },
+            { upsert: true }
+        );
+    }
+
     await user.save();
     return user;
 }
-
 export async function getDashboardStats() {
-    const [totalUsers, activeUsers, totalTutors, pendingMentorApps, totalEvents] = await Promise.all([
+    const [totalUsers, activeUsers, totalTutors, pendingMentorApps, totalEvents, totalPremiumUsers] = await Promise.all([
         User.countDocuments(),
         User.countDocuments({ isActive: true }),
         User.countDocuments({ role: { $in: ['teacher', 'tutor'] } }),
         MentorApplication.countDocuments({ status: 'pending' }),
-        Event.countDocuments()
+        Event.countDocuments(),
+        User.countDocuments({ 'subscription.plan': { $in: ['PLUS', 'MASTER'] } })
     ]);
 
     return {
@@ -130,13 +154,14 @@ export async function getDashboardStats() {
         activeUsers,
         totalTutors,
         pendingApps: pendingMentorApps,
-        totalEvents
+        totalEvents,
+        totalPremiumUsers
     };
 }
 
 export async function getPremiumUsers(page = 1, limit = 10) {
     const skip = (page - 1) * limit;
-    const query = { 'subscription.plan': { $in: ['PRO', 'PREMIUM'] } };
+    const query = { 'subscription.plan': { $in: ['PLUS', 'MASTER'] } };
     const [users, totalItems] = await Promise.all([
         User.find(query)
             .select('-password -resetPasswordToken -resetPasswordExpires')

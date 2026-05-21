@@ -6,36 +6,34 @@
  */
 
 export function getFrontendUrl(req) {
-    // 1. Check for manual override in env
+    // 1. Check for manual override in env (Highest Priority for Production)
     const primary = process.env.PRIMARY_SITE_URL;
+    if (primary && process.env.NODE_ENV === 'production') {
+        return primary.endsWith('/') ? primary.slice(0, -1) : primary;
+    }
     
     // 2. Localhost Logic (Crucial for development)
     const host = req?.get('host');
-    const isDev = process.env.NODE_ENV === 'development';
+    const isActuallyLocal = host?.includes('localhost') || host?.includes('127.0.0.1');
 
-    if (host || isDev) {
-        const isLocal = host?.includes('localhost') || host?.includes('127.0.0.1') || isDev;
-        if (isLocal) {
-            const origins = process.env.FRONTEND_ORIGIN?.split(',') || [];
-            let localOrigin = origins.find(o => o.includes('localhost') || o.includes('127.0.0.1'));
-            
-            if (localOrigin) {
-                // Feature: Auto-downgrade https to http for localhost in development
-                // to prevent ERR_SSL_PROTOCOL_ERROR when clicking email links
-                if (process.env.NODE_ENV !== 'production' && localOrigin.startsWith('https://')) {
-                    localOrigin = localOrigin.replace('https://', 'http://');
-                }
-                return localOrigin;
+    if (isActuallyLocal) {
+        const origins = process.env.FRONTEND_ORIGIN?.split(',') || [];
+        let localOrigin = origins.find(o => o.includes('localhost') || o.includes('127.0.0.1'));
+        
+        if (localOrigin) {
+            // Feature: Auto-downgrade https to http for localhost in development
+            // to prevent ERR_SSL_PROTOCOL_ERROR when clicking email links
+            if (process.env.NODE_ENV !== 'production' && localOrigin.startsWith('https://')) {
+                localOrigin = localOrigin.replace('https://', 'http://');
             }
-            
-            if (host) {
-                const protocol = req.protocol || 'http';
-                return `${protocol}://${host}`;
-            }
+            return localOrigin;
         }
-
+        
+        if (host) {
+            const protocol = req.protocol || 'http';
+            return `${protocol}://${host}`;
+        }
     }
-
 
     // 3. Fallback: Use the manual site URL if specified
     if (primary) return primary.endsWith('/') ? primary.slice(0, -1) : primary;

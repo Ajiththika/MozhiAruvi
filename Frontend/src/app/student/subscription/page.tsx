@@ -18,55 +18,62 @@ import { cn } from "@/lib/utils";
 const PLANS = [
   {
     id: "BASIC",
-    name: "Free",
+    name: "Starter",
     priceMonthly: 0,
     priceYearly: 0,
     features: [
-      "3 Experience levels",
-      "1 Category per level",
-      "Read Blog posts",
-      "10 Ask-a-Tutor Questions",
-      "Restricted Premium events",
+      "1 Category (includes all levels)",
+      "Limited lessons access",
+      "Read Blogs enabled",
+      "10 Ask-a-Tutor Questions/mo",
+      "1–2 Events",
+      "No 1-to-1 classes",
     ],
     color: "border-slate-200",
     icon: <Zap className="w-5 h-5 text-primary/60" />,
-    buttonText: "Current Plan",
-    disabled: true,
+    buttonText: "Get Started",
+    disabled: false,
+    trialPeriod: 0,
   },
   {
     id: "PLUS",
-    name: "Pro",
-    priceMonthly: 3.81,
-    priceYearly: 42,
-    trialPeriod: 7,
+    name: "Plus",
+    priceMonthly: 12,
+    priceYearly: 120,
     features: [
-      "Up to 10 Categories",
-      "Full Lessons Access",
+      "50 Categories (includes all levels)",
+      "Full lessons access",
+      "Read Blogs enabled",
       "50 Ask-a-Tutor Questions/mo",
-      "Community Forum Access",
+      "4–8 Events",
+      "4–6 One-to-One classes",
     ],
-    color: "border-primary/40 text-primary",
+    color: "border-primary/60 text-primary",
     icon: <ShieldCheck className="w-5 h-5 text-primary" />,
-    buttonText: "Upgrade to Pro",
+    buttonText: "Upgrade",
+    highlight: true,
     disabled: false,
+    trialPeriod: 7,
   },
   {
     id: "MASTER",
-    name: "Premium",
-    priceMonthly: 7.94,
-    priceYearly: 90,
-    trialPeriod: 7,
+    name: "Pro",
+    priceMonthly: 20,
+    priceYearly: 200,
     features: [
       "Unlimited Categories",
-      "Full Lessons Access",
+      "Full lessons access",
+      "Read Blogs enabled",
       "100 Ask-a-Tutor Questions/mo",
-      "VIP Platform Support",
+      "8+ Events",
+      "10–12 One-to-One classes",
+      "Priority support",
     ],
     color: "border-amber-400/50 text-amber-600",
     icon: <Star className="w-5 h-5 text-amber-500 fill-current" />,
-    buttonText: "Go Premium",
-    highlight: true,
+    buttonText: "Upgrade",
     disabled: false,
+    trialPeriod: 0,
   },
 ];
 
@@ -208,7 +215,7 @@ export default function SubscriptionPage() {
               variant={plan.highlight ? "elevated" : "outline"}
               className={`relative overflow-hidden flex flex-col p-6 rounded-3xl border-2 transition-all duration-300 ${plan.color} ${plan.highlight ? "shadow-2xl shadow-primary/10 -translate-y-2" : "hover:scale-[1.02]"}`}
             >
-              {(hasTrial || plan.highlight || isPlanMatch) && (
+              {(hasTrial || plan.highlight || isPlanMatch || plan.id === "BASIC") && (
                 <div className="absolute top-2 right-2 flex flex-col items-end gap-1">
                   {isPlanMatch && (
                     <span className="bg-emerald-500 text-white text-[8px] font-black uppercase tracking-widest px-2 py-1 rounded-full shadow-lg shadow-emerald-500/30">
@@ -218,6 +225,11 @@ export default function SubscriptionPage() {
                   {plan.highlight && !isActive && (
                     <span className="bg-amber-500 text-white text-[8px] font-black uppercase tracking-widest px-2 py-1 rounded-full shadow-lg shadow-amber-500/20">
                       Popular
+                    </span>
+                  )}
+                  {plan.id === "BASIC" && !isPlanMatch && (
+                    <span className="bg-slate-500 text-white text-[8px] font-black uppercase tracking-widest px-2 py-1 rounded-full shadow-lg shadow-slate-500/20">
+                      Free Plan
                     </span>
                   )}
                   {hasTrial && !isActive && (

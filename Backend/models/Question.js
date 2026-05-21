@@ -10,7 +10,7 @@ const questionSchema = new mongoose.Schema({
     },
     text: { type: String, required: true }, // The prompt or instruction
     paragraph: { type: String }, // For 'reading' questions
-    options: [{ type: String }], // Array for multiple choice
+    options: [String], // Array for multiple choice
     pairs: [{ left: String, right: String }], // Support for Duolingo matching
     correctOptionIndex: { type: Number }, // Index for 'quiz' or 'identify'
     correctAnswer: { type: String }, // Used for fill, spelling, testing speaking
@@ -19,7 +19,7 @@ const questionSchema = new mongoose.Schema({
     phoneticHint: { type: String }, // Hint text for UI display
     scoreValue: { type: Number, default: 10 },
     orderIndex: { type: Number, default: 0 },
-
+    
     // ── Phase 1 Extended Fields (additive — backward compatible) ──────────────
     difficulty:      { type: String, enum: ['easy', 'medium', 'hard'], default: 'medium' },
     skill:           { type: String, enum: ['reading', 'writing', 'listening', 'speaking'], default: 'reading' },
@@ -28,8 +28,8 @@ const questionSchema = new mongoose.Schema({
     explanation:     { type: String },                         // Shown after answer is evaluated
     imageUrl:        { type: String },                         // Optional image for the question
     useTTS:          { type: Boolean, default: false },        // Auto-play TTS when question loads
-    acceptedAnswers: [{ type: String }],                       // Alternate correct answers (speaking/writing)
-    words:           [{ type: String }],                       // Word tokens for tap-to-arrange type
+    acceptedAnswers: [String],                                 // Alternate correct answers (speaking/writing)
+    words:           [String],                                 // Word tokens for tap-to-arrange type
 }, { timestamps: true });
 
 export default mongoose.model('Question', questionSchema);
