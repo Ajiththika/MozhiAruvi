@@ -112,7 +112,8 @@ export default function SubscriptionPage() {
 
   const hasEverPaid = currentPlan !== "BASIC";
 
-  const handlePlanSelection = async (planId: "PLUS" | "MASTER" | "PRO") => {
+  const handlePlanSelection = async (planId: "PLUS" | "MASTER") => {
+    const apiPlanId = planId === "MASTER" ? "BUSINESS" : planId;
     try {
       setLoadingPlan(planId);
 
@@ -123,7 +124,10 @@ export default function SubscriptionPage() {
         queryClient.invalidateQueries({ queryKey: ["student", "dashboard"] });
       } else {
         // Initial Subscription Logic (PayPal redirect)
-        const { url } = await createSubscriptionSession(planId, billingCycle);
+        const { url } = await createSubscriptionSession(
+          apiPlanId,
+          billingCycle,
+        );
         window.location.href = url;
       }
     } catch (err: any) {
@@ -215,11 +219,16 @@ export default function SubscriptionPage() {
               variant={plan.highlight ? "elevated" : "outline"}
               className={`relative overflow-hidden flex flex-col p-6 rounded-3xl border-2 transition-all duration-300 ${plan.color} ${plan.highlight ? "shadow-2xl shadow-primary/10 -translate-y-2" : "hover:scale-[1.02]"}`}
             >
-              {(hasTrial || plan.highlight || isPlanMatch || plan.id === "BASIC") && (
+              {(hasTrial ||
+                plan.highlight ||
+                isPlanMatch ||
+                plan.id === "BASIC") && (
                 <div className="absolute top-2 right-2 flex flex-col items-end gap-1">
                   {isPlanMatch && (
                     <span className="bg-emerald-500 text-white text-[8px] font-black uppercase tracking-widest px-2 py-1 rounded-full shadow-lg shadow-emerald-500/30">
-                      {isCycleMatch ? "Active Plan" : `Active (${currentCycle})`}
+                      {isCycleMatch
+                        ? "Active Plan"
+                        : `Active (${currentCycle})`}
                     </span>
                   )}
                   {plan.highlight && !isActive && (
@@ -289,10 +298,12 @@ export default function SubscriptionPage() {
                   </p>
                 )}
 
-                 {isPlanMatch && plan.id !== "BASIC" ? (
+                {isPlanMatch && plan.id !== "BASIC" ? (
                   <div className="flex flex-col items-center gap-4 mt-2 w-full">
                     <p className="text-[14px] font-bold text-primary/60 uppercase tracking-[0.2em]">
-                      {isActive ? "Current plan" : `Current Plan (${currentCycle})`}
+                      {isActive
+                        ? "Current plan"
+                        : `Current Plan (${currentCycle})`}
                     </p>
                     <div className="flex items-center justify-center gap-4 w-full px-2">
                       {isActive && (
@@ -313,14 +324,17 @@ export default function SubscriptionPage() {
                           className="flex-1 h-12 rounded-2xl bg-primary text-white text-[12px] font-black uppercase tracking-widest shadow-lg shadow-primary/25 hover:bg-primary/90 hover:scale-[1.02] transition-all flex items-center justify-center gap-2 disabled:opacity-50"
                           onClick={() =>
                             handlePlanSelection(
-                              plan.id === "PLUS" && isActive && billingCycle === "monthly"
+                              plan.id === "PLUS" &&
+                                isActive &&
+                                billingCycle === "monthly"
                                 ? "MASTER"
                                 : (plan.id as any),
                             )
                           }
                           disabled={!!loadingPlan}
                         >
-                          {loadingPlan === plan.id || loadingPlan === "MASTER" ? (
+                          {loadingPlan === plan.id ||
+                          loadingPlan === "MASTER" ? (
                             <Loader2 className="w-4 h-4 animate-spin" />
                           ) : isActive && plan.id === "PLUS" ? (
                             "Upgrade"
