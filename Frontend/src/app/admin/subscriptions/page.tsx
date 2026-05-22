@@ -182,7 +182,7 @@ export default function SubscriptionsPage() {
           </Card>
           {stats.planDistribution.map(p => (
             <Card key={p._id} variant="outline" className="p-5 flex flex-col gap-2">
-              <p className="text-[10px] font-black uppercase tracking-widest text-primary/40">{p.label || getPlanDisplay(p._id).label}</p>
+              <p className="text-xs font-bold uppercase tracking-widest text-primary/40">{getPlanDisplay(p._id).label}</p>
               <p className="text-3xl font-black text-slate-800">{p.count}</p>
               <p className="text-xs font-medium text-primary/50">Users</p>
             </Card>
