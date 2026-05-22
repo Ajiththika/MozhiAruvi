@@ -3,6 +3,8 @@ import Question from '../models/Question.js';
 import Progress from '../models/Progress.js';
 import User from '../models/User.js';
 import Mistake from '../models/Mistake.js';
+import { normalizeQuestionPayload } from '../utils/questionNormalize.js';
+import { sanitizeQuestionForStudent, evaluateQuestionAnswer } from '../utils/sanitizeQuestion.js';
 
 // ── Lesons (Public/User) ──────────────────────────────────────────────────────
 export async function getAllLessons() {
@@ -44,16 +46,17 @@ export async function getQuestionsForLesson(lessonId, isAdmin = false) {
     try {
         // Include new Phase 1 fields so frontend can show hint/explanation/xp
         const allQuestions = await Question.find({ lessonId })
-            .select('_id type text paragraph options scoreValue correctOptionIndex correctAnswer expectedAudioText audioUrl phoneticHint orderIndex difficulty skill xp hint explanation imageUrl useTTS acceptedAnswers words')
+            .select('_id type text paragraph options pairs scoreValue correctOptionIndex correctAnswer expectedAudioText tamilWord textToSpeech audioUrl phoneticHint orderIndex difficulty skill xp hint explanation imageUrl useTTS acceptedAnswers words')
             .sort({ orderIndex: 1, createdAt: 1 });
         
-        // Admins should see everything in order
+        // Admins see full data including answers
         if (isAdmin) return allQuestions;
-        
-        // Return up to 10 random questions per session as requested for students
-        if (allQuestions.length <= 10) return allQuestions;
-        
-        return allQuestions
+
+        const sanitized = allQuestions.map(sanitizeQuestionForStudent);
+
+        if (sanitized.length <= 10) return sanitized;
+
+        return sanitized
             .sort(() => 0.5 - Math.random())
             .slice(0, 10);
     } catch (e) {
@@ -96,12 +99,7 @@ export async function evaluateAnswersAndSaveProgress(userId, lessonId, answers) 
     for (const ans of answers) {
         const q = questionMap.get(ans.questionId.toString());
         if (q) {
-            const isChoiceType = ['quiz', 'identify', 'choice', 'match', 'fill', 'reading'].includes(q.type);
-            const isCorrectChoice = isChoiceType && ans.selectedOptionIndex === q.correctOptionIndex;
-            const isCorrectSpeaking = q.type === 'speaking' && ans.isSpeakingCompleted;
-            const isCorrectWriting = q.type === 'writing' && ans.selectedOptionIndex === 0;
-
-            const isCorrect = isCorrectChoice || isCorrectSpeaking || isCorrectWriting;
+            const isCorrect = evaluateQuestionAnswer(q, ans);
 
             if (isCorrect) {
                 score += q.scoreValue || 10;
@@ -284,15 +282,17 @@ export async function deleteLesson(lessonId) {
 export async function createQuestion(lessonId, data) {
     // ensure lesson exists
     await getLessonById(lessonId);
+    const normalized = normalizeQuestionPayload(data);
 
     return Question.create({
-        ...data,
+        ...normalized,
         lessonId
     });
 }
 
 export async function updateQuestion(questionId, updateData) {
-    const question = await Question.findByIdAndUpdate(questionId, updateData, { new: true });
+    const normalized = normalizeQuestionPayload(updateData);
+    const question = await Question.findByIdAndUpdate(questionId, normalized, { new: true });
     if (!question) {
         const err = new Error('Question not found'); err.status = 404; err.code = 'NOT_FOUND'; throw err;
     }

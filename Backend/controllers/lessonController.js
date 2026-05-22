@@ -2,8 +2,10 @@ import User from '../models/User.js';
 import * as lessonService from '../services/lessonService.js';
 import { canAttempt, consumeEnergy, getEnergyResponse, regenerateEnergy, validateStreak } from '../utils/energyManager.js';
 import speech from '@google-cloud/speech';
+import textToSpeech from '@google-cloud/text-to-speech';
 import { stringSimilarity } from 'string-similarity-js';
 import Question from '../models/Question.js';
+import { evaluateQuestionAnswer, getRevealAnswer } from '../utils/sanitizeQuestion.js';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -134,6 +136,33 @@ export async function submitAnswers(req, res, next) {
             energy: user ? getEnergyResponse(user) : null
         });
     } catch (e) { next(e); }
+}
+
+/** POST /api/lessons/:id/questions/:qId/check — server-side answer validation */
+export async function checkQuestionAnswer(req, res, next) {
+    try {
+        const question = await Question.findById(req.params.qId);
+        if (!question || question.lessonId.toString() !== req.params.id) {
+            return res.status(404).json({ message: 'Question not found' });
+        }
+
+        const { selectedOptionIndex, typedAnswer, isSpeakingCompleted } = req.body;
+        const correct = evaluateQuestionAnswer(question, {
+            selectedOptionIndex,
+            typedAnswer,
+            isSpeakingCompleted,
+        });
+
+        res.json({
+            correct,
+            correctAnswer: correct ? undefined : getRevealAnswer(question),
+            hint: correct ? undefined : question.hint,
+            explanation: question.explanation,
+            xp: correct ? (question.xp || question.scoreValue || 10) : 0,
+        });
+    } catch (e) {
+        next(e);
+    }
 }
 
 // ── Google Cloud Integration Utilities ─────────────────────────────────────────
@@ -267,7 +296,7 @@ export async function evaluateSpeaking(req, res, next) {
         const question = await Question.findById(questionId);
         if (!question) return res.status(404).json({ message: "Question not found" });
 
-        const expectedText = (question.expectedAudioText || question.text || "").trim();
+        const expectedText = (question.correctAnswer || question.tamilWord || question.expectedAudioText || "").trim();
         const cleanBase64 = audioBase64.replace(/^data:audio\/\w+;base64,/, '');
         
         let transcription = "";
@@ -413,6 +442,19 @@ Respond ONLY with YES or NO.`;
 }
 
 // ── Speech Synthesis ─────────────────────────────────────────────────────────
+let _ttsClient = null;
+
+function getTtsClient() {
+    if (_ttsClient) return _ttsClient;
+    try {
+        _ttsClient = new textToSpeech.TextToSpeechClient();
+        return _ttsClient;
+    } catch (e) {
+        console.warn('[Google TTS] Client unavailable:', e.message);
+        return null;
+    }
+}
+
 export async function generateSpeech(req, res, _next) {
     try {
         const { text } = req.body;
@@ -420,43 +462,62 @@ export async function generateSpeech(req, res, _next) {
             return res.status(400).json({ message: "Text is required" });
         }
 
-        const apiKey = "sk_964cd5000cfa71bca6b87b18386b2ddeeb65b8f0eaa92232";
-        const voiceId = "21m00Tcm4TlvDq8ikWAM"; // Rachel
-        
-        try {
-            const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
-                method: 'POST',
-                headers: {
-                    'Accept': 'audio/mpeg',
-                    'Content-Type': 'application/json',
-                    'xi-api-key': apiKey
-                },
-                body: JSON.stringify({
-                    text: text,
-                    model_id: "eleven_multilingual_v2",
-                    voice_settings: {
-                        stability: 0.5,
-                        similarity_boost: 0.75
-                    }
-                })
-            });
-
-            if (!response.ok) {
-                console.error("ElevenLabs error:", response.status, await response.text());
-                return res.json({ audioUrl: null, fallback: true, reason: 'ElevenLabs Service Error' });
-            }
-
-            const arrayBuffer = await response.arrayBuffer();
-            const audioBase64 = Buffer.from(arrayBuffer).toString('base64');
-            
-            return res.json({ audioUrl: `data:audio/mpeg;base64,${audioBase64}` });
-        } catch (elevenErr) {
-            console.error("ElevenLabs fetch error:", elevenErr);
-            // Fall through to browser TTS fallback response below
+        const speechText = text.trim();
+        if (!speechText) {
+            return res.status(400).json({ message: "Text is required" });
         }
 
-        return res.json({ audioUrl: null, fallback: true, reason: 'ElevenLabs Service Unavailable' });
-    } catch (e) { 
+        // 1. Google Cloud Text-to-Speech (Tamil)
+        try {
+            const ttsClient = getTtsClient();
+            if (ttsClient) {
+                const [response] = await ttsClient.synthesizeSpeech({
+                    input: { text: speechText },
+                    voice: { languageCode: 'ta-IN', ssmlGender: 'NEUTRAL' },
+                    audioConfig: { audioEncoding: 'MP3', speakingRate: 0.95 },
+                });
+                if (response.audioContent) {
+                    const audioBase64 = Buffer.from(response.audioContent).toString('base64');
+                    return res.json({ audioUrl: `data:audio/mpeg;base64,${audioBase64}` });
+                }
+            }
+        } catch (googleErr) {
+            console.warn('[Google TTS] synthesis failed:', googleErr.message);
+        }
+
+        // 2. ElevenLabs (optional, from env)
+        const elevenKey = process.env.ELEVENLABS_API_KEY;
+        const voiceId = process.env.ELEVENLABS_VOICE_ID || '21m00Tcm4TlvDq8ikWAM';
+        if (elevenKey) {
+            try {
+                const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'audio/mpeg',
+                        'Content-Type': 'application/json',
+                        'xi-api-key': elevenKey,
+                    },
+                    body: JSON.stringify({
+                        text: speechText,
+                        model_id: 'eleven_multilingual_v2',
+                        voice_settings: { stability: 0.5, similarity_boost: 0.75 },
+                    }),
+                });
+
+                if (response.ok) {
+                    const arrayBuffer = await response.arrayBuffer();
+                    const audioBase64 = Buffer.from(arrayBuffer).toString('base64');
+                    return res.json({ audioUrl: `data:audio/mpeg;base64,${audioBase64}` });
+                }
+                console.error('ElevenLabs error:', response.status, await response.text());
+            } catch (elevenErr) {
+                console.error('ElevenLabs fetch error:', elevenErr.message);
+            }
+        }
+
+        // 3. Signal frontend to use browser SpeechSynthesis
+        return res.json({ audioUrl: null, fallback: true, reason: 'Use browser TTS' });
+    } catch (e) {
         console.error('❌ [GENERATE SPEECH CRIT]:', e.message);
         return res.json({ audioUrl: null, fallback: true, reason: 'Critical internal error' });
     }

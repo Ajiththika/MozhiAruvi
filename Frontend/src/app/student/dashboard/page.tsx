@@ -278,12 +278,6 @@ export default function StudentDashboard() {
                     <p className="text-[10px] font-bold text-slate-400 capitalize">{booking.tutorId?.specialization || "Language Session"}</p>
                     <div className="flex gap-3">
                       {booking.status === 'confirmed' && booking.paymentStatus !== 'paid' && (
-                        !booking.tutorId?.stripeAccountId ? (
-                          <div className="flex items-center gap-1.5 text-amber-500">
-                            <AlertCircle className="w-3 h-3" />
-                            <span className="text-[9px] font-black uppercase tracking-widest">Teacher Setup Pending</span>
-                          </div>
-                        ) : (
                           <button
                             disabled={submitingPay === booking._id}
                             onClick={async (e) => {
@@ -293,9 +287,10 @@ export default function StudentDashboard() {
                                 const { payBooking: apiPay } = await import("@/services/bookingService");
                                 const { url } = await apiPay(booking._id);
                                 if (url) window.location.href = url;
-                                else throw new Error("No URL received");
-                              } catch (e) {
-                                alert("Mentor has not finished Stripe account setup yet. Please try again later.");
+                                else throw new Error("No payment URL received");
+                              } catch (err: unknown) {
+                                const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || "Payment could not be started. Please try again.";
+                                alert(msg);
                               } finally {
                                 setSubmitingPay(null);
                               }
@@ -310,9 +305,8 @@ export default function StudentDashboard() {
                             ) : (
                               <Zap className="h-3 w-3 fill-current" />
                             )}
-                            <span>{submitingPay === booking._id ? "Initializing..." : "Pay Now"}</span>
+                            <span>{submitingPay === booking._id ? "Redirecting..." : "Pay with PayPal"}</span>
                           </button>
-                        )
                       )}
                       {(booking.status === 'confirmed' && booking.paymentStatus === 'paid') && (
                         <button className="text-[10px] font-black text-primary uppercase tracking-widest hover:text-secondary transition-colors cursor-default">Join Class</button>

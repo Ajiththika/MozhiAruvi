@@ -18,7 +18,7 @@ import { cn } from "@/lib/utils";
 const PLANS = [
   {
     id: "BASIC",
-    name: "Starter",
+    name: "Basic",
     priceMonthly: 0,
     priceYearly: 0,
     features: [
@@ -112,17 +112,17 @@ export default function SubscriptionPage() {
 
   const hasEverPaid = currentPlan !== "BASIC";
 
-  const handlePlanSelection = async (planId: "PLUS" | "MASTER") => {
+  const handlePlanSelection = async (planId: "PLUS" | "MASTER" | "PRO") => {
     try {
       setLoadingPlan(planId);
 
       if (hasEverPaid) {
-        // Instant Upgrade Logic (no Stripe redirect)
+        // Instant Upgrade Logic (no PayPal redirect)
         const res = await upgradeSubscription(planId, billingCycle);
         alert(`Successfully upgraded to ${planId}!`);
         queryClient.invalidateQueries({ queryKey: ["student", "dashboard"] });
       } else {
-        // Initial Subscription Logic (Stripe redirect)
+        // Initial Subscription Logic (PayPal redirect)
         const { url } = await createSubscriptionSession(planId, billingCycle);
         window.location.href = url;
       }

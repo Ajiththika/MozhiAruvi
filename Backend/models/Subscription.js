@@ -9,8 +9,8 @@ const subscriptionSchema = new mongoose.Schema({
   },
   planType: {
     type: String,
-    enum: ['starter', 'plus', 'master'],
-    default: 'starter',
+    enum: ['basic', 'plus', 'pro', 'starter', 'master'],
+    default: 'basic',
     required: true
   },
   isActive: {

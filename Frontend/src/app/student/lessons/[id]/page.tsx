@@ -3,8 +3,8 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, ArrowRight, Play, HelpCircle, Loader2, AlertCircle, Zap, BookOpen, User, CheckCircle2, XCircle, Volume2, Trophy } from "lucide-react";
-import { getLessonById, getLessonQuestions, submitAnswers, generateSpeech, Lesson, Question, SubmitAnswerItem } from "@/services/lessonService";
+import { ArrowLeft, ArrowRight, HelpCircle, Loader2, AlertCircle, Zap, CheckCircle2, XCircle, Trophy } from "lucide-react";
+import { getLessonById, getLessonQuestions, submitAnswers, generateSpeech, checkQuestionAnswer, Lesson, Question, SubmitAnswerItem } from "@/services/lessonService";
 import { getMe, SafeUser } from "@/services/authService";
 import { api } from "@/lib/api";
 import { cn } from "@/lib/utils";
@@ -17,6 +17,9 @@ import { AskTutorModal } from "@/components/features/lessons/AskTutorModal";
 import { EnergyStatus } from "@/components/features/lessons/EnergyStatus";
 import { LessonProgress } from "@/components/features/lessons/LessonProgress";
 import { WritingCanvas } from "@/components/features/lessons/WritingCanvas";
+import { QuestionSpeaker } from "@/components/features/lessons/QuestionSpeaker";
+import { useToast } from "@/components/ui/Toast";
+import { getTamilSpeechText } from "@/lib/questionTts";
 
 type Phase = "loading" | "preview" | "ready" | "out_of_power" | "completed" | "error";
 
@@ -30,7 +33,6 @@ export default function LessonInteractiveSession() {
 
   const [selected, setSelected] = useState<Record<string, number>>({});
   const [feedback, setFeedback] = useState<Record<string, "correct" | "incorrect">>({});
-  const [playedFeedback, setPlayedFeedback] = useState<Record<string, boolean>>({});
   const [backendMessage, setBackendMessage] = useState<Record<string, string>>({});
 
   const [phase, setPhase] = useState<Phase>("loading");
@@ -38,25 +40,30 @@ export default function LessonInteractiveSession() {
 
   const [score, setScore] = useState<{ score: number; total: number; passed: boolean; nextLessonId?: string; xpEarned?: number } | null>(null);
   const [submitting, setSubmitting] = useState(false);
-  const [typingValue, setTypingValue] = useState("");
+  const [typingByQuestion, setTypingByQuestion] = useState<Record<string, string>>({});
 
   const [showAskPanel, setShowAskPanel] = useState(false);
   const [playingAudioId, setPlayingAudioId] = useState<string | null>(null);
+  const [actionLocked, setActionLocked] = useState(false);
+  const [questionTransition, setQuestionTransition] = useState(false);
+  const { toast } = useToast();
 
   const [energy, setEnergy] = useState<{currentEnergy: number; maxEnergy: number; nextRecoveryIn: number; isPremium: boolean} | null>(null);
 
   const handlePlayAudio = async (text: string, qId: string, url?: string) => {
-    if (!text && !url) return;
+    const speechText = (text || "").trim();
+    if (!speechText && !url) return;
+    if (actionLocked && playingAudioId !== qId) return;
     try {
       setPlayingAudioId(qId);
-      if (url && url.startsWith('http')) {
+      if (url && (url.startsWith('http') || url.startsWith('data:'))) {
         const audio = new Audio(url);
         audio.onended = () => setPlayingAudioId(null);
         audio.onerror = () => setPlayingAudioId(null);
         await audio.play();
-      } else if (text) {
+      } else if (speechText) {
         try {
-          const { audioUrl } = await generateSpeech(id as string, text);
+          const { audioUrl } = await generateSpeech(id as string, speechText);
           
           if (audioUrl) {
             // Backend TTS succeeded — use it
@@ -73,7 +80,7 @@ export default function LessonInteractiveSession() {
 
         // ── Browser TTS Fallback ─────────────────────────────────────────────
         const speak = () => {
-          const utterance = new SpeechSynthesisUtterance(text);
+          const utterance = new SpeechSynthesisUtterance(speechText);
           // Explicit Tamil Voice Seek
           const voices = window.speechSynthesis.getVoices();
           const taVoices = voices.filter(v => v.lang.startsWith('ta'));
@@ -128,6 +135,7 @@ export default function LessonInteractiveSession() {
       }
     } catch (err) {
       console.error("Critical TTS failure:", err);
+      toast("Could not play audio. Please try again.", "error");
       setPlayingAudioId(null);
     }
   };
@@ -178,9 +186,10 @@ export default function LessonInteractiveSession() {
             return;
           }
           console.error("Lesson initialization failure:", err.message);
+          toast(err.response?.data?.message || "Failed to load lesson. Please try again.", "error");
           setPhase("error");
       });
-  }, [id, router]);
+  }, [id, router, toast]);
 
   const correctAnswersCount = Object.values(feedback).filter(f => f === "correct").length;
   const progress = questions.length > 0 ? Math.round((correctAnswersCount / questions.length) * 100) : 0;
@@ -193,45 +202,61 @@ export default function LessonInteractiveSession() {
     return true;
   };
 
-  const handleSelect = async (qId: string, idx: number, correctIdx?: number) => {
-    if (feedback[qId]) return;
-    
+  const handleSelect = async (qId: string, idx: number, typedAnswer?: string) => {
+    if (feedback[qId] || actionLocked) return;
+    setActionLocked(true);
+
     try {
-      // ── Phase 7: Per-question energy deduction ──
       const res = await api.post(`/lessons/${id}/questions/${qId}/attempt`);
       if (res.data.energy) setEnergy(res.data.energy);
     } catch (err: any) {
       if (err.response?.status === 403 && err.response?.data?.error === 'NO_ENERGY') {
         setPhase("out_of_power");
+        setActionLocked(false);
         return;
       }
-      // If it's another error, we might still allow the attempt if they have energy locally
-      // but the server call is the source of truth.
-      console.error("Energy deduction failed:", err);
     }
 
-    setSelected((prev) => ({ ...prev, [qId]: idx }));
-    if (idx === correctIdx) {
-      setFeedback((prev) => ({ ...prev, [qId]: "correct" }));
-    } else {
-      setFeedback((prev) => ({ ...prev, [qId]: "incorrect" }));
+    try {
+      const q = questions.find((x) => x._id === qId);
+      const result = await checkQuestionAnswer(id as string, qId, {
+        selectedOptionIndex: idx,
+        typedAnswer: typedAnswer ?? (q?.type === "fill" ? typingByQuestion[qId] : undefined),
+      });
+      setSelected((prev) => ({ ...prev, [qId]: result.correct ? (idx >= 0 ? idx : 0) : -1 }));
+      setFeedback((prev) => ({ ...prev, [qId]: result.correct ? "correct" : "incorrect" }));
+      if (!result.correct && result.correctAnswer) {
+        setBackendMessage((prev) => ({ ...prev, [qId]: `Correct answer: ${result.correctAnswer}` }));
+      }
+    } catch {
+      toast("Could not check answer. Please try again.", "error");
+    } finally {
+      setActionLocked(false);
     }
   };
 
   const handleManualNext = () => {
     if (currentQ < questions.length - 1) {
-        setTypingValue("");
-        setCurrentQ((c) => c + 1);
+        setQuestionTransition(true);
+        setTimeout(() => {
+          setCurrentQ((c) => c + 1);
+          setQuestionTransition(false);
+        }, 200);
     }
   };
 
   const handleSubmit = async () => {
+    if (submitting || actionLocked) return;
     setSubmitting(true);
     try {
-      const answers: SubmitAnswerItem[] = Object.entries(selected).map(([qId, idx]) => ({
-        questionId: qId,
-        selectedOptionIndex: idx,
-      }));
+      const answers: SubmitAnswerItem[] = questions
+        .filter((q) => feedback[q._id])
+        .map((q) => ({
+          questionId: q._id,
+          selectedOptionIndex: selected[q._id] ?? (feedback[q._id] === "correct" ? 0 : -1),
+          isSpeakingCompleted: q.type === "speaking" && feedback[q._id] === "correct",
+          typedAnswer: q.type === "fill" ? typingByQuestion[q._id] : undefined,
+        }));
       const res = await submitAnswers(id as string, answers);
       if (res.user) setUser(res.user);
       if (res.energy) setEnergy(res.energy);
@@ -243,7 +268,7 @@ export default function LessonInteractiveSession() {
         return;
       }
       console.error(e);
-      alert("Submission failed.");
+      toast(e.response?.data?.message || "Submission failed. Please try again.", "error");
     } finally {
       setSubmitting(false);
     }
@@ -273,16 +298,14 @@ export default function LessonInteractiveSession() {
   const [countdown, setCountdown] = useState<number | null>(null);
 
   useEffect(() => {
-    const qId = questions[currentQ]?._id;
-    if (qId && feedback[qId] && !playedFeedback[qId]) {
-      setPlayedFeedback(prev => ({ ...prev, [qId]: true }));
-      if (feedback[qId] === 'correct') {
-        handlePlayAudio("Correct!", qId + "_feedback");
-      } else {
-        handlePlayAudio("Incorrect attempt. Try again.", qId + "_feedback");
-      }
+    const q = questions[currentQ];
+    if (!q || phase !== "ready") return;
+    const tamil = getTamilSpeechText(q);
+    if (q.useTTS && tamil) {
+      handlePlayAudio(tamil, q._id, q.audioUrl);
     }
-  }, [feedback, currentQ, questions, playedFeedback]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentQ, phase]);
 
   useEffect(() => {
     if (phase === "completed" && score?.nextLessonId && score.passed) {
@@ -441,6 +464,15 @@ export default function LessonInteractiveSession() {
   }
 
   const q = questions[currentQ];
+  const typingValue = q ? (typingByQuestion[q._id] || "") : "";
+  const setTypingValue = (val: string | ((prev: string) => string)) => {
+    if (!q) return;
+    setTypingByQuestion((prev) => {
+      const cur = prev[q._id] || "";
+      const next = typeof val === "function" ? val(cur) : val;
+      return { ...prev, [q._id]: next };
+    });
+  };
 
   return (
     <div className="min-h-screen bg-background flex flex-col font-sans overflow-x-hidden">
@@ -473,8 +505,13 @@ export default function LessonInteractiveSession() {
       <main className="flex-1 flex flex-col items-center justify-center p-6 md:p-12 max-w-7xl mx-auto w-full">
         <div className="w-full flex-col flex items-center gap-12">
           
-          <div className="w-full flex flex-col items-center space-y-12 animate-in fade-in duration-700">
+          <div className={cn("w-full flex flex-col items-center space-y-12 transition-opacity duration-300", questionTransition ? "opacity-0" : "opacity-100 animate-in fade-in")}>
             <div className="text-center space-y-8 w-full max-w-4xl">
+               {q?.imageUrl && (
+                  <div className="w-full max-w-md mx-auto rounded-[2rem] overflow-hidden border-2 border-slate-100 shadow-lg mb-4">
+                    <img src={q.imageUrl} alt="" className="w-full object-cover max-h-64" />
+                  </div>
+               )}
                {q?.type === 'reading' && q?.paragraph && (
                   <div className="bg-gray-50 p-6 rounded-[2rem] border-2 text-left mb-8">
                       <p className="text-xl font-bold text-gray-700 leading-relaxed text-center">{q.paragraph}</p>
@@ -483,21 +520,12 @@ export default function LessonInteractiveSession() {
 
                <div className="flex flex-col items-center gap-8 w-full">
                    <div className="flex items-center justify-center gap-8 w-full">
-                    {/* Speaker button conditionally shows based on Admin Text to Speech input or if it's a Speaking/Listening question */}
-                    {(q?.expectedAudioText || q?.audioUrl || q?.type === 'speaking' || q?.type === 'listening') && (
-                      <button
-                          onClick={() => {
-                            const textToSpeak = q?.expectedAudioText || (q?.type === 'speaking' ? q?.correctAnswer : q?.text);
-                            handlePlayAudio(textToSpeak || "", q?._id, q?.audioUrl);
-                          }}
-                          disabled={playingAudioId === q?._id}
-                          className={cn(
-                          "flex items-center justify-center h-20 w-20 rounded-[2rem] border-2 transition-all shadow-lg active:scale-95 shrink-0",
-                          playingAudioId === q?._id ? "bg-primary/10 animate-pulse" : "bg-white hover:bg-primary/5"
-                          )}
-                      >
-                          {playingAudioId === q?._id ? <Loader2 size={32} className="animate-spin text-primary" /> : <Volume2 size={40} className="text-primary" />}
-                      </button>
+                    {q && (
+                      <QuestionSpeaker
+                        question={q}
+                        playingId={playingAudioId}
+                        onPlay={handlePlayAudio}
+                      />
                     )}
 
                     {q?.type !== 'match' && (
@@ -512,7 +540,7 @@ export default function LessonInteractiveSession() {
                                                 "inline-block mx-3 min-w-[150px] border-b-4 transition-all",
                                                 feedback[q._id] === 'correct' ? "border-emerald-500 text-emerald-600" : "border-gray-200"
                                             )}>
-                                                {feedback[q._id] ? (q.options?.find((o: string, idx: number) => idx === q.correctOptionIndex) || q.correctAnswer) : (typingValue || "...")}
+                                                {typingValue || "..."}
                                             </span>
                                         )}
                                     </React.Fragment>
@@ -530,7 +558,21 @@ export default function LessonInteractiveSession() {
                 )}
 
                 {q?.type === "match" && (
-                    <MatchingPairs question={q as any} isCorrect={feedback[q._id] === "correct"} onResult={(passed) => passed ? setFeedback(prev => ({ ...prev, [q._id]: "correct" })) : null} questionNumber={currentQ + 1} />
+                    <MatchingPairs
+                      question={q as any}
+                      isCorrect={feedback[q._id] === "correct"}
+                      onResult={(passed) => {
+                        if (passed) {
+                          setFeedback((prev) => ({ ...prev, [q._id]: "correct" }));
+                          setSelected((prev) => ({ ...prev, [q._id]: 0 }));
+                        }
+                      }}
+                      questionNumber={currentQ + 1}
+                      tamilWord={getTamilSpeechText(q)}
+                      audioUrl={q.audioUrl}
+                      onPlayTamil={() => handlePlayAudio(getTamilSpeechText(q), q._id, q.audioUrl)}
+                      playingAudio={playingAudioId === q._id}
+                    />
                 )}
 
                 {q?.type === "fill" && (
@@ -561,7 +603,7 @@ export default function LessonInteractiveSession() {
                                   <button
                                     key={i}
                                     onClick={() => {
-                                      if (feedback[q._id]) return;
+                                      if (feedback[q._id] || actionLocked) return;
                                       setTypingValue(prev => (prev ? prev + " " + word : word));
                                     }}
                                     className="px-5 py-3 bg-white border-2 border-slate-100 rounded-2xl font-bold text-slate-700 shadow-sm hover:border-primary hover:text-primary transition-all active:scale-95"
@@ -587,13 +629,9 @@ export default function LessonInteractiveSession() {
                         {!feedback[q._id] && (
                             <Button 
                                 onClick={() => {
-                                    const rawCorrect = q.correctAnswer || (q.options ? q.options[q.correctOptionIndex ?? 0] : "");
-                                    const correct = (rawCorrect || "").toLowerCase().trim();
-                                    const current = typingValue.toLowerCase().trim();
-                                    const isCorrect = current === correct;
-                                    handleSelect(q._id, isCorrect ? (q.correctOptionIndex ?? 0) : -1, q.correctOptionIndex ?? 0);
+                                    handleSelect(q._id, 0, typingValue);
                                 }}
-                                disabled={!typingValue.trim()}
+                                disabled={!typingValue.trim() || actionLocked}
                                 size="xl"
                                 className="w-full rounded-2xl bg-secondary hover:bg-secondary/90 shadow-xl shadow-secondary/20"
                             >Check Answer</Button>
@@ -643,10 +681,8 @@ export default function LessonInteractiveSession() {
                     )}
                   </div>
                   
-                  {feedback[q._id] === 'incorrect' && (
-                    <p className="text-sm font-bold text-slate-800">
-                      Correct answer: <span className="text-primary">{q.correctAnswer || q.options?.[q.correctOptionIndex ?? 0]}</span>
-                    </p>
+                  {feedback[q._id] === 'incorrect' && backendMessage[q._id] && (
+                    <p className="text-sm font-bold text-slate-800">{backendMessage[q._id]}</p>
                   )}
 
                   {feedback[q._id] === 'incorrect' && q.hint && (
@@ -665,7 +701,8 @@ export default function LessonInteractiveSession() {
                 </div>
               </div>
               <Button 
-                onClick={currentQ === questions.length - 1 ? handleSubmit : handleManualNext} 
+                onClick={currentQ === questions.length - 1 ? handleSubmit : handleManualNext}
+                disabled={submitting || actionLocked}
                 size="xl" 
                 className={cn(
                   "w-full md:w-auto px-16 rounded-[1.5rem] shadow-2xl h-16 font-black uppercase tracking-widest text-xs", 

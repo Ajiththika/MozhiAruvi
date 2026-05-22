@@ -11,7 +11,14 @@ const questionSchema = new mongoose.Schema({
     text: { type: String, required: true }, // The prompt or instruction
     paragraph: { type: String }, // For 'reading' questions
     options: [String], // Array for multiple choice
-    pairs: [{ left: String, right: String }], // Support for Duolingo matching
+    pairs: [{
+        left: String,
+        right: String,
+        tamilWord: { type: String },  // Tamil side TTS (optional per pair)
+        audioUrl: { type: String },   // Uploaded pronunciation per pair
+    }],
+    tamilWord: { type: String },       // Dedicated Tamil word for TTS only (not question text)
+    textToSpeech: { type: Boolean, default: false }, // Show speaker when true + tamilWord/audio
     correctOptionIndex: { type: Number }, // Index for 'quiz' or 'identify'
     correctAnswer: { type: String }, // Used for fill, spelling, testing speaking
     expectedAudioText: { type: String }, // For 'speaking' questions

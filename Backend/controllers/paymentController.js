@@ -7,24 +7,26 @@ import PlanSettings from '../models/PlanSettings.js';
 import Subscription from '../models/Subscription.js';
 import * as paypalService from '../services/paypalService.js';
 import * as communication from '../services/communicationService.js';
+import { normalizePlanType, planTypeToUserPlan, userPlanToPlanType } from '../utils/planTypes.js';
 
 /**
  * Synchronize Subscription document with User model.
  */
 async function syncSubscriptionWithUser(subDoc) {
-  const planMap = {
-    starter: 'BASIC',
-    plus: 'PLUS',
-    master: 'MASTER'
-  };
-  const userPlan = planMap[subDoc.planType] || 'BASIC';
+  const planType = normalizePlanType(subDoc.planType);
+  const userPlan = planTypeToUserPlan(planType);
 
   await User.findByIdAndUpdate(subDoc.userId, {
     'subscription.plan': userPlan,
     'subscription.status': subDoc.isActive ? 'active' : 'canceled',
     'subscription.currentPeriodEnd': subDoc.endDate,
-    isPremium: subDoc.isActive && subDoc.planType !== 'starter'
+    isPremium: subDoc.isActive && planType !== 'basic',
   });
+
+  if (subDoc.planType !== planType) {
+    subDoc.planType = planType;
+    await subDoc.save().catch(() => {});
+  }
 }
 
 /**
@@ -97,7 +99,9 @@ export async function createSubscriptionSession(req, res, next) {
     if (plan === 'PLUS') {
       planId = cycle === 'yearly' ? (process.env.PAYPAL_PLAN_PLUS_YEARLY || process.env.PAYPAL_PLAN_PLUS_MONTHLY) : process.env.PAYPAL_PLAN_PLUS_MONTHLY;
     } else if (plan === 'MASTER' || plan === 'PRO') {
-      planId = cycle === 'yearly' ? (process.env.PAYPAL_PLAN_PRO_YEARLY || process.env.PAYPAL_PLAN_PRO_MONTHLY) : process.env.PAYPAL_PLAN_PRO_MONTHLY;
+      planId = cycle === 'yearly'
+        ? (process.env.PAYPAL_PLAN_PRO_YEARLY || process.env.PAYPAL_PLAN_MASTER_YEARLY || process.env.PAYPAL_PLAN_PRO_MONTHLY)
+        : (process.env.PAYPAL_PLAN_PRO_MONTHLY || process.env.PAYPAL_PLAN_MASTER_MONTHLY);
     }
 
     if (!planId) {
@@ -119,7 +123,7 @@ export async function createSubscriptionSession(req, res, next) {
       { userId: user._id },
       {
         userId: user._id,
-        planType: plan.toLowerCase() === 'master' ? 'master' : 'plus',
+        planType: (plan.toUpperCase() === 'MASTER' || plan.toUpperCase() === 'PRO') ? 'pro' : 'plus',
         isActive: false,
         startDate: new Date(),
         paypalSubscriptionId: paypalSub.id,
@@ -171,15 +175,27 @@ export async function verifySubscriptionSession(req, res, next) {
           });
 
           // Check if there is an associated Booking to confirm
-          const booking = await Booking.findOne({ studentId: payment.user, tutorId: payment.metadata.tutorId, paymentStatus: 'pending' });
+          let booking = null;
+          if (payment.metadata?.bookingId) {
+            booking = await Booking.findById(payment.metadata.bookingId);
+          }
+          if (!booking) {
+            booking = await Booking.findOne({
+              studentId: payment.user,
+              tutorId: payment.metadata?.tutorId,
+              paymentStatus: 'pending',
+            });
+          }
           if (booking) {
             booking.paymentStatus = 'paid';
-            booking.status = 'confirmed';
+            if (booking.status === 'pending') booking.status = 'confirmed';
             await booking.save();
 
             const student = await User.findById(payment.user);
-            const tutor = await User.findById(payment.metadata.tutorId);
-            await communication.notifyBookingSuccess(student, tutor, booking);
+            const tutor = await User.findById(payment.metadata?.tutorId || booking.tutorId);
+            if (student && tutor) {
+              await communication.notifyBookingSuccess(student, tutor, booking);
+            }
           }
         }
       }

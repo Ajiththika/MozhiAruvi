@@ -1,7 +1,8 @@
 import Booking from '../models/Booking.js';
 import Notification from '../models/Notification.js';
 import User from '../models/User.js';
-import * as stripeConnect from '../services/stripeConnectService.js';
+import Payment from '../models/Payment.js';
+import * as paypalService from '../services/paypalService.js';
 import * as communication from '../services/communicationService.js';
 
 /**
@@ -58,29 +59,47 @@ export async function initiateBookingPayment(req, res, next) {
     try {
         const booking = await Booking.findById(req.params.id).populate('studentId tutorId');
         if (!booking) return res.status(404).json({ message: "Booking not found." });
+        if (booking.studentId._id.toString() !== req.user.sub) {
+            return res.status(403).json({ message: "Only the student can pay for this booking." });
+        }
         if (booking.status !== 'confirmed') return res.status(400).json({ message: "Booking must be accepted by mentor first." });
         if (booking.paymentStatus === 'paid') return res.status(400).json({ message: "Already paid." });
 
-        if (!booking.tutorId.stripeAccountId) {
-            console.warn(`[Payment] Tutor ${booking.tutorId._id} missing stripeAccountId.`);
-            return res.status(400).json({ message: "Mentor hasn't connected their Stripe account yet. Please wait for them to finish setup." });
-        }
+        const amount = booking.amount || booking.tutorId.oneClassFee || 30;
+        const origin = req.get('origin') || process.env.PRIMARY_SITE_URL || 'http://localhost:3000';
+        const returnUrl = `${origin}/student/dashboard?bookingId=${booking._id}`;
+        const cancelUrl = `${origin}/student/dashboard`;
 
-        const session = await stripeConnect.createSplitPaymentSession(
-            booking.studentId, 
-            booking.tutorId, 
-            booking.amount, 
-            {
-                bookingId: booking._id.toString(),
-                date: booking.date.toISOString(),
-                startTime: booking.startTime,
-                type: 'tutor_booking'
-            },
-            req
+        const order = await paypalService.createOrder(
+            amount,
+            `Tamil class with ${booking.tutorId.name}`,
+            returnUrl.replace('{PAYPAL_ORDER_ID}', ''),
+            cancelUrl
         );
 
-        res.json({ url: session.url });
-    } catch (e) { next(e); }
+        const approveLink = order.links?.find((link) => link.rel === 'approve');
+        if (!approveLink?.href) {
+            return res.status(500).json({ message: "PayPal approval link not found." });
+        }
+
+        await Payment.findOneAndUpdate(
+            { stripeSessionId: order.id },
+            {
+                user: booking.studentId._id,
+                stripeSessionId: order.id,
+                amount,
+                paymentType: 'tutor_session',
+                status: 'pending',
+                metadata: { tutorId: booking.tutorId._id, bookingId: booking._id.toString() },
+            },
+            { upsert: true, new: true }
+        );
+
+        res.json({ url: approveLink.href });
+    } catch (e) {
+        console.error('[Booking PayPal]', e.message);
+        next(e);
+    }
 }
 
 /**

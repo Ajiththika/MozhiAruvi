@@ -49,7 +49,7 @@ export async function getUserInfo(userId) {
         if (!sub) {
             sub = await Subscription.create({
                 userId: user._id,
-                planType: 'starter',
+                planType: 'basic',
                 isActive: true,
                 startDate: new Date(),
                 usageTracking: {
@@ -61,17 +61,13 @@ export async function getUserInfo(userId) {
         }
         
         if (user.subscription) {
-            const planMap = {
-                starter: 'BASIC',
-                plus: 'PLUS',
-                master: 'MASTER'
-            };
-            user.subscription.plan = planMap[sub.planType] || 'BASIC';
+            const { normalizePlanType, planTypeToUserPlan } = await import('../utils/planTypes.js');
+            user.subscription.plan = planTypeToUserPlan(sub.planType);
             user.subscription.status = sub.isActive ? 'active' : 'canceled';
             user.subscription.tutorSupportUsed = sub.usageTracking.questionsUsed;
             user.subscription.eventUsageCount = sub.usageTracking.sessionsUsed;
             user.subscription.currentPeriodEnd = sub.endDate;
-            user.isPremium = sub.isActive && sub.planType !== 'starter';
+            user.isPremium = sub.isActive && normalizePlanType(sub.planType) !== 'basic';
         }
     } catch (err) {
         console.error("Failed to dynamically sync subscription metrics to user:", err);

@@ -1,20 +1,34 @@
 "use client";
 
 import React, { useState, useEffect, useMemo } from "react";
+import { Volume2, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface MatchingPairsProps {
   question: {
     _id: string;
-    pairs: Array<{ left: string; right: string }>;
+    pairs: Array<{ left: string; right: string; tamilWord?: string; audioUrl?: string }>;
     correctAnswer?: string;
   };
   onResult: (passed: boolean) => void;
   isCorrect?: boolean;
   questionNumber?: number;
+  tamilWord?: string;
+  audioUrl?: string;
+  onPlayTamil?: () => void;
+  playingAudio?: boolean;
 }
 
-export function MatchingPairs({ question: q, onResult, isCorrect, questionNumber }: MatchingPairsProps) {
+export function MatchingPairs({
+  question: q,
+  onResult,
+  isCorrect,
+  questionNumber,
+  tamilWord,
+  audioUrl,
+  onPlayTamil,
+  playingAudio,
+}: MatchingPairsProps) {
   const [leftItems, setLeftItems] = useState<string[]>([]);
   const [rightItems, setRightItems] = useState<string[]>([]);
   const [selectedLeft, setSelectedLeft] = useState<string | null>(null);
@@ -72,12 +86,34 @@ export function MatchingPairs({ question: q, onResult, isCorrect, questionNumber
   }, [selectedLeft, selectedRight, activePairs]);
 
 
+  const showSpeaker = !!(tamilWord || audioUrl);
+
   return (
     <div className="flex flex-col items-center gap-16 w-full max-w-4xl animate-in slide-in-from-bottom-8 duration-700">
-      <h2 className="text-3xl md:text-4xl font-black text-slate-900 tracking-tight self-start mb-6 leading-none flex items-center">
-        {questionNumber && <span className="mr-4 font-mono">{questionNumber}.</span>}
-        Match the pairs
-      </h2>
+      <div className="flex items-center gap-6 self-start mb-6 w-full">
+        {showSpeaker && onPlayTamil && (
+          <button
+            type="button"
+            onClick={onPlayTamil}
+            disabled={playingAudio}
+            className={cn(
+              "flex items-center justify-center h-16 w-16 rounded-[1.5rem] border-2 transition-all shadow-lg shrink-0",
+              playingAudio ? "bg-primary/10 animate-pulse" : "bg-white hover:bg-primary/5"
+            )}
+            aria-label="Play Tamil pronunciation"
+          >
+            {playingAudio ? (
+              <Loader2 size={28} className="animate-spin text-primary" />
+            ) : (
+              <Volume2 size={28} className="text-primary" />
+            )}
+          </button>
+        )}
+        <h2 className="text-3xl md:text-4xl font-black text-slate-900 tracking-tight leading-none flex items-center">
+          {questionNumber && <span className="mr-4 font-mono">{questionNumber}.</span>}
+          Match the pairs
+        </h2>
+      </div>
 
       <div className="grid grid-cols-2 gap-8 w-full">
         <div className="space-y-6">

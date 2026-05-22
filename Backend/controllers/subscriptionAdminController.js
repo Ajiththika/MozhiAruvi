@@ -1,6 +1,7 @@
 import Subscription from '../models/Subscription.js';
 import User from '../models/User.js';
 import { PLAN_LIMITS } from '../middleware/subscriptionLimits.js';
+import { normalizePlanType, planTypeToUserPlan, getPlanLabel } from '../utils/planTypes.js';
 
 /**
  * GET /api/admin/subscriptions
@@ -16,7 +17,8 @@ export async function getAllSubscriptions(req, res, next) {
 
         const matchStage = {};
         if (planFilter && planFilter !== 'all') {
-            matchStage.planType = planFilter;
+            const normalized = normalizePlanType(planFilter);
+            matchStage.planType = { $in: [normalized, planFilter, planFilter === 'basic' ? 'starter' : null, planFilter === 'pro' ? 'master' : null].filter(Boolean) };
         }
 
         const pipeline = [
@@ -59,9 +61,14 @@ export async function getAllSubscriptions(req, res, next) {
 
         // Attach limits to each subscription for the admin view
         const enriched = subs.map(sub => {
-            const limits = PLAN_LIMITS[sub.planType] || PLAN_LIMITS.starter;
+            const planType = normalizePlanType(sub.planType);
+            const limits = PLAN_LIMITS[planType] || PLAN_LIMITS.basic;
+            const userId = sub.userId?._id || sub.userId;
             return {
                 ...sub,
+                userId,
+                planType,
+                planLabel: getPlanLabel(planType),
                 limits: {
                     categoryLimit: limits.categoryLimit === Infinity ? 'Unlimited' : limits.categoryLimit,
                     askTutorLimit: limits.askTutorLimit,
@@ -91,15 +98,16 @@ export async function overrideSubscription(req, res, next) {
         const { userId } = req.params;
         const { planType, isActive, resetUsage } = req.body;
 
-        const validPlans = ['starter', 'plus', 'master'];
-        if (planType && !validPlans.includes(planType)) {
-            return res.status(400).json({ message: `Invalid planType. Must be one of: ${validPlans.join(', ')}` });
+        const validPlans = ['basic', 'plus', 'pro', 'starter', 'master'];
+        const normalizedPlan = planType ? normalizePlanType(planType) : undefined;
+        if (planType && !validPlans.includes(planType) && !['basic', 'plus', 'pro'].includes(normalizedPlan)) {
+            return res.status(400).json({ message: 'Invalid planType. Must be basic, plus, or pro.' });
         }
 
         const updateData = {};
-        if (planType) updateData.planType = planType;
+        if (normalizedPlan) updateData.planType = normalizedPlan;
         if (typeof isActive === 'boolean') updateData.isActive = isActive;
-        if (planType && planType !== 'starter') {
+        if (normalizedPlan && normalizedPlan !== 'basic') {
             updateData.endDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
         }
         if (resetUsage) {
@@ -115,13 +123,12 @@ export async function overrideSubscription(req, res, next) {
         );
 
         // Sync to User model
-        const planMap = { starter: 'BASIC', plus: 'PLUS', master: 'MASTER' };
-        const userPlan = planMap[sub.planType] || 'BASIC';
+        const userPlan = planTypeToUserPlan(sub.planType);
         await User.findByIdAndUpdate(userId, {
             'subscription.plan': userPlan,
             'subscription.status': sub.isActive ? 'active' : 'canceled',
             'subscription.currentPeriodEnd': sub.endDate,
-            isPremium: sub.isActive && sub.planType !== 'starter'
+            isPremium: sub.isActive && normalizePlanType(sub.planType) !== 'basic',
         });
 
         res.json({ message: 'Subscription overridden successfully', subscription: sub });
@@ -141,14 +148,25 @@ export async function getSubscriptionStats(req, res, next) {
                 { $group: { _id: '$planType', count: { $sum: 1 } } },
                 { $sort: { _id: 1 } }
             ]),
-            Subscription.countDocuments({ isActive: true, planType: { $ne: 'starter' } }),
+            Subscription.countDocuments({ isActive: true, planType: { $in: ['plus', 'pro', 'master'] } }),
             Subscription.countDocuments()
         ]);
 
+        const merged = {};
+        for (const p of planDist) {
+            const key = normalizePlanType(p._id);
+            merged[key] = (merged[key] || 0) + p.count;
+        }
+        const planDistribution = Object.entries(merged).map(([id, count]) => ({
+            _id: id,
+            count,
+            label: getPlanLabel(id),
+        }));
+
         res.json({
-            planDistribution: planDist,
+            planDistribution,
             activePaidUsers: activePaid,
-            totalSubscriptions: totalSubs
+            totalSubscriptions: totalSubs,
         });
     } catch (e) {
         next(e);

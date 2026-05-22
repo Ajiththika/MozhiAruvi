@@ -10,7 +10,6 @@ import { getMyEvents, MozhiEvent } from "@/services/eventService";
 import { cn } from "@/lib/utils";
 import Button from "@/components/ui/Button";
 
-import StripeOnboardingNotice from "@/components/features/tutors/StripeOnboardingNotice";
 import { getMyBookings, Booking } from "@/services/bookingService";
 
 export default function TutorDashboard() {
@@ -70,9 +69,13 @@ export default function TutorDashboard() {
   return (
     <div className="mx-auto max-w-6xl space-y-10 animate-in fade-in slide-in-from-bottom-2 duration-500 pb-20">
       <div className="space-y-6">
-        {!user?.isStripeVerified && (
-           <StripeOnboardingNotice isVerified={false} />
-        )}
+        <div className="p-6 rounded-[2rem] border border-primary/10 bg-primary/[0.03] flex items-start gap-4">
+          <ShieldCheck className="w-8 h-8 text-primary shrink-0" />
+          <div>
+            <p className="text-sm font-black text-slate-800">Payments via PayPal</p>
+            <p className="text-xs font-medium text-slate-500 mt-1">Students pay through PayPal when they book a session. No separate payout setup is required on your side.</p>
+          </div>
+        </div>
 
         <div className="mb-0 flex flex-col md:flex-row md:items-end md:justify-between gap-10 border-b border-slate-100 pb-12">
           <div className="space-y-6">
@@ -119,11 +122,11 @@ export default function TutorDashboard() {
           className="border-secondary/10 bg-secondary/5"
         />
         <StatCard
-          title="Account Status"
-          value={user?.isStripeVerified ? "Verified" : "Pending Setup"}
-          description={user?.isStripeVerified ? "Direct payouts active" : "Payments disabled"}
+          title="Payments"
+          value="PayPal"
+          description="Students pay via PayPal at booking"
           icon={ShieldCheck}
-          className={user?.isStripeVerified ? "border-emerald-100 bg-emerald-50" : "border-amber-100 bg-amber-50"}
+          className="border-emerald-100 bg-emerald-50"
         />
         <StatCard
           title="Marketplace Rate"

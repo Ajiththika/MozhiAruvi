@@ -8,9 +8,9 @@ const paymentSchema = new mongoose.Schema({
   status: { type: String, enum: ['pending', 'completed', 'failed'], default: 'pending' },
   paymentType: { type: String, enum: ['event', 'tutor_session'], required: true },
   metadata: {
-    eventId: { type: mongoose.Schema.Types.ObjectId, ref: 'Event' },
-    tutorId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-  }
+    type: mongoose.Schema.Types.Mixed,
+    default: {},
+  },
 }, { timestamps: true });
 
 export default mongoose.model('Payment', paymentSchema);

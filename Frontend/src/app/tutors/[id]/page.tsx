@@ -307,7 +307,7 @@ export default function PublicTutorProfilePage() {
                       <div className="pt-4 flex flex-col items-center gap-3">
                          <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-50 border border-emerald-100 font-sans">
                             <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                            <span className="text-[9px] font-black text-emerald-700 uppercase tracking-[0.2em]">Secure Stripe Checkout</span>
+                            <span className="text-[9px] font-black text-emerald-700 uppercase tracking-[0.2em]">Secure PayPal Checkout</span>
                          </div>
                          <p className="text-[10px] text-center text-slate-400 font-medium px-4 leading-relaxed">
                             Once payment is confirmed, your session schedule will be unlocked immediately.

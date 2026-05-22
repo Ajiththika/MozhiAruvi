@@ -116,21 +116,17 @@ export async function editUser(userId, updateData) {
     const planVal = updateData.subscription?.plan || updateData['subscription.plan'];
     if (planVal) {
         const newPlan = planVal.toUpperCase();
-        const planMap = {
-            BASIC: 'starter',
-            PLUS: 'plus',
-            MASTER: 'master'
-        };
-        const planType = planMap[newPlan] || 'starter';
-        
+        const { userPlanToPlanType } = await import('../utils/planTypes.js');
+        const planType = userPlanToPlanType(newPlan);
+
         const Subscription = (await import('../models/Subscription.js')).default;
         await Subscription.findOneAndUpdate(
             { userId: user._id },
             {
                 userId: user._id,
                 planType,
-                isActive: planType !== 'starter',
-                endDate: planType !== 'starter' ? new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) : null
+                isActive: planType !== 'basic',
+                endDate: planType !== 'basic' ? new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) : null
             },
             { upsert: true }
         );

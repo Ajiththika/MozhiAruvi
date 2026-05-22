@@ -1,30 +1,9 @@
 import mongoose from 'mongoose';
 import Subscription from '../models/Subscription.js';
 import Lesson from '../models/Lesson.js';
+import { PLAN_LIMITS, normalizePlanType } from '../utils/planTypes.js';
 
-export const PLAN_LIMITS = {
-  starter: {
-    categoryLimit: 1,
-    lessonAccess: 'limited',
-    askTutorLimit: 10,
-    eventsLimit: 2,
-    sessionsLimit: 0
-  },
-  plus: {
-    categoryLimit: 50,
-    lessonAccess: 'full',
-    askTutorLimit: 50,
-    eventsLimit: 8,
-    sessionsLimit: 6
-  },
-  master: {
-    categoryLimit: Infinity,
-    lessonAccess: 'full',
-    askTutorLimit: 100,
-    eventsLimit: Infinity,
-    sessionsLimit: 12
-  }
-};
+export { PLAN_LIMITS };
 
 /**
  * Ensures the req.subscription object is populated for the authenticated user.
@@ -41,7 +20,7 @@ export const checkPlanAccess = async (req, res, next) => {
     if (!subscription) {
       subscription = await Subscription.create({
         userId,
-        planType: 'starter',
+        planType: 'basic',
         isActive: true, // Starter/Free is active by default
         startDate: new Date(),
         usageTracking: {
@@ -69,7 +48,7 @@ export const limitCategoryAccess = async (req, res, next) => {
       return res.status(500).json({ message: "Subscription context missing" });
     }
 
-    const limits = PLAN_LIMITS[req.subscription.planType] || PLAN_LIMITS.starter;
+    const limits = PLAN_LIMITS[normalizePlanType(req.subscription.planType)] || PLAN_LIMITS.basic;
 
     // Check if category limit is unlimited
     if (limits.categoryLimit === Infinity) {
@@ -127,7 +106,7 @@ export const limitQuestions = async (req, res, next) => {
       return res.status(500).json({ message: "Subscription context missing" });
     }
 
-    const limits = PLAN_LIMITS[req.subscription.planType] || PLAN_LIMITS.starter;
+    const limits = PLAN_LIMITS[normalizePlanType(req.subscription.planType)] || PLAN_LIMITS.basic;
     const questionsUsed = req.subscription.usageTracking?.questionsUsed || 0;
 
     if (questionsUsed >= limits.askTutorLimit) {
@@ -157,7 +136,7 @@ export const limitSessions = async (req, res, next) => {
       return res.status(500).json({ message: "Subscription context missing" });
     }
 
-    const limits = PLAN_LIMITS[req.subscription.planType] || PLAN_LIMITS.starter;
+    const limits = PLAN_LIMITS[normalizePlanType(req.subscription.planType)] || PLAN_LIMITS.basic;
     const sessionsUsed = req.subscription.usageTracking?.sessionsUsed || 0;
 
     if (sessionsUsed >= limits.sessionsLimit) {

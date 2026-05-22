@@ -13,6 +13,8 @@ import { api } from "@/lib/api";
 import axios from "axios";
 import { ImageUpload } from "@/components/ImageUpload";
 import { VideoUpload } from "@/components/VideoUpload";
+import { AudioUpload } from "@/components/AudioUpload";
+import { useToast } from "@/components/ui/Toast";
 
 // ── Heuristics ────────────────────────────────────────────────────────────────
 
@@ -46,11 +48,19 @@ function getHeuristicOrder(name: string): number {
 
 type QuestionType = "mcq" | "matching" | "speaking" | "writing" | "taparrange";
 
-interface MCQData { question: string; options: string[]; correctAnswer: string; expectedAudioText?: string; }
-interface MatchingData { pairs: { left: string; right: string }[]; expectedAudioText?: string; }
-interface SpeakingData { promptText: string; correctSentence: string; referenceAudio: string; expectedAudioText?: string; }
-interface WritingData { question: string; expectedText: string; expectedAudioText?: string; }
-interface TapArrangeData { sentence: string; expectedAudioText?: string; }
+interface TtsFields {
+  tamilWord?: string;
+  textToSpeech?: boolean;
+  audioUrl?: string;
+  expectedAudioText?: string;
+  referenceAudio?: string;
+}
+
+interface MCQData extends TtsFields { question: string; options: string[]; correctAnswer: string; }
+interface MatchingData extends TtsFields { pairs: { left: string; right: string; tamilWord?: string; audioUrl?: string }[]; questionText?: string; }
+interface SpeakingData extends TtsFields { promptText: string; correctSentence: string; referenceAudio?: string; }
+interface WritingData extends TtsFields { question: string; expectedText: string; }
+interface TapArrangeData extends TtsFields { sentence: string; }
 
 interface CommonFields {
   difficulty: 'easy' | 'medium' | 'hard';
@@ -59,6 +69,7 @@ interface CommonFields {
   hint: string;
   explanation: string;
   imageUrl?: string;
+  useTTS?: boolean;
 }
 
 type QuestionData = MCQData | MatchingData | SpeakingData | WritingData | TapArrangeData;
@@ -98,7 +109,8 @@ const defaultCommonFields = (): CommonFields => ({
   xp: 10,
   hint: "",
   explanation: "",
-  imageUrl: ""
+  imageUrl: "",
+  useTTS: false,
 });
 
 
@@ -160,7 +172,10 @@ function questionToDraft(q: Question): DraftQuestion {
     promptText: q.text,
     correctSentence: q.correctAnswer || q.expectedAudioText || "",
     expectedText: q.correctAnswer || "",
-    expectedAudioText: q.expectedAudioText || "",
+    tamilWord: q.tamilWord || q.expectedAudioText || "",
+    expectedAudioText: q.tamilWord || q.expectedAudioText || "",
+    textToSpeech: q.textToSpeech ?? !!(q.tamilWord || q.expectedAudioText || q.audioUrl),
+    audioUrl: q.audioUrl || "",
     sentence: q.correctAnswer || "",
     imageUrl: q.imageUrl || ""
   };
@@ -192,7 +207,7 @@ function questionToDraft(q: Question): DraftQuestion {
   }
   
   if (type === "speaking") {
-    data.referenceAudio = (q as any).referenceAudio || "";
+    data.referenceAudio = q.audioUrl || "";
   }
 
   return {
@@ -205,7 +220,8 @@ function questionToDraft(q: Question): DraftQuestion {
       xp: q.xp || q.scoreValue || 10,
       hint: q.hint || "",
       explanation: q.explanation || "",
-      imageUrl: q.imageUrl || ""
+      imageUrl: q.imageUrl || "",
+      useTTS: q.useTTS || false,
     }
   };
 }
@@ -214,6 +230,51 @@ function questionToDraft(q: Question): DraftQuestion {
 
 const inputCls = "w-full p-5 bg-white border-2 border-slate-100 rounded-2xl focus:border-primary focus:bg-white outline-none transition-all font-bold text-slate-700 placeholder:font-medium placeholder:text-primary/40";
 const labelCls = "block text-[11px] font-black uppercase tracking-widest text-primary/60 mb-2 ml-1";
+
+function ttsPayloadFromData(d: TtsFields) {
+  const tamil = (d.tamilWord || d.expectedAudioText || "").trim();
+  return {
+    tamilWord: tamil || undefined,
+    expectedAudioText: tamil || undefined,
+    textToSpeech: d.textToSpeech ?? (!!tamil || !!d.audioUrl),
+    audioUrl: d.audioUrl || d.referenceAudio || undefined,
+  };
+}
+
+function TamilWordFields<T extends TtsFields>({ data, onChange }: { data: T; onChange: (d: T) => void }) {
+  const tamil = data.tamilWord ?? data.expectedAudioText ?? "";
+  return (
+    <div className="space-y-4 p-6 bg-primary/[0.02] rounded-2xl border border-primary/10">
+      <p className="text-[10px] font-black uppercase tracking-widest text-primary/50">Speaker (Tamil only)</p>
+      <div>
+        <label className={labelCls}>Tamil Word (spoken on speaker click)</label>
+        <input
+          className={inputCls}
+          placeholder="e.g. வணக்கம்"
+          value={tamil}
+          onChange={(e) => {
+            const v = e.target.value;
+            onChange({ ...data, tamilWord: v, expectedAudioText: v, textToSpeech: !!v || data.textToSpeech });
+          }}
+        />
+      </div>
+      <label className="flex items-center gap-3 cursor-pointer">
+        <input
+          type="checkbox"
+          checked={data.textToSpeech ?? !!tamil}
+          onChange={(e) => onChange({ ...data, textToSpeech: e.target.checked })}
+          className="h-5 w-5 rounded border-primary/30 text-primary"
+        />
+        <span className="text-xs font-bold text-slate-600">Show speaker button for students</span>
+      </label>
+      <AudioUpload
+        value={data.audioUrl || data.referenceAudio}
+        onChange={(url) => onChange({ ...data, audioUrl: url, referenceAudio: url })}
+        label="Pronunciation Audio (optional)"
+      />
+    </div>
+  );
+}
 
 // ── Question-type-specific sub-forms ──────────────────────────────────────────
 
@@ -237,10 +298,7 @@ function MCQForm({ data, onChange }: { data: MCQData; onChange: (d: MCQData) => 
         <label className={labelCls}>Question</label>
         <input className={inputCls} placeholder="e.g. What is the Tamil word for 'water'?" value={data.question} onChange={e => onChange({ ...data, question: e.target.value })} />
       </div>
-      <div>
-        <label className={labelCls}>Text to Speech (optional - adds a speaker button)</label>
-        <input className={inputCls} placeholder="e.g. Type the word to be spoken" value={data.expectedAudioText || ""} onChange={e => onChange({ ...data, expectedAudioText: e.target.value })} />
-      </div>
+      <TamilWordFields data={data} onChange={onChange} />
       <div>
         <label className={labelCls}>Options</label>
         <div className="space-y-3">
@@ -285,10 +343,7 @@ function WritingForm({ data, onChange }: { data: WritingData; onChange: (d: Writ
         <input className={inputCls} placeholder="e.g. அ" value={data.expectedText} onChange={e => onChange({ ...data, expectedText: e.target.value })} />
         <p className="text-[10px] text-primary/60 font-medium mt-1.5 ml-1">The student will be asked to draw this.</p>
       </div>
-      <div>
-        <label className={labelCls}>Text to Speech (optional - adds a speaker button)</label>
-        <input className={inputCls} placeholder="e.g. Type the word to be spoken" value={data.expectedAudioText || ""} onChange={e => onChange({ ...data, expectedAudioText: e.target.value })} />
-      </div>
+      <TamilWordFields data={data} onChange={onChange} />
     </div>
   );
 }
@@ -303,10 +358,7 @@ function MatchingForm({ data, onChange }: { data: MatchingData; onChange: (d: Ma
 
   return (
     <div className="space-y-4">
-      <div>
-        <label className={labelCls}>Text to Speech (optional - adds a speaker button)</label>
-        <input className={inputCls} placeholder="e.g. Type the word to be spoken" value={data.expectedAudioText || ""} onChange={e => onChange({ ...data, expectedAudioText: e.target.value })} />
-      </div>
+      <TamilWordFields data={data} onChange={onChange} />
       <label className={labelCls}>Pairs (left ↔ right)</label>
       {data.pairs.map((pair, idx) => (
         <div key={idx} className="flex items-center gap-3">
@@ -374,6 +426,15 @@ function CommonFieldsForm({ fields, onChange }: { fields: CommonFields; onChange
           <label className={labelCls}>Explanation (shown after answer)</label>
           <textarea className={inputCls + " resize-none h-20"} placeholder="Why is this the correct answer?" value={fields.explanation} onChange={e => onChange({ ...fields, explanation: e.target.value })} />
         </div>
+        <label className="flex items-center gap-3 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={!!fields.useTTS}
+            onChange={e => onChange({ ...fields, useTTS: e.target.checked })}
+            className="h-5 w-5 rounded border-primary/30 text-primary"
+          />
+          <span className="text-xs font-bold text-slate-600">Auto-play Tamil word when question loads</span>
+        </label>
       </div>
     </div>
   );
@@ -394,10 +455,7 @@ function TapArrangeForm({ data, onChange }: { data: TapArrangeData; onChange: (d
           </div>
         )}
       </div>
-      <div>
-        <label className={labelCls}>Text to Speech (optional)</label>
-        <input className={inputCls} placeholder="Word to speak aloud" value={data.expectedAudioText || ""} onChange={e => onChange({ ...data, expectedAudioText: e.target.value })} />
-      </div>
+      <TamilWordFields data={data} onChange={onChange} />
     </div>
   );
 }
@@ -409,17 +467,10 @@ function SpeakingForm({ data, onChange }: { data: SpeakingData; onChange: (d: Sp
         <label className={labelCls}>Prompt Text (what should the user say?)</label>
         <input className={inputCls} placeholder="e.g. Say the Tamil greeting for hello" value={data.promptText} onChange={e => onChange({ ...data, promptText: e.target.value })} />
       </div>
+      <TamilWordFields data={data} onChange={onChange} />
       <div>
-        <label className={labelCls}>Text to Speech (optional - adds a speaker button for the prompt)</label>
-        <input className={inputCls} placeholder="e.g. Type the word to be spoken" value={data.expectedAudioText || ""} onChange={e => onChange({ ...data, expectedAudioText: e.target.value })} />
-      </div>
-      <div>
-        <label className={labelCls}>Correct Sentence</label>
+        <label className={labelCls}>Correct Sentence (for speech recognition)</label>
         <input className={inputCls} placeholder="e.g. Vanakkam" value={data.correctSentence} onChange={e => onChange({ ...data, correctSentence: e.target.value })} />
-      </div>
-      <div>
-        <label className={labelCls}>Reference Audio URL (optional - audio clip the user can listen to)</label>
-        <input className={inputCls} placeholder="https://..." value={data.referenceAudio} onChange={e => onChange({ ...data, referenceAudio: e.target.value })} />
       </div>
     </div>
   );
@@ -726,6 +777,7 @@ function AdminCategoryGroup({
 // ── Main Page ─────────────────────────────────────────────────────────────────
 
 export default function AdminLessonsPage() {
+  const { toast } = useToast();
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [dbCategories, setDbCategories] = useState<DBCategory[]>([]);
   const [loading, setLoading] = useState(true);
@@ -822,7 +874,7 @@ export default function AdminLessonsPage() {
     // Client-side validation before payload building
     const vErr = validateQuestion(updated);
     if (vErr) {
-      alert(`Validation Error: ${vErr}`);
+      toast(`Validation error: ${vErr}`, "error");
       return;
     }
 
@@ -838,9 +890,10 @@ export default function AdminLessonsPage() {
       setEditingSavedId(null);
       const data = await getLessonQuestions(activeLessonId);
       setSavedQuestions(data.questions || []);
+      toast("Question updated successfully.", "success");
     } catch (err: any) {
       const msg = err.response?.data?.error?.message || err.response?.data?.message || err.message || "Failed to update question.";
-      alert(`Update Error: ${msg}`);
+      toast(`Update error: ${msg}`, "error");
       // Don't close the editor so user can fix the error
     }
   }
@@ -971,8 +1024,9 @@ export default function AdminLessonsPage() {
     try {
       await api.delete(`/lessons/${activeLessonId}/questions/${qId}`);
       setSavedQuestions(prev => prev.filter(q => q._id !== qId));
-    } catch {
-      alert("Failed to delete question.");
+    } catch (err: unknown) {
+      const msg = axios.isAxiosError(err) ? err.response?.data?.message : "Failed to delete question.";
+      toast(msg || "Failed to delete question.", "error");
     }
   }
 
@@ -1005,10 +1059,10 @@ export default function AdminLessonsPage() {
       const data = await getLessonQuestions(activeLessonId);
       setSavedQuestions(data.questions || []);
       setDraftQuestions([]);
-      alert(`Successfully saved ${savedCount} questions.`);
+      toast(`Successfully saved ${savedCount} question(s).`, "success");
     } catch (err: any) {
       const msg = err.response?.data?.error?.message || err.response?.data?.message || err.message || "Failed to save questions.";
-      alert(`Save Error: ${msg}`);
+      toast(`Save error: ${msg}`, "error");
     } finally {
       setSavingQ(false);
     }
@@ -1023,6 +1077,7 @@ export default function AdminLessonsPage() {
       hint: common.hint,
       explanation: common.explanation,
       imageUrl: common.imageUrl,
+      useTTS: common.useTTS,
       scoreValue: common.xp // Keep scoreValue in sync with XP
     };
 
@@ -1035,7 +1090,7 @@ export default function AdminLessonsPage() {
           options: d.options, 
           correctAnswer: d.correctAnswer, 
           correctOptionIndex: d.options.indexOf(d.correctAnswer), 
-          expectedAudioText: d.expectedAudioText,
+          ...ttsPayloadFromData(d),
           ...commonPayload
         };
       }
@@ -1046,8 +1101,9 @@ export default function AdminLessonsPage() {
           text: "Match the pairs", 
           options: d.pairs.map(p => p.left), 
           pairs: d.pairs,
-          correctAnswer: JSON.stringify(d.pairs), 
-          expectedAudioText: d.expectedAudioText,
+          correctAnswer: JSON.stringify(d.pairs),
+          correctOptionIndex: 0,
+          ...ttsPayloadFromData(d),
           ...commonPayload
         };
       }
@@ -1057,8 +1113,7 @@ export default function AdminLessonsPage() {
           type: "speaking", 
           text: d.promptText, 
           correctAnswer: d.correctSentence, 
-          expectedAudioText: d.expectedAudioText || d.correctSentence, 
-          referenceAudio: d.referenceAudio,
+          ...ttsPayloadFromData(d),
           ...commonPayload
         };
       }
@@ -1068,7 +1123,7 @@ export default function AdminLessonsPage() {
           type: "writing", 
           text: d.question || `Draw: ${d.expectedText}`, 
           correctAnswer: d.expectedText, 
-          expectedAudioText: d.expectedAudioText,
+          ...ttsPayloadFromData(d),
           ...commonPayload
         };
       }
@@ -1080,7 +1135,8 @@ export default function AdminLessonsPage() {
           text: "Arrange the words in the correct order",
           words: words,
           correctAnswer: d.sentence.trim(),
-          expectedAudioText: d.expectedAudioText,
+          correctOptionIndex: 0,
+          ...ttsPayloadFromData(d),
           ...commonPayload
         };
       }

@@ -1,6 +1,7 @@
 import express from "express";
 import helmet from "helmet";
 import cors from "cors";
+import compression from "compression";
 import cookieParser from "cookie-parser";
 import mongoose from 'mongoose';
 import rateLimit from "express-rate-limit";
@@ -27,9 +28,6 @@ import { testSmtpConnection } from "./services/mailService.js";
 import { errorHandler } from "./middleware/error.js";
 import { responseWrapper } from "./middleware/responseWrapper.js";
 import { csrfProtection } from "./middleware/csrf.js";
-import Lesson from './models/Lesson.js';
-import User from './models/User.js';
-import Question from './models/Question.js';
 
 const app = express();
 
@@ -57,12 +55,16 @@ const globalLimiter = rateLimit({
 
 app.use("/api/", globalLimiter);
 
-// ── Diagnostics ───────────────────────────────────────────────────────────────
-app.use((req, res, next) => {
-  const timestamp = new Date().toISOString();
-  console.log(`[${timestamp}] [REQ] ${req.method} ${req.url} (Origin: ${req.get("origin") || "No Origin"})`);
-  next();
-});
+// ── Compression (faster API responses) ───────────────────────────────────────
+app.use(compression());
+
+// ── Diagnostics (dev only) ────────────────────────────────────────────────────
+if (process.env.NODE_ENV !== 'production') {
+  app.use((req, res, next) => {
+    console.log(`[REQ] ${req.method} ${req.url}`);
+    next();
+  });
+}
 
 // ── DB Guard ──────────────────────────────────────────────────────────────────
 app.use('/api/', (req, res, next) => {
@@ -156,20 +158,6 @@ app.use("/api/resources", resourceRoutes);
 app.use("/api/resource-sections", resourceSectionRoutes);
 app.use("/api/feedback", feedbackRoutes);
 app.use("/api/admin/subscriptions", subscriptionAdminRoutes);
-
-// ── Database Diagnostic Route ─────────────────────────────────────────────────
-app.get('/api/db-status', async (req, res) => {
-  try {
-    const counts = {
-      lessons: await Lesson.countDocuments(),
-      users: await User.countDocuments(),
-      questions: await Question.countDocuments(),
-    };
-    res.json({ success: true, data: counts });
-  } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
-  }
-});
 
 app.get("/health", (_req, res) =>
   res.json({

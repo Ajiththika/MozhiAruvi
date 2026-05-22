@@ -372,7 +372,7 @@ export default function UsersClient() {
                         value={editFormData.subscription?.plan || "BASIC"} 
                         onChange={handleEditChange}
                         options={[
-                          { label: "Starter (Free)", value: "BASIC" },
+                          { label: "Basic (Free)", value: "BASIC" },
                           { label: "Plus ($12/mo)", value: "PLUS" },
                           { label: "Pro ($20/mo)", value: "MASTER" },
                         ]}

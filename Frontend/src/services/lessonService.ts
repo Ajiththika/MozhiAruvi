@@ -38,6 +38,8 @@ export interface Question {
   correctAnswer?: string;
   scoreValue: number;
   expectedAudioText?: string;
+  tamilWord?: string;
+  textToSpeech?: boolean;
   audioUrl?: string;
   phoneticHint?: string;
 
@@ -51,7 +53,7 @@ export interface Question {
   useTTS?: boolean;
   acceptedAnswers?: string[];
   words?: string[];
-  pairs?: { left: string; right: string }[];
+  pairs?: { left: string; right: string; tamilWord?: string; audioUrl?: string }[];
 }
 
 export interface QuestionInput extends Partial<Omit<Question, '_id'>> {
@@ -64,6 +66,7 @@ export interface SubmitAnswerItem {
   questionId: string;
   selectedOptionIndex: number;
   isSpeakingCompleted?: boolean;
+  typedAnswer?: string;
 }
 
 export interface Progress {
@@ -145,6 +148,18 @@ export async function evaluateWriting(
   const res = await api.post<{ isCorrect: boolean; score: number; feedback: string }>(
     `/lessons/${lessonId}/evaluate-writing`,
     { questionId, imageBase64 }
+  );
+  return res.data;
+}
+
+export async function checkQuestionAnswer(
+  lessonId: string,
+  questionId: string,
+  payload: { selectedOptionIndex?: number; typedAnswer?: string; isSpeakingCompleted?: boolean }
+): Promise<{ correct: boolean; correctAnswer?: string; hint?: string; explanation?: string; xp?: number }> {
+  const res = await api.post<{ correct: boolean; correctAnswer?: string; hint?: string; explanation?: string; xp?: number }>(
+    `/lessons/${lessonId}/questions/${questionId}/check`,
+    payload
   );
   return res.data;
 }

@@ -5,6 +5,7 @@ import { AuthProvider } from "@/context/AuthContext";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import dynamic from "next/dynamic";
 import FeedbackPopup from "@/components/common/FeedbackPopup";
+import { ToastProvider } from "@/components/ui/Toast";
 
 const PlatformChat = dynamic(() => import("@/components/ui/PlatformChat"), {
   ssr: false,
@@ -28,7 +29,9 @@ export default function Providers({ children }: { children: React.ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
+        <ToastProvider>
         {children}
+        </ToastProvider>
         <PlatformChat />
         <FeedbackPopup />
       </AuthProvider>

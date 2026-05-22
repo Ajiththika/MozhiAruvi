@@ -9,7 +9,7 @@ interface QuestionCardProps {
   feedback: "correct" | "incorrect" | undefined;
   credits: number;
   selectedIndex?: number;
-  onSelect: (qId: string, idx: number, correctIdx?: number) => void;
+  onSelect: (qId: string, idx: number) => void;
 }
 
 export function QuestionCard({ question: q, feedback, credits, selectedIndex, onSelect }: QuestionCardProps) {
@@ -48,7 +48,7 @@ export function QuestionCard({ question: q, feedback, credits, selectedIndex, on
           return (
             <button
               key={idx}
-              onClick={() => onSelect(q._id, idx, q.correctOptionIndex)}
+              onClick={() => onSelect(q._id, idx)}
               disabled={!!feedback || credits <= 0}
               className={cn(
                 "group relative flex items-center gap-6 p-6 md:p-8 text-left rounded-3xl border-2 transition-all duration-300",

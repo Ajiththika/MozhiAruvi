@@ -89,9 +89,7 @@ router.patch('/requests/:id/resolve', authenticate, authorizeRoles(ROLES.TEACHER
 // Consolidated messaging for doubt-solving flow
 router.post('/requests/:id/message', authenticate, tutorController.addMessage);
 
-// ── Finance (Stripe Connect) ─────────────────────────────────────────────────
-router.get('/me/stripe/onboard', authenticate, authorizeRoles(ROLES.TEACHER, ROLES.TUTOR), tutorController.startStripeOnboarding);
-router.get('/me/stripe/finalize', authenticate, authorizeRoles(ROLES.TEACHER, ROLES.TUTOR), tutorController.finalizeStripeOnboarding);
+// ── Finance (PayPal — platform checkout) ─────────────────────────────────────
 router.get('/me/financials', authenticate, authorizeRoles(ROLES.TEACHER, ROLES.TUTOR), tutorController.getTutorFinancialStatus);
 
 // Get specific tutor by ID ← dynamic route LAST

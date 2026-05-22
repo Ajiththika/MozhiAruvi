@@ -12,5 +12,9 @@ node_modules/
 Backend/node_modules/
 Frontend/node_modules/
 
+# Next.js build
+Frontend/.next/
+.next/
+
 # Logs
 *.log

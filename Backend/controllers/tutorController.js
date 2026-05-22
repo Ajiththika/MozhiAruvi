@@ -1,58 +1,15 @@
-import * as stripeConnect from '../services/stripeConnectService.js';
 import * as tutorService from '../services/tutorService.js';
 import User from '../models/User.js';
 
-/**
- * ── 💳 Tutor Onboarding (Stripe Connect) ────────────────────────────────────
- */
-export async function startStripeOnboarding(req, res, next) {
-    try {
-        const tutor = await User.findById(req.user.sub);
-        if (!tutor || (tutor.role !== 'teacher' && tutor.role !== 'tutor')) {
-            console.warn(`[Stripe Connect] Unauthorized onboarding attempt for user ${req.user.sub} (role: ${tutor?.role})`);
-            return res.status(403).json({ message: 'Only approved tutors can access onboarding.' });
-        }
-
-        let accountId = tutor.stripeAccountId;
-        if (!accountId) {
-            console.log(`[Stripe Connect] Creating new Express Account for ${tutor.email}`);
-            const account = await stripeConnect.createTutorExpressAccount(tutor);
-            accountId = account.id;
-            tutor.stripeAccountId = accountId;
-            await tutor.save();
-        }
-
-        console.log(`[Stripe Connect] Generating onboarding link for ${accountId}`);
-        const onboardingLink = await stripeConnect.generateAccountLink(accountId);
-        res.json({ url: onboardingLink.url });
-    } catch (e) { 
-        console.error(`[Stripe Connect] Onboarding error: ${e.message}`, e);
-        res.status(500).json({ message: e.message || "Failed to start Stripe onboarding." });
-    }
-}
-
-export async function finalizeStripeOnboarding(req, res, next) {
-    try {
-        const tutor = await User.findById(req.user.sub);
-        if (!tutor || !tutor.stripeAccountId) {
-            return res.status(400).json({ message: 'No Stripe account found for this tutor.' });
-        }
-
-        const status = await stripeConnect.checkAccountStatus(tutor.stripeAccountId);
-        tutor.isStripeVerified = status.isVerified;
-        await tutor.save();
-
-        res.json({ 
-            message: status.isVerified ? 'Onboarding successful. Account verified!' : 'Onboarding pending or incomplete.', 
-            isVerified: status.isVerified 
-        });
-    } catch (e) { next(e); }
-}
-
+/** Tutor payouts are handled via PayPal at checkout — no separate Connect onboarding. */
 export async function getTutorFinancialStatus(req, res, next) {
     try {
-       const tutor = await User.findById(req.user.sub).select('stripeAccountId isStripeVerified hourlyRate');
-       res.json({ tutor });
+       const tutor = await User.findById(req.user.sub).select('hourlyRate oneClassFee eightClassFee');
+       res.json({
+         tutor,
+         paymentProvider: 'paypal',
+         message: 'Student payments are collected securely via PayPal when they book a session.',
+       });
     } catch (e) { next(e); }
 }
 

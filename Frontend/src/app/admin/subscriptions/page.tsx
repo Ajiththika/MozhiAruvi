@@ -10,13 +10,15 @@ import Button from "@/components/ui/Button";
 import Modal from "@/components/ui/Modal";
 import Input from "@/components/ui/Input";
 import Pagination from "@/components/ui/Pagination";
+import { getPlanDisplay, normalizePlanKey } from "@/lib/planLabels";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
 interface Subscription {
   _id: string;
   userId: string;
-  planType: "starter" | "plus" | "master";
+  planType: "basic" | "plus" | "pro" | "starter" | "master";
+  planLabel?: string;
   isActive: boolean;
   startDate: string;
   endDate?: string;
@@ -68,14 +70,8 @@ async function overrideSubscription(userId: string, data: { planType?: string; i
 
 // ── Plan Badge ────────────────────────────────────────────────────────────────
 
-const PLAN_META: Record<string, { label: string; color: string }> = {
-  starter: { label: "Starter", color: "bg-slate-50 text-slate-500 border-slate-200" },
-  plus: { label: "Plus", color: "bg-indigo-50 text-indigo-600 border-indigo-200" },
-  master: { label: "Pro", color: "bg-amber-50 text-amber-600 border-amber-200" },
-};
-
 function PlanBadge({ plan }: { plan: string }) {
-  const meta = PLAN_META[plan] || { label: plan, color: "bg-slate-50 text-slate-500 border-slate-200" };
+  const meta = getPlanDisplay(plan);
   return (
     <span className={cn("inline-flex rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-widest border", meta.color)}>
       {meta.label}
@@ -110,7 +106,7 @@ export default function SubscriptionsPage() {
   const [search, setSearch] = useState("");
   const [searchInput, setSearchInput] = useState("");
   const [editingSub, setEditingSub] = useState<Subscription | null>(null);
-  const [overrideForm, setOverrideForm] = useState<{ planType: string; isActive: boolean; resetUsage: boolean }>({ planType: "starter", isActive: true, resetUsage: false });
+  const [overrideForm, setOverrideForm] = useState<{ planType: string; isActive: boolean; resetUsage: boolean }>({ planType: "basic", isActive: true, resetUsage: false });
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
 
@@ -124,7 +120,7 @@ export default function SubscriptionsPage() {
 
   const handleOpenEdit = (sub: Subscription) => {
     setEditingSub(sub);
-    setOverrideForm({ planType: sub.planType, isActive: sub.isActive, resetUsage: false });
+    setOverrideForm({ planType: normalizePlanKey(sub.planType), isActive: sub.isActive, resetUsage: false });
     setSaveError(null);
   };
 
@@ -133,7 +129,10 @@ export default function SubscriptionsPage() {
     setIsSaving(true);
     setSaveError(null);
     try {
-      await overrideSubscription(String(editingSub.userId), overrideForm);
+      const userId = typeof editingSub.userId === "object" && editingSub.userId !== null
+        ? String((editingSub.userId as { _id?: string })._id || editingSub.userId)
+        : String(editingSub.userId);
+      await overrideSubscription(userId, overrideForm);
       queryClient.invalidateQueries({ queryKey: ["admin", "subscriptions"] });
       setEditingSub(null);
     } catch (e: unknown) {
@@ -183,7 +182,7 @@ export default function SubscriptionsPage() {
           </Card>
           {stats.planDistribution.map(p => (
             <Card key={p._id} variant="outline" className="p-5 flex flex-col gap-2">
-              <p className="text-[10px] font-black uppercase tracking-widest text-primary/40">{PLAN_META[p._id]?.label || p._id}</p>
+              <p className="text-[10px] font-black uppercase tracking-widest text-primary/40">{p.label || getPlanDisplay(p._id).label}</p>
               <p className="text-3xl font-black text-slate-800">{p.count}</p>
               <p className="text-xs font-medium text-primary/50">Users</p>
             </Card>
@@ -194,7 +193,7 @@ export default function SubscriptionsPage() {
       {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
         <div className="flex items-center gap-2 flex-wrap">
-          {["all", "starter", "plus", "master"].map(p => (
+          {["all", "basic", "plus", "pro"].map(p => (
             <button
               key={p}
               onClick={() => { setPlanFilter(p); setCurrentPage(1); }}
@@ -203,7 +202,7 @@ export default function SubscriptionsPage() {
                 planFilter === p ? "bg-primary text-white border-primary shadow-lg shadow-primary/20" : "bg-white text-primary/60 border-slate-200 hover:border-primary/30"
               )}
             >
-              {p === "all" ? "All Plans" : PLAN_META[p]?.label}
+              {p === "all" ? "All Plans" : getPlanDisplay(p).label}
             </button>
           ))}
         </div>
@@ -313,7 +312,7 @@ export default function SubscriptionsPage() {
             <p className="text-[10px] font-black uppercase tracking-widest text-primary/40">Current Subscription</p>
             <p className="font-black text-slate-800">{editingSub?.user?.email}</p>
             <div className="flex items-center gap-2 mt-1">
-              <PlanBadge plan={editingSub?.planType || "starter"} />
+              <PlanBadge plan={editingSub?.planType || "basic"} />
               {editingSub?.paypalSubscriptionId && (
                 <span className="text-[10px] text-primary/40 font-medium truncate max-w-[180px]">{editingSub.paypalSubscriptionId}</span>
               )}
@@ -326,9 +325,9 @@ export default function SubscriptionsPage() {
             value={overrideForm.planType}
             onChange={e => setOverrideForm(f => ({ ...f, planType: e.target.value }))}
             options={[
-              { label: "Starter (Free)", value: "starter" },
+              { label: "Basic (Free)", value: "basic" },
               { label: "Plus ($12/mo)", value: "plus" },
-              { label: "Pro ($20/mo)", value: "master" },
+              { label: "Pro ($20/mo)", value: "pro" },
             ]}
           />
 

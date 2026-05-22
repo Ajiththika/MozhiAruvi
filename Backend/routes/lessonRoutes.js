@@ -34,11 +34,18 @@ const createQuestionSchema = z.object({
     text: z.string().min(1, 'Question text required'),
     paragraph: z.string().optional(),
     options: z.array(z.string()).optional(),
-    pairs: z.array(z.object({ left: z.string(), right: z.string() })).optional(),
     correctOptionIndex: z.number().int().nonnegative().optional(),
     correctAnswer: z.string().optional(),
     expectedAudioText: z.string().optional(),
-    audioUrl: z.string().url('Invalid audio URL').optional().or(z.literal('')),
+    tamilWord: z.string().optional(),
+    textToSpeech: z.boolean().optional(),
+    audioUrl: z.string().optional().or(z.literal('')),
+    pairs: z.array(z.object({
+        left: z.string(),
+        right: z.string(),
+        tamilWord: z.string().optional(),
+        audioUrl: z.string().optional(),
+    })).optional(),
     phoneticHint: z.string().optional(),
     scoreValue: z.number().int().positive().optional(),
     // ── Phase 1 extended fields ──────────────────────────────────────────────
@@ -47,7 +54,7 @@ const createQuestionSchema = z.object({
     xp:              z.number().int().positive().optional(),
     hint:            z.string().optional(),
     explanation:     z.string().optional(),
-    imageUrl:        z.string().url().optional().or(z.literal('')),
+    imageUrl:        z.string().optional().or(z.literal('')),
     useTTS:          z.boolean().optional(),
     acceptedAnswers: z.array(z.string()).optional(),
     words:           z.array(z.string()).optional(),
@@ -60,7 +67,8 @@ const submitAnswersSchema = z.object({
     answers: z.array(z.object({
         questionId: z.string(),
         selectedOptionIndex: z.number().int().optional(),
-        isSpeakingCompleted: z.boolean().optional()
+        isSpeakingCompleted: z.boolean().optional(),
+        typedAnswer: z.string().optional(),
     }))
 }).strict();
 
@@ -85,6 +93,7 @@ router.get('/:id', authenticate, checkLessonAccess, checkPlanAccess, limitCatego
 router.get('/:id/questions', authenticate, checkLessonAccess, checkPlanAccess, limitCategoryAccess, lessonController.getLessonQuestions);
 router.post('/:id/submit', authenticate, validate(submitAnswersSchema), lessonController.submitAnswers);
 router.post('/:id/questions/:qId/attempt', authenticate, lessonController.recordAttempt);  // Phase 7: per-Q energy
+router.post('/:id/questions/:qId/check', authenticate, lessonController.checkQuestionAnswer);
 router.post('/:id/evaluate-speaking', authenticate, validate(evaluateSpeakingSchema), lessonController.evaluateSpeaking);
 router.post('/:id/evaluate-writing', authenticate, validate(evaluateWritingSchema), lessonController.evaluateWriting);
 router.post('/:id/generate-speech', authenticate, lessonController.generateSpeech);
