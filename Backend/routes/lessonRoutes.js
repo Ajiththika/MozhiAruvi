@@ -69,6 +69,10 @@ const submitAnswersSchema = z.object({
         selectedOptionIndex: z.number().int().optional(),
         isSpeakingCompleted: z.boolean().optional(),
         typedAnswer: z.string().optional(),
+        matchingAnswer: z.array(z.object({
+            left: z.string(),
+            right: z.string(),
+        })).optional(),
     }))
 }).strict();
 

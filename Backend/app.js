@@ -76,11 +76,45 @@ app.use('/api/', (req, res, next) => {
 
 // ── Security ──────────────────────────────────────────────────────────────────
 app.use(helmet());
+
+// ── Scoped Cache Policy ───────────────────────────────────────────────────────
+// Safe, read-only public collections may be briefly cached to cut load time.
+// Everything sensitive (auth, sessions, payments, admin, and all mutations)
+// stays strictly no-store. This replaces the previous blanket no-store header
+// that was applied to every response (including static public GETs).
+const PUBLIC_CACHEABLE = [
+  "/api/blogs",
+  "/api/tutors",
+  "/api/mentors",
+  "/api/teachers",
+  "/api/categories",
+  "/api/resources",
+  "/api/resource-sections",
+];
+const NO_STORE_PREFIXES = [
+  "/api/auth", "/auth",
+  "/api/admin",
+  "/api/users",
+  "/api/payments",
+  "/api/bookings",
+  "/api/organizations",
+];
+
 app.use((req, res, next) => {
-  res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
-  res.setHeader("Pragma", "no-cache");
-  res.setHeader("Surrogate-Control", "no-store");
-  res.setHeader("Expires", "0");
+  const path = req.path || req.url || "";
+  const matches = (p) => path === p || path.startsWith(p + "/");
+  const isSensitive = NO_STORE_PREFIXES.some(matches);
+  const isPublicGet = req.method === "GET" && PUBLIC_CACHEABLE.some(matches);
+
+  if (isPublicGet && !isSensitive) {
+    // Browser-only short cache; not shared by CDNs/proxies (private).
+    res.setHeader("Cache-Control", "private, max-age=60");
+  } else {
+    res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+    res.setHeader("Pragma", "no-cache");
+    res.setHeader("Surrogate-Control", "no-store");
+    res.setHeader("Expires", "0");
+  }
   next();
 });
 

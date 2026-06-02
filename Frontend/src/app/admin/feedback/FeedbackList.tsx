@@ -34,6 +34,7 @@ export default function FeedbackList() {
     {
       header: "User Detail",
       accessorKey: "userEmail",
+      className: "align-top",
       cell: (row) => (
         <div className="flex items-center gap-4 py-2">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/5 border border-primary/10">
@@ -54,8 +55,9 @@ export default function FeedbackList() {
     {
       header: "Rating",
       accessorKey: "rating",
+      className: "align-top",
       cell: (row) => (
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1 py-2">
           {[...Array(5)].map((_, i) => (
             <Star
               key={i}
@@ -74,10 +76,11 @@ export default function FeedbackList() {
     {
       header: "Feedback Comment",
       accessorKey: "comment",
+      className: "!whitespace-normal align-top w-full min-w-[260px]",
       cell: (row) => (
         <div className="flex items-start gap-3 max-w-md">
            <div className="mt-1 shrink-0"><MessageSquare className="h-4 w-4 text-slate-200" /></div>
-           <p className="text-sm font-medium text-slate-600 italic leading-relaxed">
+           <p className="text-sm font-medium text-slate-600 italic leading-relaxed break-words whitespace-normal">
              {row.comment || "No comment provided."}
            </p>
         </div>
@@ -86,7 +89,7 @@ export default function FeedbackList() {
     {
       header: "Actions",
       accessorKey: "_id",
-      className: "text-right",
+      className: "text-right align-top",
       cell: (row) => (
         <button
           onClick={() => handleDelete(row._id)}

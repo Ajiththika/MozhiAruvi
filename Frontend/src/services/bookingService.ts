@@ -79,3 +79,8 @@ export const getAllMappings = async () => {
   const response = await api.get("/bookings/admin/mappings");
   return response.data; // { mappings: [] }
 };
+
+export const deleteMapping = async (id: string) => {
+  const response = await api.delete(`/bookings/admin/mappings/${id}`);
+  return response.data; // { message, id }
+};

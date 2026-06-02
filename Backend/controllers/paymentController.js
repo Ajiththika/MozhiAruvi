@@ -160,7 +160,7 @@ export async function verifySubscriptionSession(req, res, next) {
 
       // Update the local Payment record
       const payment = await Payment.findOneAndUpdate(
-        { stripeSessionId: token },
+        { paypalOrderId: token },
         { status: 'completed' }
       );
 
@@ -296,7 +296,7 @@ export async function createEventPaymentSession(req, res, next) {
 
     await Payment.create({
       user: user._id,
-      stripeSessionId: order.id, // Re-use this field for the PayPal Order ID
+      paypalOrderId: order.id,
       amount,
       paymentType: 'event',
       metadata: { eventId }
@@ -333,7 +333,7 @@ export async function createTutorPaymentSession(req, res, next) {
 
     await Payment.create({
       user: user._id,
-      stripeSessionId: order.id, // Store PayPal Order ID
+      paypalOrderId: order.id,
       amount,
       paymentType: 'tutor_session',
       metadata: { tutorId, isPackage }

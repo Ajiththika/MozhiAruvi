@@ -331,7 +331,7 @@ export default function StudentLessonsPage() {
     }} />;
   }
 
-  const powers = user?.progress?.energy ?? user?.power ?? 25;
+  const powers = user?.progress?.energy ?? 25;
   const isOutOfEnergy = powers <= 0;
 
   const filteredLessons = lessons.filter(l => {

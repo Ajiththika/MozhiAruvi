@@ -3,6 +3,7 @@ import Question from '../models/Question.js';
 import Progress from '../models/Progress.js';
 import User from '../models/User.js';
 import Mistake from '../models/Mistake.js';
+import QuestionAttempt from '../models/QuestionAttempt.js';
 import { normalizeQuestionPayload } from '../utils/questionNormalize.js';
 import { sanitizeQuestionForStudent, evaluateQuestionAnswer } from '../utils/sanitizeQuestion.js';
 
@@ -52,13 +53,10 @@ export async function getQuestionsForLesson(lessonId, isAdmin = false) {
         // Admins see full data including answers
         if (isAdmin) return allQuestions;
 
-        const sanitized = allQuestions.map(sanitizeQuestionForStudent);
-
-        if (sanitized.length <= 10) return sanitized;
-
-        return sanitized
-            .sort(() => 0.5 - Math.random())
-            .slice(0, 10);
+        // Deterministic delivery: honour the admin-defined orderIndex exactly.
+        // (No Math.random() slicing — that broke ordering and reshuffled the
+        //  whole deck on every refresh / re-fetch.)
+        return allQuestions.map(sanitizeQuestionForStudent);
     } catch (e) {
         if (e.name === 'MongooseError' || e.message.includes('timeout') || e.message.includes('buffering')) return [];
         throw e;
@@ -96,10 +94,25 @@ export async function evaluateAnswersAndSaveProgress(userId, lessonId, answers) 
         totalPossibleScore += q.scoreValue || 10;
     });
 
+    // Load server-verified attempt records (speaking / writing) so the submit
+    // path relies on the authoritative server result rather than client flags.
+    const verifiedMap = new Map();
+    try {
+        const attempts = await QuestionAttempt.find({
+            userId,
+            questionId: { $in: questionIds },
+        }).select('questionId verified');
+        attempts.forEach(a => verifiedMap.set(a.questionId.toString(), a.verified));
+    } catch (_) { /* non-fatal: fall back to per-answer evaluation */ }
+
     for (const ans of answers) {
         const q = questionMap.get(ans.questionId.toString());
         if (q) {
-            const isCorrect = evaluateQuestionAnswer(q, ans);
+            // Inject the server-verified result for async-graded types.
+            const serverVerified = verifiedMap.has(ans.questionId.toString())
+                ? verifiedMap.get(ans.questionId.toString())
+                : undefined;
+            const isCorrect = evaluateQuestionAnswer(q, { ...ans, serverVerified });
 
             if (isCorrect) {
                 score += q.scoreValue || 10;

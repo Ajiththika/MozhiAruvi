@@ -36,8 +36,6 @@ const userSchema = new mongoose.Schema({
   profilePhoto: { type: String, trim: true },
   levelSupport: { type: [String], enum: ['Beginner', 'Elementary', 'Intermediate', 'Advanced'], default: ['Beginner'] },
   responseTime: { type: String, trim: true }, // e.g. "Within 1 hour"
-  stripeAccountId: { type: String },
-  isStripeVerified: { type: Boolean, default: false },
   rating: { type: Number, default: 4.5 },
   totalReviews: { type: Number, default: 0 },
   degree: { type: String, trim: true },
@@ -50,13 +48,19 @@ const userSchema = new mongoose.Schema({
 
   // Learning Progression & Duolingo features
   level: { type: String, default: 'Beginner' },
-  learningCredits: { type: Number, default: 25 },
   lastCreditUpdate: { type: Date, default: Date.now },
   xp: { type: Number, default: 0 },
   points: { type: Number, default: 0 },
+  badges: [{ type: String }],
+
+  // ── DEPRECATED energy fields (retained only as a backfill source) ─────────
+  // Canonical energy now lives in `progress.energy` (single source of truth).
+  // These are no longer exposed via toSafeObject and must not be written to;
+  // the post('init') hook seeds progress.energy from `power` for legacy docs.
+  learningCredits: { type: Number, default: 25 },
   power: { type: Number, default: 25 },
   lastPowerUpdate: { type: Date, default: Date.now },
-  badges: [{ type: String }],
+
   progress: {
     energy: { type: Number, default: 25 },
     lastEnergyUpdate: { type: Date, default: Date.now },
@@ -68,7 +72,7 @@ const userSchema = new mongoose.Schema({
   },
   // Subscription & Access Control (Stripe)
   subscription: {
-    plan: { type: String, enum: ['BASIC', 'PLUS', 'MASTER', 'BUSINESS'], default: 'BASIC' },
+    plan: { type: String, enum: ['BASIC', 'PLUS', 'PRO', 'MASTER', 'BUSINESS'], default: 'BASIC' },
     billingCycle: { type: String, enum: ['monthly', 'yearly', 'none'], default: 'none' },
     stripeCustomerId: { type: String },
     stripeSubscriptionId: { type: String },
@@ -116,14 +120,31 @@ userSchema.pre('save', async function (next) {
   next();
 });
 
+// ── Energy single-source-of-truth backfill ──────────────────────────────────
+// `progress.energy` is canonical. For legacy documents created before it
+// existed, seed it from the deprecated root-level `power` field so no user
+// loses their energy state during the migration.
+userSchema.post('init', function () {
+  if (!this.progress) this.progress = {};
+  if (this.progress.energy === undefined || this.progress.energy === null) {
+    this.progress.energy = (typeof this.power === 'number') ? this.power : 25;
+  }
+  if (!this.progress.lastEnergyUpdate && this.lastPowerUpdate) {
+    this.progress.lastEnergyUpdate = this.lastPowerUpdate;
+  }
+});
+
 userSchema.methods.comparePassword = function (plain) {
   if (!this.password) return false;
   return bcrypt.compare(plain, this.password);
 };
 
 userSchema.methods.toSafeObject = function () {
-  const { _id, name, email, role, tutorStatus, isActive, warnings, adminNotes, isTutorAvailable, isPremium, progress, credits, createdAt, teachingMode, profilePhoto, level, learningCredits, xp, points, power, lastPowerUpdate, badges, hasCompletedOnboarding, lastCreditUpdate, phoneNumber, country, age, gender, bio, experience, specialization, languages, subscription, organizationId, roleInOrg, stripeAccountId, isStripeVerified, hourlyRate, weeklySchedule, oneClassFee, eightClassFee, rating, totalReviews, degree, skills, isEmailVerified } = this;
-  return { _id, name, email, role, tutorStatus, isActive, warnings, adminNotes, isTutorAvailable, isPremium, progress, credits, createdAt, teachingMode, profilePhoto, level, learningCredits, xp, points, power, lastPowerUpdate, badges, hasCompletedOnboarding, lastCreditUpdate, phoneNumber, country, age, gender, bio, experience, specialization, languages, subscription, organizationId, roleInOrg, hasUsedTrial: subscription?.hasUsedTrial, stripeAccountId, isStripeVerified, hourlyRate, weeklySchedule, oneClassFee, eightClassFee, rating, totalReviews, degree, skills, isEmailVerified };
+  // Energy is exposed ONLY via `progress.energy` (canonical). The deprecated
+  // root-level `power` / `learningCredits` duplicates are intentionally omitted
+  // to eliminate state desynchronisation on the client.
+  const { _id, name, email, role, tutorStatus, isActive, warnings, adminNotes, isTutorAvailable, isPremium, progress, credits, createdAt, teachingMode, profilePhoto, level, xp, points, badges, hasCompletedOnboarding, lastCreditUpdate, phoneNumber, country, age, gender, bio, experience, specialization, languages, subscription, organizationId, roleInOrg, hourlyRate, weeklySchedule, oneClassFee, eightClassFee, rating, totalReviews, degree, skills, isEmailVerified } = this;
+  return { _id, name, email, role, tutorStatus, isActive, warnings, adminNotes, isTutorAvailable, isPremium, progress, credits, createdAt, teachingMode, profilePhoto, level, xp, points, badges, hasCompletedOnboarding, lastCreditUpdate, phoneNumber, country, age, gender, bio, experience, specialization, languages, subscription, organizationId, roleInOrg, hasUsedTrial: subscription?.hasUsedTrial, hourlyRate, weeklySchedule, oneClassFee, eightClassFee, rating, totalReviews, degree, skills, isEmailVerified };
 };
 
 // Indexes for high-performance lookups

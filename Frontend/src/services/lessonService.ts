@@ -54,7 +54,12 @@ export interface Question {
   acceptedAnswers?: string[];
   words?: string[];
   pairs?: { left: string; right: string; tamilWord?: string; audioUrl?: string }[];
+  // Matching: server ships the linkage-stripped, shuffled columns to students.
+  matchLefts?: { left: string; tamilWord?: string; audioUrl?: string }[];
+  matchRights?: string[];
 }
+
+export type MatchingAnswer = { left: string; right: string }[];
 
 export interface QuestionInput extends Partial<Omit<Question, '_id'>> {
   lessonId?: string;
@@ -67,6 +72,7 @@ export interface SubmitAnswerItem {
   selectedOptionIndex: number;
   isSpeakingCompleted?: boolean;
   typedAnswer?: string;
+  matchingAnswer?: MatchingAnswer;
 }
 
 export interface Progress {
@@ -128,12 +134,24 @@ export async function submitAnswers(
 
 // ── Speaking Evaluation ───────────────────────────────────────────────────────
 
+export type SpeakingStatus = "perfect" | "close" | "retry";
+
+export interface SpeakingResult {
+  isCorrect: boolean;
+  status?: SpeakingStatus;
+  score: number;
+  confidence?: number | null;
+  transcription: string;
+  feedback: string;
+  correctText: string;
+}
+
 export async function evaluateSpeaking(
   lessonId: string,
   questionId: string,
   audioBase64: string
-): Promise<{ isCorrect: boolean; score: number; transcription: string; feedback: string; correctText: string }> {
-  const res = await api.post<{ isCorrect: boolean; score: number; transcription: string; feedback: string; correctText: string }>(
+): Promise<SpeakingResult> {
+  const res = await api.post<SpeakingResult>(
     `/lessons/${lessonId}/evaluate-speaking`,
     { questionId, audioBase64 }
   );
@@ -155,7 +173,7 @@ export async function evaluateWriting(
 export async function checkQuestionAnswer(
   lessonId: string,
   questionId: string,
-  payload: { selectedOptionIndex?: number; typedAnswer?: string; isSpeakingCompleted?: boolean }
+  payload: { selectedOptionIndex?: number; typedAnswer?: string; isSpeakingCompleted?: boolean; matchingAnswer?: MatchingAnswer }
 ): Promise<{ correct: boolean; correctAnswer?: string; hint?: string; explanation?: string; xp?: number }> {
   const res = await api.post<{ correct: boolean; correctAnswer?: string; hint?: string; explanation?: string; xp?: number }>(
     `/lessons/${lessonId}/questions/${questionId}/check`,

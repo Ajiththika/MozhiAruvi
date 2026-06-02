@@ -15,6 +15,7 @@ import { ImageUpload } from "@/components/ImageUpload";
 import { VideoUpload } from "@/components/VideoUpload";
 import { AudioUpload } from "@/components/AudioUpload";
 import { useToast } from "@/components/ui/Toast";
+import { useConfirm } from "@/components/ui/ConfirmDialog";
 
 // ── Heuristics ────────────────────────────────────────────────────────────────
 
@@ -778,6 +779,7 @@ function AdminCategoryGroup({
 
 export default function AdminLessonsPage() {
   const { toast } = useToast();
+  const { confirm, ConfirmDialog } = useConfirm();
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [dbCategories, setDbCategories] = useState<DBCategory[]>([]);
   const [loading, setLoading] = useState(true);
@@ -805,6 +807,8 @@ export default function AdminLessonsPage() {
   const [draftQuestions, setDraftQuestions] = useState<DraftQuestion[]>([]);
   const [qLoading, setQLoading] = useState(false);
   const [savingQ, setSavingQ] = useState(false);
+  // Per-item delete flags so we never block the whole screen during a delete.
+  const [deletingIds, setDeletingIds] = useState<Record<string, boolean>>({});
   const scrollRef = React.useRef<HTMLDivElement>(null);
 
   const [activeLevel, setActiveLevel] = useState("Beginner");
@@ -862,7 +866,7 @@ export default function AdminLessonsPage() {
         orderedIds: list.map(q => q._id) 
       });
     } catch {
-      alert("Reorder failed.");
+      toast("Reorder failed.", "error");
       const data = await getLessonQuestions(activeLessonId);
       setSavedQuestions(data.questions || []);
     }
@@ -878,20 +882,24 @@ export default function AdminLessonsPage() {
       return;
     }
 
-    try {
-      const payload = buildPayload(updated);
-      
-      // Secondary safety check
-      if (payload.type === 'quiz' && (payload as any).correctOptionIndex === -1) {
-        throw new Error("Please select a correct answer from the options.");
-      }
+    const payload = buildPayload(updated);
 
-      await api.patch(`/lessons/${activeLessonId}/questions/${id}`, payload);
+    // Secondary safety check
+    if (payload && (payload as any).type === 'quiz' && (payload as any).correctOptionIndex === -1) {
+      toast("Please select a correct answer from the options.", "error");
+      return;
+    }
+
+    // Snapshot for rollback, then resolve in place when the server confirms — no full refetch.
+    const snapshot = savedQuestions;
+    try {
+      const res = await api.patch(`/lessons/${activeLessonId}/questions/${id}`, payload);
+      const realQ: Question | undefined = res.data?.question;
+      setSavedQuestions(prev => prev.map(q => q._id === id ? (realQ ?? q) : q));
       setEditingSavedId(null);
-      const data = await getLessonQuestions(activeLessonId);
-      setSavedQuestions(data.questions || []);
       toast("Question updated successfully.", "success");
     } catch (err: any) {
+      setSavedQuestions(snapshot); // restore on failure
       const msg = err.response?.data?.error?.message || err.response?.data?.message || err.message || "Failed to update question.";
       toast(`Update error: ${msg}`, "error");
       // Don't close the editor so user can fix the error
@@ -933,12 +941,19 @@ export default function AdminLessonsPage() {
   }
 
   async function handleDelete(id: string) {
-    if (!confirm("Delete this category and all its questions?")) return;
+    const ok = await confirm({
+      title: "Delete lesson",
+      message: "Delete this lesson and all its questions? This cannot be undone.",
+      confirmText: "Delete",
+      danger: true,
+    });
+    if (!ok) return;
     try {
       await api.delete(`/lessons/${id}`);
       fetchLessons();
+      toast("Lesson deleted.", "success");
     } catch {
-      alert("Failed to delete.");
+      toast("Failed to delete.", "error");
     }
   }
 
@@ -971,8 +986,9 @@ export default function AdminLessonsPage() {
       });
       setEditingLessonId(null);
       fetchLessons();
+      toast("Lesson updated.", "success");
     } catch {
-      alert("Failed to update.");
+      toast("Failed to update.", "error");
     }
   }
 
@@ -1020,18 +1036,34 @@ export default function AdminLessonsPage() {
   }
 
   async function handleDeleteSaved(qId: string) {
-    if (!activeLessonId) return;
+    if (!activeLessonId || deletingIds[qId]) return;
+
+    // Optimistic delete: remove instantly so the UI feels snappy, keep a snapshot to roll back.
+    const snapshot = savedQuestions;
+    setDeletingIds(prev => ({ ...prev, [qId]: true }));
+    setSavedQuestions(prev => prev.filter(q => q._id !== qId));
+    if (editingSavedId === qId) setEditingSavedId(null);
+
     try {
       await api.delete(`/lessons/${activeLessonId}/questions/${qId}`);
-      setSavedQuestions(prev => prev.filter(q => q._id !== qId));
+      toast("Question deleted.", "success");
     } catch (err: unknown) {
+      setSavedQuestions(snapshot); // restore exactly where it was
       const msg = axios.isAxiosError(err) ? err.response?.data?.message : "Failed to delete question.";
       toast(msg || "Failed to delete question.", "error");
+    } finally {
+      setDeletingIds(prev => {
+        const next = { ...prev };
+        delete next[qId];
+        return next;
+      });
     }
   }
 
   async function handleSaveQuestions() {
-    if (!activeLessonId) return;
+    if (!activeLessonId || savingQ) return;
+
+    // 1. Validate everything up front.
     let hasError = false;
     const validated = draftQuestions.map(q => {
       const err = validateQuestion(q);
@@ -1040,32 +1072,60 @@ export default function AdminLessonsPage() {
     });
     if (hasError) { setDraftQuestions(validated); return; }
 
-    setSavingQ(true);
-    try {
-      let savedCount = 0;
-      for (const q of draftQuestions) {
-        const payload = buildPayload(q);
-        
-        // Final MCQ check
-        if (payload.type === 'quiz' && (payload as any).correctOptionIndex === -1) {
-           q.error = "Please select a correct answer.";
-           setSavingQ(false);
-           return;
-        }
-
-        await api.post(`/lessons/${activeLessonId}/questions`, payload);
-        savedCount++;
+    // 2. Secondary MCQ correct-answer guard.
+    for (const q of validated) {
+      const payload = buildPayload(q);
+      if (payload && (payload as any).type === 'quiz' && (payload as any).correctOptionIndex === -1) {
+        setDraftQuestions(prev => prev.map(d => d.id === q.id ? { ...d, error: "Please select a correct answer." } : d));
+        return;
       }
-      const data = await getLessonQuestions(activeLessonId);
-      setSavedQuestions(data.questions || []);
-      setDraftQuestions([]);
-      toast(`Successfully saved ${savedCount} question(s).`, "success");
-    } catch (err: any) {
-      const msg = err.response?.data?.error?.message || err.response?.data?.message || err.message || "Failed to save questions.";
-      toast(`Save error: ${msg}`, "error");
-    } finally {
-      setSavingQ(false);
     }
+
+    setSavingQ(true);
+
+    // 3. Optimistically move drafts into the saved list with temporary ids so the UI
+    //    updates instantly, then reconcile each temp id with the real DB _id as the
+    //    server responds (no full-list refetch → no flicker / freeze).
+    const queue = validated.map(q => {
+      const payload = buildPayload(q);
+      const tempId = `temp-${q.id}`;
+      const optimisticQ = { ...(payload as any), _id: tempId, __pending: true } as unknown as Question;
+      return { draft: q, tempId, payload, optimisticQ };
+    });
+
+    setSavedQuestions(prev => [...prev, ...queue.map(item => item.optimisticQ)]);
+    setDraftQuestions([]);
+
+    let savedCount = 0;
+    const failedDrafts: DraftQuestion[] = [];
+
+    for (const item of queue) {
+      try {
+        const res = await api.post(`/lessons/${activeLessonId}/questions`, item.payload);
+        const realQ: Question | undefined = res.data?.question;
+        // Swap the temp entry for the persisted one (temp _id → permanent _id).
+        setSavedQuestions(prev => prev.map(q =>
+          q._id === item.tempId
+            ? (realQ ?? ({ ...(q as any), __pending: false } as Question))
+            : q
+        ));
+        savedCount++;
+      } catch (err: any) {
+        // Remove the optimistic entry and return the draft so the user can fix & retry.
+        setSavedQuestions(prev => prev.filter(q => q._id !== item.tempId));
+        const msg = err.response?.data?.error?.message || err.response?.data?.message || err.message || "Failed to save.";
+        failedDrafts.push({ ...item.draft, error: msg });
+      }
+    }
+
+    if (failedDrafts.length > 0) {
+      setDraftQuestions(prev => [...failedDrafts, ...prev]);
+      toast(`Saved ${savedCount} question(s). ${failedDrafts.length} failed — please review.`, "error");
+    } else if (savedCount > 0) {
+      toast(`Successfully saved ${savedCount} question(s).`, "success");
+    }
+
+    setSavingQ(false);
   }
 
   function buildPayload(q: DraftQuestion) {
@@ -1219,20 +1279,27 @@ export default function AdminLessonsPage() {
     } catch (err: any) {
       console.error("Move failed", err);
       const msg = err.response?.data?.message || err.message || "Failed to reorder topics.";
-      alert(msg);
+      toast(msg, "error");
     } finally {
       setLoading(false);
     }
   }
 
   async function handleDeleteCategory(id: string) {
-    if (!confirm("Delete category? (Existing lessons will become 'Uncategorized')")) return;
+    const ok = await confirm({
+      title: "Delete category",
+      message: "Delete category? Existing lessons will become 'Uncategorized'.",
+      confirmText: "Delete",
+      danger: true,
+    });
+    if (!ok) return;
     try {
       await deleteCategory(id);
       await fetchLessons();
+      toast("Category deleted.", "success");
     } catch (err: any) {
       const msg = err.response?.data?.message || err.message || "Failed to delete.";
-      alert(msg);
+      toast(msg, "error");
     }
   }
 
@@ -1299,7 +1366,7 @@ export default function AdminLessonsPage() {
     } catch (err: any) {
       console.error("Update failed", err);
       const msg = err.response?.data?.message || err.message || "An unexpected error occurred.";
-      alert(`Save Failed: ${msg}`);
+      toast(`Save failed: ${msg}`, "error");
     } finally {
       setLoading(false);
     }
@@ -1748,7 +1815,7 @@ export default function AdminLessonsPage() {
                       </div>
                       <div className="space-y-4">
                         {savedQuestions.map((q, idx) => (
-                          <div key={q._id} className="bg-white rounded-[2.5rem] border-2 border-slate-100/60 overflow-hidden group transition-all duration-500 hover:border-primary/40 hover:shadow-[0_32px_64px_-15px_rgba(0,0,0,0.1)] hover:-translate-y-2 hover:z-10">
+                          <div key={q._id} className={`bg-white rounded-[2.5rem] border-2 border-slate-100/60 overflow-hidden group transition-all duration-500 hover:border-primary/40 hover:shadow-[0_32px_64px_-15px_rgba(0,0,0,0.1)] hover:-translate-y-2 hover:z-10 ${(q as any).__pending ? "opacity-60 pointer-events-none animate-pulse" : ""}`}>
                             {editingSavedId === q._id ? (
                               <div className="p-6 bg-primary/[0.02]">
                                 <QuestionCard 
@@ -1801,10 +1868,11 @@ export default function AdminLessonsPage() {
                                 </button>
                                 <button 
                                   onClick={() => handleDeleteSaved(q._id)} 
-                                  className="h-14 w-14 flex items-center justify-center bg-slate-50 text-primary/30 hover:text-red-500 hover:bg-red-50 hover:border-red-100 border border-transparent rounded-2xl transition-all shadow-sm hover:shadow-xl hover:shadow-red-500/10"
+                                  disabled={!!deletingIds[q._id]}
+                                  className="h-14 w-14 flex items-center justify-center bg-slate-50 text-primary/30 hover:text-red-500 hover:bg-red-50 hover:border-red-100 border border-transparent rounded-2xl transition-all shadow-sm hover:shadow-xl hover:shadow-red-500/10 disabled:opacity-50 disabled:pointer-events-none"
                                   title="Delete Question"
                                 >
-                                  <Trash2 className="w-6 h-6" />
+                                  {deletingIds[q._id] ? <Loader2 className="w-6 h-6 animate-spin" /> : <Trash2 className="w-6 h-6" />}
                                 </button>
                               </div>
                             </div>
@@ -1981,6 +2049,7 @@ export default function AdminLessonsPage() {
           </div>
         </div>
       )}
+      {ConfirmDialog}
     </div>
   );
 }

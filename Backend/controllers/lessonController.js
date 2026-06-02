@@ -3,9 +3,31 @@ import * as lessonService from '../services/lessonService.js';
 import { canAttempt, consumeEnergy, getEnergyResponse, regenerateEnergy, validateStreak } from '../utils/energyManager.js';
 import speech from '@google-cloud/speech';
 import textToSpeech from '@google-cloud/text-to-speech';
-import { stringSimilarity } from 'string-similarity-js';
+import { gradeSpeech } from '../utils/speechMatch.js';
 import Question from '../models/Question.js';
+import QuestionAttempt from '../models/QuestionAttempt.js';
 import { evaluateQuestionAnswer, getRevealAnswer } from '../utils/sanitizeQuestion.js';
+
+/** Upsert a server-verified attempt record for async-graded question types. */
+async function recordVerifiedAttempt(userId, question, verified, score = 0) {
+    if (!userId || !question?._id) return;
+    try {
+        await QuestionAttempt.findOneAndUpdate(
+            { userId, questionId: question._id },
+            {
+                $set: {
+                    lessonId: question.lessonId,
+                    type: question.type,
+                    verified: !!verified,
+                    score: score || 0,
+                },
+            },
+            { upsert: true }
+        );
+    } catch (e) {
+        console.error('[recordVerifiedAttempt] failed:', e.message);
+    }
+}
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -146,12 +168,18 @@ export async function checkQuestionAnswer(req, res, next) {
             return res.status(404).json({ message: 'Question not found' });
         }
 
-        const { selectedOptionIndex, typedAnswer, isSpeakingCompleted } = req.body;
+        const { selectedOptionIndex, typedAnswer, isSpeakingCompleted, matchingAnswer } = req.body;
         const correct = evaluateQuestionAnswer(question, {
             selectedOptionIndex,
             typedAnswer,
             isSpeakingCompleted,
+            matchingAnswer,
         });
+
+        // Persist match results so the final submit reflects the verified server grade.
+        if (question.type === 'match') {
+            await recordVerifiedAttempt(req.user?.sub, question, correct, correct ? (question.scoreValue || 10) : 0);
+        }
 
         res.json({
             correct,
@@ -300,6 +328,7 @@ export async function evaluateSpeaking(req, res, next) {
         const cleanBase64 = audioBase64.replace(/^data:audio\/\w+;base64,/, '');
         
         let transcription = "";
+        let sttConfidence = null;
         
         // ── 1. Attempt AI Processing (Google Speech API) ───────────────────────
         try {
@@ -320,6 +349,14 @@ export async function evaluateSpeaking(req, res, next) {
                         .map(result => result.alternatives?.[0]?.transcript || "")
                         .join(' ')
                         .trim();
+
+                    // Average the per-result confidence scores (0..1) for thresholding.
+                    const confs = sttResponse.results
+                        .map(result => result.alternatives?.[0]?.confidence)
+                        .filter(c => typeof c === 'number' && c > 0);
+                    if (confs.length > 0) {
+                        sttConfidence = confs.reduce((a, b) => a + b, 0) / confs.length;
+                    }
                 }
             }
         } catch (sttErr) {
@@ -334,47 +371,28 @@ export async function evaluateSpeaking(req, res, next) {
         }
 
 
-        // ── 3. Evaluation Logic ──────────────────────────────────────────────
-        // Remove punctuation to fix issues with single letters like "அ."
-        const cleanString = (str) => str.toLowerCase().replace(/[^\p{L}\p{N}\s]/gu, '').replace(/\s+/g, ' ').trim();
-        
-        const normalizedExpected = cleanString(expectedText);
-        const normalizedPhonetic = cleanString(question.phoneticHint || "");
-        const normalizedUser = cleanString(transcription);
+        // ── 3. Multi-tier Evaluation (lenient / mic-forgiving) ───────────────
+        // Fuzzy Tamil matching (Levenshtein + Dice) → percentage similarity, graded into:
+        //   perfect (>=90%) · close (65-89%, partial credit, no penalty) · retry (<65%)
+        const { score, status, passed, feedback, confidence } = gradeSpeech(
+            expectedText,
+            transcription,
+            question.phoneticHint || "",
+            sttConfidence
+        );
 
-        let similarity = 0;
-        
-        const isExactMatch = (normalizedUser === normalizedExpected) || 
-                             (normalizedPhonetic !== "" && normalizedUser === normalizedPhonetic);
-                             
-        if (isExactMatch && normalizedUser !== "") {
-            similarity = 1.0;
-        } else if (normalizedExpected.length <= 2 && normalizedExpected !== "") {
-            // For single characters, string-similarity-js returns 0. 
-            // We require an exact match after cleaning punctuation for single characters.
-            similarity = isExactMatch ? 1.0 : 0.0;
-        } else {
-            try {
-                similarity = stringSimilarity(normalizedExpected, normalizedUser);
-                if (normalizedPhonetic !== "") {
-                    const phoneticSim = stringSimilarity(normalizedPhonetic, normalizedUser);
-                    similarity = Math.max(similarity, phoneticSim);
-                }
-            } catch (_simErr) {
-                similarity = isExactMatch ? 1.0 : 0.0;
-            }
-        }
-
-        const score = Math.min(100, Math.max(0, Math.round((similarity || 0) * 100)));
-        // Increased threshold to 80 to prevent completely wrong words from passing (e.g., தம்மா vs அம்மா)
-        const passed = score >= 80;
+        // Persist the authoritative server result so the final lesson submit
+        // evaluates this stored verification, not a client-trusted boolean.
+        await recordVerifiedAttempt(req.user?.sub, question, passed, score || 0);
 
         return res.json({
-            isCorrect: passed,
+            isCorrect: passed,           // perfect & close both pass → never boot the learner out
+            status,                      // 'perfect' | 'close' | 'retry'
             score: score || 0,
+            confidence,                  // STT recognition confidence (0..1 or null)
             correctText: expectedText,
-            transcription: transcription || "Unknown",
-            feedback: passed ? "Correct! Well done." : "Incorrect attempt. Try again."
+            transcription: transcription || "",   // captured (possibly mispronounced) phonetic string
+            feedback
         });
 
 
@@ -382,6 +400,7 @@ export async function evaluateSpeaking(req, res, next) {
         console.error('❌ [EVALUATE SPEAKING CRIT]:', e.message);
         return res.json({
             isCorrect: false, 
+            status: 'retry',
             score: 0,
             feedback: "Evaluation temporary unavailable. Please try again.",
             transcription: "",
@@ -424,6 +443,10 @@ Respond ONLY with YES or NO.`;
         const responseText = result.response.text().trim().toUpperCase();
 
         const isCorrect = responseText.includes("YES");
+
+        // Persist the authoritative server result so the final lesson submit
+        // evaluates this stored verification, not a client-trusted boolean.
+        await recordVerifiedAttempt(req.user?.sub, question, isCorrect, isCorrect ? 100 : 0);
 
         return res.json({
             isCorrect,

@@ -54,7 +54,8 @@ export async function completeOnboarding(req, res, next) {
 export async function consumeCredit(req, res, next) {
     try {
         const user = await userService.consumeCredit(req.user.sub);
-        res.json({ message: 'Credit consumed', learningCredits: user.learningCredits });
+        // `learningCredits` kept for response back-compat; sourced from canonical energy.
+        res.json({ message: 'Credit consumed', learningCredits: user.progress?.energy ?? 0 });
     } catch (e) { next(e); }
 }
 

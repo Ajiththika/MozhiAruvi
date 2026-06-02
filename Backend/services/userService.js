@@ -8,39 +8,9 @@ export async function getUserInfo(userId) {
         const err = new Error('User not found'); err.status = 404; err.code = 'NOT_FOUND'; throw err;
     }
 
-    const oneHour = 1000 * 60 * 60;
-    if (user.learningCredits < 25) {
-        const now = new Date();
-        const lastUpdate = user.lastCreditUpdate || now;
-        const diffMs = now - lastUpdate;
-        const diffHours = Math.floor(diffMs / oneHour);
-        if (diffHours > 0) {
-            const newCredits = Math.min(25, user.learningCredits + diffHours);
-            user.learningCredits = newCredits;
-            // Shift lastUpdate forward by exact hours to keep the 'partial hour' credit progress
-            user.lastCreditUpdate = new Date(lastUpdate.getTime() + (diffHours * oneHour));
-            await user.save();
-        }
-    } else if (!user.lastCreditUpdate) {
-        user.lastCreditUpdate = new Date();
-        await user.save();
-    }
-
-    if (user.power < 30) {
-        const now = new Date();
-        const lastUpdate = user.lastPowerUpdate || now;
-        const diffMs = now - lastUpdate;
-        const diffHours = Math.floor(diffMs / oneHour);
-        if (diffHours > 0) {
-            const newPower = Math.min(30, user.power + diffHours);
-            user.power = newPower;
-            user.lastPowerUpdate = new Date(lastUpdate.getTime() + (diffHours * oneHour));
-            await user.save();
-        }
-    } else if (!user.lastPowerUpdate) {
-        user.lastPowerUpdate = new Date();
-        await user.save();
-    }
+    // Energy regeneration is owned exclusively by energyManager (operating on
+    // the canonical `progress.energy`). The legacy root-level power/credit
+    // regeneration has been removed to keep a single source of truth.
 
     // Sync subscription usage from Subscription collection to the user instance dynamically
     try {
@@ -98,13 +68,15 @@ export async function completeOnboarding(userId, data) {
 
 export async function consumeCredit(userId) {
     const user = await getUserInfo(userId);
-    if (user.learningCredits <= 0) {
+    // Operate on the canonical energy source (progress.energy) via energyManager.
+    const { regenerateEnergy, consumeEnergy } = await import('../utils/energyManager.js');
+    regenerateEnergy(user);
+    if (!user.isPremium && (user.progress?.energy ?? 0) <= 0) {
         const err = new Error('Daily credit limit reached'); err.status = 403; err.code = 'NO_CREDITS'; throw err;
     }
-    user.learningCredits -= 1;
-    // Keep lastCreditUpdate unchanged during consumption to maintain the 1hr interval
+    consumeEnergy(user);
     await user.save();
-    
+
     await Transaction.create({
         user: userId,
         amount: -1,
@@ -112,7 +84,7 @@ export async function consumeCredit(userId) {
         source: 'LESSON',
         description: 'Consumed learning credit'
     });
-    
+
     return user;
 }
 

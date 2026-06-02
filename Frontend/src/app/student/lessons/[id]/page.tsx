@@ -4,8 +4,8 @@ import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, ArrowRight, HelpCircle, Loader2, AlertCircle, Zap, CheckCircle2, XCircle, Trophy } from "lucide-react";
-import { getLessonById, getLessonQuestions, submitAnswers, generateSpeech, checkQuestionAnswer, Lesson, Question, SubmitAnswerItem } from "@/services/lessonService";
-import { getMe, SafeUser } from "@/services/authService";
+import { getLessonById, getLessonQuestions, submitAnswers, generateSpeech, checkQuestionAnswer, Lesson, Question, SubmitAnswerItem, SpeakingStatus, MatchingAnswer } from "@/services/lessonService";
+import { SafeUser } from "@/services/authService";
 import { api } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
@@ -18,6 +18,7 @@ import { EnergyStatus } from "@/components/features/lessons/EnergyStatus";
 import { LessonProgress } from "@/components/features/lessons/LessonProgress";
 import { WritingCanvas } from "@/components/features/lessons/WritingCanvas";
 import { QuestionSpeaker } from "@/components/features/lessons/QuestionSpeaker";
+import { ErrorBoundary } from "@/components/ui/ErrorBoundary";
 import { useToast } from "@/components/ui/Toast";
 import { getTamilSpeechText } from "@/lib/questionTts";
 
@@ -34,6 +35,9 @@ export default function LessonInteractiveSession() {
   const [selected, setSelected] = useState<Record<string, number>>({});
   const [feedback, setFeedback] = useState<Record<string, "correct" | "incorrect">>({});
   const [backendMessage, setBackendMessage] = useState<Record<string, string>>({});
+  // Visual quality of a passing answer ('close' = lenient/yellow). Does not affect scoring
+  // (a 'close' speaking pass still counts as correct on submit).
+  const [answerQuality, setAnswerQuality] = useState<Record<string, "perfect" | "close">>({});
 
   const [phase, setPhase] = useState<Phase>("loading");
   const [currentQ, setCurrentQ] = useState(0);
@@ -41,6 +45,8 @@ export default function LessonInteractiveSession() {
   const [score, setScore] = useState<{ score: number; total: number; passed: boolean; nextLessonId?: string; xpEarned?: number } | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [typingByQuestion, setTypingByQuestion] = useState<Record<string, string>>({});
+  // Student's chosen left→right mapping per matching question (graded server-side).
+  const [matchingByQuestion, setMatchingByQuestion] = useState<Record<string, MatchingAnswer>>({});
 
   const [showAskPanel, setShowAskPanel] = useState(false);
   const [playingAudioId, setPlayingAudioId] = useState<string | null>(null);
@@ -141,54 +147,59 @@ export default function LessonInteractiveSession() {
   };
 
   useEffect(() => {
-    getMe()
-      .then((userData) => {
-        if (!userData) {
-           router.push("/auth/signin");
-           return;
-        }
-        setUser(userData);
-        return Promise.all([getLessonById(id as string), getLessonQuestions(id as string)]);
-      })
-      .then((res) => {
-        if (!res) return;
-        const [l, qsData] = res;
+    let cancelled = false;
+
+    // Fetch lesson + questions concurrently. These calls flow through the central
+    // Axios interceptors, which handle silent token refresh on a transient 401.
+    // We intentionally do NOT gate on a standalone getMe() — that caused a race where
+    // the first click redirected before auth resolved (only working on the 2nd click).
+    (async () => {
+      try {
+        const [l, qsData] = await Promise.all([
+          getLessonById(id as string),
+          getLessonQuestions(id as string),
+        ]);
+        if (cancelled) return;
         setLesson(l);
         setQuestions(qsData.questions);
         if (qsData.user) setUser(qsData.user);
         if (qsData.energy) setEnergy(qsData.energy);
         setPhase("preview");
-      })
-      .catch((err) => {
-          // Check NO_ENERGY first (403 with specific error code)
-          if (err.response?.status === 403 && err.response?.data?.error === 'NO_ENERGY') {
-            setPhase("out_of_power");
-            return;
-          }
-          // Redirect if backend provides a redirect path (e.g. subscription required)
-          if (err.response?.data?.redirect) {
-            router.push(err.response.data.redirect);
-            return;
-          }
-          // 401 Unauthorized → send to login
-          if (err.response?.status === 401) {
-            router.push("/auth/signin");
-            return;
-          }
-          // 403 Forbidden (level mismatch, plan restriction, etc.) → back to lessons
-          if (err.response?.status === 403) {
-            router.push("/student/lessons");
-            return;
-          }
-          // 404 → lesson does not exist, go back to lessons list
-          if (err.response?.status === 404) {
-            router.push("/student/lessons");
-            return;
-          }
-          console.error("Lesson initialization failure:", err.message);
-          toast(err.response?.data?.message || "Failed to load lesson. Please try again.", "error");
-          setPhase("error");
-      });
+      } catch (err: any) {
+        if (cancelled) return;
+        // Check NO_ENERGY first (403 with specific error code)
+        if (err.response?.status === 403 && err.response?.data?.error === 'NO_ENERGY') {
+          setPhase("out_of_power");
+          return;
+        }
+        // Redirect if backend provides a redirect path (e.g. subscription required)
+        if (err.response?.data?.redirect) {
+          router.push(err.response.data.redirect);
+          return;
+        }
+        // Only redirect to sign-in if the actual data call returns a hard 401
+        // (the interceptor has already attempted a silent refresh by this point).
+        if (err.response?.status === 401) {
+          router.push("/auth/signin");
+          return;
+        }
+        // 403 Forbidden (level mismatch, plan restriction, etc.) → back to lessons
+        if (err.response?.status === 403) {
+          router.push("/student/lessons");
+          return;
+        }
+        // 404 → lesson does not exist, go back to lessons list
+        if (err.response?.status === 404) {
+          router.push("/student/lessons");
+          return;
+        }
+        console.error("Lesson initialization failure:", err.message);
+        toast(err.response?.data?.message || "Failed to load lesson. Please try again.", "error");
+        setPhase("error");
+      }
+    })();
+
+    return () => { cancelled = true; };
   }, [id, router, toast]);
 
   const correctAnswersCount = Object.values(feedback).filter(f => f === "correct").length;
@@ -235,6 +246,38 @@ export default function LessonInteractiveSession() {
     }
   };
 
+  const handleMatchingComplete = async (qId: string, mapping: MatchingAnswer) => {
+    if (feedback[qId] || actionLocked) return;
+    setActionLocked(true);
+    setMatchingByQuestion((prev) => ({ ...prev, [qId]: mapping }));
+
+    try {
+      const res = await api.post(`/lessons/${id}/questions/${qId}/attempt`);
+      if (res.data.energy) setEnergy(res.data.energy);
+    } catch (err: any) {
+      if (err.response?.status === 403 && err.response?.data?.error === 'NO_ENERGY') {
+        setPhase("out_of_power");
+        setActionLocked(false);
+        return;
+      }
+    }
+
+    try {
+      // The server independently grades the mapping against the true linkage.
+      const result = await checkQuestionAnswer(id as string, qId, { matchingAnswer: mapping });
+      setSelected((prev) => ({ ...prev, [qId]: result.correct ? 0 : -1 }));
+      setFeedback((prev) => ({ ...prev, [qId]: result.correct ? "correct" : "incorrect" }));
+      setAnswerQuality((prev) => ({ ...prev, [qId]: "perfect" }));
+      if (!result.correct && result.correctAnswer) {
+        setBackendMessage((prev) => ({ ...prev, [qId]: `Correct pairs: ${result.correctAnswer}` }));
+      }
+    } catch {
+      toast("Could not check answer. Please try again.", "error");
+    } finally {
+      setActionLocked(false);
+    }
+  };
+
   const handleManualNext = () => {
     if (currentQ < questions.length - 1) {
         setQuestionTransition(true);
@@ -256,6 +299,7 @@ export default function LessonInteractiveSession() {
           selectedOptionIndex: selected[q._id] ?? (feedback[q._id] === "correct" ? 0 : -1),
           isSpeakingCompleted: q.type === "speaking" && feedback[q._id] === "correct",
           typedAnswer: q.type === "fill" ? typingByQuestion[q._id] : undefined,
+          matchingAnswer: q.type === "match" ? matchingByQuestion[q._id] : undefined,
         }));
       const res = await submitAnswers(id as string, answers);
       if (res.user) setUser(res.user);
@@ -274,12 +318,16 @@ export default function LessonInteractiveSession() {
     }
   };
 
-  const handleAudioResult = (qId: string, passed: boolean, message: string) => {
+  const handleAudioResult = (qId: string, passed: boolean, message: string, status?: SpeakingStatus) => {
     if (passed) {
+      // 'perfect' or 'close' → both advance (close = partial credit, no energy penalty).
       setFeedback(prev => ({ ...prev, [qId]: "correct" }));
+      setSelected(prev => ({ ...prev, [qId]: 0 }));
+      setAnswerQuality(prev => ({ ...prev, [qId]: status === "close" ? "close" : "perfect" }));
       setBackendMessage(prev => ({ ...prev, [qId]: message }));
     } else {
-      setFeedback(prev => ({ ...prev, [qId]: "incorrect" }));
+      // 'retry' → keep the learner in the speaking loop (no locked "incorrect" panel);
+      // the encouraging toast + inline prompt let them simply record again.
       setBackendMessage(prev => ({ ...prev, [qId]: message }));
     }
   };
@@ -464,6 +512,13 @@ export default function LessonInteractiveSession() {
   }
 
   const q = questions[currentQ];
+  // Three-tier feedback tone: green (perfect), yellow (lenient pass), red (try again).
+  const activeFeedback = q ? feedback[q._id] : undefined;
+  const activeQuality = q ? answerQuality[q._id] : undefined;
+  const bannerTone: "correct" | "close" | "incorrect" =
+    activeFeedback === "correct"
+      ? (activeQuality === "close" ? "close" : "correct")
+      : "incorrect";
   const typingValue = q ? (typingByQuestion[q._id] || "") : "";
   const setTypingValue = (val: string | ((prev: string) => string)) => {
     if (!q) return;
@@ -552,6 +607,7 @@ export default function LessonInteractiveSession() {
                </div>
             </div>
 
+            <ErrorBoundary resetKey={q?._id}>
             <div className="w-full flex justify-center py-6">
                 {(q?.type === "quiz" || q?.type === "choice" || q?.type === "identify") && (
                     <QuestionCard question={q} feedback={feedback[q?._id]} selectedIndex={selected[q?._id]} credits={energy?.currentEnergy ?? 25} onSelect={handleSelect} />
@@ -559,14 +615,11 @@ export default function LessonInteractiveSession() {
 
                 {q?.type === "match" && (
                     <MatchingPairs
+                      key={q._id}
                       question={q as any}
                       isCorrect={feedback[q._id] === "correct"}
-                      onResult={(passed) => {
-                        if (passed) {
-                          setFeedback((prev) => ({ ...prev, [q._id]: "correct" }));
-                          setSelected((prev) => ({ ...prev, [q._id]: 0 }));
-                        }
-                      }}
+                      locked={!!feedback[q._id] || actionLocked}
+                      onComplete={(mapping) => handleMatchingComplete(q._id, mapping)}
                       questionNumber={currentQ + 1}
                       tamilWord={getTamilSpeechText(q)}
                       audioUrl={q.audioUrl}
@@ -640,7 +693,7 @@ export default function LessonInteractiveSession() {
                 )}
 
                 {q?.type === "speaking" && (
-                    <AudioRecorder lessonId={id as string} questionId={q._id} expectedAudioText={q.expectedAudioText} audioUrl={q.audioUrl} isCorrect={feedback[q._id] === "correct"} takeCredit={takePower} onResult={(passed, message) => handleAudioResult(q._id, passed, message)} backendMessage={backendMessage[q._id]} />
+                    <AudioRecorder lessonId={id as string} questionId={q._id} expectedAudioText={q.expectedAudioText} audioUrl={q.audioUrl} isCorrect={feedback[q._id] === "correct"} takeCredit={takePower} onResult={(passed, message, status) => handleAudioResult(q._id, passed, message, status)} backendMessage={backendMessage[q._id]} />
                 )}
 
                 {q?.type === "writing" && (
@@ -653,28 +706,38 @@ export default function LessonInteractiveSession() {
                     />
                 )}
             </div>
+            </ErrorBoundary>
           </div>
         </div>
 
-        {feedback[q?._id] && (
+        {q && feedback[q._id] && (
           <div className="fixed bottom-0 left-0 right-0 p-6 md:p-10 z-50 animate-in slide-in-from-bottom-full duration-500">
             <div className={cn(
-              "max-w-4xl mx-auto p-8 rounded-[3rem] shadow-[0_20px_50px_rgba(0,0,0,0.1)] flex flex-col md:flex-row items-center justify-between gap-8 border-t-4",
-              feedback[q?._id] === "correct" ? "bg-white border-emerald-500" : "bg-white border-red-500"
+              "max-w-4xl mx-auto p-8 rounded-[3rem] bg-white shadow-[0_20px_50px_rgba(0,0,0,0.1)] flex flex-col md:flex-row items-center justify-between gap-8 border-t-4 transition-colors duration-300",
+              bannerTone === "correct" && "border-emerald-500",
+              bannerTone === "close" && "border-amber-400",
+              bannerTone === "incorrect" && "border-red-500"
             )}>
               <div className="flex items-center gap-8 flex-1">
                 <div className={cn(
-                  "h-20 w-20 rounded-3xl flex items-center justify-center shadow-2xl shrink-0 animate-in zoom-in duration-300", 
-                  feedback[q?._id] === "correct" ? "bg-emerald-500 text-white" : "bg-red-500 text-white"
+                  "h-20 w-20 rounded-3xl flex items-center justify-center text-white shadow-2xl shrink-0 animate-in zoom-in duration-300",
+                  bannerTone === "correct" && "bg-emerald-500",
+                  bannerTone === "close" && "bg-amber-400",
+                  bannerTone === "incorrect" && "bg-red-500"
                 )}>
-                  {feedback[q?._id] === "correct" ? <CheckCircle2 size={40} /> : <XCircle size={40} />}
+                  {bannerTone === "incorrect" ? <XCircle size={40} /> : <CheckCircle2 size={40} />}
                 </div>
                 <div className="space-y-2">
                   <div className="flex items-center gap-3">
-                    <h3 className={cn("text-3xl font-black tracking-tight", feedback[q?._id] === "correct" ? "text-emerald-600" : "text-red-600")}>
-                      {feedback[q?._id] === "correct" ? "Amazing!" : "Not quite yet"}
+                    <h3 className={cn(
+                      "text-3xl font-black tracking-tight",
+                      bannerTone === "correct" && "text-emerald-600",
+                      bannerTone === "close" && "text-amber-600",
+                      bannerTone === "incorrect" && "text-red-600"
+                    )}>
+                      {bannerTone === "correct" ? "Amazing!" : bannerTone === "close" ? "Almost perfect!" : "Not quite yet"}
                     </h3>
-                    {feedback[q?._id] === "correct" && q.xp && (
+                    {feedback[q._id] === "correct" && q.xp && (
                       <span className="px-3 py-1 bg-amber-500 text-white text-[10px] font-black rounded-full animate-bounce">
                         +{q.xp} XP
                       </span>
@@ -696,7 +759,7 @@ export default function LessonInteractiveSession() {
                   )}
 
                   {feedback[q._id] === 'correct' && backendMessage[q._id] && (
-                    <p className="text-sm font-medium text-slate-500">{backendMessage[q._id]}</p>
+                    <p className={cn("text-sm font-medium", bannerTone === "close" ? "text-amber-700" : "text-slate-500")}>{backendMessage[q._id]}</p>
                   )}
                 </div>
               </div>
@@ -705,8 +768,10 @@ export default function LessonInteractiveSession() {
                 disabled={submitting || actionLocked}
                 size="xl" 
                 className={cn(
-                  "w-full md:w-auto px-16 rounded-[1.5rem] shadow-2xl h-16 font-black uppercase tracking-widest text-xs", 
-                  feedback[q?._id] === "correct" ? "bg-emerald-500 hover:bg-emerald-600 shadow-emerald-500/20" : "bg-red-500 hover:bg-red-600 shadow-red-500/20"
+                  "w-full md:w-auto px-16 rounded-[1.5rem] shadow-2xl h-16 font-black uppercase tracking-widest text-xs transition-colors",
+                  bannerTone === "correct" && "bg-emerald-500 hover:bg-emerald-600 shadow-emerald-500/20",
+                  bannerTone === "close" && "bg-amber-400 hover:bg-amber-500 shadow-amber-400/20",
+                  bannerTone === "incorrect" && "bg-red-500 hover:bg-red-600 shadow-red-500/20"
                 )}
               >
                 {currentQ === questions.length - 1 ? "Finish Session" : "Keep Learning"}

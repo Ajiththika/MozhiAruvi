@@ -2,6 +2,7 @@ import User from '../models/User.js';
 import Lesson from '../models/Lesson.js';
 import Event from '../models/Event.js';
 import PlanSettings from '../models/PlanSettings.js';
+import { getPlanRank, userPlanEquivalents } from '../utils/planTypes.js';
 
 /**
  * Validates if the user has access to a specific lesson/level/category.
@@ -24,7 +25,8 @@ export const checkLessonAccess = async (req, res, next) => {
         }
 
         const planName = user.subscription?.plan || 'BASIC';
-        const settings = await PlanSettings.findOne({ plan: planName });
+        // Tolerant lookup bridges the MASTER↔PRO casing drift in stored settings.
+        const settings = await PlanSettings.findOne({ plan: { $in: userPlanEquivalents(planName) } });
         
         // If no settings, allow for safety or restricted logic (let's allow if settings are missing to avoid breaking app)
         if (!settings) {
@@ -60,12 +62,11 @@ export const checkLessonAccess = async (req, res, next) => {
             }
         }
 
-        // 3. Access Level Check (Tiered Access)
-        const levels = ['BASIC', 'PLUS', 'MASTER'];
-        const userPlanIndex = levels.indexOf(planName);
-        const lessonLevelIndex = levels.indexOf(lesson.accessLevel || 'BASIC');
+        // 3. Access Level Check (Tiered Access) — normalized so MASTER/PRO are equal.
+        const userPlanRank = getPlanRank(planName);
+        const lessonLevelRank = getPlanRank(lesson.accessLevel || 'BASIC');
 
-        if (lessonLevelIndex > userPlanIndex && userPlanIndex !== -1) {
+        if (lessonLevelRank > userPlanRank) {
             return res.status(403).json({ 
                 message: `This lesson is for ${lesson.accessLevel} members. Please upgrade your plan!`, 
                 redirect: "/student/subscription" 
@@ -98,7 +99,7 @@ export const checkEventAccess = async (req, res, next) => {
         const eventId = req.params.id || req.body.eventId;
         
         const planName = user.subscription?.plan || 'BASIC';
-        const settings = await PlanSettings.findOne({ plan: planName });
+        const settings = await PlanSettings.findOne({ plan: { $in: userPlanEquivalents(planName) } });
 
         // Check if user has explicitly paid for this specific event
         const hasPaidForEvent = user.subscription?.paidEvents?.some(id => id.toString() === eventId.toString());
@@ -110,7 +111,7 @@ export const checkEventAccess = async (req, res, next) => {
         const limit = settings.eventLimit ?? 0;
 
         // Special case for BASIC plan if limit is 0
-        if (planName === 'BASIC' && limit === 0) {
+        if (getPlanRank(planName) === 0 && limit === 0) {
             return res.status(403).json({ 
                 message: "Premium events require a subscription or one-time payment.", 
                 redirect: "/student/subscription",
@@ -143,7 +144,7 @@ export const checkTutorAccess = async (req, res, next) => {
         const user = await User.findById(req.user.sub);
         const tutorId = req.params.id || req.body.tutorId || req.body.teacherId;
         const planName = user.subscription?.plan || 'BASIC';
-        const settings = await PlanSettings.findOne({ plan: planName });
+        const settings = await PlanSettings.findOne({ plan: { $in: userPlanEquivalents(planName) } });
 
         // Check if user has explicitly paid for this tutor/session
         const hasPaid = tutorId && user.subscription?.paidTutors?.some(id => id.toString() === tutorId.toString());
@@ -153,7 +154,7 @@ export const checkTutorAccess = async (req, res, next) => {
         
         const limit = settings.tutorSupportLimit ?? 0;
 
-        if (planName === 'BASIC' && limit === 0) {
+        if (getPlanRank(planName) === 0 && limit === 0) {
             return res.status(403).json({ 
                 message: "Tutor support is available for PLUS and MASTER users.", 
                 redirect: "/student/subscription" 

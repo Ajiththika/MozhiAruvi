@@ -19,6 +19,9 @@ export async function connectDB() {
     };
 
     mongoose.set('strictQuery', false);
+    // Translate schema aliases (e.g. Payment.paypalOrderId → stored stripeSessionId)
+    // inside query filters/updates so app code can use provider-neutral names.
+    mongoose.set('translateAliases', true);
 
     const mongoUri = process.env.MONGODB_URI;
 

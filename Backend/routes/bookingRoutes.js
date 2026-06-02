@@ -23,5 +23,6 @@ router.patch('/:id/reschedule', bookingController.updateBookingTime);
 
 // Admin Logic
 router.get('/admin/mappings', bookingController.getAllTutorStudentMappings);
+router.delete('/admin/mappings/:id', bookingController.deleteTutorStudentMapping);
 
 export default router;

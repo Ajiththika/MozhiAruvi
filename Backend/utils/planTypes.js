@@ -59,3 +59,25 @@ export function getPlanLabel(planType) {
   const labels = { basic: 'Basic', plus: 'Plus', pro: 'Pro' };
   return labels[normalizePlanType(planType)] || 'Basic';
 }
+
+/** Tier ranking for access comparisons (basic < plus < pro). */
+export const PLAN_RANK = { basic: 0, plus: 1, pro: 2 };
+
+/**
+ * Numeric tier rank for any plan representation (handles BASIC/PLUS/MASTER/PRO
+ * + lowercase + legacy starter). Used to compare access levels uniformly.
+ */
+export function getPlanRank(value) {
+  return PLAN_RANK[userPlanToPlanType(value)] ?? 0;
+}
+
+/**
+ * Equivalent User-plan enum labels for a given plan, bridging the MASTER↔PRO
+ * casing drift so PlanSettings lookups resolve regardless of stored value.
+ */
+export function userPlanEquivalents(value) {
+  const t = userPlanToPlanType(value);
+  if (t === 'pro') return ['PRO', 'MASTER'];
+  if (t === 'plus') return ['PLUS'];
+  return ['BASIC'];
+}

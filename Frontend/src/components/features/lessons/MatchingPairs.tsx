@@ -1,16 +1,26 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import { Volume2, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+
+type LeftItem = { left: string; tamilWord?: string; audioUrl?: string };
 
 interface MatchingPairsProps {
   question: {
     _id: string;
-    pairs: Array<{ left: string; right: string; tamilWord?: string; audioUrl?: string }>;
+    // Secure shape (students): linkage-stripped, server-shuffled columns.
+    matchLefts?: LeftItem[];
+    matchRights?: string[];
+    // Legacy / admin preview shape (full linkage present).
+    pairs?: Array<{ left: string; right: string; tamilWord?: string; audioUrl?: string }>;
     correctAnswer?: string;
   };
-  onResult: (passed: boolean) => void;
+  /** Fired once the student has matched every left item. The server grades it. */
+  onComplete: (mapping: { left: string; right: string }[]) => void;
+  /** Lock the board once an answer has been registered (correct or incorrect). */
+  locked?: boolean;
+  /** True when the server confirmed a correct match (keeps the correct styling). */
   isCorrect?: boolean;
   questionNumber?: number;
   tamilWord?: string;
@@ -21,7 +31,8 @@ interface MatchingPairsProps {
 
 export function MatchingPairs({
   question: q,
-  onResult,
+  onComplete,
+  locked,
   isCorrect,
   questionNumber,
   tamilWord,
@@ -29,62 +40,75 @@ export function MatchingPairs({
   onPlayTamil,
   playingAudio,
 }: MatchingPairsProps) {
-  const [leftItems, setLeftItems] = useState<string[]>([]);
-  const [rightItems, setRightItems] = useState<string[]>([]);
-  const [selectedLeft, setSelectedLeft] = useState<string | null>(null);
-  const [selectedRight, setSelectedRight] = useState<string | null>(null);
-  const [matched, setMatched] = useState<Set<string>>(new Set());
-  const [wrongMatch, setWrongMatch] = useState<[string, string] | null>(null);
-
-  // Parse pairs once and keep them stable
-  const activePairs = useMemo(() => {
+  // Resolve the two columns. Prefer the secure server shape; fall back to legacy
+  // `pairs` (admin preview) by splitting + shuffling locally so behaviour is identical.
+  const { leftItems, rightItems } = useMemo(() => {
+    if (Array.isArray(q.matchLefts) && Array.isArray(q.matchRights)) {
+      return { leftItems: q.matchLefts, rightItems: q.matchRights };
+    }
     let pairs = q.pairs || [];
     if (pairs.length === 0 && q.correctAnswer) {
       try {
         const parsed = JSON.parse(q.correctAnswer);
         if (Array.isArray(parsed)) pairs = parsed;
-      } catch (e) {}
+      } catch {}
     }
-    return pairs;
+    const lefts: LeftItem[] = pairs
+      .map((p) => ({ left: p.left, tamilWord: p.tamilWord, audioUrl: p.audioUrl }))
+      .sort(() => Math.random() - 0.5);
+    const rights = pairs.map((p) => p.right).sort(() => Math.random() - 0.5);
+    return { leftItems: lefts, rightItems: rights };
   }, [q]);
 
-  useEffect(() => {
-    if (activePairs.length > 0) {
-      setLeftItems(activePairs.map(p => p.left).sort(() => Math.random() - 0.5));
-      setRightItems(activePairs.map(p => p.right).sort(() => Math.random() - 0.5));
-      setMatched(new Set());
-    }
-  }, [activePairs]);
+  const [selectedLeft, setSelectedLeft] = useState<string | null>(null);
+  // mapping: left value -> chosen right value
+  const [mapping, setMapping] = useState<Record<string, string>>({});
+  const firedRef = useRef(false);
+
+  const usedRights = useMemo(() => new Set(Object.values(mapping)), [mapping]);
+  const totalPairs = leftItems.length;
 
   useEffect(() => {
-    if (matched.size > 0 && matched.size === activePairs.length * 2) {
-      onResult(true);
+    if (firedRef.current || locked) return;
+    if (totalPairs > 0 && Object.keys(mapping).length === totalPairs) {
+      firedRef.current = true;
+      const result = leftItems.map((l) => ({ left: l.left, right: mapping[l.left] }));
+      onComplete(result);
     }
-  }, [matched.size, activePairs.length, onResult]);
+  }, [mapping, totalPairs, leftItems, locked, onComplete]);
 
-  useEffect(() => {
-    if (selectedLeft && selectedRight) {
-      const isMatch = activePairs.some(p => p.left === selectedLeft && p.right === selectedRight);
-      if (isMatch) {
-        setMatched(prev => {
-          const next = new Set(prev);
-          next.add(selectedLeft);
-          next.add(selectedRight);
-          return next;
-        });
-        setSelectedLeft(null);
-        setSelectedRight(null);
-      } else {
-        setWrongMatch([selectedLeft, selectedRight]);
-        setTimeout(() => {
-          setWrongMatch(null);
-          setSelectedLeft(null);
-          setSelectedRight(null);
-        }, 1000);
-      }
+  const handleLeftClick = (left: string) => {
+    if (locked) return;
+    // Tapping an already-linked left unlinks it (lets the student fix a choice).
+    if (mapping[left] !== undefined) {
+      setMapping((prev) => {
+        const next = { ...prev };
+        delete next[left];
+        return next;
+      });
+      setSelectedLeft(null);
+      return;
     }
-  }, [selectedLeft, selectedRight, activePairs]);
+    setSelectedLeft((prev) => (prev === left ? null : left));
+  };
 
+  const handleRightClick = (right: string) => {
+    if (locked) return;
+    if (usedRights.has(right)) {
+      // Unlink whichever left currently owns this right.
+      setMapping((prev) => {
+        const owner = Object.keys(prev).find((k) => prev[k] === right);
+        if (!owner) return prev;
+        const next = { ...prev };
+        delete next[owner];
+        return next;
+      });
+      return;
+    }
+    if (!selectedLeft) return;
+    setMapping((prev) => ({ ...prev, [selectedLeft]: right }));
+    setSelectedLeft(null);
+  };
 
   const showSpeaker = !!(tamilWord || audioUrl);
 
@@ -117,61 +141,50 @@ export function MatchingPairs({
 
       <div className="grid grid-cols-2 gap-8 w-full">
         <div className="space-y-6">
-          {leftItems.map((item) => (
-            <button
-              key={item}
-              disabled={matched.has(item) || isCorrect}
-              onClick={() => setSelectedLeft(item)}
-              className={cn(
-                "w-full py-6 px-4 text-xl font-semibold rounded-[1.5rem] border-2 transition-all duration-300 text-center shadow-sm",
-                matched.has(item) ? "bg-slate-100 border-transparent text-primary/40 opacity-30 scale-95" :
-                wrongMatch?.[0] === item ? "bg-red-50 border-red-500 text-red-600 animate-shake" :
-                selectedLeft === item ? "bg-primary/5 border-primary text-primary shadow-xl scale-105" :
-                "bg-white border-slate-100 hover:border-slate-200 text-slate-700 active:scale-95"
-              )}
-            >
-              {item}
-            </button>
-          ))}
+          {leftItems.map((item) => {
+            const isLinked = mapping[item.left] !== undefined;
+            return (
+              <button
+                key={item.left}
+                disabled={locked}
+                onClick={() => handleLeftClick(item.left)}
+                className={cn(
+                  "w-full py-6 px-4 text-xl font-semibold rounded-[1.5rem] border-2 transition-all duration-300 text-center shadow-sm",
+                  isCorrect && isLinked ? "bg-emerald-50 border-emerald-500 text-emerald-600" :
+                  isLinked ? "bg-primary/5 border-primary/60 text-primary" :
+                  selectedLeft === item.left ? "bg-primary/5 border-primary text-primary shadow-xl scale-105" :
+                  "bg-white border-slate-100 hover:border-slate-200 text-slate-700 active:scale-95"
+                )}
+              >
+                {item.left}
+              </button>
+            );
+          })}
         </div>
 
         <div className="space-y-6">
-          {rightItems.map((item) => (
-            <button
-              key={item}
-              disabled={matched.has(item) || isCorrect}
-              onClick={() => setSelectedRight(item)}
-              className={cn(
-                "w-full py-6 px-4 text-xl font-semibold rounded-[1.5rem] border-2 transition-all duration-300 text-center shadow-sm",
-                matched.has(item) ? "bg-slate-100 border-transparent text-primary/40 opacity-30 scale-95" :
-                wrongMatch?.[1] === item ? "bg-red-50 border-red-500 text-red-600 animate-shake" :
-                selectedRight === item ? "bg-primary/5 border-primary text-primary shadow-xl scale-105" :
-                "bg-white border-slate-100 hover:border-slate-200 text-slate-700 active:scale-95"
-              )}
-            >
-              {item}
-            </button>
-          ))}
+          {rightItems.map((item) => {
+            const isUsed = usedRights.has(item);
+            return (
+              <button
+                key={item}
+                disabled={locked}
+                onClick={() => handleRightClick(item)}
+                className={cn(
+                  "w-full py-6 px-4 text-xl font-semibold rounded-[1.5rem] border-2 transition-all duration-300 text-center shadow-sm",
+                  isCorrect && isUsed ? "bg-emerald-50 border-emerald-500 text-emerald-600" :
+                  isUsed ? "bg-primary/5 border-primary/60 text-primary" :
+                  "bg-white border-slate-100 hover:border-slate-200 text-slate-700 active:scale-95"
+                )}
+              >
+                {item}
+              </button>
+            );
+          })}
         </div>
       </div>
     </div>
   );
 }
 
-
-
-
 export default MatchingPairs;
-
-
-
-
-
-
-
-
-
-
-
-
-

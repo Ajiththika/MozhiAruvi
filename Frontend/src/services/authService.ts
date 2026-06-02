@@ -25,8 +25,6 @@ export interface SafeUser {
   profilePhoto?: string | null;
   level?: "Beginner" | "Elementary" | "Intermediate" | "Advanced" | "Not Set";
   hasCompletedOnboarding?: boolean;
-  learningCredits?: number;
-  power?: number;
   credits?: number;
   xp?: number;
   points?: number;
@@ -53,7 +51,7 @@ export interface SafeUser {
     totalXP?: number;
   };
   subscription?: {
-    plan: "BASIC" | "PLUS" | "MASTER" | "BUSINESS";
+    plan: "BASIC" | "PLUS" | "PRO" | "MASTER" | "BUSINESS";
     billingCycle: "monthly" | "yearly" | "none";
     stripeCustomerId?: string;
     stripeSubscriptionId?: string;
@@ -70,8 +68,6 @@ export interface SafeUser {
   createdAt?: string;
   updatedAt?: string;
   hasUsedTrial?: boolean;
-  stripeAccountId?: string;
-  isStripeVerified?: boolean;
   isEmailVerified?: boolean;
 }
 

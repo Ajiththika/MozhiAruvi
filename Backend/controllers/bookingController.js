@@ -73,7 +73,7 @@ export async function initiateBookingPayment(req, res, next) {
         const order = await paypalService.createOrder(
             amount,
             `Tamil class with ${booking.tutorId.name}`,
-            returnUrl.replace('{PAYPAL_ORDER_ID}', ''),
+            returnUrl,
             cancelUrl
         );
 
@@ -83,10 +83,10 @@ export async function initiateBookingPayment(req, res, next) {
         }
 
         await Payment.findOneAndUpdate(
-            { stripeSessionId: order.id },
+            { paypalOrderId: order.id },
             {
                 user: booking.studentId._id,
-                stripeSessionId: order.id,
+                paypalOrderId: order.id,
                 amount,
                 paymentType: 'tutor_session',
                 status: 'pending',
@@ -317,7 +317,29 @@ export async function getAllTutorStudentMappings(req, res, next) {
             .populate('studentId', 'name email')
             .populate('tutorId', 'name email')
             .sort({ createdAt: -1 });
-        
-        res.json({ mappings: bookings });
+
+        // Hide mappings where the student or tutor account no longer exists (deleted users)
+        const mappings = bookings.filter(b => b.studentId && b.tutorId);
+
+        res.json({ mappings });
+    } catch (e) { next(e); }
+}
+
+/**
+ * ── 👑 Admin: Delete a Tutor-Student Mapping ─────────────────────────────────
+ */
+export async function deleteTutorStudentMapping(req, res, next) {
+    try {
+        const user = await User.findById(req.user.sub);
+        if (!user || user.role !== 'admin') {
+            return res.status(403).json({ message: "Access denied. Admin only." });
+        }
+
+        const booking = await Booking.findByIdAndDelete(req.params.id);
+        if (!booking) {
+            return res.status(404).json({ message: "Mapping not found." });
+        }
+
+        res.json({ message: "Mapping removed successfully.", id: req.params.id });
     } catch (e) { next(e); }
 }
