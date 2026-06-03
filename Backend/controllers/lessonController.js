@@ -213,7 +213,7 @@ function logGoogleError(type, err) {
 let _ttsDisabled = false;
 let _sttDisabled = false;
 
-function markGoogleDisabled(service, err) {
+export function markGoogleDisabled(service, err) {
     const isAuthError = err.code === 16 || (err.message || '').includes('UNAUTHENTICATED');
     const isPermError = err.code === 7  || (err.message || '').includes('PERMISSION_DENIED');
     if (isAuthError || isPermError) {
@@ -286,7 +286,7 @@ function getCredentialsObject() {
     }
 }
 
-function getSpeechClient() {
+export function getSpeechClient() {
     try { 
         const json = getCredentialsObject();
         if (!json) return null;

@@ -119,30 +119,31 @@ export function tamilSimilarity(expected = '', user = '') {
 }
 
 /**
- * Similarity thresholds for the multi-tier grade.
- *  - `perfect`/`close` apply to the RAW (un-folded) comparison — true accuracy.
- *  - `foldedClose` lets a phonetically-equivalent attempt (ள↔ழ↔ல, etc.) pass as "close".
+ * Similarity thresholds for the simple, predictable 3-tier grade:
+ *  - `perfect` (>= 75%) → CORRECT, advance to the next question.
+ *  - `close`   (>= 50%) → almost right, REPEAT the same question (encouraging).
+ *  - below 50%          → try again.
+ *
+ * We combine RAW similarity, PHONETIC-FOLDED similarity (so confusable Tamil
+ * graphemes ல/ள/ழ, ர/ற … still count) and a CONTAINMENT check (so a correct
+ * word spoken inside a longer recognised phrase still passes). This maximises
+ * the chance that a genuinely correct answer is accepted, while a clearly wrong
+ * pronunciation (e.g. சனிப்பட்டி vs பனிக்கட்டி ~70%) lands in "close/repeat"
+ * rather than being wrongly accepted.
  */
-export const SPEECH_THRESHOLDS = { perfect: 0.9, close: 0.72, foldedClose: 0.85 };
-
-/** Minimum STT confidence to award a clean "perfect" (otherwise capped at "close"). */
-export const CONFIDENCE_THRESHOLD = 0.85;
+export const SPEECH_THRESHOLDS = { perfect: 0.75, close: 0.5 };
 
 /**
  * Grade a spoken/typed attempt into a forgiving, multi-tier result.
  *
- * Strategy (fixes both false-positives and false-negatives):
- *  - RAW similarity drives "perfect" so genuinely accurate speech is rewarded.
- *  - PHONETIC-FOLDED similarity catches dialect/grapheme confusions (ல/ள/ழ …)
- *    and lets them through as "close" rather than a hard "Wrong".
- *  - STT `confidence` gates "perfect": high similarity but low recogniser
- *    confidence is downgraded to "close", reducing wrong answers slipping through.
- *
- * @param {number} [confidence] optional STT confidence (0..1).
+ * @param {number} [confidence] optional STT confidence (0..1), returned for telemetry.
  * @returns {{ score:number, similarity:number, confidence:number|null,
  *   status:'perfect'|'close'|'retry', passed:boolean, feedback:string }}
  */
 export function gradeSpeech(expected, user, phonetic = '', confidence = null) {
+  const ne = normalizeSpeech(expected);
+  const nu = normalizeSpeech(user);
+
   // Raw similarity (also try the admin-provided phonetic hint).
   let rawSim = tamilSimilarity(expected, user);
   if (phonetic) rawSim = Math.max(rawSim, tamilSimilarity(phonetic, user));
@@ -153,23 +154,28 @@ export function gradeSpeech(expected, user, phonetic = '', confidence = null) {
     foldSim = Math.max(foldSim, tamilSimilarity(tamilPhoneticFold(phonetic), tamilPhoneticFold(user)));
   }
 
-  const similarity = Math.max(rawSim, foldSim);
+  // Containment — the target word was actually spoken (possibly within a phrase).
+  let contain = 0;
+  if (ne && nu && Array.from(ne).length >= 2) {
+    if (nu === ne) contain = 1;
+    else if (nu.includes(ne) || ne.includes(nu)) contain = 0.9;
+  }
+
+  const similarity = Math.max(rawSim, foldSim, contain);
   const score = Math.min(100, Math.max(0, Math.round(similarity * 100)));
   const conf = (typeof confidence === 'number' && confidence > 0) ? confidence : null;
 
-  // Perfect requires accurate RAW pronunciation AND (when available) confident recognition.
-  if (rawSim >= SPEECH_THRESHOLDS.perfect) {
-    if (conf !== null && conf < CONFIDENCE_THRESHOLD) {
-      return { score, similarity, confidence: conf, status: 'close', passed: true, feedback: 'Almost perfect — say it once more clearly to nail it. 👍' };
-    }
+  // ≥ 75% → correct, advance.
+  if (similarity >= SPEECH_THRESHOLDS.perfect) {
     return { score, similarity, confidence: conf, status: 'perfect', passed: true, feedback: 'Perfect! Excellent pronunciation. 🎉' };
   }
 
-  // Close: decent raw match OR a strong phonetic-equivalent match.
-  if (rawSim >= SPEECH_THRESHOLDS.close || foldSim >= SPEECH_THRESHOLDS.foldedClose) {
-    return { score, similarity, confidence: conf, status: 'close', passed: true, feedback: 'Good effort, almost perfect! Keep practicing. 👍' };
+  // 50–75% → almost there; repeat the same question.
+  if (similarity >= SPEECH_THRESHOLDS.close) {
+    return { score, similarity, confidence: conf, status: 'close', passed: false, feedback: 'Almost! You said most of it — say it once more to move on. 👍' };
   }
 
+  // Below 50% → try again.
   return { score, similarity, confidence: conf, status: 'retry', passed: false, feedback: 'Not quite — listen again and try speaking once more.' };
 }
 

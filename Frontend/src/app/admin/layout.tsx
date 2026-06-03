@@ -7,6 +7,7 @@ const adminLinks: SidebarItem[] = [
   { name: "Users",           href: "/admin/users",          icon: "users" },
   { name: "Teachers",        href: "/admin/tutors",         icon: "graduation-cap" },
   { name: "Lessons",         href: "/admin/lessons",        icon: "book-open" },
+  { name: "Speaking Lab",    href: "/admin/speaking-lab",   icon: "mic" },
   { name: "Resources",       href: "/admin/resources",      icon: "library" },
   { name: "Blogs",           href: "/admin/blogs",          icon: "message-square" },
   { name: "Events",          href: "/admin/events",         icon: "calendar" },

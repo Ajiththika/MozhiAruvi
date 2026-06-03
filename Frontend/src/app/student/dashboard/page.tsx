@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import StatCard from "@/components/features/dashboard/StatCard";
-import { BookOpen, Trophy, AlertCircle, ArrowRight, Clock, BookMarked, Flame, Zap, Crown, Calendar, Headphones, Hourglass, Loader2, Star } from "lucide-react";
+import { BookOpen, Trophy, AlertCircle, ArrowRight, Clock, BookMarked, Flame, Zap, Crown, Calendar, Headphones, Hourglass, Loader2, Star, Mic2, Sparkles } from "lucide-react";
 import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
 import { getDashboardData } from "@/services/authService";
@@ -132,6 +132,40 @@ export default function StudentDashboard() {
           </div>
         </div>
 
+
+        {/* Speaking Lab Hub — endless vocal practice */}
+        <a
+          href="/student/speaking-lab"
+          className="group relative block overflow-hidden rounded-[2rem] bg-gradient-to-br from-primary via-primary to-secondary p-8 shadow-2xl shadow-primary/25 transition-all duration-500 hover:shadow-primary/40 hover:-translate-y-0.5"
+        >
+          <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-white opacity-[0.06] rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
+          <div className="absolute top-1/2 right-8 opacity-[0.07] font-black text-[12rem] text-white select-none pointer-events-none -translate-y-1/2">ஒலி</div>
+          <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
+            <div className="flex items-center gap-6 text-center md:text-left">
+              <div className="h-20 w-20 shrink-0 rounded-3xl bg-white/15 border border-white/20 flex items-center justify-center shadow-inner group-hover:scale-105 group-hover:rotate-3 transition-transform duration-500">
+                <Mic2 className="h-10 w-10 text-white" />
+              </div>
+              <div className="space-y-2">
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-white border border-white/20">
+                  <Sparkles className="h-3 w-3" /> New • Endless Mode
+                </span>
+                <h3 className="text-2xl lg:text-3xl font-black text-white tracking-tight leading-tight">Speaking Lab</h3>
+                <p className="text-sm font-semibold text-white/80 max-w-md leading-relaxed">
+                  Train your Tamil pronunciation through endless voice challenges. Earn XP, build streaks, and climb the leaderboard.
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3 shrink-0">
+              <div className="hidden sm:flex flex-col items-center rounded-2xl bg-white/10 border border-white/15 px-5 py-3">
+                <Flame className="h-5 w-5 text-amber-300" />
+                <span className="text-[10px] font-black uppercase tracking-widest text-white/70 mt-1">Streak {user?.progress?.currentStreak || 0}</span>
+              </div>
+              <span className="inline-flex items-center gap-2 rounded-2xl bg-white px-6 py-4 text-primary text-[11px] font-black uppercase tracking-widest shadow-xl group-hover:gap-3 transition-all">
+                Start Speaking <ArrowRight className="h-4 w-4" />
+              </span>
+            </div>
+          </div>
+        </a>
 
         {/* Tutor Application Notice */}
         {user?.tutorStatus === 'pending' && (

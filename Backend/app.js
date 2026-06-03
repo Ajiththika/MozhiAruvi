@@ -24,6 +24,7 @@ import resourceRoutes from "./routes/resourceRoutes.js";
 import resourceSectionRoutes from "./routes/resourceSectionRoutes.js";
 import feedbackRoutes from "./routes/feedbackRoutes.js";
 import subscriptionAdminRoutes from "./routes/subscriptionAdminRoutes.js";
+import speakingLabRoutes from "./routes/speakingLabRoutes.js";
 import { testSmtpConnection } from "./services/mailService.js";
 import { errorHandler } from "./middleware/error.js";
 import { responseWrapper } from "./middleware/responseWrapper.js";
@@ -192,6 +193,7 @@ app.use("/api/resources", resourceRoutes);
 app.use("/api/resource-sections", resourceSectionRoutes);
 app.use("/api/feedback", feedbackRoutes);
 app.use("/api/admin/subscriptions", subscriptionAdminRoutes);
+app.use("/api/speaking-lab", speakingLabRoutes);
 
 app.get("/health", (_req, res) =>
   res.json({

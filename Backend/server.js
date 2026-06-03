@@ -8,6 +8,7 @@ import './config/env.js'; // MUST BE FIRST: Load and validate env
 import app from './app.js';
 import { connectDB, closeDB } from './config/db.js';
 import { seedPlans } from './utils/seedPlans.js';
+import { seedSpeakingLab } from './utils/seedSpeakingLab.js';
 import { initNotificationService } from './services/notificationService.js';
 import { initCronJobs } from './jobs/cronJobs.js';
 import mongoose from 'mongoose';
@@ -26,6 +27,7 @@ const server = app.listen(PORT, async () => {
         await connectDB();
         if (mongoose.connection.readyState === 1) {
             await seedPlans();
+            await seedSpeakingLab();
         } else {
             console.warn('⚠️ [SERVER] Skipping seedPlans due to DB offline status.');
         }

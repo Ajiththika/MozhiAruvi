@@ -13,6 +13,7 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
   const studentLinks: SidebarItem[] = [
     { name: "Dashboard",     href: "/student/dashboard",  icon: "home" },
     { name: "Lessons",       href: "/student/lessons",    icon: "book-open" },
+    { name: "Speaking Lab",  href: "/student/speaking-lab", icon: "mic" },
     { name: "Teachers",      href: "/tutors",             icon: "graduation-cap" },
     { name: "My Progress",   href: "/student/progress",   icon: "line-chart" },
     { name: "Subscription",  href: "/student/subscription", icon: "crown" },

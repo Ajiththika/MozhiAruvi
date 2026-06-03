@@ -23,6 +23,7 @@ import {
   Shield,
   Crown,
   CreditCard,
+  Mic,
   X,
 } from "lucide-react";
 
@@ -47,6 +48,7 @@ export const iconMap = {
   shield: Shield,
   crown: Crown,
   "credit-card": CreditCard,
+  mic: Mic,
 } as const;
 
 
