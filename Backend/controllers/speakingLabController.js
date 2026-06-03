@@ -47,7 +47,9 @@ function toClientItem(item) {
  * pronunciations being mis-transcribed and wrongly graded as "wrong".
  */
 async function recognizeTamil(audioBase64, hints = []) {
-  const cleanBase64 = String(audioBase64).replace(/^data:audio\/\w+;base64,/, '');
+  // Strip ANY data-URL header (handles "data:audio/webm;codecs=opus;base64," etc).
+  // base64 never contains a comma, so removing everything up to the first comma is safe.
+  const cleanBase64 = String(audioBase64).replace(/^data:[^,]*,/, '');
   const phrases = [...new Set(hints.filter((h) => typeof h === 'string' && h.trim()))].slice(0, 50);
   let transcription = '';
   let confidence = null;

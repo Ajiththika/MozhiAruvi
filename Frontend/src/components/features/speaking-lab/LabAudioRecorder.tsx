@@ -33,6 +33,11 @@ export function LabAudioRecorder({ item, locked = false, onResult }: LabAudioRec
 
   const processAudio = useCallback(
     async (audioBlob: Blob) => {
+      // Guard against empty/too-short captures (quick taps) before hitting the API.
+      if (!audioBlob || audioBlob.size < 1200) {
+        toast("Hold the mic and speak a little longer. 🎤", "info");
+        return;
+      }
       setIsProcessing(true);
       try {
         const base64data = await new Promise<string>((resolve, reject) => {

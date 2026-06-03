@@ -36,6 +36,12 @@ export function AudioRecorder({
   const { toast } = useToast();
 
   const processAudio = useCallback(async (audioBlob: Blob) => {
+    // Guard against empty/too-short captures (quick taps) before spending a credit/API call.
+    if (!audioBlob || audioBlob.size < 1200) {
+      toast("Hold the mic and speak a little longer. 🎤", "info");
+      return;
+    }
+
     const hasCredit = await takeCredit();
     if (!hasCredit) return;
 

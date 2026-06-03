@@ -325,7 +325,9 @@ export async function evaluateSpeaking(req, res, next) {
         if (!question) return res.status(404).json({ message: "Question not found" });
 
         const expectedText = (question.correctAnswer || question.tamilWord || question.expectedAudioText || "").trim();
-        const cleanBase64 = audioBase64.replace(/^data:audio\/\w+;base64,/, '');
+        // Strip ANY data-URL header (handles "data:audio/webm;codecs=opus;base64," etc).
+        // base64 never contains a comma, so removing everything up to the first comma is safe.
+        const cleanBase64 = audioBase64.replace(/^data:[^,]*,/, '');
         
         let transcription = "";
         let sttConfidence = null;
