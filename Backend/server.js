@@ -13,7 +13,7 @@ import { initNotificationService } from './services/notificationService.js';
 import { initCronJobs } from './jobs/cronJobs.js';
 import mongoose from 'mongoose';
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5001;
 
 // Catch unhandled rejections globally to prevent server crashes
 process.on('unhandledRejection', (reason) => {
@@ -40,6 +40,17 @@ const server = app.listen(PORT, async () => {
     } catch (err) {
         console.error('❌ [SERVER] Start Failure during DB connection:', err.message);
     }
+});
+
+server.on('error', (err) => {
+    if (err.code === 'EADDRINUSE') {
+        console.error(`❌ [SERVER] Port ${PORT} is already in use.`);
+        console.error(`   Another backend instance is likely already running.`);
+        console.error(`   Open http://localhost:${PORT}/health to verify, or free the port:`);
+        console.error(`   lsof -ti :${PORT} | xargs kill -9`);
+        process.exit(1);
+    }
+    throw err;
 });
 
 /** 

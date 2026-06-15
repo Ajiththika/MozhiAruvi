@@ -101,7 +101,7 @@ export function Sidebar({ items, basePath, isMobileOpen, onClose }: SidebarProps
         <div className="flex md:hidden h-20 items-center justify-between px-6 shrink-0 border-b border-slate-100">
            <Link href="/" onClick={onClose} className="flex items-center gap-2 group">
              <div className="relative w-10 h-10 flex-shrink-0">
-               <Image src="/logo1.png" alt="Logo Icon" fill className="object-contain" />
+               <Image src="/logo1.png" alt="Logo Icon" fill sizes="40px" className="object-contain" />
              </div>
              <div className="relative">
                <span className="text-lg font-black text-primary tracking-tight transition-all duration-300 group-hover:opacity-0 font-sans">
@@ -125,6 +125,7 @@ export function Sidebar({ items, basePath, isMobileOpen, onClose }: SidebarProps
                 src="/logo1.png" 
                 alt="Logo Icon" 
                 fill 
+                sizes="48px"
                 className="object-contain" 
                 priority
               />

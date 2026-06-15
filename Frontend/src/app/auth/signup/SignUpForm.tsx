@@ -200,7 +200,7 @@ export default function SignUpForm() {
         <div className="flex-1 border-t border-slate-100/60"></div>
       </div>
 
-      <SocialLogin provider="Google" onClick={() => window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/google`} />
+      <SocialLogin provider="Google" onClick={() => { window.location.href = '/api/auth/google'; }} />
 
       <p className="text-center mt-4 text-primary/60 font-medium text-base">
         Already have an account?{' '}

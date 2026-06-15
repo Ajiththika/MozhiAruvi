@@ -87,6 +87,7 @@ export default function Navbar() {
                   src="/logo1.png"
                   alt="Mozhi Aruvi Icon"
                   fill
+                  sizes="(max-width: 768px) 48px, 64px"
                   className="object-contain"
                   priority
                 />
@@ -231,6 +232,7 @@ export default function Navbar() {
                     src="/logo1.png"
                     alt="Logo Icon"
                     fill
+                    sizes="48px"
                     className="object-contain"
                   />
                 </div>
