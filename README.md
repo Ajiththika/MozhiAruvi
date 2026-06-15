@@ -3,6 +3,7 @@
 Mozhi Aruvi (மொழி அருவி) is an advanced, AI-powered language learning platform dedicated to mastering Tamil. It combines structured curriculum, community engagement, and AI-driven linguistic assistance to provide an unparalleled educational journey.
 
 ---
+hello
 
 ## 🚀 Key Features
 - **AI Linguistic Expert**: 24/7 doubt solving powered by Google Gemini.
