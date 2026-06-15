@@ -1,7 +1,7 @@
 import SpeakingLabItem from '../models/SpeakingLabItem.js';
 import SpeakingLabProgress from '../models/SpeakingLabProgress.js';
 import { gradeSpeech } from '../utils/speechMatch.js';
-import { getSpeechClient, markGoogleDisabled } from './lessonController.js';
+import { transcribeTamilAudio } from '../utils/tamilSpeech.js';
 
 const SESSION_SIZE = 5;
 const MAX_STREAK_BONUS = 5; // streak multiplier caps at +50%
@@ -22,6 +22,8 @@ function publicProgress(p) {
     itemsCompleted: p.itemsCompleted,
     currentStreak: p.currentStreak,
     bestStreak: p.bestStreak,
+    /** 0-based index within the current level batch (resume point). */
+    batchIndex: p.itemsCompleted % SESSION_SIZE,
   };
 }
 
@@ -40,58 +42,23 @@ function toClientItem(item) {
   };
 }
 
-/**
- * Recognise Tamil speech from a base64 audio blob; returns { transcription, confidence }.
- * `hints` (the expected word/sentence + tokens) are passed as speech-adaptation phrase
- * hints so short Tamil utterances are biased toward the target — this fixes correct
- * pronunciations being mis-transcribed and wrongly graded as "wrong".
- */
-async function recognizeTamil(audioBase64, hints = []) {
-  // Strip ANY data-URL header (handles "data:audio/webm;codecs=opus;base64," etc).
-  // base64 never contains a comma, so removing everything up to the first comma is safe.
-  const cleanBase64 = String(audioBase64).replace(/^data:[^,]*,/, '');
-  const phrases = [...new Set(hints.filter((h) => typeof h === 'string' && h.trim()))].slice(0, 50);
-  let transcription = '';
-  let confidence = null;
-  try {
-    const client = getSpeechClient();
-    if (client) {
-      const config = {
-        encoding: 'WEBM_OPUS',
-        sampleRateHertz: 48000,
-        languageCode: 'ta-IN',
-        enableAutomaticPunctuation: true,
-      };
-      if (phrases.length > 0) {
-        config.speechContexts = [{ phrases, boost: 18 }];
-      }
-      const [resp] = await client.recognize({
-        config,
-        audio: { content: cleanBase64 },
-      });
-      if (resp.results && resp.results.length > 0) {
-        transcription = resp.results.map(r => r.alternatives?.[0]?.transcript || '').join(' ').trim();
-        const confs = resp.results.map(r => r.alternatives?.[0]?.confidence).filter(c => typeof c === 'number' && c > 0);
-        if (confs.length > 0) confidence = confs.reduce((a, b) => a + b, 0) / confs.length;
-      }
-    }
-  } catch (err) {
-    markGoogleDisabled('STT', err);
-  }
-  return { transcription, confidence };
-}
-
 // ── Student endpoints ─────────────────────────────────────────────────────────
 
 /** GET /api/speaking-lab/session — endless, scaling batch for the current level. */
 export async function getSession(req, res, next) {
   try {
     const progress = await getOrCreateProgress(req.user.sub);
-    const level = req.query.level ? Math.max(1, parseInt(req.query.level, 10) || progress.level) : progress.level;
+    const level = progress.level;
 
     const items = await SpeakingLabItem.find({ isActive: true }).sort({ difficulty: 1, order: 1, createdAt: 1 });
     if (!items.length) {
-      return res.json({ items: [], level, progress: publicProgress(progress) });
+      return res.json({
+        items: [],
+        level,
+        batchIndex: 0,
+        sessionSize: SESSION_SIZE,
+        progress: publicProgress(progress),
+      });
     }
 
     // Endless window: wrap around content so progression never hard-stops.
@@ -102,15 +69,27 @@ export async function getSession(req, res, next) {
       session.push(toClientItem(items[(start + i) % items.length]));
     }
 
-    res.json({ items: session, level, progress: publicProgress(progress) });
+    const rawBatchIndex = progress.itemsCompleted % SESSION_SIZE;
+    const batchIndex = count > 0 ? rawBatchIndex % count : 0;
+
+    res.json({
+      items: session,
+      level,
+      batchIndex,
+      sessionSize: SESSION_SIZE,
+      progress: publicProgress(progress),
+    });
   } catch (e) { next(e); }
 }
 
 /** POST /api/speaking-lab/evaluate — grade a spoken attempt, award XP/streak. */
 export async function evaluateLabSpeaking(req, res, next) {
   try {
-    const { itemId, audioBase64 } = req.body;
-    if (!audioBase64) return res.status(400).json({ message: 'Audio data is required' });
+    const { itemId, audioBase64, clientTranscript } = req.body;
+    const transcript = String(clientTranscript || '').trim();
+    if (!audioBase64 && !transcript) {
+      return res.status(400).json({ message: 'Audio or speech transcript is required' });
+    }
 
     const item = await SpeakingLabItem.findById(itemId);
     if (!item) return res.status(404).json({ message: 'Speaking Lab item not found' });
@@ -125,9 +104,16 @@ export async function evaluateLabSpeaking(req, res, next) {
       ...(item.sequence || []),
       ...(item.acceptedAnswers || []),
     ].filter(Boolean);
-    const { transcription, confidence } = await recognizeTamil(audioBase64, hints);
+    const { transcription, confidence } = await transcribeTamilAudio(audioBase64, hints, clientTranscript);
 
-    const grade = gradeSpeech(target, transcription, item.phoneticHint || '', confidence);
+    const grade = gradeSpeech(
+      target,
+      transcription,
+      item.phoneticHint || '',
+      confidence,
+      item.acceptedAnswers || []
+    );
+
     const progress = await getOrCreateProgress(req.user.sub);
 
     let xpEarned = 0;

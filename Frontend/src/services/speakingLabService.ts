@@ -29,11 +29,14 @@ export interface LabProgress {
   itemsCompleted: number;
   currentStreak: number;
   bestStreak: number;
+  batchIndex?: number;
 }
 
 export interface LabSession {
   items: SpeakingLabItem[];
   level: number;
+  batchIndex: number;
+  sessionSize: number;
   progress: LabProgress;
 }
 
@@ -66,15 +69,19 @@ export interface LeaderboardResult {
 }
 
 // ── Student ───────────────────────────────────────────────────────────────────
-export async function getLabSession(level?: number): Promise<LabSession> {
-  const res = await api.get<LabSession>("/speaking-lab/session", {
-    params: level ? { level } : undefined,
-  });
+export async function getLabSession(): Promise<LabSession> {
+  const res = await api.get<LabSession>("/speaking-lab/session");
   return res.data;
 }
 
-export async function evaluateLabSpeaking(itemId: string, audioBase64: string): Promise<LabEvaluation> {
-  const res = await api.post<LabEvaluation>("/speaking-lab/evaluate", { itemId, audioBase64 });
+export async function evaluateLabSpeaking(
+  itemId: string,
+  payload: { audioBase64?: string; clientTranscript?: string }
+): Promise<LabEvaluation> {
+  const res = await api.post<LabEvaluation>("/speaking-lab/evaluate", {
+    itemId,
+    ...payload,
+  });
   return res.data;
 }
 

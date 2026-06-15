@@ -142,7 +142,10 @@ app.use(cors({
 app.options('*', cors());
 
 // ── Body / Cookie ─────────────────────────────────────────────────────────────
-app.use(express.json());
+// Speaking-lab audio is sent as base64 JSON; default 100kb limit causes 413 errors.
+const BODY_LIMIT = "15mb";
+app.use(express.json({ limit: BODY_LIMIT }));
+app.use(express.urlencoded({ limit: BODY_LIMIT, extended: true }));
 app.use(cookieParser(process.env.JWT_ACCESS_SECRET));
 
 app.use((req, res, next) => {

@@ -78,7 +78,10 @@ const submitAnswersSchema = z.object({
 
 const evaluateSpeakingSchema = z.object({
     questionId: z.string().min(1),
-    audioBase64: z.string().optional(), // Base64 chunk for future integration
+    audioBase64: z.string().optional(),
+    clientTranscript: z.string().optional(),
+}).refine((d) => !!(d.audioBase64 || d.clientTranscript?.trim()), {
+    message: 'Audio or speech transcript is required',
 });
 
 const evaluateWritingSchema = z.object({
