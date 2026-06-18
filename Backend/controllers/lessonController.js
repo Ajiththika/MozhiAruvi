@@ -2,8 +2,8 @@ import User from '../models/User.js';
 import * as lessonService from '../services/lessonService.js';
 import { canAttempt, consumeEnergy, getEnergyResponse, regenerateEnergy, validateStreak } from '../utils/energyManager.js';
 import speech from '@google-cloud/speech';
-import textToSpeech from '@google-cloud/text-to-speech';
 import { gradeSpeech } from '../utils/speechMatch.js';
+import { synthesizeTamilSpeech } from '../services/ttsService.js';
 import Question from '../models/Question.js';
 import QuestionAttempt from '../models/QuestionAttempt.js';
 import { evaluateQuestionAnswer, getRevealAnswer } from '../utils/sanitizeQuestion.js';
@@ -466,85 +466,43 @@ Respond ONLY with YES or NO.`;
     }
 }
 
-// ── Speech Synthesis ─────────────────────────────────────────────────────────
-let _ttsClient = null;
-
-function getTtsClient() {
-    if (_ttsClient) return _ttsClient;
-    try {
-        _ttsClient = new textToSpeech.TextToSpeechClient();
-        return _ttsClient;
-    } catch (e) {
-        console.warn('[Google TTS] Client unavailable:', e.message);
-        return null;
-    }
-}
-
+// ── Speech Synthesis (native xAI TTS, Tamil) ──────────────────────────────────
+/**
+ * Generate Tamil speech via the native xAI TTS API.
+ *
+ * Returns the audio as a base64 MP3 data URL ({ audioUrl }) so the existing
+ * HTML5 Audio players on the client work unchanged. On failure it returns a
+ * Tamil error message plus `fallback: true`, letting the client gracefully fall
+ * back to the browser's SpeechSynthesis so the learning flow never blocks.
+ */
 export async function generateSpeech(req, res, _next) {
     try {
-        const { text } = req.body;
-        if (!text || typeof text !== 'string') {
+        const { text, voice } = req.body;
+        if (!text || typeof text !== 'string' || !text.trim()) {
             return res.status(400).json({ message: "Text is required" });
         }
 
         const speechText = text.trim();
-        if (!speechText) {
-            return res.status(400).json({ message: "Text is required" });
-        }
 
-        // 1. Google Cloud Text-to-Speech (Tamil)
         try {
-            const ttsClient = getTtsClient();
-            if (ttsClient) {
-                const [response] = await ttsClient.synthesizeSpeech({
-                    input: { text: speechText },
-                    voice: { languageCode: 'ta-IN', ssmlGender: 'NEUTRAL' },
-                    audioConfig: { audioEncoding: 'MP3', speakingRate: 0.95 },
-                });
-                if (response.audioContent) {
-                    const audioBase64 = Buffer.from(response.audioContent).toString('base64');
-                    return res.json({ audioUrl: `data:audio/mpeg;base64,${audioBase64}` });
-                }
-            }
-        } catch (googleErr) {
-            console.warn('[Google TTS] synthesis failed:', googleErr.message);
+            const audioBuffer = await synthesizeTamilSpeech(speechText, voice);
+            const audioBase64 = audioBuffer.toString('base64');
+            return res.json({ audioUrl: `data:audio/mpeg;base64,${audioBase64}` });
+        } catch (xaiErr) {
+            console.warn('[xAI TTS] synthesis failed:', xaiErr.message);
+            return res.json({
+                audioUrl: null,
+                fallback: true,
+                message: 'குரல் தற்காலிகமாகக் கிடைக்கவில்லை. சிறிது நேரத்தில் மீண்டும் முயற்சிக்கவும்.',
+            });
         }
-
-        // 2. ElevenLabs (optional, from env)
-        const elevenKey = process.env.ELEVENLABS_API_KEY;
-        const voiceId = process.env.ELEVENLABS_VOICE_ID || '21m00Tcm4TlvDq8ikWAM';
-        if (elevenKey) {
-            try {
-                const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
-                    method: 'POST',
-                    headers: {
-                        'Accept': 'audio/mpeg',
-                        'Content-Type': 'application/json',
-                        'xi-api-key': elevenKey,
-                    },
-                    body: JSON.stringify({
-                        text: speechText,
-                        model_id: 'eleven_multilingual_v2',
-                        voice_settings: { stability: 0.5, similarity_boost: 0.75 },
-                    }),
-                });
-
-                if (response.ok) {
-                    const arrayBuffer = await response.arrayBuffer();
-                    const audioBase64 = Buffer.from(arrayBuffer).toString('base64');
-                    return res.json({ audioUrl: `data:audio/mpeg;base64,${audioBase64}` });
-                }
-                console.error('ElevenLabs error:', response.status, await response.text());
-            } catch (elevenErr) {
-                console.error('ElevenLabs fetch error:', elevenErr.message);
-            }
-        }
-
-        // 3. Signal frontend to use browser SpeechSynthesis
-        return res.json({ audioUrl: null, fallback: true, reason: 'Use browser TTS' });
     } catch (e) {
         console.error('❌ [GENERATE SPEECH CRIT]:', e.message);
-        return res.json({ audioUrl: null, fallback: true, reason: 'Critical internal error' });
+        return res.json({
+            audioUrl: null,
+            fallback: true,
+            message: 'குரல் சேவையில் தற்காலிகச் சிக்கல் ஏற்பட்டது. மீண்டும் முயற்சிக்கவும்.',
+        });
     }
 }
 
