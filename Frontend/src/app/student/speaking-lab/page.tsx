@@ -2,7 +2,7 @@
 
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Mic2, Flame, Star, Volume2, ArrowRight, Loader2, Sparkles, ChevronRight } from "lucide-react";
+import { Mic2, Flame, Star, Volume2, Loader2, Sparkles } from "lucide-react";
 import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
@@ -30,7 +30,7 @@ const TYPE_LABELS: Record<string, string> = {
 
 export default function SpeakingLabPage() {
   const [items, setItems] = useState<SpeakingLabItem[]>([]);
-  const [level, setLevel] = useState(1);
+  const [sessionSize, setSessionSize] = useState(5);
   const [index, setIndex] = useState(0);
   const [progress, setProgress] = useState<LabProgress>({
     level: 1,
@@ -38,11 +38,13 @@ export default function SpeakingLabPage() {
     itemsCompleted: 0,
     currentStreak: 0,
     bestStreak: 0,
+    batchIndex: 0,
   });
   const [displayXp, setDisplayXp] = useState(0);
   const [confettiKey, setConfettiKey] = useState(0);
   const [levelUp, setLevelUp] = useState(false);
   const [loadingNext, setLoadingNext] = useState(false);
+  const [itemPassed, setItemPassed] = useState(false);
 
   const leaderboardQ = useQuery({
     queryKey: ["speaking-lab", "leaderboard"],
@@ -60,10 +62,11 @@ export default function SpeakingLabPage() {
   useEffect(() => {
     if (sessionQ.data) {
       setItems(sessionQ.data.items);
-      setLevel(sessionQ.data.level);
+      setSessionSize(sessionQ.data.sessionSize || 5);
       setProgress(sessionQ.data.progress);
       setDisplayXp(sessionQ.data.progress.xp);
-      setIndex(0);
+      setIndex(sessionQ.data.batchIndex ?? 0);
+      setItemPassed(false);
     }
   }, [sessionQ.data]);
 
@@ -89,45 +92,58 @@ export default function SpeakingLabPage() {
     return () => clearInterval(timer);
   }, [progress.xp]);
 
-  const loadNextLevel = useCallback(async (nextLevel: number) => {
+  const reloadSession = useCallback(async () => {
     setLoadingNext(true);
     try {
-      const next = await getLabSession(nextLevel);
+      const next = await getLabSession();
       setItems(next.items);
-      setLevel(next.level);
+      setSessionSize(next.sessionSize || 5);
       setProgress(next.progress);
-      setIndex(0);
+      setIndex(next.batchIndex ?? 0);
+      setItemPassed(false);
     } finally {
       setLoadingNext(false);
     }
   }, []);
 
   const advance = useCallback(() => {
+    setItemPassed(false);
     if (index + 1 < items.length) {
       setIndex((i) => i + 1);
     } else {
-      // Endless: pull the next scaling batch.
-      loadNextLevel(level + 1);
+      // Finished the batch — reload from server (picks up new level + fresh items).
+      void reloadSession();
     }
-  }, [index, items.length, level, loadNextLevel]);
+  }, [index, items.length, reloadSession]);
 
   const handleResult = useCallback(
     (ev: LabEvaluation) => {
       setProgress(ev.progress);
       leaderboardQ.refetch();
 
-      if (ev.isCorrect) {
+      if (ev.status === "perfect" && ev.isCorrect) {
+        setItemPassed(true);
         setConfettiKey((k) => k + 1);
         if (ev.leveledUp) {
           setLevelUp(true);
           setTimeout(() => setLevelUp(false), 2200);
         }
-        setTimeout(advance, ev.leveledUp ? 2200 : 1400);
+        const delay = ev.leveledUp ? 2200 : 1400;
+        setTimeout(() => {
+          // Level-up completes the batch — reload session for the new level.
+          if (ev.leveledUp) {
+            void reloadSession();
+          } else {
+            advance();
+          }
+        }, delay);
       }
-      // Incorrect → recorder stays mounted so the learner can retry.
     },
-    [advance, leaderboardQ]
+    [advance, leaderboardQ, reloadSession]
   );
+
+  const level = progress.level;
+  const completedInBatch = progress.batchIndex ?? 0;
 
   const current = items[index];
   const speechText = current?.tamilWord || current?.expectedAudioText || "";
@@ -149,7 +165,7 @@ export default function SpeakingLabPage() {
         <div className="fixed inset-0 z-[70] flex items-center justify-center bg-primary/30 backdrop-blur-sm animate-in fade-in duration-300">
           <div className="bg-white rounded-[2.5rem] px-12 py-10 text-center shadow-2xl border-4 border-amber-300 animate-in zoom-in-90 duration-500">
             <Sparkles className="h-14 w-14 text-amber-400 mx-auto mb-3 animate-bounce" />
-            <p className="text-3xl font-black text-primary tracking-tight">Level {progress.level}!</p>
+            <p className="text-3xl font-black text-primary tracking-tight">Level {level}!</p>
             <p className="text-sm font-bold text-slate-500 mt-2 uppercase tracking-widest">New challenges unlocked</p>
           </div>
         </div>
@@ -194,7 +210,9 @@ export default function SpeakingLabPage() {
             </div>
             <div>
               <p className="text-2xl font-black text-primary tabular-nums leading-none">{level}</p>
-              <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mt-1">Level</p>
+              <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mt-1">
+                Level · {Math.min(completedInBatch, sessionSize)}/{sessionSize}
+              </p>
             </div>
           </div>
         </div>
@@ -275,16 +293,9 @@ export default function SpeakingLabPage() {
                     <LabAudioRecorder
                       key={current._id}
                       item={current}
+                      locked={itemPassed}
                       onResult={handleResult}
                     />
-
-                    <button
-                      type="button"
-                      onClick={advance}
-                      className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-primary transition-colors"
-                    >
-                      Skip <ChevronRight className="h-3.5 w-3.5" />
-                    </button>
                   </div>
                 </ErrorBoundary>
               )}

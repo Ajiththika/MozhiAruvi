@@ -76,4 +76,56 @@ export function getOAuthCallbackUrl(req) {
     return getFrontendUrl(req);
 }
 
+/**
+ * Production base URL when no request context is available (e.g. Passport init).
+ */
+function getConfiguredProductionBaseUrl() {
+    const primary = process.env.PRIMARY_SITE_URL?.trim();
+    if (primary) return primary.replace(/\/$/, '');
+
+    const origins = (process.env.FRONTEND_ORIGIN?.split(',') || [])
+        .map((o) => o.trim())
+        .filter(Boolean);
+    const prodOrigin = origins.find(
+        (o) => !o.includes('localhost') && !o.includes('127.0.0.1')
+    );
+    if (prodOrigin) return prodOrigin.replace(/\/$/, '');
+
+    return 'https://mozhiaruvi.com';
+}
+
+/**
+ * OAuth callback base URL — uses request host when available, env otherwise.
+ */
+function resolveOAuthCallbackBase(req) {
+    if (req) return getOAuthCallbackUrl(req);
+    if (process.env.NODE_ENV === 'production') return getConfiguredProductionBaseUrl();
+    return 'http://localhost:3000';
+}
+
+/**
+ * Resolve the Google OAuth callback URL.
+ * Prefer an explicit absolute GOOGLE_CALLBACK_URL from env (required for Google Console).
+ * Fall back to localhost:3000 in development so the port stays stable across backend restarts.
+ */
+export function resolveGoogleCallbackUrl(req) {
+    const configured = process.env.GOOGLE_CALLBACK_URL?.trim();
+
+    if (configured?.startsWith('http://') || configured?.startsWith('https://')) {
+        return configured;
+    }
+
+    if (configured?.startsWith('/')) {
+        if (process.env.NODE_ENV !== 'production') {
+            return `http://localhost:3000${configured}`;
+        }
+        return `${resolveOAuthCallbackBase(req)}${configured}`;
+    }
+
+    if (process.env.NODE_ENV !== 'production') {
+        return 'http://localhost:3000/api/auth/google/callback';
+    }
+
+    return `${resolveOAuthCallbackBase(req)}/api/auth/google/callback`;
+}
 

@@ -149,11 +149,11 @@ export interface SpeakingResult {
 export async function evaluateSpeaking(
   lessonId: string,
   questionId: string,
-  audioBase64: string
+  payload: { audioBase64?: string; clientTranscript?: string }
 ): Promise<SpeakingResult> {
   const res = await api.post<SpeakingResult>(
     `/lessons/${lessonId}/evaluate-speaking`,
-    { questionId, audioBase64 }
+    { questionId, ...payload }
   );
   return res.data;
 }

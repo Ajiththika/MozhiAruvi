@@ -20,6 +20,7 @@ export default function Footer() {
                     src="/logo1.png"
                     alt="Logo Icon"
                     fill
+                    sizes="48px"
                     className="object-contain"
                   />
                 </div>

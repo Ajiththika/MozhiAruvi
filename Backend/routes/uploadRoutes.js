@@ -1,9 +1,9 @@
 import express from 'express';
 import multer from 'multer';
 import { v2 as cloudinary } from 'cloudinary';
-import { CloudinaryStorage } from 'multer-storage-cloudinary';
 import dotenv from 'dotenv';
 import { authenticate } from '../middleware/auth.js';
+import { createCloudinaryStorage } from '../utils/cloudinaryMulterStorage.js';
 
 dotenv.config();
 
@@ -16,15 +16,15 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-const storage = new CloudinaryStorage({
-  cloudinary: cloudinary,
+const storage = createCloudinaryStorage({
+  cloudinary,
   params: {
     folder: 'mozhiaruvi_blogs',
     allowed_formats: ['jpg', 'png', 'jpeg', 'webp'],
   },
 });
 
-const upload = multer({ storage: storage });
+const upload = multer({ storage });
 
 // ── Upload Image Route ─────────────────────────────────────────────────────────────
 router.post('/image', authenticate, upload.single('image'), (req, res) => {
@@ -39,11 +39,11 @@ router.post('/image', authenticate, upload.single('image'), (req, res) => {
 });
 
 // ── Upload Audio Route ─────────────────────────────────────────────────────────────
-const audioStorage = new CloudinaryStorage({
-  cloudinary: cloudinary,
+const audioStorage = createCloudinaryStorage({
+  cloudinary,
   params: {
     folder: 'mozhiaruvi_audio',
-    resource_type: 'auto', // Important for audio files
+    resource_type: 'auto',
     allowed_formats: ['mp3', 'wav', 'ogg', 'mpeg', 'webm'],
   },
 });
@@ -61,8 +61,8 @@ router.post('/audio', authenticate, uploadAudio.single('audio'), (req, res) => {
 });
 
 // ── Upload File Route (Documents/PDFs) ─────────────────────────────────────────────
-const fileStorage = new CloudinaryStorage({
-  cloudinary: cloudinary,
+const fileStorage = createCloudinaryStorage({
+  cloudinary,
   params: {
     folder: 'mozhiaruvi_resources',
     resource_type: 'auto',
@@ -82,8 +82,8 @@ router.post('/file', authenticate, uploadFile.single('file'), (req, res) => {
   });
 });
 // ── Upload Video Route ─────────────────────────────────────────────────────────────
-const videoStorage = new CloudinaryStorage({
-  cloudinary: cloudinary,
+const videoStorage = createCloudinaryStorage({
+  cloudinary,
   params: {
     folder: 'mozhiaruvi_videos',
     resource_type: 'video',
@@ -93,7 +93,7 @@ const videoStorage = new CloudinaryStorage({
 
 const uploadVideo = multer({ 
   storage: videoStorage,
-  limits: { fileSize: 20 * 1024 * 1024 } // 20MB limit
+  limits: { fileSize: 20 * 1024 * 1024 }
 });
 
 router.post('/video', authenticate, uploadVideo.single('video'), (req, res) => {

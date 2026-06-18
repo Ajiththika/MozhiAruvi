@@ -3,7 +3,7 @@ import * as lessonService from '../services/lessonService.js';
 import { canAttempt, consumeEnergy, getEnergyResponse, regenerateEnergy, validateStreak } from '../utils/energyManager.js';
 import speech from '@google-cloud/speech';
 import { gradeSpeech } from '../utils/speechMatch.js';
-import { synthesizeTamilSpeech } from '../services/ttsService.js';
+import { transcribeTamilAudio } from '../utils/tamilSpeech.js';
 import Question from '../models/Question.js';
 import QuestionAttempt from '../models/QuestionAttempt.js';
 import { evaluateQuestionAnswer, getRevealAnswer } from '../utils/sanitizeQuestion.js';
@@ -318,70 +318,46 @@ export function getSpeechClient() {
 
 export async function evaluateSpeaking(req, res, next) {
     try {
-        const { questionId, audioBase64 } = req.body;
-        if (!audioBase64) return res.status(400).json({ message: "Audio data is required" });
+        const { questionId, audioBase64, clientTranscript } = req.body;
+        const transcript = String(clientTranscript || '').trim();
+        if (!audioBase64 && !transcript) {
+            return res.status(400).json({ message: "Audio or speech transcript is required" });
+        }
 
         const question = await Question.findById(questionId);
         if (!question) return res.status(404).json({ message: "Question not found" });
 
         const expectedText = (question.correctAnswer || question.tamilWord || question.expectedAudioText || "").trim();
-        // Strip ANY data-URL header (handles "data:audio/webm;codecs=opus;base64," etc).
-        // base64 never contains a comma, so removing everything up to the first comma is safe.
-        const cleanBase64 = audioBase64.replace(/^data:[^,]*,/, '');
-        
-        let transcription = "";
-        let sttConfidence = null;
-        
-        // ── 1. Attempt AI Processing (Google Speech API) ───────────────────────
-        try {
-            const speechClient = !_sttDisabled ? getSpeechClient() : null;
-            if (speechClient) {
-                const [sttResponse] = await speechClient.recognize({
-                    config: {
-                        encoding: 'WEBM_OPUS',
-                        sampleRateHertz: 48000,
-                        languageCode: 'ta-IN',
-                        enableAutomaticPunctuation: true,
-                    },
-                    audio: { content: cleanBase64 }
-                });
+        const hints = [
+            expectedText,
+            question.tamilWord,
+            question.expectedAudioText,
+            question.phoneticHint,
+        ].filter(Boolean);
 
-                if (sttResponse.results && sttResponse.results.length > 0) {
-                    transcription = sttResponse.results
-                        .map(result => result.alternatives?.[0]?.transcript || "")
-                        .join(' ')
-                        .trim();
+        const { transcription, confidence: sttConfidence } = await transcribeTamilAudio(
+            audioBase64,
+            hints,
+            clientTranscript
+        );
 
-                    // Average the per-result confidence scores (0..1) for thresholding.
-                    const confs = sttResponse.results
-                        .map(result => result.alternatives?.[0]?.confidence)
-                        .filter(c => typeof c === 'number' && c > 0);
-                    if (confs.length > 0) {
-                        sttConfidence = confs.reduce((a, b) => a + b, 0) / confs.length;
-                    }
-                }
-            }
-        } catch (sttErr) {
-            markGoogleDisabled('STT', sttErr);
-        }
-
-        // ── 2. Handle Empty Transcription ────────────────────────────────────
-        if (!transcription) {
-            // If the AI didn't catch anything, we don't guess. 
-            // We let the evaluation logic below handle the empty string (which will result in 'Incorrect').
-            transcription = "";
-        }
-
-
-        // ── 3. Multi-tier Evaluation (lenient / mic-forgiving) ───────────────
+        // ── Multi-tier Evaluation (lenient / mic-forgiving) ───────────────
         // Fuzzy Tamil matching (Levenshtein + Dice) → percentage similarity, graded into:
         //   perfect (>=90%) · close (65-89%, partial credit, no penalty) · retry (<65%)
         const { score, status, passed, feedback, confidence } = gradeSpeech(
             expectedText,
             transcription,
             question.phoneticHint || "",
-            sttConfidence
+            sttConfidence,
+            question.acceptedAnswers || []
         );
+
+        // #region agent log
+        try {
+          const fs = await import('fs');
+          fs.appendFileSync('/Users/mr.ushantha/MozhiAruvi/MozhiAruvi/.cursor/debug-bccfa6.log', `${JSON.stringify({ sessionId: 'bccfa6', hypothesisId: 'H6', location: 'lessonController.js:evaluateSpeaking', message: 'grade result', data: { status, passed, score, expectedLen: expectedText.length, transcriptLen: transcription.length }, timestamp: Date.now() })}\n`);
+        } catch { /* ignore */ }
+        // #endregion
 
         // Persist the authoritative server result so the final lesson submit
         // evaluates this stored verification, not a client-trusted boolean.
@@ -466,15 +442,30 @@ Respond ONLY with YES or NO.`;
     }
 }
 
-// ── Speech Synthesis (native xAI TTS, Tamil) ──────────────────────────────────
-/**
- * Generate Tamil speech via the native xAI TTS API.
- *
- * Returns the audio as a base64 MP3 data URL ({ audioUrl }) so the existing
- * HTML5 Audio players on the client work unchanged. On failure it returns a
- * Tamil error message plus `fallback: true`, letting the client gracefully fall
- * back to the browser's SpeechSynthesis so the learning flow never blocks.
- */
+// ── Speech Synthesis ─────────────────────────────────────────────────────────
+let _ttsClient = null;
+
+function getTtsClient() {
+    if (_ttsDisabled) return null;
+    if (_ttsClient) return _ttsClient;
+    try {
+        const json = getCredentialsObject();
+        if (!json) return null;
+        const private_key = (json.private_key || '').replace(/\\n/g, '\n');
+        _ttsClient = new textToSpeech.TextToSpeechClient({
+            credentials: {
+                client_email: json.client_email,
+                private_key,
+            },
+            projectId: json.project_id,
+        });
+        return _ttsClient;
+    } catch (e) {
+        console.warn('[Google TTS] Client unavailable:', e.message);
+        return null;
+    }
+}
+
 export async function generateSpeech(req, res, _next) {
     try {
         const { text, voice } = req.body;

@@ -88,7 +88,7 @@ export default function SignInForm() {
       if (isAxiosError(err)) {
         if (!err.response) {
           // Network error — backend is not reachable
-          setError("Cannot reach the server. Please make sure the backend is running on port 5000.");
+          setError("Cannot reach the server. Please make sure the backend is running on port 5001.");
         } else if (err.response?.data?.error?.message) {
           setError(err.response.data.error.message);
         } else {
@@ -163,7 +163,7 @@ export default function SignInForm() {
         <div className="flex-1 border-t border-slate-100/60"></div>
       </div>
 
-      <SocialLogin provider="Google" onClick={() => window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/google`} />
+      <SocialLogin provider="Google" onClick={() => { window.location.href = '/api/auth/google'; }} />
 
       <p className="text-center mt-6 text-primary/60 font-medium text-base">
         {' '}

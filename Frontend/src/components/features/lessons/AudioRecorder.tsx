@@ -7,7 +7,15 @@ import Card from "@/components/ui/Card";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/components/ui/Toast";
 import { getMascotFeedback, MascotState, stripEmoji } from "@/lib/tamilFeedback";
-import { speakTamil } from "@/lib/speak";
+import { speakTamil, stopSpeaking } from "@/lib/speak";
+import {
+  requestMicStream,
+  createRecorder,
+  blobFromRecorder,
+  blobToDataUrl,
+} from "@/lib/audioCapture";
+import { TamilSpeechSession, MIN_RECORD_MS, MAX_RECORD_MS, MIN_AUDIO_BYTES } from "@/lib/webSpeechStt";
+import { buildSpeakingPayload } from "@/lib/speakingPayload";
 
 interface AudioRecorderProps {
   lessonId: string;
@@ -33,11 +41,21 @@ export function AudioRecorder({
   const [showEnglish, setShowEnglish] = useState(false);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<BlobPart[]>([]);
+  const pointerActiveRef = useRef(false);
+  const recordStartRef = useRef(0);
+  const maxRecordTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const speechSessionRef = useRef<TamilSpeechSession | null>(null);
   const { toast } = useToast();
 
-  const processAudio = useCallback(async (audioBlob: Blob) => {
-    // Guard against empty/too-short captures (quick taps) before spending a credit/API call.
-    if (!audioBlob || audioBlob.size < 1200) {
+  const clearMaxTimer = useCallback(() => {
+    if (maxRecordTimerRef.current) {
+      clearTimeout(maxRecordTimerRef.current);
+      maxRecordTimerRef.current = null;
+    }
+  }, []);
+
+  const processAudio = useCallback(async (audioBlob: Blob, clientTranscript: string) => {
+    if ((!audioBlob || audioBlob.size < MIN_AUDIO_BYTES) && !clientTranscript.trim()) {
       toast("Hold the mic and speak a little longer. 🎤", "info");
       return;
     }
@@ -46,31 +64,24 @@ export function AudioRecorder({
     if (!hasCredit) return;
 
     setIsProcessingAudio(true);
+    setLastResult(null);
     try {
-      const base64data = await new Promise<string>((resolve, reject) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(audioBlob);
-        reader.onloadend = () => resolve(reader.result as string);
-        reader.onerror = reject;
-      });
-
-      const res = await evaluateSpeaking(lessonId, questionId, base64data);
+      const payload = await buildSpeakingPayload(audioBlob, blobToDataUrl, clientTranscript);
+      const res = await evaluateSpeaking(lessonId, questionId, payload);
       setShowEnglish(false);
       setLastResult(res);
-
-      // Multi-tier, mic-forgiving feedback:
-      //  perfect → pass · close → pass with an encouraging nudge · retry → stay & try again
-      if (res.status === "close") {
-        toast("Good effort, almost perfect! Keep going. 👍", "info");
-      } else if (res.status === "retry") {
-        toast("Almost there — listen again and try speaking once more.", "info");
-      }
-      onResult(res.isCorrect, res.feedback, res.status);
-    } catch (e: any) {
-      console.error(e);
-      const msg = e.response?.data?.message || "Recognition failed. Please speak clearly and try again.";
+      onResult(res.isCorrect && res.status === "perfect", res.feedback, res.status);
+    } catch (e: unknown) {
+      const status = (e as { response?: { status?: number } })?.response?.status;
+      const msg =
+        (e as { response?: { data?: { message?: string } } })?.response?.data?.message ||
+        "Recognition failed. Please speak clearly and try again.";
       setLastResult(null);
-      toast("Couldn't hear that clearly — please try speaking again.", "info");
+      if (status === 413) {
+        toast("Recording was too large — hold the mic for 1–2 seconds only.", "error");
+      } else {
+        toast(msg, "info");
+      }
       onResult(false, msg, "retry");
     } finally {
       setIsProcessingAudio(false);
@@ -78,47 +89,80 @@ export function AudioRecorder({
   }, [takeCredit, lessonId, questionId, onResult, toast]);
 
   const startRecording = useCallback(async () => {
+    if (pointerActiveRef.current && mediaRecorderRef.current?.state === "recording") return;
+    stopSpeaking();
+    setLastResult(null);
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true, sampleRate: 48000 },
-      });
-      const recorder = new MediaRecorder(stream);
+      const stream = await requestMicStream();
+      const recorder = createRecorder(stream);
       mediaRecorderRef.current = recorder;
       chunksRef.current = [];
+      recordStartRef.current = Date.now();
+      speechSessionRef.current = new TamilSpeechSession();
+      speechSessionRef.current.start();
 
-      recorder.ondataavailable = (e) => chunksRef.current.push(e.data);
+      recorder.ondataavailable = (e) => {
+        if (e.data.size > 0) chunksRef.current.push(e.data);
+      };
       recorder.onstop = async () => {
-        const blob = new Blob(chunksRef.current, { type: mediaRecorderRef.current?.mimeType || "audio/webm;codecs=opus" });
-        await processAudio(blob);
+        clearMaxTimer();
+        const blob = blobFromRecorder(recorder, chunksRef.current);
+        stream.getTracks().forEach((track) => track.stop());
+        const clientTranscript = (await speechSessionRef.current?.stop()) || "";
+        speechSessionRef.current = null;
+        await processAudio(blob, clientTranscript);
       };
 
-      recorder.start();
+      recorder.start(250);
       setIsRecording(true);
+      maxRecordTimerRef.current = setTimeout(() => stopRecording(), MAX_RECORD_MS);
     } catch (err) {
       console.error("Audio Access Error:", err);
       toast("Microphone access is blocked. Please allow mic access in your browser.", "error");
     }
-  }, [processAudio, toast]);
+  }, [processAudio, stopRecording, clearMaxTimer, toast]);
 
   const stopRecording = useCallback(() => {
-    if (mediaRecorderRef.current && isRecording) {
-      // Ensure we have at least 500ms of audio to prevent encoding errors
-      setTimeout(() => {
-        if (mediaRecorderRef.current?.state === "recording") {
-          mediaRecorderRef.current.stop();
-          setIsRecording(false);
-          mediaRecorderRef.current.stream.getTracks().forEach((track) => track.stop());
-        }
-      }, 500);
-    }
-  }, [isRecording]);
+    clearMaxTimer();
+    const recorder = mediaRecorderRef.current;
+    if (!recorder || recorder.state !== "recording") return;
+    setIsRecording(false);
+    const elapsed = Date.now() - recordStartRef.current;
+    const wait = Math.max(0, MIN_RECORD_MS - elapsed);
+    setTimeout(() => {
+      if (recorder.state === "recording") recorder.stop();
+    }, wait);
+  }, [clearMaxTimer]);
+
+  const handlePointerDown = useCallback(
+    (e: React.PointerEvent<HTMLButtonElement>) => {
+      if (e.pointerType === "touch") e.preventDefault();
+      if (pointerActiveRef.current) return;
+      pointerActiveRef.current = true;
+      e.currentTarget.setPointerCapture(e.pointerId);
+      void startRecording();
+    },
+    [startRecording]
+  );
+
+  const handlePointerUp = useCallback(
+    (e: React.PointerEvent<HTMLButtonElement>) => {
+      if (!pointerActiveRef.current) return;
+      pointerActiveRef.current = false;
+      if (e.currentTarget.hasPointerCapture(e.pointerId)) {
+        e.currentTarget.releasePointerCapture(e.pointerId);
+      }
+      stopRecording();
+    },
+    [stopRecording]
+  );
 
   // ── Mascot / mic state machine ──────────────────────────────────────────────
   const mascotState: MascotState = useMemo(() => {
     if (isRecording) return "listening";
     if (isProcessingAudio) return "processing";
-    if (isCorrect || lastResult?.isCorrect) return "success";
-    if (lastResult && !lastResult.isCorrect) return "mispronounced";
+    if (isCorrect || lastResult?.status === "perfect") return "success";
+    if (lastResult && lastResult.status !== "perfect") return "mispronounced";
     return "idle";
   }, [isRecording, isProcessingAudio, isCorrect, lastResult]);
 
@@ -130,25 +174,33 @@ export function AudioRecorder({
   // Speak the witty Tamil line aloud once when feedback appears.
   const spokenRef = useRef<string | null>(null);
   useEffect(() => {
-    if ((mascotState === "success" || mascotState === "mispronounced") && mascot.message) {
-      const key = mascotState + mascot.message;
+    if (mascotState === "success" && lastResult?.status === "perfect") {
+      const key = `ok-${lastResult.correctText}`;
       if (spokenRef.current !== key) {
         spokenRef.current = key;
-        speakTamil(stripEmoji(mascot.message));
+        speakTamil(lastResult.correctText || stripEmoji(mascot.message));
+      }
+    } else if (mascotState === "mispronounced" && lastResult?.correctText) {
+      const key = `retry-${lastResult.correctText}-${lastResult.transcription}`;
+      if (spokenRef.current !== key) {
+        spokenRef.current = key;
+        speakTamil(lastResult.correctText);
       }
     } else if (mascotState === "idle" || mascotState === "listening") {
       spokenRef.current = null;
     }
-  }, [mascotState, mascot.message]);
+  }, [mascotState, mascot.message, lastResult]);
+
+  useEffect(() => () => clearMaxTimer(), [clearMaxTimer]);
 
   return (
     <div className="flex flex-col items-center gap-10 w-full max-w-2xl pt-10">
       <div className="relative flex flex-col items-center">
         <button
-          onMouseDown={startRecording}
-          onMouseUp={stopRecording}
-          onTouchStart={startRecording}
-          onTouchEnd={stopRecording}
+          onPointerDown={handlePointerDown}
+          onPointerUp={handlePointerUp}
+          onPointerCancel={handlePointerUp}
+          style={{ touchAction: "none" }}
           disabled={isProcessingAudio || isCorrect}
           aria-label="Press and hold to speak"
           className={cn(
@@ -189,7 +241,7 @@ export function AudioRecorder({
       </div>
 
       {/* Mascot feedback bubble — witty regional Tamil reactions */}
-      {(mascotState === "success" || mascotState === "mispronounced") && (
+      {(mascotState === "success" || mascotState === "mispronounced") && lastResult && (
         <Card
           variant="outline"
           onMouseEnter={() => setShowEnglish(true)}
@@ -205,33 +257,48 @@ export function AudioRecorder({
               "text-lg font-bold leading-relaxed",
               mascot.tone === "positive" ? "text-emerald-700" : "text-amber-700"
             )}>
-              {mascot.message}
+              {lastResult.status === "perfect" ? mascot.message : lastResult.feedback}
             </p>
-            {showEnglish && (
+            {showEnglish && mascotState === "success" && (
               <p className="text-sm font-semibold text-slate-500 italic animate-in fade-in duration-200">
                 {mascot.english}
               </p>
             )}
-            {mascotState === "mispronounced" && lastResult?.transcription && (
-              <p className="text-xs font-semibold text-slate-400">
-                நீங்க சொன்னது: “{lastResult.transcription}”
-              </p>
+            {mascotState === "mispronounced" && (
+              <div className="mt-3 space-y-1 text-sm font-semibold text-slate-600">
+                {lastResult.correctText && (
+                  <p>சரியான வார்த்தை: <span className="text-primary font-black">{lastResult.correctText}</span></p>
+                )}
+                {lastResult.transcription ? (
+                  <p>நீங்க சொன்னது: “{lastResult.transcription}”</p>
+                ) : (
+                  <p>உங்கள் குரல் தெளிவாக கேட்கவில்லை — மீண்டும் முயற்சிக்கவும்.</p>
+                )}
+              </div>
             )}
             <div className="mt-2 flex items-center gap-4">
               <button
                 type="button"
-                onClick={() => speakTamil(stripEmoji(mascot.message))}
+                onClick={() =>
+                  speakTamil(
+                    lastResult.status === "perfect"
+                      ? stripEmoji(mascot.message)
+                      : lastResult.correctText || stripEmoji(mascot.message)
+                  )
+                }
                 className="inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-primary/70 hover:text-primary transition-colors"
               >
                 <Volume2 size={14} /> Replay
               </button>
-              <button
-                type="button"
-                onClick={() => setShowEnglish((v) => !v)}
-                className="inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-primary transition-colors"
-              >
-                <Languages size={14} /> {showEnglish ? "தமிழ்" : "English"}
-              </button>
+              {mascotState === "success" && (
+                <button
+                  type="button"
+                  onClick={() => setShowEnglish((v) => !v)}
+                  className="inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-primary transition-colors"
+                >
+                  <Languages size={14} /> {showEnglish ? "தமிழ்" : "English"}
+                </button>
+              )}
             </div>
           </div>
         </Card>

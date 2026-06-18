@@ -2,7 +2,7 @@ import { Router } from 'express';
 import rateLimit from 'express-rate-limit';
 import passport from 'passport';
 import * as auth from '../controllers/authController.js';
-import { getOAuthCallbackUrl, getFrontendUrl } from '../utils/urlHelper.js';
+import { getFrontendUrl, resolveGoogleCallbackUrl } from '../utils/urlHelper.js';
 import { authenticate } from '../middleware/auth.js';
 import { validate, registerSchema, loginSchema, forgotSchema, resetSchema } from '../middleware/validate.js';
 
@@ -35,40 +35,25 @@ router.post('/resend-verification', auth.resendVerification);
 // ── GOOGLE OAUTH ROUTES ─────────────────────────────────────────────────────
 
 router.get('/google', (req, res, next) => {
-    let callbackURL = process.env.GOOGLE_CALLBACK_URL;
-    
-    // Normalize relative paths to absolute URLs
-    if (callbackURL && callbackURL.startsWith('/')) {
-        callbackURL = `${getOAuthCallbackUrl(req)}${callbackURL}`;
-    } else if (!callbackURL) {
-        callbackURL = `${getOAuthCallbackUrl(req)}/api/auth/google/callback`;
-    }
+    const callbackURL = resolveGoogleCallbackUrl(req);
 
     console.log(`[AUTH DEBUG] Triggering Google Login. Callback: ${callbackURL}`);
 
     passport.authenticate('google', {
         session: false,
         scope: ['profile', 'email'],
-        callbackURL: callbackURL
+        callbackURL,
     })(req, res, next);
 });
 
 router.get('/google/callback', (req, res, next) => {
-    // Determine production URLs
-    const isProd = process.env.NODE_ENV === 'production';
-    const frontendUrl = isProd ? "https://mozhiaruvi.com" : getFrontendUrl();
-    
-    let callbackURL = process.env.GOOGLE_CALLBACK_URL;
-    if (callbackURL && callbackURL.startsWith('/')) {
-        callbackURL = `${getOAuthCallbackUrl(req)}${callbackURL}`;
-    } else if (!callbackURL) {
-        callbackURL = `${getOAuthCallbackUrl(req)}/api/auth/google/callback`;
-    }
+    const frontendUrl = getFrontendUrl(req);
+    const callbackURL = resolveGoogleCallbackUrl(req);
 
     passport.authenticate('google', {
         session: false,
         failureRedirect: `${frontendUrl}/auth/signin?error=OAuth-failed`,
-        callbackURL: callbackURL
+        callbackURL,
     })(req, res, (err) => {
         if (err) {
             console.error('[AUTH] Google OAuth error:', err.message);

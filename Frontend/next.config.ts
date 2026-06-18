@@ -5,7 +5,7 @@ const nextConfig: NextConfig = {
     optimizePackageImports: ["lucide-react"],
   },
   async rewrites() {
-    const rawUrl = process.env.BACKEND_URL || "http://127.0.0.1:5000";
+    const rawUrl = process.env.BACKEND_URL || "http://127.0.0.1:5001";
     
     // If we are in production and BACKEND_URL is missing, we assume a local proxy setup
     // or try to prevent a loop by not rewriting to self.

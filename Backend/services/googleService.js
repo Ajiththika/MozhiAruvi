@@ -1,14 +1,17 @@
 import passport from 'passport';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import User from '../models/User.js';
+import { resolveGoogleCallbackUrl } from '../utils/urlHelper.js';
 
 export function initGoogle(app) {
     app.use(passport.initialize());
 
+    const callbackURL = resolveGoogleCallbackUrl();
+
     passport.use(new GoogleStrategy({
         clientID: process.env.GOOGLE_CLIENT_ID,
         clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-        callbackURL: process.env.GOOGLE_CALLBACK_URL,
+        callbackURL,
         proxy: true
     }, async (_at, _rt, profile, done) => {
         try {

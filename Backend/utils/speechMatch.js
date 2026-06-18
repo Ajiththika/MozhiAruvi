@@ -131,7 +131,7 @@ export function tamilSimilarity(expected = '', user = '') {
  * pronunciation (e.g. சனிப்பட்டி vs பனிக்கட்டி ~70%) lands in "close/repeat"
  * rather than being wrongly accepted.
  */
-export const SPEECH_THRESHOLDS = { perfect: 0.75, close: 0.5 };
+export const SPEECH_THRESHOLDS = { perfect: 0.72, close: 0.48 };
 
 /**
  * Grade a spoken/typed attempt into a forgiving, multi-tier result.
@@ -140,43 +140,70 @@ export const SPEECH_THRESHOLDS = { perfect: 0.75, close: 0.5 };
  * @returns {{ score:number, similarity:number, confidence:number|null,
  *   status:'perfect'|'close'|'retry', passed:boolean, feedback:string }}
  */
-export function gradeSpeech(expected, user, phonetic = '', confidence = null) {
+export function gradeSpeech(expected, user, phonetic = '', confidence = null, acceptedAnswers = []) {
   const ne = normalizeSpeech(expected);
   const nu = normalizeSpeech(user);
 
-  // Raw similarity (also try the admin-provided phonetic hint).
-  let rawSim = tamilSimilarity(expected, user);
-  if (phonetic) rawSim = Math.max(rawSim, tamilSimilarity(phonetic, user));
+  const candidates = [expected, phonetic, ...(Array.isArray(acceptedAnswers) ? acceptedAnswers : [])]
+    .filter(Boolean);
+
+  // Raw similarity across expected word, phonetic hint, and accepted variants.
+  let rawSim = 0;
+  for (const c of candidates) {
+    rawSim = Math.max(rawSim, tamilSimilarity(c, user));
+  }
+  if (!candidates.length) rawSim = tamilSimilarity(expected, user);
 
   // Phonetic-folded similarity — confusable Tamil graphemes collapsed.
-  let foldSim = tamilSimilarity(tamilPhoneticFold(expected), tamilPhoneticFold(user));
-  if (phonetic) {
-    foldSim = Math.max(foldSim, tamilSimilarity(tamilPhoneticFold(phonetic), tamilPhoneticFold(user)));
+  let foldSim = 0;
+  for (const c of candidates) {
+    foldSim = Math.max(foldSim, tamilSimilarity(tamilPhoneticFold(c), tamilPhoneticFold(user)));
+  }
+  if (!candidates.length) {
+    foldSim = tamilSimilarity(tamilPhoneticFold(expected), tamilPhoneticFold(user));
   }
 
-  // Containment — the target word was actually spoken (possibly within a phrase).
+  // Containment — target word spoken inside a longer phrase (not a single syllable).
   let contain = 0;
-  if (ne && nu && Array.from(ne).length >= 2) {
+  const eLen = Array.from(ne).length;
+  const uLen = Array.from(nu).length;
+  if (ne && nu && eLen >= 2) {
     if (nu === ne) contain = 1;
-    else if (nu.includes(ne) || ne.includes(nu)) contain = 0.9;
+    else if (nu.includes(ne)) contain = 0.9;
+    else if (ne.includes(nu) && uLen >= Math.ceil(eLen * 0.65)) contain = 0.85;
   }
 
   const similarity = Math.max(rawSim, foldSim, contain);
   const score = Math.min(100, Math.max(0, Math.round(similarity * 100)));
   const conf = (typeof confidence === 'number' && confidence > 0) ? confidence : null;
+  const said = (user || '').trim();
+  const need = (expected || '').trim();
+
+  const wrongDetail = (prefix) => {
+    if (!said) {
+      return `${prefix} We could not hear you clearly. The word to say is "${need}". Hold the mic and speak clearly.`;
+    }
+    return `${prefix} You said "${said}" but the correct word is "${need}". Listen to the speaker and try again.`;
+  };
 
   // ≥ 75% → correct, advance.
   if (similarity >= SPEECH_THRESHOLDS.perfect) {
     return { score, similarity, confidence: conf, status: 'perfect', passed: true, feedback: 'Perfect! Excellent pronunciation. 🎉' };
   }
 
-  // 50–75% → almost there; repeat the same question.
+  // 50–75% → almost there; stay on the same question.
   if (similarity >= SPEECH_THRESHOLDS.close) {
-    return { score, similarity, confidence: conf, status: 'close', passed: false, feedback: 'Almost! You said most of it — say it once more to move on. 👍' };
+    return {
+      score, similarity, confidence: conf, status: 'close', passed: false,
+      feedback: wrongDetail('Almost!'),
+    };
   }
 
   // Below 50% → try again.
-  return { score, similarity, confidence: conf, status: 'retry', passed: false, feedback: 'Not quite — listen again and try speaking once more.' };
+  return {
+    score, similarity, confidence: conf, status: 'retry', passed: false,
+    feedback: wrongDetail('Not quite.'),
+  };
 }
 
 /**

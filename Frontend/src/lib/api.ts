@@ -29,11 +29,11 @@ const apiBaseUrl = isBrowser
         if (isProd) {
           console.warn("[API] Missing BACKEND_URL in production. API calls may fail.");
         }
-        raw = "http://127.0.0.1:5000";
+        raw = "http://127.0.0.1:5001";
       }
 
       if (raw.startsWith("/")) {
-        raw = "http://127.0.0.1:5000";
+        raw = "http://127.0.0.1:5001";
       }
       // Ensure we have a clean /api suffix without duplication
       const base = raw.replace(/\/api\/?$/, "");

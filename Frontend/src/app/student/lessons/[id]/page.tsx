@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, ArrowRight, HelpCircle, Loader2, AlertCircle, Zap, CheckCircle2, XCircle, Trophy } from "lucide-react";
@@ -279,6 +279,8 @@ export default function LessonInteractiveSession() {
   };
 
   const handleManualNext = () => {
+    const current = questions[currentQ];
+    if (!current || feedback[current._id] !== "correct") return;
     if (currentQ < questions.length - 1) {
         setQuestionTransition(true);
         setTimeout(() => {
@@ -319,18 +321,31 @@ export default function LessonInteractiveSession() {
   };
 
   const handleAudioResult = (qId: string, passed: boolean, message: string, status?: SpeakingStatus) => {
-    if (passed) {
-      // 'perfect' or 'close' → both advance (close = partial credit, no energy penalty).
+    if (passed && status === "perfect") {
       setFeedback(prev => ({ ...prev, [qId]: "correct" }));
       setSelected(prev => ({ ...prev, [qId]: 0 }));
-      setAnswerQuality(prev => ({ ...prev, [qId]: status === "close" ? "close" : "perfect" }));
+      setAnswerQuality(prev => ({ ...prev, [qId]: "perfect" }));
       setBackendMessage(prev => ({ ...prev, [qId]: message }));
     } else {
-      // 'retry' → keep the learner in the speaking loop (no locked "incorrect" panel);
-      // the encouraging toast + inline prompt let them simply record again.
       setBackendMessage(prev => ({ ...prev, [qId]: message }));
     }
   };
+
+  // Auto-advance speaking lessons after a perfect pronunciation.
+  const speakingAdvanceRef = useRef<string | null>(null);
+  useEffect(() => {
+    const q = questions[currentQ];
+    if (!q || q.type !== "speaking" || feedback[q._id] !== "correct") return;
+    if (speakingAdvanceRef.current === q._id) return;
+    speakingAdvanceRef.current = q._id;
+    const timer = setTimeout(() => {
+      if (currentQ < questions.length - 1) {
+        handleManualNext();
+      }
+    }, 1600);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [feedback, currentQ, questions]);
 
   const handleWritingResult = (qId: string, passed: boolean, message: string) => {
       if (passed) {

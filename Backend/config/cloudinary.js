@@ -1,6 +1,6 @@
 import { v2 as cloudinary } from 'cloudinary';
-import { CloudinaryStorage } from 'multer-storage-cloudinary';
 import dotenv from 'dotenv';
+import { createCloudinaryStorage } from '../utils/cloudinaryMulterStorage.js';
 
 dotenv.config();
 
@@ -10,8 +10,8 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-const storage = new CloudinaryStorage({
-  cloudinary: cloudinary,
+const storage = createCloudinaryStorage({
+  cloudinary,
   params: {
     folder: 'mozhi-arivu/avatars',
     allowed_formats: ['jpg', 'png', 'jpeg', 'webp'],
