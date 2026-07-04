@@ -88,6 +88,18 @@ export function AudioRecorder({
     }
   }, [takeCredit, lessonId, questionId, onResult, toast]);
 
+  const stopRecording = useCallback(() => {
+    clearMaxTimer();
+    const recorder = mediaRecorderRef.current;
+    if (!recorder || recorder.state !== "recording") return;
+    setIsRecording(false);
+    const elapsed = Date.now() - recordStartRef.current;
+    const wait = Math.max(0, MIN_RECORD_MS - elapsed);
+    setTimeout(() => {
+      if (recorder.state === "recording") recorder.stop();
+    }, wait);
+  }, [clearMaxTimer]);
+
   const startRecording = useCallback(async () => {
     if (pointerActiveRef.current && mediaRecorderRef.current?.state === "recording") return;
     stopSpeaking();
@@ -121,18 +133,6 @@ export function AudioRecorder({
       toast("Microphone access is blocked. Please allow mic access in your browser.", "error");
     }
   }, [processAudio, stopRecording, clearMaxTimer, toast]);
-
-  const stopRecording = useCallback(() => {
-    clearMaxTimer();
-    const recorder = mediaRecorderRef.current;
-    if (!recorder || recorder.state !== "recording") return;
-    setIsRecording(false);
-    const elapsed = Date.now() - recordStartRef.current;
-    const wait = Math.max(0, MIN_RECORD_MS - elapsed);
-    setTimeout(() => {
-      if (recorder.state === "recording") recorder.stop();
-    }, wait);
-  }, [clearMaxTimer]);
 
   const handlePointerDown = useCallback(
     (e: React.PointerEvent<HTMLButtonElement>) => {
