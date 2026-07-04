@@ -160,7 +160,7 @@ export function LabAudioRecorder({ item, locked = false, onResult }: LabAudioRec
     if (isRecording) return "listening";
     if (isProcessing) return "processing";
     if (locked || lastResult?.status === "perfect") return "success";
-    if (lastResult && lastResult.status !== "perfect") return "mispronounced";
+    if (lastResult) return "mispronounced";
     return "idle";
   }, [isRecording, isProcessing, locked, lastResult]);
 
