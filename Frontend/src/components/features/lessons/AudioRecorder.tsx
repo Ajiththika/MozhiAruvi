@@ -162,7 +162,7 @@ export function AudioRecorder({
     if (isRecording) return "listening";
     if (isProcessingAudio) return "processing";
     if (isCorrect || lastResult?.status === "perfect") return "success";
-    if (lastResult && lastResult.status !== "perfect") return "mispronounced";
+    if (lastResult) return "mispronounced";
     return "idle";
   }, [isRecording, isProcessingAudio, isCorrect, lastResult]);
 
